@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Memo Board — Anonymous & Open</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --ink: #1a1209;
+    --ink-muted: #5a4f3e;
+    --accent: #c84b2f;
+    --card-bg: #fffdf7;
+    --card-border: #d4c9b0;
+    --tag-bg: #e8e0ce;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Playfair Display', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.12) 27px, rgba(180,160,120,0.12) 28px);
+  }
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; }
+  .masthead-title { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+  .masthead-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+  .header-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); text-align: right; line-height: 1.7; }
+  .banner {
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+  .banner-label { background: var(--accent); color: #fff; padding: 2px 8px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+  .banner-ticker { opacity: 0.75; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+  .grid { display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; align-items: start; }
+
+  /* COMPOSE */
+  .compose-box { background: var(--card-bg); border: 1.5px solid var(--ink); border-radius: 2px; overflow: hidden; margin-bottom: 2.5rem; box-shadow: 4px 4px 0 var(--ink); }
+  .compose-header { background: var(--ink); color: var(--bg); padding: 0.6rem 1rem; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+  .compose-header::before { content: '✎'; font-size: 0.9rem; }
+  .compose-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .compose-body input, .compose-body textarea, .compose-body select {
+    width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--card-border);
+    padding: 0.5rem 0; font-family: var(--sans); font-size: 0.95rem; color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  .compose-body input::placeholder, .compose-body textarea::placeholder { color: var(--ink-muted); font-style: italic; }
+  .compose-body input:focus, .compose-body textarea:focus { border-bottom-color: var(--ink); }
+  .compose-body textarea { resize: vertical; min-height: 120px; font-size: 0.92rem; line-height: 1.6; }
+  .compose-body select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%231a1209'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; padding-right: 20px; }
+  .compose-row { display: flex; gap: 0.8rem; }
+  .compose-row input, .compose-row select { flex: 1; }
+  .btn-post { align-self: flex-end; background: var(--accent); color: #fff; border: none; padding: 0.6rem 1.6rem; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.1s; border-radius: 1px; }
+  .btn-post:hover { background: #a83820; }
+  .btn-post:active { transform: scale(0.97); }
+  .btn-post:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* FEED */
+  .feed-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; }
+  .feed-title { font-family: var(--serif); font-size: 1.4rem; font-style: italic; }
+  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
+
+  /* CARDS */
+  .card { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 2px; padding: 1.2rem; margin-bottom: 1.2rem; position: relative; transition: box-shadow 0.2s, transform 0.2s; animation: fadeSlideIn 0.3s ease both; }
+  .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
+  .card-tag { display: inline-block; background: var(--tag-bg); border: 1px solid var(--card-border); font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; margin-bottom: 0.6rem; color: var(--ink-muted); }
+  .card-tag.tag-confession { background: #fde8e4; border-color: #e0b0a8; color: #8b3020; }
+  .card-tag.tag-story      { background: #e4edfb; border-color: #a8bcde; color: #1e3d72; }
+  .card-tag.tag-opinion    { background: #fef6e0; border-color: #dbc98a; color: #7a5c00; }
+  .card-tag.tag-news       { background: #e4f5e9; border-color: #9ecfaa; color: #1a5c2a; }
+  .card-tag.tag-question   { background: #f0e8fb; border-color: #c4a8de; color: #4a1d8a; }
+  .card-title { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.5rem; }
+  .card-body { font-size: 0.9rem; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .card-body.collapsed { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.9rem; padding-top: 0.7rem; border-top: 1px dashed var(--card-border); }
+  .card-meta { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); display: flex; gap: 0.8rem; }
+  .card-actions { display: flex; gap: 0.5rem; }
+  .btn-small { background: transparent; border: 1px solid var(--card-border); color: var(--ink-muted); font-family: var(--mono); font-size: 0.62rem; padding: 3px 8px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em; text-transform: uppercase; }
+  .btn-small:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-expand { color: var(--accent); border-color: transparent; font-style: italic; font-family: var(--sans); font-size: 0.78rem; text-transform: none; letter-spacing: 0; padding: 0; }
+  .btn-expand:hover { background: transparent; color: var(--accent); border-color: transparent; text-decoration: underline; }
+
+  /* SIDEBAR */
+  .sidebar > * + * { margin-top: 1.5rem; }
+  .sidebar-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 2px; }
+  .sidebar-box-header { background: var(--ink); color: var(--bg); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .sidebar-box-body { padding: 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--ink-muted); }
+  .sidebar-box-body p + p { margin-top: 0.6rem; }
+  .sidebar-box-body strong { color: var(--ink); }
+  .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .filter-btn { background: transparent; border: 1px solid var(--card-border); padding: 0.45rem 0.8rem; text-align: left; cursor: pointer; font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); transition: all 0.15s; letter-spacing: 0.05em; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+  .filter-btn:hover, .filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .filter-count { opacity: 0.6; font-size: 0.62rem; }
+
+  /* LOADING SKELETON */
+  .skeleton { background: linear-gradient(90deg, #ede8de 25%, #e4ddd0 50%, #ede8de 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 2px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .skel-card { height: 140px; margin-bottom: 1.2rem; }
+
+  /* STATUS DOT */
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #aaa; margin-right: 5px; vertical-align: middle; }
+  .status-dot.live { background: #3ecf5a; box-shadow: 0 0 0 3px rgba(62,207,90,0.25); }
+  .status-dot.error { background: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--ink-muted); }
+  .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.3; }
+  .empty-state p { font-family: var(--serif); font-style: italic; font-size: 1.1rem; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: var(--bg); padding: 0.7rem 1.4rem; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.05em; border-radius: 2px; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 999; pointer-events: none; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+    header { padding: 0 1rem; }
+    .container { padding: 1rem; }
+    .masthead-title { font-size: 1.6rem; }
+    .compose-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="masthead">
+    <div class="masthead-title">The Memo Board</div>
+    <div class="masthead-sub">Anonymous · Open · Live</div>
+  </div>
+  <div class="header-meta" id="headerDate"></div>
+</header>
+
+<div class="banner">
+  <span class="banner-label">LIVE</span>
+  <span class="banner-ticker">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Connecting to Firebase…</span>
+  </span>
+</div>
+
+<div class="container">
+  <div class="grid">
+
+    <!-- MAIN -->
+    <div class="main-col">
+      <div class="compose-box">
+        <div class="compose-header">Post a Memo</div>
+        <div class="compose-body">
+          <input type="text" id="postTitle" placeholder="Headline / Title (optional)" maxlength="120" />
+          <textarea id="postBody" placeholder="Write anything — a confession, a thought, a story, a question…" maxlength="5000"></textarea>
+          <div class="compose-row">
+            <select id="postTag">
+              <option value="other">📌 General</option>
+              <option value="confession">🔴 Confession</option>
+              <option value="story">🔵 Story</option>
+              <option value="opinion">🟡 Opinion</option>
+              <option value="news">🟢 News / Update</option>
+              <option value="question">🟣 Question</option>
+            </select>
+            <input type="text" id="postAlias" placeholder="Alias (blank = Anonymous)" maxlength="30" />
+          </div>
+          <button class="btn-post" id="submitBtn" onclick="submitPost()">Publish Memo →</button>
+        </div>
+      </div>
+
+      <div class="feed-header">
+        <div class="feed-title">The Board</div>
+        <div class="feed-count" id="feedCount">loading…</div>
+      </div>
+      <div id="feed">
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-box">
+        <div class="sidebar-box-header">About This Board</div>
+        <div class="sidebar-box-body">
+          <p><strong>100% Anonymous.</strong> No login. No tracking. No account needed.</p>
+          <p>Posts are stored in <strong>Firebase Firestore</strong> and visible to everyone in real-time, anywhere in the world.</p>
+          <p>Post what you want. Read what others share.</p>
+        </div>
+      </div>
+      <div class="sidebar-box">
+        <div class="sidebar-box-header">Filter by Category</div>
+        <div class="sidebar-box-body" style="padding: 0.6rem;">
+          <div class="filter-group" id="filterGroup"></div>
+        </div>
+      </div>
+      <div class="sidebar-box">
+        <div class="sidebar-box-header">Live Stats</div>
+        <div class="sidebar-box-body">
+          <div id="statsBox" style="font-family: var(--mono); font-size: 0.72rem; line-height: 2;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK (modular via CDN compat) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, onSnapshot,
+    query, orderBy, deleteDoc, doc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyCgbmVn3jqSpb4ccULRZVcxzcB9xtwJ9_E",
+    authDomain: "memo-board-4d45b.firebaseapp.com",
+    projectId: "memo-board-4d45b",
+    storageBucket: "memo-board-4d45b.firebasestorage.app",
+    messagingSenderId: "111595270485",
+    appId: "1:111595270485:web:223b841fdbe6fa53787fdc",
+    measurementId: "G-NPX6SM4FV7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const postsCol = collection(db, "posts");
+
+  // ── STATE ───────────────────────────────────────────────────────────────────
+  let allPosts = [];
+  let activeFilter = 'all';
+
+  const TAG_LABELS = {
+    all: 'All Memos', other: 'General', confession: 'Confession',
+    story: 'Story', opinion: 'Opinion', news: 'News', question: 'Question'
+  };
+
+  // ── HEADER DATE ─────────────────────────────────────────────────────────────
+  const d = new Date();
+  document.getElementById('headerDate').innerHTML = `${d.toDateString()}<br>Vol. 1 — Free Press`;
+
+  // ── REAL-TIME LISTENER ──────────────────────────────────────────────────────
+  const q = query(postsCol, orderBy("ts", "desc"));
+
+  onSnapshot(q,
+    (snapshot) => {
+      allPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setStatus('live', `Live — ${allPosts.length} memo${allPosts.length !== 1 ? 's' : ''} on the board`);
+      renderAll();
+    },
+    (err) => {
+      console.error(err);
+      setStatus('error', 'Connection error — check Firestore rules');
+      document.getElementById('feed').innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">⚠️</span>
+          <p>Could not load posts. Check browser console.</p>
+        </div>`;
+    }
+  );
+
+  // ── SUBMIT ──────────────────────────────────────────────────────────────────
+  window.submitPost = async function () {
+    const title = document.getElementById('postTitle').value.trim();
+    const body  = document.getElementById('postBody').value.trim();
+    const tag   = document.getElementById('postTag').value;
+    const alias = document.getElementById('postAlias').value.trim() || 'Anonymous';
+
+    if (!body) { showToast('Write something first!'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Publishing…';
+
+    try {
+      await addDoc(postsCol, {
+        title: title || null,
+        body,
+        tag,
+        alias,
+        ts: serverTimestamp()
+      });
+      document.getElementById('postTitle').value = '';
+      document.getElementById('postBody').value  = '';
+      document.getElementById('postAlias').value = '';
+      document.getElementById('postTag').value   = 'other';
+      showToast('Memo published to the world! 🌍');
+    } catch (e) {
+      console.error(e);
+      showToast('Error publishing — check Firestore rules.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Publish Memo →';
+    }
+  };
+
+  // ── DELETE ──────────────────────────────────────────────────────────────────
+  window.deletePost = async function (id) {
+    try {
+      await deleteDoc(doc(db, "posts", id));
+      showToast('Memo deleted.');
+    } catch (e) {
+      showToast('Could not delete — permission denied.');
+    }
+  };
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
+  function renderAll() {
+    renderFilters();
+    renderFeed();
+    renderStats();
+  }
+
+  function renderFilters() {
+    const tagCounts = {};
+    allPosts.forEach(p => { tagCounts[p.tag] = (tagCounts[p.tag] || 0) + 1; });
+    const categories = ['all','confession','story','opinion','news','question','other'];
+    const fg = document.getElementById('filterGroup');
+    fg.innerHTML = '';
+    categories.forEach(cat => {
+      const count = cat === 'all' ? allPosts.length : (tagCounts[cat] || 0);
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn' + (activeFilter === cat ? ' active' : '');
+      btn.innerHTML = `${TAG_LABELS[cat]} <span class="filter-count">${count}</span>`;
+      btn.onclick = () => { activeFilter = cat; renderAll(); };
+      fg.appendChild(btn);
+    });
+  }
+
+  function renderFeed() {
+    const feed = document.getElementById('feed');
+    const filtered = activeFilter === 'all' ? allPosts : allPosts.filter(p => p.tag === activeFilter);
+    document.getElementById('feedCount').textContent = `${filtered.length} memo${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><p>No memos here yet. Be the first to post!</p></div>`;
+      return;
+    }
+    feed.innerHTML = '';
+    filtered.forEach((post, i) => {
+      const card = makeCard(post, i);
+      feed.appendChild(card);
+    });
+  }
+
+  function makeCard(post, i) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
+    const isLong = post.body && post.body.length > 400;
+    const timeAgo = post.ts ? formatTime(post.ts.toDate ? post.ts.toDate() : new Date(post.ts)) : 'just now';
+    div.innerHTML = `
+      <span class="card-tag tag-${esc(post.tag)}">${TAG_LABELS[post.tag] || 'General'}</span>
+      ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}
+      <div class="card-body ${isLong ? 'collapsed' : ''}" id="body-${post.id}">${esc(post.body)}</div>
+      <div class="card-footer">
+        <div class="card-meta">
+          <span>✍ ${esc(post.alias || 'Anonymous')}</span>
+          <span>🕐 ${timeAgo}</span>
+        </div>
+        <div class="card-actions">
+          ${isLong ? `<button class="btn-small btn-expand" onclick="toggleExpand('${post.id}', this)">Read more</button>` : ''}
+          <button class="btn-small" onclick="deletePost('${post.id}')">Delete</button>
+        </div>
+      </div>`;
+    return div;
+  }
+
+  window.toggleExpand = function(id, btn) {
+    const el = document.getElementById('body-' + id);
+    if (el.classList.contains('collapsed')) {
+      el.classList.remove('collapsed');
+      btn.textContent = 'Read less';
+    } else {
+      el.classList.add('collapsed');
+      btn.textContent = 'Read more';
+    }
+  };
+
+  function renderStats() {
+    const total = allPosts.length;
+    const tags = {};
+    allPosts.forEach(p => tags[p.tag] = (tags[p.tag] || 0) + 1);
+    const topTag = Object.entries(tags).sort((a,b) => b[1]-a[1])[0];
+    document.getElementById('statsBox').innerHTML = `
+      <div>📌 Total Memos: <strong>${total}</strong></div>
+      <div>🌍 Stored In: <strong>Firebase</strong></div>
+      <div>🔄 Updates: <strong>Real-time</strong></div>
+      ${topTag ? `<div>🔥 Top Category: <strong>${TAG_LABELS[topTag[0]]}</strong></div>` : ''}
+    `;
+  }
+
+  // ── HELPERS ─────────────────────────────────────────────────────────────────
+  function setStatus(type, text) {
+    const dot  = document.getElementById('statusDot');
+    const span = document.getElementById('statusText');
+    dot.className  = 'status-dot ' + type;
+    span.textContent = text;
+  }
+
+  function formatTime(date) {
+    if (!date) return 'just now';
+    const diff = Date.now() - date.getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    const day = Math.floor(diff / 86400000);
+    if (m < 1)   return 'just now';
+    if (m < 60)  return `${m}m ago`;
+    if (h < 24)  return `${h}h ago`;
+    if (day < 7) return `${day}d ago`;
+    return date.toLocaleDateString();
+  }
+
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  };
+</script>
+</body>
+</html>

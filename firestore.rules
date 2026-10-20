@@ -19,7 +19,9 @@ service cloud.firestore {
         (!('linkUrl' in data) || data.linkUrl == null || (data.linkUrl is string && data.linkUrl.size() <= 500)) &&
         (!('linkTitle' in data) || data.linkTitle == null || (data.linkTitle is string && data.linkTitle.size() <= 100)) &&
         (!('avatar' in data) || data.avatar == null || (data.avatar is string && data.avatar.size() <= 600000)) &&
-        (!('authorAvatar' in data) || data.authorAvatar == null || (data.authorAvatar is string && data.authorAvatar.size() <= 600000));
+        (!('authorAvatar' in data) || data.authorAvatar == null || (data.authorAvatar is string && data.authorAvatar.size() <= 600000)) &&
+        (!('bio' in data) || data.bio == null || (data.bio is string && data.bio.size() <= 400)) &&
+        (!('authorBio' in data) || data.authorBio == null || (data.authorBio is string && data.authorBio.size() <= 400));
     }
 
     match /posts/{postId} {

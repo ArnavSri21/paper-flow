@@ -135,6 +135,18 @@
     100% { transform: scale(1); }
   }
 
+  /* TOP CHROME (HEADER + BANNER) WITH SCROLL-DOWN AUTO-HIDE */
+  .top-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  body.top-banner-hidden .top-chrome {
+    transform: translateY(-100%);
+  }
+
   /* HEADER */
   header {
     border-bottom: 2px solid var(--ink);
@@ -144,9 +156,6 @@
     justify-content: space-between;
     gap: 1rem;
     background: var(--bg);
-    position: sticky;
-    top: 0;
-    z-index: 100;
   }
   .header-left {
     display: flex;
@@ -287,6 +296,20 @@
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.05em;
+    max-height: 44px;
+    overflow: hidden;
+    transition:
+      max-height 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+      padding 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.26s ease,
+      border-width 0.26s ease;
+  }
+  body.top-banner-hidden .banner {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    border-bottom-width: 0;
   }
   body.dark-mode .banner {
     background: #16130f;
@@ -608,65 +631,80 @@
     text-decoration: underline;
   }
 
-  /* FLOATING SEARCH ICON AT TOP WITH FLUID BUBBLE ANIMATION */
-  .floating-search-row {
+  /* TOP VIEW CONTROLS: SEARCH ICON BESIDE COMPACT FILTER BUTTON */
+  .feed-header {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    margin-bottom: 1rem;
-    position: sticky;
-    top: 4.5rem;
-    z-index: 90;
-    pointer-events: none;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.3rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.55rem;
+    flex-wrap: wrap;
   }
-  .floating-search-bubble {
-    pointer-events: auto;
+  .feed-header-left {
     display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .feed-title { font-family: var(--serif); font-size: 1.5rem; font-style: italic; }
+  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
+
+  .feed-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-left: auto;
+  }
+
+  .floating-search-bubble {
+    display: inline-flex;
     align-items: center;
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
     border-radius: 999px;
-    width: 44px;
-    height: 44px;
+    width: 31px;
+    height: 31px;
     padding: 0;
     overflow: hidden;
     transition:
-      width 0.48s var(--bubble-spring),
-      height 0.38s var(--bubble-spring),
-      border-radius 0.48s var(--bubble-spring),
-      box-shadow 0.3s var(--bubble-smooth),
+      width 0.46s var(--bubble-spring),
+      height 0.36s var(--bubble-spring),
+      border-radius 0.46s var(--bubble-spring),
+      box-shadow 0.28s var(--bubble-smooth),
       transform 0.36s var(--bubble-spring),
-      background-color 0.25s ease;
+      background-color 0.22s ease;
   }
   .floating-search-bubble:hover:not(.expanded) {
-    transform: translateY(-2px) scale(1.08);
-    box-shadow: 4px 4px 0 var(--accent);
+    transform: translateY(-2px) scale(1.09);
+    box-shadow: 3px 3px 0 var(--accent);
   }
   .floating-search-bubble.expanded {
-    width: 100%;
-    height: 48px;
+    width: min(260px, 56vw);
+    height: 32px;
     border-radius: 999px;
-    padding: 0 0.55rem 0 0.25rem;
-    box-shadow: 4px 4px 0 var(--ink);
+    padding: 0 0.4rem 0 0.1rem;
+    box-shadow: 3px 3px 0 var(--ink);
   }
   .floating-search-trigger {
-    width: 42px;
-    height: 42px;
+    width: 29px;
+    height: 29px;
     border: none;
     background: transparent;
     color: var(--ink);
-    font-size: 1rem;
+    font-size: 0.82rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
     border-radius: 50%;
+    padding: 0;
   }
   .floating-search-trigger:hover {
     background: var(--tag-bg);
-    transform: scale(1.1) rotate(-6deg);
+    transform: scale(1.12) rotate(-8deg);
   }
   .search-input {
     flex: 1;
@@ -677,18 +715,18 @@
     border: none;
     color: var(--ink);
     font-family: var(--sans);
-    font-size: 0.92rem;
+    font-size: 0.8rem;
     outline: none;
     padding: 0;
     transition:
-      opacity 0.26s ease,
-      padding 0.32s var(--bubble-spring);
+      opacity 0.24s ease,
+      padding 0.3s var(--bubble-spring);
   }
   .floating-search-bubble.expanded .search-input {
     width: 100%;
     opacity: 1;
     pointer-events: auto;
-    padding: 0 0.5rem;
+    padding: 0 0.35rem;
   }
   .search-input::placeholder {
     color: var(--ink-muted);
@@ -700,8 +738,8 @@
     border-radius: 999px;
     color: var(--ink-muted);
     font-family: var(--mono);
-    font-size: 0.65rem;
-    padding: 4px 10px;
+    font-size: 0.58rem;
+    padding: 2px 7px;
     cursor: pointer;
     display: none;
     flex-shrink: 0;
@@ -710,7 +748,7 @@
   .floating-search-bubble.expanded .btn-search-clear {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
   }
   .btn-search-clear:hover { background: var(--ink); color: var(--bg); }
 
@@ -734,7 +772,8 @@
     background: var(--ink);
     color: var(--bg);
     border: 1px solid var(--ink);
-    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
     font-family: var(--mono);
     font-size: 0.66rem;
     text-transform: uppercase;
@@ -748,60 +787,47 @@
     color: #fff;
   }
 
-  /* FEED HEADER & SMALL FILTER DROPDOWN BUTTON */
-  .feed-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.3rem;
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 0.6rem;
-  }
-  .feed-header-left {
-    display: flex;
-    align-items: baseline;
-    gap: 0.85rem;
-  }
-  .feed-title { font-family: var(--serif); font-size: 1.5rem; font-style: italic; }
-  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
-
+  /* COMPACT FILTER DROPDOWN BUTTON WITH COLOURED DOTS */
   .filter-dropdown-wrap {
     position: relative;
   }
   .btn-filter-dropdown {
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
+    border-radius: 999px;
     color: var(--ink);
     font-family: var(--mono);
-    font-size: 0.68rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.4rem 0.75rem;
+    letter-spacing: 0.05em;
+    height: 31px;
+    padding: 0 0.65rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.36rem;
     box-shadow: 2px 2px 0 var(--ink);
-    transition: transform 0.12s, box-shadow 0.12s;
+    white-space: nowrap;
   }
   .btn-filter-dropdown:hover {
-    transform: translate(-1px, -1px);
+    transform: translate(-1px, -2px) scale(1.04);
     box-shadow: 3px 3px 0 var(--ink);
   }
   .filter-dropdown-menu {
     position: absolute;
     right: 0;
-    top: calc(100% + 6px);
-    width: 210px;
+    top: calc(100% + 8px);
+    width: 215px;
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
+    border-radius: 12px;
     box-shadow: 4px 4px 0 var(--ink);
     z-index: 150;
     display: none;
     flex-direction: column;
-    padding: 0.3rem;
-    gap: 0.2rem;
+    padding: 0.35rem;
+    gap: 0.22rem;
+    animation: fadeSlideIn 0.22s var(--bubble-spring) both;
   }
   .filter-dropdown-menu.open {
     display: flex;
@@ -809,19 +835,49 @@
   .filter-btn {
     background: transparent;
     border: 1px solid transparent;
-    padding: 0.42rem 0.65rem;
+    border-radius: 999px;
+    padding: 0.42rem 0.7rem;
     text-align: left;
     cursor: pointer;
     font-family: var(--mono);
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     color: var(--ink-muted);
-    transition: all 0.12s;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+  .filter-btn-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .filter-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(26, 18, 9, 0.35);
+    transition: transform 0.28s var(--bubble-spring);
+  }
+  body.dark-mode .filter-color-dot {
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+  .filter-btn:hover .filter-color-dot {
+    transform: scale(1.28);
+  }
+  /* Filter category dot colours matching the board tags */
+  .filter-color-dot.dot-all        { background: var(--ink); border-color: var(--card-border); }
+  .filter-color-dot.dot-confession { background: #fde8e4; border-color: #8b3020; box-shadow: inset 0 0 0 2px #d94832; }
+  .filter-color-dot.dot-story      { background: #e4edfb; border-color: #1e3d72; box-shadow: inset 0 0 0 2px #2b5cb8; }
+  .filter-color-dot.dot-opinion    { background: #fef6e0; border-color: #7a5c00; box-shadow: inset 0 0 0 2px #d49b00; }
+  .filter-color-dot.dot-news       { background: #e4f5e9; border-color: #1a5c2a; box-shadow: inset 0 0 0 2px #25853e; }
+  .filter-color-dot.dot-question   { background: #f0e8fb; border-color: #4a1d8a; box-shadow: inset 0 0 0 2px #7c3aed; }
+  .filter-color-dot.dot-other      { background: #e8e0ce; border-color: #5a4f3e; box-shadow: inset 0 0 0 2px #8c7d65; }
+  .filter-color-dot.dot-updates    { background: #a855f7; border-color: #f5d0fe; }
+
   .filter-btn:hover, .filter-btn.active {
     background: var(--ink);
     color: var(--bg);
@@ -829,35 +885,52 @@
   }
   .filter-count { opacity: 0.65; font-size: 0.6rem; }
 
-  /* FLOATING PLUS (+) BUTTON */
+  /* FLUID FLOATING PLUS (+) BUTTON */
   .fab-post-btn {
     position: fixed;
     right: 2rem;
     bottom: 2rem;
-    width: 58px;
-    height: 58px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--accent);
     color: #fff;
     border: 2px solid var(--ink);
     box-shadow: 4px 4px 0 var(--ink);
     font-family: var(--mono);
-    font-size: 2rem;
+    font-size: 2.1rem;
     line-height: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 250;
-    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    transition:
+      transform 0.44s var(--bubble-spring),
+      border-radius 0.44s var(--bubble-spring),
+      box-shadow 0.3s var(--bubble-smooth),
+      background-color 0.22s ease !important;
+  }
+  .fab-post-btn .fab-plus-icon {
+    display: inline-block;
+    line-height: 1;
+    transition: transform 0.44s var(--bubble-spring);
   }
   .fab-post-btn:hover {
     background: var(--accent-hover);
-    transform: translate(-2px, -2px);
+    border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%;
+    transform: translate(-2px, -4px) scale(1.11) !important;
     box-shadow: 6px 6px 0 var(--ink);
   }
+  .fab-post-btn:hover .fab-plus-icon {
+    transform: rotate(90deg) scale(1.12);
+  }
   .fab-post-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.88) !important;
+    border-radius: 50%;
+  }
+  .fab-post-btn.modal-open .fab-plus-icon {
+    transform: rotate(135deg) scale(1.08);
   }
 
   /* COMPOSE POPUP MODAL */
@@ -1115,6 +1188,23 @@
     align-items: center;
     gap: 0.55rem;
   }
+  /* CLICKABLE PROFILE TRIGGER ON FLOWS AND REPLIES */
+  .clickable-profile {
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 2px 6px 2px 2px;
+    margin: -2px -6px -2px -2px;
+    transition:
+      transform 0.32s var(--bubble-spring),
+      background-color 0.2s ease;
+  }
+  .clickable-profile:hover {
+    background: var(--surface-hover);
+    transform: translateY(-1px) scale(1.03);
+  }
+  .clickable-profile:active {
+    transform: scale(0.95);
+  }
   .card-author-info {
     display: flex;
     flex-direction: column;
@@ -1302,23 +1392,47 @@
   .btn-small {
     background: transparent;
     border: 1px solid var(--card-border);
+    border-radius: 999px;
     color: var(--ink-muted);
     font-family: var(--mono);
     font-size: 0.66rem;
-    padding: 4px 10px;
+    padding: 5px 12px;
     cursor: pointer;
-    transition: all 0.15s;
     letter-spacing: 0.04em;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.38rem;
+    transition:
+      transform 0.38s var(--bubble-spring),
+      box-shadow 0.28s var(--bubble-smooth),
+      background-color 0.22s ease,
+      border-color 0.22s ease,
+      color 0.22s ease;
   }
-  .btn-small:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-small:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .btn-like {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-like .like-heart-icon {
+    display: inline-block;
+    transition: transform 0.42s var(--bubble-spring);
+  }
+  .btn-like:hover .like-heart-icon {
+    transform: scale(1.3) rotate(-8deg);
+  }
   .btn-like.liked {
     background: #fde8e4;
     border-color: var(--accent);
     color: var(--accent);
     font-weight: 500;
+    box-shadow: 0 2px 10px rgba(200, 75, 47, 0.22);
   }
   body.dark-mode .btn-like.liked {
     background: #3a1812;
@@ -1327,6 +1441,16 @@
   .btn-like.liked:hover {
     background: var(--accent);
     color: #fff;
+    box-shadow: 2px 3px 0 var(--ink);
+  }
+  .btn-like.like-burst-anim .like-heart-icon {
+    animation: likeHeartBurst 0.55s var(--bubble-spring);
+  }
+  @keyframes likeHeartBurst {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.55) rotate(-12deg); }
+    65%  { transform: scale(0.88) rotate(6deg); }
+    100% { transform: scale(1) rotate(0deg); }
   }
   .btn-pin-dev {
     border-color: #8b5cf6;
@@ -1623,7 +1747,8 @@
   }
   .form-field input[type="text"],
   .form-field input[type="password"],
-  .form-field input[type="url"] {
+  .form-field input[type="url"],
+  .form-field textarea {
     width: 100%;
     background: var(--input-bg);
     border: 1.5px solid var(--card-border);
@@ -1633,7 +1758,92 @@
     color: var(--ink);
     outline: none;
   }
-  .form-field input:focus { border-color: var(--ink); }
+  .form-field textarea {
+    resize: vertical;
+    min-height: 74px;
+    line-height: 1.5;
+  }
+  .form-field input:focus,
+  .form-field textarea:focus { border-color: var(--ink); }
+
+  /* USER PROFILE VIEW MODAL */
+  .profile-view-header-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1.5px dashed var(--card-border);
+  }
+  .profile-view-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .profile-view-username {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+  .profile-view-handle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+  }
+  .profile-about-box {
+    background: var(--surface-subtle);
+    border: 1.5px solid var(--card-border);
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .profile-about-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+  }
+  .profile-about-text {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .profile-about-empty {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+  }
+  .profile-stats-strip {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .profile-stat-pill {
+    flex: 1;
+    background: var(--surface-subtle);
+    border: 1px solid var(--card-border);
+    padding: 0.5rem 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .profile-stat-pill strong {
+    color: var(--ink);
+    font-size: 0.78rem;
+  }
   .avatar-picker-box {
     display: flex;
     align-items: center;
@@ -1740,35 +1950,37 @@
   } catch (e) {}
 </script>
 
-<header>
-  <div class="header-left">
-    <button class="btn-hamburger" onclick="toggleSidePanel(true)" aria-label="Open menu" title="Menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <div class="masthead" onclick="switchViewMode('board')" title="Back to All Flows">
-      <div class="masthead-title">Paper Flow By Arnav Srivastava</div>
-      <div class="masthead-sub">Anonymous · Open · Live</div>
+<div class="top-chrome" id="topChrome">
+  <header>
+    <div class="header-left">
+      <button class="btn-hamburger" onclick="toggleSidePanel(true)" aria-label="Open menu" title="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="masthead" onclick="switchViewMode('board')" title="Back to All Flows">
+        <div class="masthead-title">Paper Flow By Arnav Srivastava</div>
+        <div class="masthead-sub">Anonymous · Open · Live</div>
+      </div>
     </div>
-  </div>
-  <div class="header-right">
-    <div class="header-meta" id="headerDate"></div>
-    <div class="header-user-bar" id="headerUserBar">
-      <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
+    <div class="header-right">
+      <div class="header-meta" id="headerDate"></div>
+      <div class="header-user-bar" id="headerUserBar">
+        <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<div class="banner">
-  <div class="banner-left">
-    <span class="banner-label">LIVE</span>
-    <span class="banner-ticker">
-      <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">Connecting to Firebase…</span>
-    </span>
+  <div class="banner" id="topBanner">
+    <div class="banner-left">
+      <span class="banner-label">LIVE</span>
+      <span class="banner-ticker">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connecting to Firebase…</span>
+      </span>
+    </div>
+    <div id="bannerUserStatus" style="opacity: 0.85;"></div>
   </div>
-  <div id="bannerUserStatus" style="opacity: 0.85;"></div>
 </div>
 
 <!-- HIDDEN SIDE PANEL DRAWER (OPENED VIA THREE DASHES) -->
@@ -1893,28 +2105,6 @@
 
 <!-- MAIN FEED CONTAINER -->
 <div class="container">
-  <!-- FLOATING SEARCH ICON AT THE TOP (OPENS WITH FLUID BUBBLE ANIMATION) -->
-  <div class="floating-search-row">
-    <div class="floating-search-bubble" id="floatingSearchBubble">
-      <button
-        type="button"
-        class="floating-search-trigger"
-        id="floatingSearchTrigger"
-        onclick="toggleFloatingSearch(event)"
-        title="Search flows"
-        aria-label="Search flows"
-      >🔍</button>
-      <input
-        type="text"
-        class="search-input"
-        id="searchInput"
-        placeholder="Search flows by title, body, or @username…"
-        oninput="handleSearchInput()"
-      />
-      <button type="button" class="btn-search-clear" id="btnSearchClear" onclick="closeOrClearFloatingSearch(event)">✕</button>
-    </div>
-  </div>
-
   <!-- ACTIVE VIEW BANNER FOR MY FLOWS / REPLIES PAGE -->
   <div class="view-mode-banner" id="viewModeBanner">
     <span id="viewModeBannerText">Viewing My Flows</span>
@@ -1927,13 +2117,37 @@
       <div class="feed-count" id="feedCount">loading…</div>
     </div>
 
-    <!-- SMALL FILTER DROPDOWN BUTTON -->
-    <div class="filter-dropdown-wrap" id="filterDropdownWrap">
-      <button type="button" class="btn-filter-dropdown" id="filterDropdownBtn" onclick="toggleFilterDropdown(event)">
-        <span id="filterDropdownLabel">Filter: All Flows</span>
-        <span>▾</span>
-      </button>
-      <div class="filter-dropdown-menu" id="filterGroup"></div>
+    <!-- TOP VIEW CONTROLS: SEARCH ICON BESIDE REDUCED-SIZE FILTER BUTTON -->
+    <div class="feed-header-controls">
+      <div class="floating-search-bubble" id="floatingSearchBubble">
+        <button
+          type="button"
+          class="floating-search-trigger"
+          id="floatingSearchTrigger"
+          onclick="toggleFloatingSearch(event)"
+          title="Search flows"
+          aria-label="Search flows"
+        >🔍</button>
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search title, body, @user…"
+          oninput="handleSearchInput()"
+        />
+        <button type="button" class="btn-search-clear" id="btnSearchClear" onclick="closeOrClearFloatingSearch(event)">✕</button>
+      </div>
+
+      <div class="filter-dropdown-wrap" id="filterDropdownWrap">
+        <button type="button" class="btn-filter-dropdown" id="filterDropdownBtn" onclick="toggleFilterDropdown(event)">
+          <span id="filterDropdownLabel" style="display:inline-flex;align-items:center;gap:0.35rem;">
+            <span class="filter-color-dot dot-all"></span>
+            <span>All Flows</span>
+          </span>
+          <span>▾</span>
+        </button>
+        <div class="filter-dropdown-menu" id="filterGroup"></div>
+      </div>
     </div>
   </div>
 
@@ -1945,7 +2159,9 @@
 </div>
 
 <!-- FLOATING PLUS (+) BUTTON TO OPEN POST POPUP -->
-<button type="button" class="fab-post-btn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">+</button>
+<button type="button" class="fab-post-btn" id="fabPostBtn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">
+  <span class="fab-plus-icon">+</span>
+</button>
 
 <!-- POST A FLOW POPUP MODAL -->
 <div class="modal-backdrop" id="composeModalBackdrop" onclick="handleComposeBackdropClick(event)">
@@ -2066,7 +2282,26 @@
         </div>
       </div>
 
+      <!-- OPTIONAL ABOUT / BIO SECTION (FOR REGISTER & EDIT PROFILE) -->
+      <div class="form-field" id="fieldBioWrap" style="display: none;">
+        <label for="authUserBio">About / Bio (Optional)</label>
+        <textarea id="authUserBio" placeholder="Tell people a bit about yourself (optional — you can edit this anytime)…" maxlength="300"></textarea>
+      </div>
+
       <button class="btn-modal-submit" id="authSubmitBtn" onclick="handleAuthSubmit()">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER PROFILE VIEW MODAL (OPENED BY CLICKING PROFILE IN FLOW OR REPLY) -->
+<div class="modal-backdrop" id="userProfileModalBackdrop" onclick="handleUserProfileBackdropClick(event)">
+  <div class="modal-window" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span id="userProfileModalHeader">User Profile</span>
+      <button class="modal-close" onclick="closeUserProfileModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="userProfileModalBody">
+      <!-- Populated dynamically when a profile is clicked -->
     </div>
   </div>
 </div>
@@ -2361,12 +2596,27 @@
     }
   };
 
+  // ── HIDE TOP BANNER ON SCROLL DOWN ──────────────────────────────────────────
+  let lastScrollY = window.scrollY || 0;
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY || 0;
+    const delta = currentY - lastScrollY;
+    if (currentY > 48 && delta > 4) {
+      document.body.classList.add('top-banner-hidden');
+    } else if (delta < -5 || currentY <= 24) {
+      document.body.classList.remove('top-banner-hidden');
+    }
+    lastScrollY = currentY;
+  }, { passive: true });
+
   window.openComposeModal = function () {
     document.getElementById('composeModalBackdrop').classList.add('open');
+    document.getElementById('fabPostBtn')?.classList.add('modal-open');
   };
 
   window.closeComposeModal = function () {
     document.getElementById('composeModalBackdrop').classList.remove('open');
+    document.getElementById('fabPostBtn')?.classList.remove('modal-open');
   };
 
   window.handleComposeBackdropClick = function (e) {
@@ -2445,7 +2695,8 @@
       usersDirectory[usernameLower] = {
         username: data.username,
         usernameLower: data.usernameLower,
-        avatar: data.avatar || ''
+        avatar: data.avatar || '',
+        bio: data.bio || ''
       };
       return data;
     }
@@ -2456,6 +2707,7 @@
     fetchUserRecord(currentUser.usernameLower).then(rec => {
       if (rec) {
         currentUser.avatar = rec.avatar || currentUser.avatar || '';
+        currentUser.bio = typeof rec.bio === 'string' ? rec.bio : (currentUser.bio || '');
         currentUser.username = rec.username || currentUser.username;
         saveSessionUser(currentUser);
       }
@@ -2483,7 +2735,8 @@
             usersDirectory[data.usernameLower] = {
               username: data.username || data.alias,
               usernameLower: data.usernameLower,
-              avatar: data.avatar || ''
+              avatar: data.avatar || '',
+              bio: data.bio || ''
             };
           }
           return;
@@ -2541,6 +2794,7 @@
               author: data.author || data.alias || 'Anonymous',
               authorUsername: data.authorUsername || null,
               authorAvatar: data.authorAvatar || '',
+              authorBio: data.authorBio || '',
               ownerToken: data.ownerToken || '',
               text: data.body || '',
               createdAt: data.createdAt || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now())
@@ -2551,11 +2805,12 @@
 
         // 6. Standard Flow Post
         nextPosts.push({ id, ...data });
-        if (data.authorUsername && data.authorAvatar && !usersDirectory[data.authorUsername]) {
+        if (data.authorUsername && !usersDirectory[data.authorUsername]) {
           usersDirectory[data.authorUsername] = {
             username: data.alias || data.authorUsername,
             usernameLower: data.authorUsername,
-            avatar: data.authorAvatar
+            avatar: data.authorAvatar || '',
+            bio: data.authorBio || ''
           };
         }
       });
@@ -2622,7 +2877,7 @@
     }
   };
 
-  // ── AUTHENTICATION MODAL & LOGIC ────────────────────────────────────────────
+  // ── AUTHENTICATION & EDIT PROFILE MODAL LOGIC ───────────────────────────────
   window.openAuthModal = function (mode = 'login') {
     authMode = mode;
     const backdrop = document.getElementById('authModalBackdrop');
@@ -2632,6 +2887,8 @@
     const userWrap = document.getElementById('fieldUsernameWrap');
     const passWrap = document.getElementById('fieldPasswordWrap');
     const avatarWrap = document.getElementById('fieldAvatarWrap');
+    const bioWrap = document.getElementById('fieldBioWrap');
+    const bioInput = document.getElementById('authUserBio');
     const submitBtn = document.getElementById('authSubmitBtn');
     const errEl = document.getElementById('authModalError');
 
@@ -2641,14 +2898,17 @@
     if (mode === 'profile' && currentUser) {
       tabs.style.display = 'none';
       title.textContent = `Edit Profile — @${currentUser.username}`;
-      note.textContent = 'Update your profile picture below. Your unique username is permanent.';
+      note.textContent = 'Update your profile picture or About section below. Your unique username is permanent.';
       userWrap.style.display = 'none';
       passWrap.style.display = 'none';
       avatarWrap.style.display = 'flex';
+      bioWrap.style.display = 'flex';
       draftAvatarData = currentUser.avatar || '';
+      const liveBio = usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '';
+      if (bioInput) bioInput.value = liveBio;
       document.getElementById('authAvatarUrl').value = draftAvatarData.startsWith('http') ? draftAvatarData : '';
       updateAuthAvatarPreview(currentUser.username, draftAvatarData);
-      submitBtn.textContent = 'Save Profile Picture →';
+      submitBtn.textContent = 'Save Profile →';
     } else {
       tabs.style.display = 'flex';
       userWrap.style.display = 'flex';
@@ -2674,6 +2934,8 @@
     const regBtn = document.getElementById('tabRegisterBtn');
     const title = document.getElementById('authModalTitle');
     const avatarWrap = document.getElementById('fieldAvatarWrap');
+    const bioWrap = document.getElementById('fieldBioWrap');
+    const bioInput = document.getElementById('authUserBio');
     const submitBtn = document.getElementById('authSubmitBtn');
     const errEl = document.getElementById('authModalError');
 
@@ -2684,11 +2946,14 @@
     if (tab === 'login') {
       title.textContent = 'Sign In to Paper Flow';
       avatarWrap.style.display = 'none';
+      bioWrap.style.display = 'none';
       submitBtn.textContent = 'Sign In →';
     } else {
       title.textContent = 'Create Unique Account';
       avatarWrap.style.display = 'flex';
+      bioWrap.style.display = 'flex';
       draftAvatarData = '';
+      if (bioInput) bioInput.value = '';
       document.getElementById('authAvatarUrl').value = '';
       updateAuthAvatarPreview(document.getElementById('authUsername').value || 'U', '');
       submitBtn.textContent = 'Create Account →';
@@ -2748,9 +3013,10 @@
   window.handleAuthSubmit = async function () {
     const submitBtn = document.getElementById('authSubmitBtn');
     const errEl = document.getElementById('authModalError');
+    const bioVal = (document.getElementById('authUserBio')?.value || '').trim().slice(0, 300);
     errEl.classList.remove('show');
 
-    // Profile Update Mode
+    // Profile Update Mode (Profile Pic + About/Bio)
     if (authMode === 'profile' && currentUser) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Saving…';
@@ -2771,26 +3037,29 @@
           usernameLower: currentUser.usernameLower,
           passwordHash: existing?.passwordHash || currentUser.passwordHash || '',
           avatar: draftAvatarData || '',
+          bio: bioVal,
           createdAt: existing?.createdAt || Date.now()
         };
         await setDoc(userRef, updatedRecord);
         usersDirectory[currentUser.usernameLower] = {
           username: currentUser.username,
           usernameLower: currentUser.usernameLower,
-          avatar: draftAvatarData || ''
+          avatar: draftAvatarData || '',
+          bio: bioVal
         };
         saveSessionUser({
           ...currentUser,
-          avatar: draftAvatarData || ''
+          avatar: draftAvatarData || '',
+          bio: bioVal
         });
         closeAuthModal();
-        showToast('Profile picture updated!');
+        showToast('Profile & About updated!');
       } catch (e) {
         console.error(e);
-        showAuthError('Failed to save profile picture. Please try again.');
+        showAuthError('Failed to save profile changes. Please try again.');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Save Profile Picture →';
+        submitBtn.textContent = 'Save Profile →';
       }
       return;
     }
@@ -2837,19 +3106,22 @@
           usernameLower,
           passwordHash: passHash,
           avatar: draftAvatarData || '',
+          bio: bioVal,
           createdAt: Date.now()
         };
         await setDoc(getUserDocRef(usernameLower), newUserDoc);
         usersDirectory[usernameLower] = {
           username: canonicalDisplay,
           usernameLower,
-          avatar: draftAvatarData || ''
+          avatar: draftAvatarData || '',
+          bio: bioVal
         };
         saveSessionUser({
           username: canonicalDisplay,
           usernameLower,
           passwordHash: passHash,
-          avatar: draftAvatarData || ''
+          avatar: draftAvatarData || '',
+          bio: bioVal
         });
         document.getElementById('authPassword').value = '';
         closeAuthModal();
@@ -2866,13 +3138,15 @@
         usersDirectory[usernameLower] = {
           username: existingUser.username,
           usernameLower,
-          avatar: existingUser.avatar || ''
+          avatar: existingUser.avatar || '',
+          bio: existingUser.bio || ''
         };
         saveSessionUser({
           username: existingUser.username,
           usernameLower,
           passwordHash: passHash,
-          avatar: existingUser.avatar || ''
+          avatar: existingUser.avatar || '',
+          bio: existingUser.bio || ''
         });
         document.getElementById('authPassword').value = '';
         closeAuthModal();
@@ -2884,6 +3158,114 @@
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = origText;
+    }
+  };
+
+  // ── VIEW USER PROFILE MODAL (ON CLICKING PROFILE IN FLOW OR REPLY) ──────────
+  window.openUserProfileModal = async function (displayName, usernameLowerRaw, e) {
+    if (e) e.stopPropagation();
+    const cleanLower = String(usernameLowerRaw || displayName || '').trim().toLowerCase().replace(/^@/, '');
+    if (!cleanLower) return;
+
+    const backdrop = document.getElementById('userProfileModalBackdrop');
+    const headerEl = document.getElementById('userProfileModalHeader');
+    const bodyEl = document.getElementById('userProfileModalBody');
+
+    // Fetch fresh user record if not yet in directory
+    if (!usersDirectory[cleanLower]) {
+      try {
+        await fetchUserRecord(cleanLower);
+      } catch (err) {}
+    }
+
+    const dirEntry = usersDirectory[cleanLower];
+    const resolvedName = dirEntry?.username || displayName || cleanLower;
+    const isDev = isDeveloperUser(cleanLower);
+    const isOwnProfile = Boolean(currentUser && currentUser.usernameLower === cleanLower);
+
+    // Fallback bio from posts/comments if user doc wasn't loaded
+    let resolvedBio = dirEntry?.bio || (isOwnProfile ? (currentUser.bio || '') : '');
+    let resolvedAvatar = dirEntry?.avatar || (isOwnProfile ? (currentUser.avatar || '') : '');
+    if (!resolvedBio || !resolvedAvatar) {
+      const samplePost = allPosts.find(p => (p.authorUsername || '').toLowerCase() === cleanLower);
+      if (samplePost) {
+        if (!resolvedAvatar && samplePost.authorAvatar) resolvedAvatar = samplePost.authorAvatar;
+        if (!resolvedBio && samplePost.authorBio) resolvedBio = samplePost.authorBio;
+      }
+    }
+
+    // Count flows and replies by this user
+    const userFlowsCount = allPosts.filter(p =>
+      (p.authorUsername && p.authorUsername.toLowerCase() === cleanLower) ||
+      (p.alias && p.alias.trim().toLowerCase() === cleanLower)
+    ).length;
+
+    let userRepliesCount = 0;
+    Object.values(commentsByPost).forEach(list => {
+      list.forEach(c => {
+        if ((c.authorUsername && c.authorUsername.toLowerCase() === cleanLower) ||
+            (c.author && c.author.trim().toLowerCase() === cleanLower)) {
+          userRepliesCount++;
+        }
+      });
+    });
+
+    headerEl.textContent = `Profile — @${resolvedName}`;
+    const avatarHTML = renderAvatarHTML(resolvedName, resolvedAvatar, 'avatar-lg', isDev);
+    const badgeHTML = isDev
+      ? `<span class="dev-badge">⚡ Developer</span>`
+      : `<span class="verified-user-dot">USER</span>`;
+
+    bodyEl.innerHTML = `
+      <div class="profile-view-header-card">
+        ${avatarHTML}
+        <div class="profile-view-names">
+          <div class="profile-view-username">
+            <span>@${esc(resolvedName)}</span>
+            ${badgeHTML}
+          </div>
+          <div class="profile-view-handle">${isDev ? 'Creator & Developer of Paper Flow' : 'Paper Flow Community Member'}</div>
+        </div>
+      </div>
+
+      <div class="profile-about-box">
+        <div class="profile-about-label">About</div>
+        ${resolvedBio
+          ? `<div class="profile-about-text">${esc(resolvedBio)}</div>`
+          : `<div class="profile-about-empty">This user hasn’t added an about section yet.</div>`
+        }
+      </div>
+
+      <div class="profile-stats-strip">
+        <div class="profile-stat-pill">
+          <span>Flows Posted</span>
+          <strong>${userFlowsCount}</strong>
+        </div>
+        <div class="profile-stat-pill">
+          <span>Replies</span>
+          <strong>${userRepliesCount}</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.6rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.2rem;">
+        ${isOwnProfile
+          ? `<button type="button" class="btn-post" style="padding: 0.5rem 1.1rem; font-size: 0.72rem;" onclick="closeUserProfileModal(); openAuthModal('profile');">✎ Edit Profile &amp; About</button>`
+          : ''
+        }
+        <button type="button" class="btn-small" onclick="closeUserProfileModal()">Close</button>
+      </div>
+    `;
+
+    backdrop.classList.add('open');
+  };
+
+  window.closeUserProfileModal = function () {
+    document.getElementById('userProfileModalBackdrop')?.classList.remove('open');
+  };
+
+  window.handleUserProfileBackdropClick = function (e) {
+    if (e.target.id === 'userProfileModalBackdrop') {
+      closeUserProfileModal();
     }
   };
 
@@ -2939,7 +3321,7 @@
       const av = renderAvatarHTML(currentUser.username, currentUser.avatar, '', isDev);
 
       headerBar.innerHTML = `
-        <button class="user-pill-btn" onclick="openAuthModal('profile')" title="Edit Profile Picture">
+        <button class="user-pill-btn" onclick="openAuthModal('profile')" title="Edit Profile &amp; About">
           ${av}
           <span>@${esc(currentUser.username)}</span>
           ${devBadgeHTML}
@@ -2954,7 +3336,7 @@
           ${av}
           <span>Posting as <strong>@${esc(currentUser.username)}</strong> ${devBadgeHTML}</span>
         </div>
-        <button type="button" class="compose-identity-action" onclick="openAuthModal('profile')">Edit Profile Pic</button>
+        <button type="button" class="compose-identity-action" onclick="openAuthModal('profile')">Edit Profile</button>
       `;
       submitBtn.textContent = 'Publish Flow →';
     } else {
@@ -3087,6 +3469,7 @@
         alias: currentUser.username.slice(0, 30),
         authorUsername: currentUser.usernameLower,
         authorAvatar: currentUser.avatar || '',
+        authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
         ownerToken: `user:${currentUser.usernameLower}`,
         imageUrl: draftImageData || null,
         linkUrl: linkUrl || null,
@@ -3199,6 +3582,25 @@
     const existingLikeDoc = (likesByPost[postId] || []).find(
       l => l.actorKey === actorKey || l.docId === likeDocId
     );
+
+    // Optimistic in-place fluid bubble update for the Like button
+    const likeBtn = document.getElementById(`like-btn-${postId}`);
+    if (likeBtn) {
+      const currentLikes = getPostLikesList(post);
+      const willBeLiked = !existingLikeDoc;
+      const nextCount = willBeLiked
+        ? currentLikes.length + (currentLikes.includes(actorKey) ? 0 : 1)
+        : Math.max(0, currentLikes.length - 1);
+
+      likeBtn.classList.toggle('liked', willBeLiked);
+      likeBtn.classList.remove('like-burst-anim');
+      void likeBtn.offsetWidth;
+      likeBtn.classList.add('like-burst-anim');
+      likeBtn.innerHTML = `
+        <span class="like-heart-icon">${willBeLiked ? '♥' : '♡'}</span>
+        <span>${nextCount > 0 ? nextCount : 'Like'}</span>
+      `;
+    }
 
     try {
       if (existingLikeDoc) {
@@ -3344,6 +3746,7 @@
         author: currentUser.username,
         authorUsername: currentUser.usernameLower,
         authorAvatar: currentUser.avatar || '',
+        authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
         ownerToken: getCurrentActorKey(),
         createdAt: Date.now()
       });
@@ -3456,14 +3859,20 @@
     const fg = document.getElementById('filterGroup');
     const labelEl = document.getElementById('filterDropdownLabel');
     if (labelEl) {
-      labelEl.textContent = `Filter: ${TAG_LABELS[activeFilter] || 'All Flows'}`;
+      labelEl.innerHTML = `<span class="filter-color-dot dot-${esc(activeFilter)}"></span><span>${TAG_LABELS[activeFilter] || 'All Flows'}</span>`;
     }
     fg.innerHTML = '';
     categories.forEach(cat => {
       const count = cat === 'all' ? allPosts.length : (tagCounts[cat] || 0);
       const btn = document.createElement('button');
       btn.className = 'filter-btn' + (activeFilter === cat ? ' active' : '');
-      btn.innerHTML = `${TAG_LABELS[cat]} <span class="filter-count">${count}</span>`;
+      btn.innerHTML = `
+        <span class="filter-btn-left">
+          <span class="filter-color-dot dot-${cat}"></span>
+          <span>${TAG_LABELS[cat]}</span>
+        </span>
+        <span class="filter-count">${count}</span>
+      `;
       btn.onclick = () => {
         activeFilter = cat;
         fg.classList.remove('open');
@@ -3537,10 +3946,12 @@
             <button type="button" class="btn-small" onclick="jumpToFlowFromReply('${post.id}')">View Flow →</button>
           </div>
           <div class="comment-item ${commentIsDev ? 'comment-developer' : ''}" style="margin: 0;">
-            ${renderAvatarHTML(comment.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
+            <span class="clickable-profile" onclick="openUserProfileModal('${esc(comment.author || 'Anonymous')}', '${esc(comment.authorUsername || '')}', event)" title="View @${esc(comment.author || 'Anonymous')} profile">
+              ${renderAvatarHTML(comment.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
+            </span>
             <div class="comment-content">
               <div class="comment-header">
-                <span class="comment-author">
+                <span class="comment-author clickable-profile" onclick="openUserProfileModal('${esc(comment.author || 'Anonymous')}', '${esc(comment.authorUsername || '')}', event)" title="View @${esc(comment.author || 'Anonymous')} profile">
                   <span>${comment.authorUsername ? '@' : ''}${esc(comment.author || 'Anonymous')}</span>
                   ${commentIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
                 </span>
@@ -3696,10 +4107,12 @@
       const cTime = c.createdAt ? formatTime(new Date(c.createdAt)) : '';
       return `
         <div class="comment-item ${commentIsDev ? 'comment-developer' : ''}">
-          ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
+          <span class="clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
+            ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
+          </span>
           <div class="comment-content">
             <div class="comment-header">
-              <span class="comment-author">
+              <span class="comment-author clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
                 <span>${c.authorUsername ? '@' : ''}${esc(c.author || 'Anonymous')}</span>
                 ${commentIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
               </span>
@@ -3721,7 +4134,7 @@
     div.innerHTML = `
       ${pinned ? `<div class="pinned-ribbon">📌 Pinned by Developer</div>` : ''}
       <div class="card-top-bar">
-        <div class="card-author">
+        <div class="card-author clickable-profile" onclick="openUserProfileModal('${esc(authorName)}', '${esc(post.authorUsername || '')}', event)" title="View @${esc(authorName)} profile">
           ${avatarHTML}
           <div class="card-author-info">
             <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}">
@@ -3753,8 +4166,8 @@
 
       <div class="card-footer">
         <div class="card-interactions">
-          <button class="btn-small btn-like ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-            <span>${isLiked ? '♥' : '♡'}</span>
+          <button class="btn-small btn-like ${isLiked ? 'liked' : ''}" id="like-btn-${post.id}" onclick="toggleLike('${post.id}')">
+            <span class="like-heart-icon">${isLiked ? '♥' : '♡'}</span>
             <span>${likes.length > 0 ? likes.length : 'Like'}</span>
           </button>
           <button class="btn-small" onclick="toggleCommentsSection('${post.id}')">

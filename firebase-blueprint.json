@@ -100,6 +100,16 @@
           "type": "string",
           "maxLength": 120,
           "description": "Unique actor identifier for a like."
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Optional user about/bio section in user profile."
+        },
+        "authorBio": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Optional snapshot of the author bio."
         }
       },
       "required": ["body", "tag", "alias"]

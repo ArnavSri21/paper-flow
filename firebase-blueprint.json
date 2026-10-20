@@ -18,8 +18,13 @@
         },
         "tag": {
           "type": "string",
-          "enum": ["other", "confession", "story", "opinion", "news", "question"],
+          "enum": ["other", "confession", "story", "opinion", "news", "question", "updates"],
           "description": "Category tag of the flow."
+        },
+        "customCategory": {
+          "type": "string",
+          "enum": ["updates"],
+          "description": "Developer-only category override for Marvelist."
         },
         "alias": {
           "type": "string",

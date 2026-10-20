@@ -12,7 +12,7 @@ service cloud.firestore {
     function isValidPostPayload(data) {
       return data.keys().hasAll(['body', 'tag', 'alias', 'ts']) &&
         data.body is string && data.body.size() >= 1 && data.body.size() <= 5000 &&
-        data.tag is string && data.tag in ['other', 'confession', 'story', 'opinion', 'news', 'question'] &&
+        data.tag is string && data.tag in ['other', 'confession', 'story', 'opinion', 'news', 'question', 'updates'] &&
         data.alias is string && data.alias.size() >= 1 && data.alias.size() <= 30 &&
         (!('title' in data) || data.title == null || (data.title is string && data.title.size() <= 120)) &&
         (!('imageUrl' in data) || data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() <= 800000)) &&

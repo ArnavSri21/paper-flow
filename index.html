@@ -99,6 +99,28 @@
   }
   .btn-login-trigger:hover { background: var(--accent); border-color: var(--accent); box-shadow: 2px 2px 0 var(--ink); }
 
+  /* DEVELOPER BADGE (MARVELIST) */
+  .dev-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: linear-gradient(135deg, #1f1438 0%, #3b2166 100%);
+    color: #f5d0fe;
+    border: 1px solid #a855f7;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.35);
+    vertical-align: middle;
+  }
+  .card-author-name.is-dev {
+    color: #3b1d6e;
+    font-weight: 600;
+  }
+
   /* AVATARS */
   .avatar {
     width: 28px;
@@ -116,6 +138,12 @@
     color: var(--ink);
     flex-shrink: 0;
     overflow: hidden;
+  }
+  .avatar.avatar-dev {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 1.5px #2e1065;
+    background: #1e1433;
+    color: #ede9fe;
   }
   .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .avatar-sm { width: 22px; height: 22px; font-size: 0.65rem; }
@@ -253,19 +281,25 @@
     font-family: var(--mono);
     font-size: 0.72rem;
   }
+  .compose-identity-bar.locked-notice {
+    background: #fde8e4;
+    border-bottom-color: #e0b0a8;
+    color: #8b3020;
+  }
   .compose-identity-user { display: flex; align-items: center; gap: 0.55rem; color: var(--ink); font-weight: 500; }
   .compose-identity-action {
-    background: transparent;
+    background: var(--ink);
     border: 1px solid var(--ink);
-    color: var(--ink);
+    color: var(--bg);
     font-family: var(--mono);
     font-size: 0.65rem;
-    padding: 2px 8px;
+    padding: 3px 9px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    white-space: nowrap;
   }
-  .compose-identity-action:hover { background: var(--ink); color: var(--bg); }
+  .compose-identity-action:hover { background: var(--accent); border-color: var(--accent); }
 
   .compose-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.85rem; }
   .compose-body input[type="text"],
@@ -431,6 +465,10 @@
     animation: fadeSlideIn 0.3s ease both;
   }
   .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
+  .card.card-developer {
+    border-color: #6d28d9;
+    box-shadow: 3px 3px 0 #2e1065;
+  }
   .card-top-bar {
     display: flex;
     align-items: center;
@@ -485,6 +523,13 @@
   .card-tag.tag-opinion    { background: #fef6e0; border-color: #dbc98a; color: #7a5c00; }
   .card-tag.tag-news       { background: #e4f5e9; border-color: #9ecfaa; color: #1a5c2a; }
   .card-tag.tag-question   { background: #f0e8fb; border-color: #c4a8de; color: #4a1d8a; }
+  .card-tag.tag-updates    {
+    background: linear-gradient(135deg, #1e1433 0%, #3b1d6e 100%);
+    border-color: #a855f7;
+    color: #f5d0fe;
+    font-weight: 500;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+  }
 
   .card-title { font-family: var(--serif); font-size: 1.22rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.5rem; }
   .card-body { font-size: 0.92rem; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
@@ -647,6 +692,30 @@
     gap: 0.6rem;
     align-items: flex-start;
   }
+  /* DEVELOPER REPLY COLOUR & STYLING FOR MARVELIST */
+  .comment-item.comment-developer {
+    background: linear-gradient(135deg, #140f23 0%, #23173e 60%, #19102c 100%);
+    border: 1.5px solid #8b5cf6;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 2px 2px 0 #2e1065;
+    color: #f5f3ff;
+  }
+  .comment-item.comment-developer .comment-author {
+    color: #e9d5ff;
+    font-weight: 600;
+  }
+  .comment-item.comment-developer .comment-time {
+    color: #c4b5fd;
+  }
+  .comment-item.comment-developer .comment-text {
+    color: #f5f3ff;
+  }
+  .comment-item.comment-developer .btn-comment-del {
+    color: #c4b5fd;
+  }
+  .comment-item.comment-developer .btn-comment-del:hover {
+    color: #fda4af;
+  }
+
   .comment-content { flex: 1; min-width: 0; }
   .comment-header {
     display: flex;
@@ -660,6 +729,9 @@
     font-size: 0.68rem;
     font-weight: 500;
     color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
   }
   .comment-time {
     font-family: var(--mono);
@@ -741,6 +813,10 @@
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
   .sidebar-profile-handle {
     font-family: var(--mono);
@@ -1015,7 +1091,7 @@
       <div class="compose-box">
         <div class="compose-header">
           <span class="compose-header-left">Post a Flow</span>
-          <span id="composeAuthBadge" style="font-size: 0.65rem; opacity: 0.8;"></span>
+          <span id="composeAuthBadge" style="font-size: 0.65rem; opacity: 0.85;"></span>
         </div>
 
         <div class="compose-identity-bar" id="composeIdentityBar">
@@ -1028,12 +1104,7 @@
 
           <div class="compose-row">
             <select id="postTag">
-              <option value="other">📌 General</option>
-              <option value="confession">🔴 Confession</option>
-              <option value="story">🔵 Story</option>
-              <option value="opinion">🟡 Opinion</option>
-              <option value="news">🟢 News / Update</option>
-              <option value="question">🟣 Question</option>
+              <!-- Populated dynamically based on user role -->
             </select>
           </div>
 
@@ -1105,9 +1176,9 @@
       <div class="sidebar-box">
         <div class="sidebar-box-header">About This Board</div>
         <div class="sidebar-box-body">
-          <p><strong>Unique Username Login.</strong> Claim your unique username, password, and profile picture — no email or phone number needed.</p>
+          <p><strong>Compulsory Username Sign-In.</strong> Sign in with your unique username and password before posting — no email or phone number needed.</p>
           <p>Posts, likes, comments, images, and links are synced in <strong>Firebase Firestore</strong> in real-time.</p>
-          <p>Only the author who published a flow can delete it.</p>
+          <p>Only the author who published a flow (or the site developer <strong>@Marvelist</strong>) can delete it.</p>
         </div>
       </div>
 
@@ -1212,6 +1283,13 @@
   const db  = getFirestore(app);
   const postsCol = collection(db, "posts");
 
+  // ── DEVELOPER ACCOUNT CHECK (MARVELIST) ─────────────────────────────────────
+  const DEVELOPER_USERNAME_LOWER = 'marvelist';
+
+  function isDeveloperUser(usernameOrLower) {
+    return String(usernameOrLower || '').trim().toLowerCase() === DEVELOPER_USERNAME_LOWER;
+  }
+
   // ── STATE ───────────────────────────────────────────────────────────────────
   let allPosts = [];
   let usersDirectory = {};   // usernameLower -> { username, usernameLower, avatar }
@@ -1272,9 +1350,22 @@
   }
 
   const TAG_LABELS = {
-    all: 'All Flows', other: 'General', confession: 'Confession',
-    story: 'Story', opinion: 'Opinion', news: 'News', question: 'Question'
+    all: 'All Flows',
+    other: 'General',
+    confession: 'Confession',
+    story: 'Story',
+    opinion: 'Opinion',
+    news: 'News',
+    question: 'Question',
+    updates: '⚡ Updates'
   };
+
+  function getEffectivePostCategory(post) {
+    if (post.customCategory === 'updates' || post.tag === 'updates') {
+      return 'updates';
+    }
+    return post.tag || 'other';
+  }
 
   // ── HEADER DATE ─────────────────────────────────────────────────────────────
   const d = new Date();
@@ -1325,10 +1416,6 @@
   }
 
   // ── USER STORAGE IN FIRESTORE ───────────────────────────────────────────────
-  // Note: Firestore security rules on memo-board-4d45b allow read, create (with required
-  // title, non-empty body, tag, alias, ts fields), and delete on /posts/{id}, while
-  // disallowing in-place update. Storing user profiles, likes, and comments as structured
-  // documents in `posts` with create & delete guarantees 100% rule compliance.
   function getUserDocRef(usernameLower) {
     return doc(db, "posts", `__user__${usernameLower}`);
   }
@@ -1347,7 +1434,6 @@
     return null;
   }
 
-  // Sync current user profile on boot if logged in
   if (currentUser?.usernameLower) {
     fetchUserRecord(currentUser.usernameLower).then(rec => {
       if (rec) {
@@ -1427,7 +1513,6 @@
         }
       });
 
-      // Sort comments chronologically (oldest first)
       Object.keys(nextComments).forEach(pId => {
         nextComments[pId].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       });
@@ -1578,7 +1663,7 @@
     const errEl = document.getElementById('authModalError');
     errEl.classList.remove('show');
 
-    // Profile Update Mode (uses delete + create to comply with Firestore rules)
+    // Profile Update Mode
     if (authMode === 'profile' && currentUser) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Saving…';
@@ -1653,14 +1738,15 @@
           showAuthError(`Username "@${rawUsername}" is already taken. Choose another or Sign In.`);
           return;
         }
+        const canonicalDisplay = isDeveloperUser(usernameLower) ? 'Marvelist' : rawUsername;
         const newUserDoc = {
           title: null,
           body: 'user_profile',
           tag: 'other',
-          alias: rawUsername.slice(0, 30),
+          alias: canonicalDisplay.slice(0, 30),
           ts: serverTimestamp(),
           docType: 'user',
-          username: rawUsername,
+          username: canonicalDisplay,
           usernameLower,
           passwordHash: passHash,
           avatar: draftAvatarData || '',
@@ -1668,19 +1754,19 @@
         };
         await setDoc(getUserDocRef(usernameLower), newUserDoc);
         usersDirectory[usernameLower] = {
-          username: rawUsername,
+          username: canonicalDisplay,
           usernameLower,
           avatar: draftAvatarData || ''
         };
         saveSessionUser({
-          username: rawUsername,
+          username: canonicalDisplay,
           usernameLower,
           passwordHash: passHash,
           avatar: draftAvatarData || ''
         });
         document.getElementById('authPassword').value = '';
         closeAuthModal();
-        showToast(`Welcome to Paper Flow, @${rawUsername}!`);
+        showToast(`Welcome to Paper Flow, @${canonicalDisplay}!`);
       } else {
         if (!existingUser) {
           showAuthError(`No account found for "@${rawUsername}". Click "Create Account" to register it.`);
@@ -1719,12 +1805,37 @@
     showToast('Signed out.');
   };
 
-  function renderAvatarHTML(name, avatarUrl, sizeClass = '') {
+  function renderAvatarHTML(name, avatarUrl, sizeClass = '', isDev = false) {
     const initial = (name || 'A').trim().charAt(0).toUpperCase() || 'A';
+    const devClass = isDev ? 'avatar-dev' : '';
     if (avatarUrl) {
-      return `<span class="avatar ${sizeClass}"><img src="${esc(avatarUrl)}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='${initial}'" /></span>`;
+      return `<span class="avatar ${sizeClass} ${devClass}"><img src="${esc(avatarUrl)}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='${initial}'" /></span>`;
     }
-    return `<span class="avatar ${sizeClass}">${esc(initial)}</span>`;
+    return `<span class="avatar ${sizeClass} ${devClass}">${esc(initial)}</span>`;
+  }
+
+  function renderCategorySelectOptions() {
+    const selectEl = document.getElementById('postTag');
+    if (!selectEl) return;
+    const prevVal = selectEl.value;
+    const isDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
+
+    let optionsHTML = `
+      <option value="other">📌 General</option>
+      <option value="confession">🔴 Confession</option>
+      <option value="story">🔵 Story</option>
+      <option value="opinion">🟡 Opinion</option>
+      <option value="news">🟢 News / Update</option>
+      <option value="question">🟣 Question</option>
+    `;
+    // Requirement 4: Only Marvelist sees the "updates" category option when posting
+    if (isDev) {
+      optionsHTML += `<option value="updates">⚡ Updates (Developer Only)</option>`;
+    }
+    selectEl.innerHTML = optionsHTML;
+    if (prevVal && (prevVal !== 'updates' || isDev)) {
+      selectEl.value = prevVal;
+    }
   }
 
   function renderAuthUI() {
@@ -1733,32 +1844,44 @@
     const composeIdentity = document.getElementById('composeIdentityBar');
     const composeBadge = document.getElementById('composeAuthBadge');
     const sidebarBox = document.getElementById('sidebarAccountBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    renderCategorySelectOptions();
 
     if (currentUser) {
-      const av = renderAvatarHTML(currentUser.username, currentUser.avatar);
+      const isDev = isDeveloperUser(currentUser.usernameLower);
+      const devBadgeHTML = isDev ? `<span class="dev-badge">⚡ Developer</span>` : '';
+      const av = renderAvatarHTML(currentUser.username, currentUser.avatar, '', isDev);
+
       headerBar.innerHTML = `
         <button class="user-pill-btn" onclick="openAuthModal('profile')" title="Edit Profile Picture">
           ${av}
           <span>@${esc(currentUser.username)}</span>
+          ${devBadgeHTML}
         </button>
         <button class="btn-small" onclick="logoutUser()" style="border-color: var(--ink); color: var(--ink);">Sign Out</button>
       `;
-      bannerUser.textContent = `Signed in as @${currentUser.username}`;
-      composeBadge.textContent = `@${currentUser.username}`;
+      bannerUser.innerHTML = `Signed in as <strong>@${esc(currentUser.username)}</strong> ${devBadgeHTML}`;
+      composeBadge.innerHTML = `@${esc(currentUser.username)} ${devBadgeHTML}`;
+      composeIdentity.className = 'compose-identity-bar';
       composeIdentity.innerHTML = `
         <div class="compose-identity-user">
           ${av}
-          <span>Posting as <strong>@${esc(currentUser.username)}</strong></span>
+          <span>Posting as <strong>@${esc(currentUser.username)}</strong> ${devBadgeHTML}</span>
         </div>
         <button type="button" class="compose-identity-action" onclick="openAuthModal('profile')">Edit Profile Pic</button>
       `;
+      submitBtn.textContent = 'Publish Flow →';
       sidebarBox.innerHTML = `
         <div class="sidebar-profile-view">
           <div class="sidebar-profile-row">
-            ${renderAvatarHTML(currentUser.username, currentUser.avatar, 'avatar-lg')}
+            ${renderAvatarHTML(currentUser.username, currentUser.avatar, 'avatar-lg', isDev)}
             <div>
-              <div class="sidebar-profile-name">${esc(currentUser.username)}</div>
-              <div class="sidebar-profile-handle">@${esc(currentUser.usernameLower)} · Verified Member</div>
+              <div class="sidebar-profile-name">
+                <span>${esc(currentUser.username)}</span>
+                ${devBadgeHTML}
+              </div>
+              <div class="sidebar-profile-handle">@${esc(currentUser.usernameLower)} · ${isDev ? 'Website Developer' : 'Verified Member'}</div>
             </div>
           </div>
           <div class="sidebar-btn-row">
@@ -1771,18 +1894,19 @@
       headerBar.innerHTML = `
         <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
       `;
-      bannerUser.textContent = 'Guest Mode';
-      composeBadge.textContent = 'Not signed in';
+      bannerUser.textContent = 'Sign in required to post';
+      composeBadge.textContent = '🔒 Sign In Required';
+      composeIdentity.className = 'compose-identity-bar locked-notice';
       composeIdentity.innerHTML = `
-        <div class="compose-identity-user">
-          ${renderAvatarHTML('Anonymous', '')}
-          <span>Posting as <strong>Anonymous</strong> (Sign in to use your username &amp; profile pic)</span>
+        <div class="compose-identity-user" style="color: #8b3020;">
+          <span>🔒 <strong>Sign in is compulsory</strong> before posting a flow or reply.</span>
         </div>
         <button type="button" class="compose-identity-action" onclick="openAuthModal('login')">Sign In / Register</button>
       `;
+      submitBtn.textContent = 'Sign In to Publish →';
       sidebarBox.innerHTML = `
         <div class="sidebar-profile-view">
-          <p style="font-size: 0.82rem; color: var(--ink);">Sign in with a unique username &amp; password to attach your profile picture, like, comment, and manage your flows.</p>
+          <p style="font-size: 0.82rem; color: var(--ink);"><strong>Sign in is required to post.</strong> Use your unique username &amp; password (no email or phone required).</p>
           <div class="sidebar-btn-row">
             <button class="btn-sidebar-action primary" onclick="openAuthModal('login')">Sign In</button>
             <button class="btn-sidebar-action" onclick="openAuthModal('register')">Register</button>
@@ -1864,14 +1988,28 @@
     return 'https://' + trimmed;
   }
 
-  // ── SUBMIT FLOW ─────────────────────────────────────────────────────────────
+  // ── SUBMIT FLOW (COMPULSORY SIGN-IN) ────────────────────────────────────────
   window.submitPost = async function () {
+    // Requirement 1: Sign in is compulsory before posting
+    if (!currentUser) {
+      showToast('Please sign in with your username before posting!');
+      openAuthModal('login');
+      return;
+    }
+
     const title = document.getElementById('postTitle').value.trim();
     const body  = document.getElementById('postBody').value.trim();
-    const tag   = document.getElementById('postTag').value;
+    const selectedTag = document.getElementById('postTag').value;
     const rawLinkUrl = document.getElementById('postLinkUrl').value.trim();
     const linkTitle = document.getElementById('postLinkTitle').value.trim();
     const linkUrl = normalizeUrl(rawLinkUrl);
+
+    // Requirement 4: Only Marvelist can post in 'updates'
+    const isDev = isDeveloperUser(currentUser.usernameLower);
+    if (selectedTag === 'updates' && !isDev) {
+      showToast('Only @Marvelist can post in Updates.');
+      return;
+    }
 
     if (!body && !draftImageData && !linkUrl) {
       showToast('Write something or attach an image/link first!');
@@ -1883,16 +2021,19 @@
     btn.textContent = 'Publishing…';
 
     try {
+      // Store 'other' as base Firestore tag when 'updates' is chosen so default DB rules validate,
+      // while saving customCategory: 'updates' so the post displays the Updates category tag.
+      const firestoreTag = selectedTag === 'updates' ? 'other' : selectedTag;
       const payload = {
         title: title || null,
-        // Ensure body is non-empty string for Firestore rule compliance even when posting image/link only
         body: body || ' ',
         hasEmptyBody: !body,
-        tag,
-        alias: (currentUser ? currentUser.username : 'Anonymous').slice(0, 30),
-        authorUsername: currentUser ? currentUser.usernameLower : null,
-        authorAvatar: currentUser ? (currentUser.avatar || '') : '',
-        ownerToken: currentUser ? `user:${currentUser.usernameLower}` : guestToken,
+        tag: firestoreTag,
+        customCategory: selectedTag === 'updates' ? 'updates' : null,
+        alias: currentUser.username.slice(0, 30),
+        authorUsername: currentUser.usernameLower,
+        authorAvatar: currentUser.avatar || '',
+        ownerToken: `user:${currentUser.usernameLower}`,
         imageUrl: draftImageData || null,
         linkUrl: linkUrl || null,
         linkTitle: linkTitle || null,
@@ -1912,18 +2053,23 @@
       showToast('Error publishing flow.');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Publish Flow →';
+      btn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
     }
   };
 
-  // ── OWNERSHIP CHECK (ONLY SENDER CAN DELETE) ────────────────────────────────
+  // ── OWNERSHIP & DEVELOPER MODERATION CHECK ──────────────────────────────────
+  // Requirement 3: User Marvelist has the power to delete ANY post on the website;
+  // other users can only delete their own flows.
   function canCurrentUserDeletePost(post) {
+    if (!currentUser) return false;
+    if (isDeveloperUser(currentUser.usernameLower)) {
+      return true;
+    }
     if (post.authorUsername) {
-      return Boolean(currentUser && currentUser.usernameLower === post.authorUsername);
+      return currentUser.usernameLower === post.authorUsername;
     }
     if (post.ownerToken) {
-      const myToken = currentUser ? `user:${currentUser.usernameLower}` : guestToken;
-      return post.ownerToken === myToken || post.ownerToken === guestToken;
+      return post.ownerToken === `user:${currentUser.usernameLower}`;
     }
     return false;
   }
@@ -1932,7 +2078,7 @@
   window.deletePost = async function (id) {
     const post = allPosts.find(p => p.id === id);
     if (!post || !canCurrentUserDeletePost(post)) {
-      showToast('Only the person who sent this flow can delete it.');
+      showToast('Only the author or @Marvelist can delete this flow.');
       return;
     }
 
@@ -1951,7 +2097,6 @@
     pendingDeleteConfirmId = null;
     try {
       await deleteDoc(doc(db, "posts", id));
-      // Also clean up any like/comment documents associated with this flow
       const relatedLikes = likesByPost[id] || [];
       const relatedComments = commentsByPost[id] || [];
       await Promise.allSettled([
@@ -1964,7 +2109,7 @@
     }
   };
 
-  // ── LIKE FLOW (CREATE / DELETE LIKE DOC FOR RULE COMPLIANCE) ────────────────
+  // ── LIKE FLOW ───────────────────────────────────────────────────────────────
   function getCurrentActorKey() {
     return currentUser ? `user_${currentUser.usernameLower}` : guestToken;
   }
@@ -1976,6 +2121,12 @@
   }
 
   window.toggleLike = async function (postId) {
+    if (!currentUser) {
+      showToast('Please sign in to like flows!');
+      openAuthModal('login');
+      return;
+    }
+
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
@@ -1994,7 +2145,7 @@
           title: null,
           body: 'like',
           tag: 'other',
-          alias: (currentUser ? currentUser.username : 'Anonymous').slice(0, 30),
+          alias: currentUser.username.slice(0, 30),
           ts: serverTimestamp(),
           docType: 'like',
           postId,
@@ -2007,7 +2158,7 @@
     }
   };
 
-  // ── COMMENTS (CREATE / DELETE COMMENT DOC FOR RULE COMPLIANCE) ──────────────
+  // ── COMMENTS / REPLIES ──────────────────────────────────────────────────────
   function getPostCommentsList(post) {
     const legacy = Array.isArray(post.comments) ? post.comments : [];
     const live = commentsByPost[post.id] || [];
@@ -2028,11 +2179,18 @@
   };
 
   window.submitComment = async function (postId) {
+    // Compulsory sign-in before posting a reply
+    if (!currentUser) {
+      showToast('Please sign in with your username before replying!');
+      openAuthModal('login');
+      return;
+    }
+
     const inp = document.getElementById(`comment-input-${postId}`);
     if (!inp) return;
     const text = inp.value.trim();
     if (!text) {
-      showToast('Write a comment first!');
+      showToast('Write a reply first!');
       return;
     }
 
@@ -2047,13 +2205,13 @@
         title: null,
         body: text.slice(0, 600),
         tag: 'other',
-        alias: (currentUser ? currentUser.username : 'Anonymous').slice(0, 30),
+        alias: currentUser.username.slice(0, 30),
         ts: serverTimestamp(),
         docType: 'comment',
         postId,
-        author: currentUser ? currentUser.username : 'Anonymous',
-        authorUsername: currentUser ? currentUser.usernameLower : null,
-        authorAvatar: currentUser ? (currentUser.avatar || '') : '',
+        author: currentUser.username,
+        authorUsername: currentUser.usernameLower,
+        authorAvatar: currentUser.avatar || '',
         ownerToken: getCurrentActorKey(),
         createdAt: Date.now()
       });
@@ -2061,13 +2219,14 @@
       inp.value = '';
     } catch (e) {
       console.error(e);
-      showToast('Could not post comment.');
+      showToast('Could not post reply.');
     } finally {
       inp.disabled = false;
     }
   };
 
   window.deleteComment = async function (postId, commentDocId) {
+    if (!currentUser) return;
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
@@ -2075,11 +2234,11 @@
     const target = list.find(c => c.docId === commentDocId || c.id === commentDocId);
     if (!target) return;
 
-    const isCommentOwner = (target.authorUsername && currentUser && currentUser.usernameLower === target.authorUsername) ||
-                           (target.ownerToken && target.ownerToken === getCurrentActorKey());
+    const isDev = isDeveloperUser(currentUser.usernameLower);
+    const isCommentOwner = target.authorUsername && currentUser.usernameLower === target.authorUsername;
     const isPostOwner = canCurrentUserDeletePost(post);
 
-    if (!isCommentOwner && !isPostOwner) {
+    if (!isDev && !isCommentOwner && !isPostOwner) {
       showToast('You can only delete your own comments.');
       return;
     }
@@ -2113,7 +2272,12 @@
 
   function renderFilters() {
     const tagCounts = {};
-    allPosts.forEach(p => { tagCounts[p.tag] = (tagCounts[p.tag] || 0) + 1; });
+    allPosts.forEach(p => {
+      const cat = getEffectivePostCategory(p);
+      tagCounts[cat] = (tagCounts[cat] || 0) + 1;
+    });
+    // Requirement 4: "updates" is not shown in the general categories option list,
+    // only on the post by Marvelist (and in Marvelist's post category dropdown).
     const categories = ['all','confession','story','opinion','news','question','other'];
     const fg = document.getElementById('filterGroup');
     fg.innerHTML = '';
@@ -2129,7 +2293,9 @@
 
   function renderFeed() {
     const feed = document.getElementById('feed');
-    const filtered = activeFilter === 'all' ? allPosts : allPosts.filter(p => p.tag === activeFilter);
+    const filtered = activeFilter === 'all'
+      ? allPosts
+      : allPosts.filter(p => getEffectivePostCategory(p) === activeFilter);
     document.getElementById('feedCount').textContent = `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
     if (filtered.length === 0) {
@@ -2152,8 +2318,15 @@
   }
 
   function makeCard(post, i) {
+    const postAuthorIsDev = isDeveloperUser(post.authorUsername || post.alias);
+    const effectiveCategory = getEffectivePostCategory(post);
+    // Only display 'updates' category badge on posts by Marvelist
+    const displayCategory = (effectiveCategory === 'updates' && postAuthorIsDev)
+      ? 'updates'
+      : (post.tag || 'other');
+
     const div = document.createElement('div');
-    div.className = 'card';
+    div.className = 'card' + (postAuthorIsDev ? ' card-developer' : '');
     div.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
 
     const displayBody = post.hasEmptyBody ? '' : (post.body || '');
@@ -2162,7 +2335,7 @@
 
     const authorName = post.alias || 'Anonymous';
     const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
-    const avatarHTML = renderAvatarHTML(authorName, liveAvatar);
+    const avatarHTML = renderAvatarHTML(authorName, liveAvatar, '', postAuthorIsDev);
 
     const likes = getPostLikesList(post);
     const isLiked = likes.includes(getCurrentActorKey());
@@ -2195,20 +2368,25 @@
         </a>`;
     }
 
+    // Requirement 2: Marvelist has a different colour reply and is differentiable as the developer
     const commentsListHTML = comments.map(c => {
+      const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
       const cAvatar = (c.authorUsername && usersDirectory[c.authorUsername]?.avatar) || c.authorAvatar || '';
-      const canDelComment = Boolean(c.docId) && (
-        (c.authorUsername && currentUser && currentUser.usernameLower === c.authorUsername) ||
-        (c.ownerToken && c.ownerToken === getCurrentActorKey()) ||
+      const canDelComment = Boolean(c.docId && currentUser) && (
+        isDeveloperUser(currentUser.usernameLower) ||
+        (c.authorUsername && currentUser.usernameLower === c.authorUsername) ||
         canDelete
       );
       const cTime = c.createdAt ? formatTime(new Date(c.createdAt)) : '';
       return `
-        <div class="comment-item">
-          ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm')}
+        <div class="comment-item ${commentIsDev ? 'comment-developer' : ''}">
+          ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
           <div class="comment-content">
             <div class="comment-header">
-              <span class="comment-author">${c.authorUsername ? '@' : ''}${esc(c.author || 'Anonymous')}</span>
+              <span class="comment-author">
+                <span>${c.authorUsername ? '@' : ''}${esc(c.author || 'Anonymous')}</span>
+                ${commentIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
+              </span>
               <span>
                 <span class="comment-time">${cTime}</span>
                 ${canDelComment ? `<button class="btn-comment-del" onclick="deleteComment('${post.id}', '${esc(c.docId)}')" title="Delete comment">✕</button>` : ''}
@@ -2221,22 +2399,24 @@
     }).join('');
 
     const commentPlaceholder = currentUser
-      ? `Comment as @${esc(currentUser.username)}…`
-      : 'Write a comment…';
+      ? `Reply as @${esc(currentUser.username)}…`
+      : 'Sign in to write a reply…';
 
     div.innerHTML = `
       <div class="card-top-bar">
         <div class="card-author">
           ${avatarHTML}
           <div class="card-author-info">
-            <div class="card-author-name">
+            <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}">
               <span>${post.authorUsername ? '@' : ''}${esc(authorName)}</span>
-              ${post.authorUsername ? `<span class="verified-user-dot">USER</span>` : ''}
+              ${postAuthorIsDev
+                ? `<span class="dev-badge">⚡ Developer</span>`
+                : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : '')}
             </div>
             <div class="card-time">🕐 ${timeAgo}</div>
           </div>
         </div>
-        <span class="card-tag tag-${esc(post.tag)}">${TAG_LABELS[post.tag] || 'General'}</span>
+        <span class="card-tag tag-${esc(displayCategory)}">${TAG_LABELS[displayCategory] || 'General'}</span>
       </div>
 
       ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}
@@ -2252,7 +2432,7 @@
           </button>
           <button class="btn-small" onclick="toggleCommentsSection('${post.id}')">
             <span>💬</span>
-            <span>${comments.length > 0 ? `${comments.length} Comment${comments.length !== 1 ? 's' : ''}` : 'Comment'}</span>
+            <span>${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}</span>
           </button>
         </div>
 
@@ -2263,7 +2443,7 @@
       </div>
 
       <div class="comments-section ${isCommentsOpen ? 'open' : ''}" id="comments-sec-${post.id}">
-        ${comments.length > 0 ? `<div class="comments-list">${commentsListHTML}</div>` : `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No comments yet. Start the conversation below.</div>`}
+        ${comments.length > 0 ? `<div class="comments-list">${commentsListHTML}</div>` : `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Start the conversation below.</div>`}
         <div class="comment-form">
           <input
             type="text"
@@ -2298,7 +2478,8 @@
     let totalLikes = 0;
     let totalComments = 0;
     allPosts.forEach(p => {
-      tags[p.tag] = (tags[p.tag] || 0) + 1;
+      const cat = getEffectivePostCategory(p);
+      tags[cat] = (tags[cat] || 0) + 1;
       totalLikes += getPostLikesList(p).length;
       totalComments += getPostCommentsList(p).length;
     });
@@ -2306,9 +2487,9 @@
     document.getElementById('statsBox').innerHTML = `
       <div>📌 Total Flows: <strong>${total}</strong></div>
       <div>♥ Total Likes: <strong>${totalLikes}</strong></div>
-      <div>💬 Total Comments: <strong>${totalComments}</strong></div>
+      <div>💬 Total Replies: <strong>${totalComments}</strong></div>
       <div>🔄 Updates: <strong>Real-time</strong></div>
-      ${topTag ? `<div>🔥 Top Category: <strong>${TAG_LABELS[topTag[0]]}</strong></div>` : ''}
+      ${topTag ? `<div>🔥 Top Category: <strong>${TAG_LABELS[topTag[0]] || 'General'}</strong></div>` : ''}
     `;
   }
 

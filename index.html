@@ -70,6 +70,71 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
+  /* FLUID BUBBLE ANIMATION SYSTEM FOR ALL INTERACTIVE ELEMENTS */
+  :root {
+    --bubble-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --bubble-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  button,
+  .btn-hamburger,
+  .user-pill-btn,
+  .btn-login-trigger,
+  .btn-side-option,
+  .btn-obsidian-download,
+  .btn-filter-dropdown,
+  .filter-btn,
+  .fab-post-btn,
+  .btn-attach-toggle,
+  .btn-file-upload,
+  .btn-post,
+  .btn-small,
+  .btn-comment-submit,
+  .btn-comment-del,
+  .btn-back-board,
+  .btn-modal-submit,
+  .modal-tab,
+  .modal-close,
+  .about-cta-btn,
+  .card-link-attachment,
+  .btn-star-flow,
+  .floating-search-trigger {
+    transition:
+      transform 0.36s var(--bubble-spring),
+      box-shadow 0.28s var(--bubble-smooth),
+      background-color 0.22s ease,
+      border-color 0.22s ease,
+      color 0.22s ease,
+      border-radius 0.36s var(--bubble-spring);
+    will-change: transform;
+  }
+
+  button:hover:not(:disabled),
+  .btn-file-upload:hover,
+  .btn-obsidian-download:hover,
+  .card-link-attachment:hover {
+    transform: translateY(-2px) scale(1.035);
+  }
+
+  button:active:not(:disabled),
+  .btn-file-upload:active,
+  .btn-obsidian-download:active,
+  .card-link-attachment:active {
+    transform: translateY(0) scale(0.92) !important;
+    transition-duration: 0.12s;
+  }
+
+  /* Clickable fluid bubble pulse effect */
+  .bubble-pop-anim {
+    animation: fluidBubblePop 0.48s var(--bubble-spring);
+  }
+  @keyframes fluidBubblePop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.16); }
+    68%  { transform: scale(0.94); }
+    100% { transform: scale(1); }
+  }
+
   /* HEADER */
   header {
     border-bottom: 2px solid var(--ink);
@@ -94,6 +159,7 @@
     color: var(--ink);
     width: 40px;
     height: 40px;
+    border-radius: 10px;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -101,12 +167,12 @@
     gap: 5px;
     cursor: pointer;
     box-shadow: 2px 2px 0 var(--ink);
-    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
     flex-shrink: 0;
   }
   .btn-hamburger:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 var(--ink);
+    transform: translate(-1px, -2px) scale(1.06);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--ink);
     background: var(--tag-bg);
   }
   .btn-hamburger span {
@@ -114,9 +180,10 @@
     width: 18px;
     height: 2px;
     background: var(--ink);
-    transition: transform 0.2s;
+    transition: transform 0.25s var(--bubble-spring);
   }
-  .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; cursor: pointer; }
+  .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; cursor: pointer; transition: transform 0.3s var(--bubble-spring); }
+  .masthead:hover { transform: scale(1.015); }
   .masthead-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
   .masthead-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
   .header-right { display: flex; align-items: center; gap: 1.2rem; }
@@ -130,30 +197,30 @@
     gap: 0.55rem;
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
-    padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem 0.35rem 0.45rem;
     font-family: var(--mono);
     font-size: 0.72rem;
     color: var(--ink);
     cursor: pointer;
     box-shadow: 2px 2px 0 var(--ink);
-    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .user-pill-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+  .user-pill-btn:hover { transform: translate(-1px, -2px) scale(1.04); box-shadow: 4px 4px 0 var(--ink); }
   .btn-login-trigger {
     background: var(--ink);
     color: var(--bg);
     border: 1.5px solid var(--ink);
-    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 2px 2px 0 var(--accent);
-    transition: all 0.15s;
     white-space: nowrap;
   }
-  .btn-login-trigger:hover { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 2px 2px 0 var(--ink); }
+  .btn-login-trigger:hover { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 3px 3px 0 var(--ink); transform: translateY(-2px) scale(1.04); }
 
   /* DEVELOPER BADGE (MARVELIST) */
   .dev-badge {
@@ -541,31 +608,87 @@
     text-decoration: underline;
   }
 
-  /* SEARCH BAR AT TOP OF FEED */
-  .search-bar-wrap {
+  /* FLOATING SEARCH ICON AT TOP WITH FLUID BUBBLE ANIMATION */
+  .floating-search-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 4.5rem;
+    z-index: 90;
+    pointer-events: none;
+  }
+  .floating-search-bubble {
+    pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
     box-shadow: 3px 3px 0 var(--ink);
-    padding: 0.55rem 0.9rem;
-    margin-bottom: 1.35rem;
+    border-radius: 999px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    overflow: hidden;
+    transition:
+      width 0.48s var(--bubble-spring),
+      height 0.38s var(--bubble-spring),
+      border-radius 0.48s var(--bubble-spring),
+      box-shadow 0.3s var(--bubble-smooth),
+      transform 0.36s var(--bubble-spring),
+      background-color 0.25s ease;
   }
-  .search-icon {
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    color: var(--ink-muted);
+  .floating-search-bubble:hover:not(.expanded) {
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+  .floating-search-bubble.expanded {
+    width: 100%;
+    height: 48px;
+    border-radius: 999px;
+    padding: 0 0.55rem 0 0.25rem;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .floating-search-trigger {
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     flex-shrink: 0;
+    border-radius: 50%;
+  }
+  .floating-search-trigger:hover {
+    background: var(--tag-bg);
+    transform: scale(1.1) rotate(-6deg);
   }
   .search-input {
     flex: 1;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
     background: transparent;
     border: none;
     color: var(--ink);
     font-family: var(--sans);
     font-size: 0.92rem;
     outline: none;
+    padding: 0;
+    transition:
+      opacity 0.26s ease,
+      padding 0.32s var(--bubble-spring);
+  }
+  .floating-search-bubble.expanded .search-input {
+    width: 100%;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 0 0.5rem;
   }
   .search-input::placeholder {
     color: var(--ink-muted);
@@ -574,14 +697,21 @@
   .btn-search-clear {
     background: var(--tag-bg);
     border: 1px solid var(--card-border);
+    border-radius: 999px;
     color: var(--ink-muted);
     font-family: var(--mono);
     font-size: 0.65rem;
-    padding: 2px 7px;
+    padding: 4px 10px;
     cursor: pointer;
     display: none;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
-  .btn-search-clear.show { display: inline-block; }
+  .floating-search-bubble.expanded .btn-search-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
   .btn-search-clear:hover { background: var(--ink); color: var(--bg); }
 
   /* VIEW MODE BANNER (FOR MY FLOWS / REPLIES PAGE) */
@@ -1011,6 +1141,51 @@
     font-size: 0.63rem;
     color: var(--ink-muted);
   }
+  .card-top-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* CLICKABLE STAR AT TOP OF EACH FLOW */
+  .btn-star-flow {
+    background: var(--surface-subtle);
+    border: 1px solid var(--card-border);
+    color: var(--ink-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .btn-star-flow:hover {
+    border-color: #d97706;
+    color: #d97706;
+    background: #fef3c7;
+    transform: translateY(-2px) scale(1.14) rotate(8deg);
+  }
+  body.dark-mode .btn-star-flow:hover {
+    background: #3b2a0a;
+    color: #fbbf24;
+    border-color: #f59e0b;
+  }
+  .btn-star-flow.starred {
+    background: #fef3c7;
+    border-color: #d97706;
+    color: #d97706;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+  }
+  body.dark-mode .btn-star-flow.starred {
+    background: #3b2a0a;
+    border-color: #f59e0b;
+    color: #fbbf24;
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+  }
   .card-tag {
     display: inline-block;
     background: var(--tag-bg);
@@ -1191,16 +1366,33 @@
   }
   .btn-expand:hover { background: transparent; color: var(--accent); border-color: transparent; text-decoration: underline; }
 
-  /* COMMENTS SECTION */
+  /* COMMENTS SECTION WITH SMOOTH HEIGHT TRANSITION ANIMATION */
   .comments-section {
-    margin-top: 0.85rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--card-border);
-    display: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 1px solid transparent;
+    display: flex;
     flex-direction: column;
     gap: 0.65rem;
+    pointer-events: none;
+    transition:
+      max-height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.28s ease,
+      margin-top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      padding-top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.28s ease;
   }
-  .comments-section.open { display: flex; }
+  .comments-section.open {
+    max-height: 460px;
+    opacity: 1;
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top-color: var(--card-border);
+    pointer-events: auto;
+  }
   .comments-list {
     display: flex;
     flex-direction: column;
@@ -1600,6 +1792,12 @@
         <span class="side-option-badge" id="sideCountMyFlows">0</span>
       </button>
 
+      <!-- STARRED FLOWS OPTION -->
+      <button type="button" class="btn-side-option" id="sideBtnStarred" onclick="switchViewMode('starred')">
+        <span>★ Starred Flows</span>
+        <span class="side-option-badge" id="sideCountStarred">0</span>
+      </button>
+
       <!-- REPLY COLUMN OPTION (OPENS REPLIES TO USER'S FLOWS) -->
       <button type="button" class="btn-side-option" id="sideBtnReplies" onclick="switchViewMode('replies')">
         <span>💬 Replies</span>
@@ -1695,17 +1893,26 @@
 
 <!-- MAIN FEED CONTAINER -->
 <div class="container">
-  <!-- 1. SEARCH BAR AT THE TOP OF THE FEED -->
-  <div class="search-bar-wrap">
-    <span class="search-icon">🔍</span>
-    <input
-      type="text"
-      class="search-input"
-      id="searchInput"
-      placeholder="Search flows by keyword in title, body content, or @username…"
-      oninput="handleSearchInput()"
-    />
-    <button type="button" class="btn-search-clear" id="btnSearchClear" onclick="clearSearchInput()">Clear ✕</button>
+  <!-- FLOATING SEARCH ICON AT THE TOP (OPENS WITH FLUID BUBBLE ANIMATION) -->
+  <div class="floating-search-row">
+    <div class="floating-search-bubble" id="floatingSearchBubble">
+      <button
+        type="button"
+        class="floating-search-trigger"
+        id="floatingSearchTrigger"
+        onclick="toggleFloatingSearch(event)"
+        title="Search flows"
+        aria-label="Search flows"
+      >🔍</button>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Search flows by title, body, or @username…"
+        oninput="handleSearchInput()"
+      />
+      <button type="button" class="btn-search-clear" id="btnSearchClear" onclick="closeOrClearFloatingSearch(event)">✕</button>
+    </div>
   </div>
 
   <!-- ACTIVE VIEW BANNER FOR MY FLOWS / REPLIES PAGE -->
@@ -1905,11 +2112,13 @@
   let allPosts = [];
   let usersDirectory = {};   // usernameLower -> { username, usernameLower, avatar }
   let likesByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
+  let starsByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
   let commentsByPost = {};   // postId -> Array<{ docId, author, authorUsername, authorAvatar, ownerToken, text, createdAt }>
   let pinnedPostsMap = {};   // postId -> { docId, pinnedAt }
   let activeFilter = 'all';
-  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'replies'
+  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies'
   let searchQuery = '';
+  let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
   let pendingDeleteConfirmId = null;
 
@@ -1924,9 +2133,43 @@
   const SESSION_KEY = 'paperflow_session_user_v1';
   const GUEST_TOKEN_KEY = 'paperflow_guest_token_v1';
   const DARK_MODE_KEY = 'paperflow_dark_mode_v1';
+  const LOCAL_STARS_PREFIX = 'paperflow_starred_v1_';
 
   let currentUser = loadSessionUser();
   const guestToken = getOrCreateGuestToken();
+  let localStarredSet = loadLocalStarredSet();
+
+  // Global fluid bubble pop listener on interactive clicks
+  document.addEventListener('click', (e) => {
+    const interactive = e.target.closest('button, .btn-file-upload, .btn-obsidian-download, .card-link-attachment');
+    if (interactive && !interactive.disabled) {
+      interactive.classList.remove('bubble-pop-anim');
+      void interactive.offsetWidth;
+      interactive.classList.add('bubble-pop-anim');
+    }
+  });
+
+  function getStarStorageKey() {
+    const actor = currentUser ? `user_${currentUser.usernameLower}` : guestToken;
+    return LOCAL_STARS_PREFIX + actor;
+  }
+
+  function loadLocalStarredSet() {
+    try {
+      const raw = localStorage.getItem(getStarStorageKey());
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr);
+      }
+    } catch (e) {}
+    return new Set();
+  }
+
+  function saveLocalStarredSet() {
+    try {
+      localStorage.setItem(getStarStorageKey(), JSON.stringify(Array.from(localStarredSet)));
+    } catch (e) {}
+  }
 
   function loadSessionUser() {
     try {
@@ -1947,6 +2190,7 @@
         localStorage.removeItem(SESSION_KEY);
       }
     } catch (e) {}
+    localStarredSet = loadLocalStarredSet();
     if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies')) {
       activeViewMode = 'board';
     }
@@ -2010,14 +2254,43 @@
   const d = new Date();
   document.getElementById('headerDate').innerHTML = `${d.toDateString()}<br>Vol. 1 — Free Press`;
 
-  // ── SEARCH BAR HANDLERS ─────────────────────────────────────────────────────
+  // ── FLOATING SEARCH BUBBLE HANDLERS ─────────────────────────────────────────
+  window.toggleFloatingSearch = function (e) {
+    if (e) e.stopPropagation();
+    const bubble = document.getElementById('floatingSearchBubble');
+    const inp = document.getElementById('searchInput');
+    if (!bubble) return;
+
+    if (!isSearchBubbleOpen) {
+      isSearchBubbleOpen = true;
+      bubble.classList.add('expanded');
+      setTimeout(() => inp?.focus(), 120);
+    } else if (!searchQuery) {
+      isSearchBubbleOpen = false;
+      bubble.classList.remove('expanded');
+    } else {
+      inp?.focus();
+    }
+  };
+
+  window.closeOrClearFloatingSearch = function (e) {
+    if (e) e.stopPropagation();
+    const inp = document.getElementById('searchInput');
+    const bubble = document.getElementById('floatingSearchBubble');
+    if (searchQuery) {
+      if (inp) inp.value = '';
+      searchQuery = '';
+      renderFeed();
+      inp?.focus();
+    } else {
+      isSearchBubbleOpen = false;
+      bubble?.classList.remove('expanded');
+    }
+  };
+
   window.handleSearchInput = function () {
     const inp = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('btnSearchClear');
     searchQuery = (inp?.value || '').trim();
-    if (clearBtn) {
-      clearBtn.classList.toggle('show', searchQuery.length > 0);
-    }
     renderFeed();
   };
 
@@ -2025,12 +2298,18 @@
     const inp = document.getElementById('searchInput');
     if (inp) inp.value = '';
     searchQuery = '';
-    const clearBtn = document.getElementById('btnSearchClear');
-    if (clearBtn) clearBtn.classList.remove('show');
     renderFeed();
   };
 
-  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / REPLIES) ───────────────────────
+  document.addEventListener('click', (e) => {
+    const bubble = document.getElementById('floatingSearchBubble');
+    if (isSearchBubbleOpen && bubble && !bubble.contains(e.target) && !searchQuery) {
+      isSearchBubbleOpen = false;
+      bubble.classList.remove('expanded');
+    }
+  });
+
+  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES) ─────────────
   window.switchViewMode = function (mode) {
     if ((mode === 'my-flows' || mode === 'replies') && !currentUser) {
       toggleSidePanel(false);
@@ -2190,6 +2469,7 @@
     (snapshot) => {
       const nextPosts = [];
       const nextLikes = {};
+      const nextStars = {};
       const nextComments = {};
       const nextPins = {};
 
@@ -2221,7 +2501,21 @@
           return;
         }
 
-        // 3. Like Record
+        // 3. Star Record
+        if (id.startsWith('__star__') || data.docType === 'star') {
+          const pId = data.postId;
+          if (pId) {
+            if (!nextStars[pId]) nextStars[pId] = [];
+            nextStars[pId].push({
+              docId: id,
+              actorKey: data.actorKey,
+              alias: data.alias
+            });
+          }
+          return;
+        }
+
+        // 4. Like Record
         if (id.startsWith('__like__') || data.docType === 'like') {
           const pId = data.postId;
           if (pId) {
@@ -2235,7 +2529,7 @@
           return;
         }
 
-        // 4. Comment Record
+        // 5. Comment Record
         if (id.startsWith('__comment__') || data.docType === 'comment') {
           const pId = data.postId;
           if (pId) {
@@ -2255,7 +2549,7 @@
           return;
         }
 
-        // 5. Standard Flow Post
+        // 6. Standard Flow Post
         nextPosts.push({ id, ...data });
         if (data.authorUsername && data.authorAvatar && !usersDirectory[data.authorUsername]) {
           usersDirectory[data.authorUsername] = {
@@ -2272,6 +2566,7 @@
 
       allPosts = nextPosts;
       likesByPost = nextLikes;
+      starsByPost = nextStars;
       commentsByPost = nextComments;
       pinnedPostsMap = nextPins;
 
@@ -2926,6 +3221,68 @@
     }
   };
 
+  // ── STAR / BOOKMARK FLOW ────────────────────────────────────────────────────
+  function isPostStarredByCurrentUser(postId) {
+    const actorKey = getCurrentActorKey();
+    const inRemote = (starsByPost[postId] || []).some(s => s.actorKey === actorKey);
+    return localStarredSet.has(postId) || inRemote;
+  }
+
+  window.toggleStarPost = async function (postId) {
+    const actorKey = getCurrentActorKey();
+    const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const starDocId = `__star__${postId}__${safeActorId}`;
+    const existingStarDoc = (starsByPost[postId] || []).find(
+      s => s.actorKey === actorKey || s.docId === starDocId
+    );
+    const currentlyStarred = isPostStarredByCurrentUser(postId);
+
+    if (currentlyStarred) {
+      localStarredSet.delete(postId);
+      saveLocalStarredSet();
+      showToast('Removed from Starred Flows');
+    } else {
+      localStarredSet.add(postId);
+      saveLocalStarredSet();
+      showToast('Added to Starred Flows ★');
+    }
+
+    renderSidePanelCounts();
+    if (activeViewMode === 'starred') {
+      renderFeed();
+    } else {
+      const btn = document.getElementById(`star-btn-${postId}`);
+      if (btn) {
+        const nowStarred = !currentlyStarred;
+        btn.classList.toggle('starred', nowStarred);
+        btn.innerHTML = nowStarred ? '★' : '☆';
+        btn.title = nowStarred ? 'Unstar this flow' : 'Star this flow';
+        btn.setAttribute('aria-label', nowStarred ? 'Unstar this flow' : 'Star this flow');
+      }
+    }
+
+    try {
+      if (currentlyStarred) {
+        if (existingStarDoc) {
+          await deleteDoc(doc(db, "posts", existingStarDoc.docId));
+        }
+      } else {
+        await setDoc(doc(db, "posts", starDocId), {
+          title: null,
+          body: 'star',
+          tag: 'other',
+          alias: (currentUser?.username || 'Reader').slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'star',
+          postId,
+          actorKey
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // ── COMMENTS / REPLIES ──────────────────────────────────────────────────────
   function getPostCommentsList(post) {
     const legacy = Array.isArray(post.comments) ? post.comments : [];
@@ -2934,15 +3291,23 @@
   }
 
   window.toggleCommentsSection = function (postId) {
-    if (openCommentsSet.has(postId)) {
-      openCommentsSet.delete(postId);
-    } else {
+    const isNowOpen = !openCommentsSet.has(postId);
+    if (isNowOpen) {
       openCommentsSet.add(postId);
+    } else {
+      openCommentsSet.delete(postId);
     }
-    renderFeed();
-    if (openCommentsSet.has(postId)) {
-      const inp = document.getElementById(`comment-input-${postId}`);
-      if (inp) inp.focus();
+    const sec = document.getElementById(`comments-sec-${postId}`);
+    if (sec) {
+      sec.classList.toggle('open', isNowOpen);
+      if (isNowOpen) {
+        setTimeout(() => {
+          const inp = document.getElementById(`comment-input-${postId}`);
+          if (inp) inp.focus();
+        }, 180);
+      }
+    } else {
+      renderFeed();
     }
   };
 
@@ -3043,6 +3408,10 @@
     return allPosts.filter(p => isPostAuthoredByUser(p, currentUser));
   }
 
+  function getStarredPosts() {
+    return allPosts.filter(p => isPostStarredByCurrentUser(p.id));
+  }
+
   function getRepliesToMyPosts() {
     if (!currentUser) return [];
     const myPosts = getMyPosts();
@@ -3063,14 +3432,17 @@
   function renderSidePanelCounts() {
     const countAllEl = document.getElementById('sideCountAll');
     const countMyEl = document.getElementById('sideCountMyFlows');
+    const countStarEl = document.getElementById('sideCountStarred');
     const countRepEl = document.getElementById('sideCountReplies');
 
     if (countAllEl) countAllEl.textContent = allPosts.length;
     if (countMyEl) countMyEl.textContent = currentUser ? getMyPosts().length : 0;
+    if (countStarEl) countStarEl.textContent = getStarredPosts().length;
     if (countRepEl) countRepEl.textContent = currentUser ? getRepliesToMyPosts().length : 0;
 
     document.getElementById('sideBtnBoard')?.classList.toggle('active', activeViewMode === 'board');
     document.getElementById('sideBtnMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
+    document.getElementById('sideBtnStarred')?.classList.toggle('active', activeViewMode === 'starred');
     document.getElementById('sideBtnReplies')?.classList.toggle('active', activeViewMode === 'replies');
   }
 
@@ -3183,7 +3555,7 @@
       return;
     }
 
-    // MODE 1 & 2: BOARD OR MY FLOWS
+    // MODE 1, 2 & 4: BOARD, MY FLOWS, OR STARRED FLOWS
     if (filterWrap) filterWrap.style.display = 'block';
 
     let baseList = allPosts;
@@ -3194,6 +3566,13 @@
         viewBannerText.innerHTML = `✍ Showing flows published by <strong>@${esc(currentUser?.username || '')}</strong>`;
       }
       baseList = getMyPosts();
+    } else if (activeViewMode === 'starred') {
+      if (sectionTitle) sectionTitle.textContent = 'Starred Flows';
+      if (viewBanner) {
+        viewBanner.classList.add('show');
+        viewBannerText.innerHTML = `★ Showing your starred flows`;
+      }
+      baseList = getStarredPosts();
     } else {
       if (sectionTitle) sectionTitle.textContent = 'The Board';
       if (viewBanner) viewBanner.classList.remove('show');
@@ -3228,8 +3607,12 @@
     if (filtered.length === 0) {
       const emptyMsg = qLower
         ? `No flows matching "${esc(searchQuery)}".`
-        : (activeViewMode === 'my-flows' ? 'You have not posted any flows yet. Click + to publish one!' : 'No flows here yet. Click + to share a thought!');
-      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><p>${emptyMsg}</p></div>`;
+        : (activeViewMode === 'my-flows'
+            ? 'You have not posted any flows yet. Click + to publish one!'
+            : (activeViewMode === 'starred'
+                ? 'You have not starred any flows yet. Click ☆ at the top of any flow to save it here!'
+                : 'No flows here yet. Click + to share a thought!'));
+      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">${activeViewMode === 'starred' ? '⭐' : '📋'}</span><p>${emptyMsg}</p></div>`;
       return;
     }
 
@@ -3272,6 +3655,7 @@
 
     const likes = getPostLikesList(post);
     const isLiked = likes.includes(getCurrentActorKey());
+    const isStarred = isPostStarredByCurrentUser(post.id);
     const comments = getPostCommentsList(post);
     const isCommentsOpen = openCommentsSet.has(post.id);
     const canDelete = canCurrentUserDeletePost(post);
@@ -3349,7 +3733,17 @@
             <div class="card-time">🕐 ${timeAgo}</div>
           </div>
         </div>
-        <span class="card-tag tag-${esc(displayCategory)}">${TAG_LABELS[displayCategory] || 'General'}</span>
+        <div class="card-top-right">
+          <span class="card-tag tag-${esc(displayCategory)}">${TAG_LABELS[displayCategory] || 'General'}</span>
+          <button
+            type="button"
+            class="btn-star-flow ${isStarred ? 'starred' : ''}"
+            id="star-btn-${post.id}"
+            onclick="toggleStarPost('${post.id}')"
+            title="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
+            aria-label="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
+          >${isStarred ? '★' : '☆'}</button>
+        </div>
       </div>
 
       ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}

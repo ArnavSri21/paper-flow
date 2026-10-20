@@ -2715,7 +2715,7 @@
 
   function syncNotificationUI() {
     const pill = document.getElementById('notifStatusPill');
-    const bellBtn = document.getElementById('headerNotifBell');
+    const menuLabel = document.getElementById('notifMenuLabel');
     const prefEnabled = isReplyNotifPreferenceEnabled();
     const hasAPI = 'Notification' in window;
     const perm = hasAPI ? Notification.permission : 'default';
@@ -2732,9 +2732,8 @@
     }
 
     if (pill) pill.textContent = statusText;
-    if (bellBtn) {
-      bellBtn.classList.toggle('active', isActive && (!hasAPI || perm === 'granted'));
-      bellBtn.innerHTML = `<span>${isActive ? '🔔' : '🔕'}</span><span>${statusText === 'ENABLE' ? 'Enable Alerts' : (isActive ? 'Alerts On' : 'Muted')}</span>`;
+    if (menuLabel) {
+      menuLabel.textContent = isActive ? '🔔 Reply Alerts' : '🔕 Reply Alerts';
     }
   }
 
@@ -3873,10 +3872,6 @@
       const av = renderAvatarHTML(currentUser.username, currentUser.avatar, '', isDev);
 
       headerBar.innerHTML = `
-        <button type="button" class="btn-notif-bell" id="headerNotifBell" onclick="toggleReplyNotifications()" title="Toggle mobile &amp; laptop reply notifications">
-          <span>🔔</span>
-          <span>Alerts On</span>
-        </button>
         <button class="user-pill-btn" onclick="openAuthModal('profile')" title="Edit Profile &amp; About">
           ${av}
           <span>@${esc(currentUser.username)}</span>
@@ -4020,7 +4015,8 @@
       const firestoreTag = selectedTag === 'updates' ? 'other' : selectedTag;
 
       if (isEditing) {
-        const existingPost = allPosts.find(p => p.id === editingPostId);
+        const targetPostId = editingPostId;
+        const existingPost = allPosts.find(p => p.id === targetPostId);
         if (!existingPost || !canCurrentUserEditPost(existingPost)) {
           showToast('You can only edit your own flows.');
           return;
@@ -4032,7 +4028,7 @@
           hasEmptyBody: !body,
           tag: firestoreTag,
           customCategory: selectedTag === 'updates' ? 'updates' : null,
-          alias: existingPost.alias || currentUser.username.slice(0, 30),
+          alias: (existingPost.alias || currentUser.username).slice(0, 30),
           authorUsername: existingPost.authorUsername || currentUser.usernameLower,
           authorAvatar: currentUser.avatar || existingPost.authorAvatar || '',
           authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
@@ -4040,11 +4036,13 @@
           imageUrl: draftImageData || null,
           linkUrl: linkUrl || null,
           linkTitle: linkTitle || null,
-          ts: existingPost.ts || serverTimestamp(),
-          editedAt: Date.now()
+          editedAt: Date.now(),
+          ts: serverTimestamp()
         };
 
-        await setDoc(doc(db, "posts", editingPostId), updatedPayload, { merge: true });
+        const postRef = doc(db, "posts", targetPostId);
+        await deleteDoc(postRef);
+        await setDoc(postRef, updatedPayload);
 
         document.getElementById('postTitle').value = '';
         document.getElementById('postBody').value  = '';
@@ -4361,7 +4359,10 @@
   };
 
   window.deleteComment = async function (postId, commentDocId) {
-    if (!currentUser) return;
+    if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) {
+      showToast('Only @Marvelist (Developer) can remove replies.');
+      return;
+    }
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
@@ -4369,20 +4370,11 @@
     const target = list.find(c => c.docId === commentDocId || c.id === commentDocId);
     if (!target) return;
 
-    const isDev = isDeveloperUser(currentUser.usernameLower);
-    const isCommentOwner = target.authorUsername && currentUser.usernameLower === target.authorUsername;
-    const isPostOwner = canCurrentUserDeletePost(post);
-
-    if (!isDev && !isCommentOwner && !isPostOwner) {
-      showToast('You can only delete your own comments.');
-      return;
-    }
-
     try {
       await deleteDoc(doc(db, "posts", target.docId));
-      showToast('Comment removed.');
+      showToast('Reply removed by Developer.');
     } catch (e) {
-      showToast('Could not delete comment.');
+      showToast('Could not delete reply.');
     }
   };
 
@@ -4712,11 +4704,7 @@
     const commentsListHTML = comments.map(c => {
       const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
       const cAvatar = (c.authorUsername && usersDirectory[c.authorUsername]?.avatar) || c.authorAvatar || '';
-      const canDelComment = Boolean(c.docId && currentUser) && (
-        isDeveloperUser(currentUser.usernameLower) ||
-        (c.authorUsername && currentUser.usernameLower === c.authorUsername) ||
-        canDelete
-      );
+      const canDelComment = Boolean(c.docId && currentUser && isDeveloperUser(currentUser.usernameLower));
       const cTime = c.createdAt ? formatTime(new Date(c.createdAt)) : '';
       return `
         <div class="comment-item ${commentIsDev ? 'comment-developer' : ''}">

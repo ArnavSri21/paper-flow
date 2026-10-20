@@ -48,6 +48,8 @@
     min-height: 100vh;
     background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.12) 27px, rgba(180,160,120,0.12) 28px);
   }
+
+  /* HEADER */
   header {
     border-bottom: 2px solid var(--ink);
     padding: 0 2rem;
@@ -60,13 +62,46 @@
     top: 0;
     z-index: 100;
   }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .btn-hamburger {
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--ink);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-hamburger:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--ink);
+    background: var(--tag-bg);
+  }
+  .btn-hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--ink);
+    transition: transform 0.2s;
+  }
   .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; }
-  .masthead-title { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+  .masthead-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
   .masthead-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
-  .header-right { display: flex; align-items: center; gap: 1.4rem; }
+  .header-right { display: flex; align-items: center; gap: 1.2rem; }
   .header-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); text-align: right; line-height: 1.7; }
 
-  /* HEADER AUTH BAR */
+  /* HEADER AUTH BAR (ONLY AT THE TOP) */
   .header-user-bar { display: flex; align-items: center; gap: 0.65rem; }
   .user-pill-btn {
     display: inline-flex;
@@ -165,17 +200,97 @@
   .banner-left { display: flex; align-items: center; gap: 1.2rem; }
   .banner-label { background: var(--accent); color: #fff; padding: 2px 8px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
   .banner-ticker { opacity: 0.85; }
-  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-  .grid { display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; align-items: start; }
 
-  /* GAMES SECTION (OBSIDIAN THEME) */
+  /* MAIN CONTAINER */
+  .container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem 5.5rem; }
+
+  /* SIDE PANEL DRAWER (HIDDEN UNLESS THREE DASHES CLICKED) */
+  .side-panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 18, 9, 0.52);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .side-panel-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .side-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 340px;
+    max-width: 88vw;
+    background: var(--bg);
+    border-right: 2px solid var(--ink);
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.25);
+    z-index: 310;
+    transform: translateX(-104%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .side-panel.open {
+    transform: translateX(0);
+  }
+  .side-panel-header {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0.9rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .side-panel-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+  .btn-side-about {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.85rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .btn-side-about:hover {
+    background: var(--ink);
+    color: var(--bg);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+
+  /* GAMES SECTION IN SIDE PANEL (OBSIDIAN THEME) */
   .games-section {
     background: linear-gradient(135deg, #08070c 0%, #120e1c 42%, #060509 54%, #181126 100%);
     border: 1.5px solid #4c3575;
     border-radius: 2px;
     overflow: hidden;
-    margin-bottom: 2.5rem;
-    box-shadow: inset 0 1px 0 rgba(196, 181, 253, 0.22), 4px 4px 0 #1e1433;
+    box-shadow: inset 0 1px 0 rgba(196, 181, 253, 0.22), 3px 3px 0 #1e1433;
     position: relative;
   }
   .games-section::after {
@@ -192,9 +307,9 @@
   .games-header {
     background: linear-gradient(90deg, #140f21 0%, #0b0812 100%);
     color: #c4b5fd;
-    padding: 0.6rem 1rem;
+    padding: 0.55rem 0.9rem;
     font-family: var(--mono);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     display: flex;
@@ -205,21 +320,21 @@
   .games-header::before {
     content: '◆';
     color: #a78bfa;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-shadow: 0 0 8px rgba(167, 139, 250, 0.6);
   }
   .games-body {
-    padding: 1.25rem 1.4rem;
+    padding: 1rem;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.2rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
     position: relative;
     z-index: 1;
   }
   .game-title {
     font-family: var(--serif);
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #f5f3ff;
     letter-spacing: 0.01em;
@@ -229,9 +344,9 @@
     background: linear-gradient(135deg, #23173d 0%, #120c21 55%, #2e1d52 100%);
     color: #ede9fe;
     border: 1px solid #8b5cf6;
-    padding: 0.65rem 1.4rem;
+    padding: 0.6rem 1rem;
     font-family: var(--mono);
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-weight: 500;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -239,6 +354,7 @@
     border-radius: 2px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 14px rgba(139, 92, 246, 0.28);
     transition: all 0.2s ease;
@@ -251,16 +367,246 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 20px rgba(167, 139, 250, 0.5);
     transform: translateY(-1px);
   }
-  .btn-obsidian-download:active { transform: scale(0.97); }
 
-  /* COMPOSE */
-  .compose-box { background: var(--card-bg); border: 1.5px solid var(--ink); border-radius: 2px; overflow: hidden; margin-bottom: 2.5rem; box-shadow: 4px 4px 0 var(--ink); }
+  /* SIDEBAR BOX IN SIDE PANEL */
+  .sidebar-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 2px; }
+  .sidebar-box-header { background: var(--ink); color: var(--bg); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .sidebar-box-body { padding: 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--ink-muted); }
+
+  /* ABOUT PAPERFLOW MODAL WINDOW */
+  .about-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 11, 7, 0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 550;
+    padding: 1.25rem;
+  }
+  .about-backdrop.open { display: flex; }
+  .about-window {
+    background: #121110;
+    color: #f3efe6;
+    border: 1.5px solid #3d362d;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeSlideIn 0.22s ease both;
+  }
+  .about-window-header {
+    background: #1b1814;
+    border-bottom: 1px solid #332d25;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #d5cbb8;
+  }
+  .about-window-body {
+    padding: 1.6rem 1.75rem;
+    overflow-y: auto;
+    font-family: var(--sans);
+    font-size: 0.93rem;
+    line-height: 1.65;
+    color: #e5dfd3;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+  .about-window-body h2 {
+    font-family: var(--sans);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.15rem;
+  }
+  .about-window-body h3 {
+    font-family: var(--sans);
+    font-size: 1.12rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 0.35rem;
+  }
+  .about-lead {
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .about-window-body ul,
+  .about-window-body ol {
+    padding-left: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .about-window-body li strong {
+    color: #ffffff;
+  }
+  .about-cta-links {
+    margin-top: 0.4rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid #2e2922;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .about-cta-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+  }
+  .about-cta-btn:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  /* FEED HEADER & SMALL FILTER DROPDOWN BUTTON */
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.3rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.6rem;
+  }
+  .feed-header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+  }
+  .feed-title { font-family: var(--serif); font-size: 1.5rem; font-style: italic; }
+  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
+
+  .filter-dropdown-wrap {
+    position: relative;
+  }
+  .btn-filter-dropdown {
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 2px 2px 0 var(--ink);
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .btn-filter-dropdown:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .filter-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    width: 210px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    z-index: 150;
+    display: none;
+    flex-direction: column;
+    padding: 0.3rem;
+    gap: 0.2rem;
+  }
+  .filter-dropdown-menu.open {
+    display: flex;
+  }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.42rem 0.65rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    transition: all 0.12s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .filter-count { opacity: 0.65; font-size: 0.6rem; }
+
+  /* FLOATING PLUS (+) BUTTON */
+  .fab-post-btn {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    font-family: var(--mono);
+    font-size: 2rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 250;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .fab-post-btn:hover {
+    background: var(--accent-hover);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .fab-post-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* COMPOSE POPUP MODAL */
+  .compose-modal-window {
+    background: var(--card-bg);
+    border: 2px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--ink);
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeSlideIn 0.2s ease both;
+  }
   .compose-header {
     background: var(--ink);
     color: var(--bg);
-    padding: 0.6rem 1rem;
+    padding: 0.75rem 1.1rem;
     font-family: var(--mono);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     display: flex;
@@ -426,12 +772,11 @@
   .compose-actions-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    justify-content: flex-end;
+    gap: 0.75rem;
     margin-top: 0.2rem;
   }
   .btn-post {
-    margin-left: auto;
     background: var(--accent);
     color: #fff;
     border: none;
@@ -447,11 +792,6 @@
   .btn-post:hover { background: var(--accent-hover); }
   .btn-post:active { transform: scale(0.97); }
   .btn-post:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* FEED */
-  .feed-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; }
-  .feed-title { font-family: var(--serif); font-size: 1.4rem; font-style: italic; }
-  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
 
   /* CARDS */
   .card {
@@ -785,66 +1125,7 @@
   }
   .btn-comment-submit:hover { background: var(--accent); border-color: var(--accent); }
 
-  /* SIDEBAR */
-  .sidebar > * + * { margin-top: 1.5rem; }
-  .sidebar-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 2px; }
-  .sidebar-box-header { background: var(--ink); color: var(--bg); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
-  .sidebar-box-body { padding: 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--ink-muted); }
-  .sidebar-box-body p + p { margin-top: 0.6rem; }
-  .sidebar-box-body strong { color: var(--ink); }
-  .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
-  .filter-btn { background: transparent; border: 1px solid var(--card-border); padding: 0.45rem 0.8rem; text-align: left; cursor: pointer; font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); transition: all 0.15s; letter-spacing: 0.05em; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-  .filter-btn:hover, .filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .filter-count { opacity: 0.6; font-size: 0.62rem; }
-
-  /* SIDEBAR PROFILE CARD */
-  .sidebar-profile-view {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .sidebar-profile-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .sidebar-profile-name {
-    font-family: var(--serif);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--ink);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-  .sidebar-profile-handle {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--ink-muted);
-  }
-  .sidebar-btn-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .btn-sidebar-action {
-    flex: 1;
-    background: var(--tag-bg);
-    border: 1px solid var(--ink);
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    padding: 0.45rem 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    text-align: center;
-  }
-  .btn-sidebar-action:hover { background: var(--ink); color: var(--bg); }
-  .btn-sidebar-action.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn-sidebar-action.primary:hover { background: var(--accent-hover); }
-
-  /* LOGIN / ACCOUNT MODAL */
+  /* MODALS (AUTH & COMPOSE POPUP) */
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -1036,24 +1317,29 @@
 
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 760px) {
-    .grid { grid-template-columns: 1fr; }
-    .sidebar { order: -1; }
     header { padding: 0.6rem 1rem; flex-wrap: wrap; }
     .header-meta { display: none; }
-    .container { padding: 1rem; }
-    .masthead-title { font-size: 1.55rem; }
+    .container { padding: 1.2rem 1rem 5.5rem; }
+    .masthead-title { font-size: 1.45rem; }
     .compose-row { flex-direction: column; align-items: stretch; }
-    .games-body { flex-direction: column; align-items: stretch; text-align: center; }
-    .btn-obsidian-download { justify-content: center; }
+    .fab-post-btn { right: 1.2rem; bottom: 1.2rem; width: 52px; height: 52px; font-size: 1.75rem; }
+    .about-window-body { padding: 1.25rem; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="masthead">
-    <div class="masthead-title">Paper Flow By Arnav Srivastava</div>
-    <div class="masthead-sub">Anonymous · Open · Live</div>
+  <div class="header-left">
+    <button class="btn-hamburger" onclick="toggleSidePanel(true)" aria-label="Open menu" title="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="masthead">
+      <div class="masthead-title">Paper Flow By Arnav Srivastava</div>
+      <div class="masthead-sub">Anonymous · Open · Live</div>
+    </div>
   </div>
   <div class="header-right">
     <div class="header-meta" id="headerDate"></div>
@@ -1074,129 +1360,190 @@
   <div id="bannerUserStatus" style="opacity: 0.85;"></div>
 </div>
 
+<!-- HIDDEN SIDE PANEL DRAWER (OPENED VIA THREE DASHES) -->
+<div class="side-panel-backdrop" id="sidePanelBackdrop" onclick="toggleSidePanel(false)"></div>
+<aside class="side-panel" id="sidePanel" aria-label="Side Menu">
+  <div class="side-panel-header">
+    <span>Paper Flow Menu</span>
+    <button class="modal-close" onclick="toggleSidePanel(false)" aria-label="Close side panel">✕</button>
+  </div>
+  <div class="side-panel-body">
+    <!-- 1. ABOUT OPTION BUTTON -->
+    <button type="button" class="btn-side-about" onclick="openAboutModal()">
+      <span>About</span>
+      <span>→</span>
+    </button>
+
+    <!-- 2. GAMES BANNER (MOVED TO SIDE PANEL) -->
+    <section class="games-section" id="games">
+      <div class="games-header">Games</div>
+      <div class="games-body">
+        <div class="game-title">Obsidian Sudoku</div>
+        <a href="https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.0/app-debug.apk" class="btn-obsidian-download" download="Obsidian-Sudoku.apk">Download APK ↓</a>
+      </div>
+    </section>
+
+    <!-- 3. LIVE STATS (MOVED TO SIDE PANEL) -->
+    <div class="sidebar-box">
+      <div class="sidebar-box-header">Live Stats</div>
+      <div class="sidebar-box-body">
+        <div id="statsBox" style="font-family: var(--mono); font-size: 0.72rem; line-height: 2;"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ABOUT BOX MODAL (OPENS WHEN USER CLICKS 'ABOUT' IN SIDE PANEL, RETRACTS ON OUTSIDE CLICK OR CROSS) -->
+<div class="about-backdrop" id="aboutModalBackdrop" onclick="handleAboutBackdropClick(event)">
+  <div class="about-window" onclick="event.stopPropagation()">
+    <div class="about-window-header">
+      <span>About Paperflow</span>
+      <button class="modal-close" onclick="closeAboutModal()" aria-label="Close About">✕</button>
+    </div>
+    <div class="about-window-body">
+      <div>
+        <h2>About Paperflow</h2>
+        <p class="about-lead" style="margin-top: 0.35rem;">Say what’s on your mind. No verification. No identity attached.</p>
+      </div>
+
+      <p>
+        In a digital world dominated by verified badges, social pressure, and permanent records, <strong>Paperflow</strong> is a blank, open space built for honest human expression. It is a judgment-free community where you can share raw confessions, vent late-night thoughts, seek genuine guidance, or support others through life’s unspoken struggles.
+      </p>
+
+      <div>
+        <h3>How Identity Works on Paperflow</h3>
+        <p style="margin-top: 0.3rem;">We believe honest expression shouldn’t require surrendering your personal data.</p>
+      </div>
+      <ul>
+        <li><strong>Pick Any Name:</strong> Choose a random handle, an alias, or an alter-ego for each session.</li>
+        <li><strong>Zero Verification:</strong> No email address, no phone numbers, no passwords, and no social media linking required.</li>
+        <li><strong>Zero Digital Baggage:</strong> Your alias exists only to let people converse with you in the threads. Nothing ties back to who you are in real life.</li>
+      </ul>
+
+      <div>
+        <h3>What You Can Do</h3>
+      </div>
+      <ul>
+        <li><strong>Confess &amp; Vent:</strong> Release thoughts, secrets, or reflections you’ve kept to yourself without worrying about being judged by people you know.</li>
+        <li><strong>Ask for Guidance:</strong> Ask candid questions about relationships, dilemmas, or personal struggles, and get honest, grounded feedback from people who have been there.</li>
+        <li><strong>Interact Freely:</strong> Read the feed, like confessions that resonate, and join the conversation in the comments to offer advice or solidarity.</li>
+      </ul>
+
+      <div>
+        <h3>The Community Pact</h3>
+        <p style="margin-top: 0.3rem;">Anonymity grants freedom, but a supportive space relies on respect. Paperflow is designed to be an outlet and a support net:</p>
+      </div>
+      <ol>
+        <li><strong>Keep it Empathetic:</strong> Speak with care—behind every unverified name is a real person looking for perspective.</li>
+        <li><strong>Protect Real Privacy:</strong> Never post personal contact details, real names, or identifying information about yourself or anyone else.</li>
+        <li><strong>Zero Malice:</strong> Hate speech, targeted harassment, and threats will not be tolerated.</li>
+      </ol>
+
+      <div class="about-cta-links">
+        <button type="button" class="about-cta-btn" onclick="closeAboutModal()">[Explore the Feed]</button>
+        <span>·</span>
+        <button type="button" class="about-cta-btn" onclick="closeAboutModal(); openComposeModal();">[Share a Thought]</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN FEED CONTAINER -->
 <div class="container">
-  <!-- GAMES -->
-  <section class="games-section" id="games">
-    <div class="games-header">Games</div>
-    <div class="games-body">
-      <div class="game-title">Obsidian Sudoku</div>
-      <a href="https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.0/app-debug.apk" class="btn-obsidian-download" download="Obsidian-Sudoku.apk">Download APK ↓</a>
+  <div class="feed-header">
+    <div class="feed-header-left">
+      <div class="feed-title">The Board</div>
+      <div class="feed-count" id="feedCount">loading…</div>
     </div>
-  </section>
 
-  <div class="grid">
+    <!-- SMALL FILTER DROPDOWN BUTTON -->
+    <div class="filter-dropdown-wrap" id="filterDropdownWrap">
+      <button type="button" class="btn-filter-dropdown" id="filterDropdownBtn" onclick="toggleFilterDropdown(event)">
+        <span id="filterDropdownLabel">Filter: All Flows</span>
+        <span>▾</span>
+      </button>
+      <div class="filter-dropdown-menu" id="filterGroup"></div>
+    </div>
+  </div>
 
-    <!-- MAIN -->
-    <div class="main-col">
-      <div class="compose-box">
-        <div class="compose-header">
-          <span class="compose-header-left">Post a Flow</span>
-          <span id="composeAuthBadge" style="font-size: 0.65rem; opacity: 0.85;"></span>
-        </div>
+  <div id="feed">
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+  </div>
+</div>
 
-        <div class="compose-identity-bar" id="composeIdentityBar">
-          <!-- Populated dynamically based on login state -->
-        </div>
+<!-- FLOATING PLUS (+) BUTTON TO OPEN POST POPUP -->
+<button type="button" class="fab-post-btn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">+</button>
 
-        <div class="compose-body">
-          <input type="text" id="postTitle" placeholder="Headline / Title (optional)" maxlength="120" />
-          <textarea id="postBody" placeholder="Write anything — a confession, a thought, a story, a question…" maxlength="5000"></textarea>
-
-          <div class="compose-row">
-            <select id="postTag">
-              <!-- Populated dynamically based on user role -->
-            </select>
-          </div>
-
-          <!-- ATTACHMENT TOGGLES -->
-          <div class="attachments-toolbar">
-            <button type="button" class="btn-attach-toggle" id="toggleImgBtn" onclick="toggleAttachmentPanel('image')">
-              📷 Attach Image
-            </button>
-            <button type="button" class="btn-attach-toggle" id="toggleLinkBtn" onclick="toggleAttachmentPanel('link')">
-              🔗 Attach Link
-            </button>
-          </div>
-
-          <!-- IMAGE ATTACHMENT PANEL -->
-          <div class="attachment-panel" id="imageAttachmentPanel">
-            <div class="attachment-panel-header">
-              <span>Image Attachment</span>
-              <button type="button" class="btn-comment-del" onclick="clearImageAttachment()">Clear ✕</button>
-            </div>
-            <div class="image-upload-row">
-              <label class="btn-file-upload" for="postImageFile">Upload Image File</label>
-              <input type="file" id="postImageFile" accept="image/*" style="display:none" onchange="handlePostImageFile(event)" />
-              <span style="font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted);">OR</span>
-              <input type="url" id="postImageUrl" placeholder="Paste image URL (https://…)" style="flex:1; min-width: 180px;" oninput="handlePostImageUrlInput()" />
-            </div>
-            <div class="compose-img-preview-wrap" id="composeImgPreviewWrap">
-              <img id="composeImgPreview" class="compose-img-preview" alt="Attachment preview" />
-              <button type="button" class="btn-remove-preview" onclick="clearImageAttachment()">✕</button>
-            </div>
-          </div>
-
-          <!-- LINK ATTACHMENT PANEL -->
-          <div class="attachment-panel" id="linkAttachmentPanel">
-            <div class="attachment-panel-header">
-              <span>Link Attachment</span>
-              <button type="button" class="btn-comment-del" onclick="clearLinkAttachment()">Clear ✕</button>
-            </div>
-            <input type="url" id="postLinkUrl" placeholder="https://example.com/article" maxlength="500" />
-            <input type="text" id="postLinkTitle" placeholder="Link label or headline (optional)" maxlength="100" />
-          </div>
-
-          <div class="compose-actions-row">
-            <button class="btn-post" id="submitBtn" onclick="submitPost()">Publish Flow →</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="feed-header">
-        <div class="feed-title">The Board</div>
-        <div class="feed-count" id="feedCount">loading…</div>
-      </div>
-      <div id="feed">
-        <div class="skeleton skel-card"></div>
-        <div class="skeleton skel-card"></div>
-        <div class="skeleton skel-card"></div>
+<!-- POST A FLOW POPUP MODAL -->
+<div class="modal-backdrop" id="composeModalBackdrop" onclick="handleComposeBackdropClick(event)">
+  <div class="compose-modal-window" onclick="event.stopPropagation()">
+    <div class="compose-header">
+      <span class="compose-header-left">Post a Flow</span>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span id="composeAuthBadge" style="font-size: 0.65rem; opacity: 0.85;"></span>
+        <button class="modal-close" onclick="closeComposeModal()" aria-label="Close">✕</button>
       </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <!-- ACCOUNT BOX -->
-      <div class="sidebar-box">
-        <div class="sidebar-box-header">Member Account</div>
-        <div class="sidebar-box-body" id="sidebarAccountBox">
-          <!-- Dynamically rendered -->
-        </div>
-      </div>
-
-      <div class="sidebar-box">
-        <div class="sidebar-box-header">About This Board</div>
-        <div class="sidebar-box-body">
-          <p><strong>Compulsory Username Sign-In.</strong> Sign in with your unique username and password before posting — no email or phone number needed.</p>
-          <p>Posts, likes, comments, images, and links are synced in <strong>Firebase Firestore</strong> in real-time.</p>
-          <p>Only the author who published a flow (or the site developer <strong>@Marvelist</strong>) can delete it.</p>
-        </div>
-      </div>
-
-      <div class="sidebar-box">
-        <div class="sidebar-box-header">Filter by Category</div>
-        <div class="sidebar-box-body" style="padding: 0.6rem;">
-          <div class="filter-group" id="filterGroup"></div>
-        </div>
-      </div>
-
-      <div class="sidebar-box">
-        <div class="sidebar-box-header">Live Stats</div>
-        <div class="sidebar-box-body">
-          <div id="statsBox" style="font-family: var(--mono); font-size: 0.72rem; line-height: 2;"></div>
-        </div>
-      </div>
+    <div class="compose-identity-bar" id="composeIdentityBar">
+      <!-- Populated dynamically based on login state -->
     </div>
 
+    <div class="compose-body">
+      <input type="text" id="postTitle" placeholder="Headline / Title (optional)" maxlength="120" />
+      <textarea id="postBody" placeholder="Write anything — a confession, a thought, a story, a question…" maxlength="5000"></textarea>
+
+      <div class="compose-row">
+        <select id="postTag">
+          <!-- Populated dynamically based on user role -->
+        </select>
+      </div>
+
+      <!-- ATTACHMENT TOGGLES -->
+      <div class="attachments-toolbar">
+        <button type="button" class="btn-attach-toggle" id="toggleImgBtn" onclick="toggleAttachmentPanel('image')">
+          📷 Attach Image
+        </button>
+        <button type="button" class="btn-attach-toggle" id="toggleLinkBtn" onclick="toggleAttachmentPanel('link')">
+          🔗 Attach Link
+        </button>
+      </div>
+
+      <!-- IMAGE ATTACHMENT PANEL -->
+      <div class="attachment-panel" id="imageAttachmentPanel">
+        <div class="attachment-panel-header">
+          <span>Image Attachment</span>
+          <button type="button" class="btn-comment-del" onclick="clearImageAttachment()">Clear ✕</button>
+        </div>
+        <div class="image-upload-row">
+          <label class="btn-file-upload" for="postImageFile">Upload Image File</label>
+          <input type="file" id="postImageFile" accept="image/*" style="display:none" onchange="handlePostImageFile(event)" />
+          <span style="font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted);">OR</span>
+          <input type="url" id="postImageUrl" placeholder="Paste image URL (https://…)" style="flex:1; min-width: 180px;" oninput="handlePostImageUrlInput()" />
+        </div>
+        <div class="compose-img-preview-wrap" id="composeImgPreviewWrap">
+          <img id="composeImgPreview" class="compose-img-preview" alt="Attachment preview" />
+          <button type="button" class="btn-remove-preview" onclick="clearImageAttachment()">✕</button>
+        </div>
+      </div>
+
+      <!-- LINK ATTACHMENT PANEL -->
+      <div class="attachment-panel" id="linkAttachmentPanel">
+        <div class="attachment-panel-header">
+          <span>Link Attachment</span>
+          <button type="button" class="btn-comment-del" onclick="clearLinkAttachment()">Clear ✕</button>
+        </div>
+        <input type="url" id="postLinkUrl" placeholder="https://example.com/article" maxlength="500" />
+        <input type="text" id="postLinkTitle" placeholder="Link label or headline (optional)" maxlength="100" />
+      </div>
+
+      <div class="compose-actions-row">
+        <button type="button" class="btn-small" onclick="closeComposeModal()">Cancel</button>
+        <button class="btn-post" id="submitBtn" onclick="submitPost()">Publish Flow →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1370,6 +1717,58 @@
   // ── HEADER DATE ─────────────────────────────────────────────────────────────
   const d = new Date();
   document.getElementById('headerDate').innerHTML = `${d.toDateString()}<br>Vol. 1 — Free Press`;
+
+  // ── SIDE PANEL, ABOUT MODAL, FILTER DROPDOWN & COMPOSE POPUP HANDLERS ──────
+  window.toggleSidePanel = function (open) {
+    const panel = document.getElementById('sidePanel');
+    const backdrop = document.getElementById('sidePanelBackdrop');
+    const shouldOpen = typeof open === 'boolean' ? open : !panel.classList.contains('open');
+    panel.classList.toggle('open', shouldOpen);
+    backdrop.classList.toggle('open', shouldOpen);
+  };
+
+  window.openAboutModal = function () {
+    toggleSidePanel(false);
+    document.getElementById('aboutModalBackdrop').classList.add('open');
+  };
+
+  window.closeAboutModal = function () {
+    document.getElementById('aboutModalBackdrop').classList.remove('open');
+  };
+
+  window.handleAboutBackdropClick = function (e) {
+    if (e.target.id === 'aboutModalBackdrop') {
+      closeAboutModal();
+    }
+  };
+
+  window.openComposeModal = function () {
+    document.getElementById('composeModalBackdrop').classList.add('open');
+  };
+
+  window.closeComposeModal = function () {
+    document.getElementById('composeModalBackdrop').classList.remove('open');
+  };
+
+  window.handleComposeBackdropClick = function (e) {
+    if (e.target.id === 'composeModalBackdrop') {
+      closeComposeModal();
+    }
+  };
+
+  window.toggleFilterDropdown = function (e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('filterGroup');
+    menu.classList.toggle('open');
+  };
+
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('filterDropdownWrap');
+    const menu = document.getElementById('filterGroup');
+    if (wrap && menu && !wrap.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
 
   // ── PASSWORD HASHING (SHA-256) ──────────────────────────────────────────────
   async function hashPassword(password, usernameLower) {
@@ -1828,7 +2227,6 @@
       <option value="news">🟢 News / Update</option>
       <option value="question">🟣 Question</option>
     `;
-    // Requirement 4: Only Marvelist sees the "updates" category option when posting
     if (isDev) {
       optionsHTML += `<option value="updates">⚡ Updates (Developer Only)</option>`;
     }
@@ -1843,7 +2241,6 @@
     const bannerUser = document.getElementById('bannerUserStatus');
     const composeIdentity = document.getElementById('composeIdentityBar');
     const composeBadge = document.getElementById('composeAuthBadge');
-    const sidebarBox = document.getElementById('sidebarAccountBox');
     const submitBtn = document.getElementById('submitBtn');
 
     renderCategorySelectOptions();
@@ -1872,24 +2269,6 @@
         <button type="button" class="compose-identity-action" onclick="openAuthModal('profile')">Edit Profile Pic</button>
       `;
       submitBtn.textContent = 'Publish Flow →';
-      sidebarBox.innerHTML = `
-        <div class="sidebar-profile-view">
-          <div class="sidebar-profile-row">
-            ${renderAvatarHTML(currentUser.username, currentUser.avatar, 'avatar-lg', isDev)}
-            <div>
-              <div class="sidebar-profile-name">
-                <span>${esc(currentUser.username)}</span>
-                ${devBadgeHTML}
-              </div>
-              <div class="sidebar-profile-handle">@${esc(currentUser.usernameLower)} · ${isDev ? 'Website Developer' : 'Verified Member'}</div>
-            </div>
-          </div>
-          <div class="sidebar-btn-row">
-            <button class="btn-sidebar-action" onclick="openAuthModal('profile')">Change Photo</button>
-            <button class="btn-sidebar-action" onclick="logoutUser()">Sign Out</button>
-          </div>
-        </div>
-      `;
     } else {
       headerBar.innerHTML = `
         <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
@@ -1904,15 +2283,6 @@
         <button type="button" class="compose-identity-action" onclick="openAuthModal('login')">Sign In / Register</button>
       `;
       submitBtn.textContent = 'Sign In to Publish →';
-      sidebarBox.innerHTML = `
-        <div class="sidebar-profile-view">
-          <p style="font-size: 0.82rem; color: var(--ink);"><strong>Sign in is required to post.</strong> Use your unique username &amp; password (no email or phone required).</p>
-          <div class="sidebar-btn-row">
-            <button class="btn-sidebar-action primary" onclick="openAuthModal('login')">Sign In</button>
-            <button class="btn-sidebar-action" onclick="openAuthModal('register')">Register</button>
-          </div>
-        </div>
-      `;
     }
   }
 
@@ -1990,7 +2360,6 @@
 
   // ── SUBMIT FLOW (COMPULSORY SIGN-IN) ────────────────────────────────────────
   window.submitPost = async function () {
-    // Requirement 1: Sign in is compulsory before posting
     if (!currentUser) {
       showToast('Please sign in with your username before posting!');
       openAuthModal('login');
@@ -2004,7 +2373,6 @@
     const linkTitle = document.getElementById('postLinkTitle').value.trim();
     const linkUrl = normalizeUrl(rawLinkUrl);
 
-    // Requirement 4: Only Marvelist can post in 'updates'
     const isDev = isDeveloperUser(currentUser.usernameLower);
     if (selectedTag === 'updates' && !isDev) {
       showToast('Only @Marvelist can post in Updates.');
@@ -2021,8 +2389,6 @@
     btn.textContent = 'Publishing…';
 
     try {
-      // Store 'other' as base Firestore tag when 'updates' is chosen so default DB rules validate,
-      // while saving customCategory: 'updates' so the post displays the Updates category tag.
       const firestoreTag = selectedTag === 'updates' ? 'other' : selectedTag;
       const payload = {
         title: title || null,
@@ -2047,6 +2413,7 @@
       document.getElementById('postTag').value   = 'other';
       clearImageAttachment();
       clearLinkAttachment();
+      closeComposeModal();
       showToast('Flow published to the board!');
     } catch (e) {
       console.error(e);
@@ -2058,8 +2425,6 @@
   };
 
   // ── OWNERSHIP & DEVELOPER MODERATION CHECK ──────────────────────────────────
-  // Requirement 3: User Marvelist has the power to delete ANY post on the website;
-  // other users can only delete their own flows.
   function canCurrentUserDeletePost(post) {
     if (!currentUser) return false;
     if (isDeveloperUser(currentUser.usernameLower)) {
@@ -2179,7 +2544,6 @@
   };
 
   window.submitComment = async function (postId) {
-    // Compulsory sign-in before posting a reply
     if (!currentUser) {
       showToast('Please sign in with your username before replying!');
       openAuthModal('login');
@@ -2276,17 +2640,23 @@
       const cat = getEffectivePostCategory(p);
       tagCounts[cat] = (tagCounts[cat] || 0) + 1;
     });
-    // Requirement 4: "updates" is not shown in the general categories option list,
-    // only on the post by Marvelist (and in Marvelist's post category dropdown).
     const categories = ['all','confession','story','opinion','news','question','other'];
     const fg = document.getElementById('filterGroup');
+    const labelEl = document.getElementById('filterDropdownLabel');
+    if (labelEl) {
+      labelEl.textContent = `Filter: ${TAG_LABELS[activeFilter] || 'All Flows'}`;
+    }
     fg.innerHTML = '';
     categories.forEach(cat => {
       const count = cat === 'all' ? allPosts.length : (tagCounts[cat] || 0);
       const btn = document.createElement('button');
       btn.className = 'filter-btn' + (activeFilter === cat ? ' active' : '');
       btn.innerHTML = `${TAG_LABELS[cat]} <span class="filter-count">${count}</span>`;
-      btn.onclick = () => { activeFilter = cat; renderAll(); };
+      btn.onclick = () => {
+        activeFilter = cat;
+        fg.classList.remove('open');
+        renderAll();
+      };
       fg.appendChild(btn);
     });
   }
@@ -2299,7 +2669,7 @@
     document.getElementById('feedCount').textContent = `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
     if (filtered.length === 0) {
-      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><p>No flows here yet. Be the first to post!</p></div>`;
+      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><p>No flows here yet. Click + to share a thought!</p></div>`;
       return;
     }
     feed.innerHTML = '';
@@ -2320,7 +2690,6 @@
   function makeCard(post, i) {
     const postAuthorIsDev = isDeveloperUser(post.authorUsername || post.alias);
     const effectiveCategory = getEffectivePostCategory(post);
-    // Only display 'updates' category badge on posts by Marvelist
     const displayCategory = (effectiveCategory === 'updates' && postAuthorIsDev)
       ? 'updates'
       : (post.tag || 'other');
@@ -2368,7 +2737,6 @@
         </a>`;
     }
 
-    // Requirement 2: Marvelist has a different colour reply and is differentiable as the developer
     const commentsListHTML = comments.map(c => {
       const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
       const cAvatar = (c.authorUsername && usersDirectory[c.authorUsername]?.avatar) || c.authorAvatar || '';

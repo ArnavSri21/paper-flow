@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A flow post, user profile record, like record, or comment record stored in the posts collection.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Optional headline for the flow."
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5000,
+          "description": "Main text content of the flow or comment."
+        },
+        "tag": {
+          "type": "string",
+          "enum": ["other", "confession", "story", "opinion", "news", "question"],
+          "description": "Category tag of the flow."
+        },
+        "alias": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "description": "Display name or username of the author."
+        },
+        "docType": {
+          "type": "string",
+          "enum": ["post", "user", "like", "comment"],
+          "description": "Record discriminator inside the posts collection."
+        },
+        "authorUsername": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Unique lowercase username of the author."
+        },
+        "authorAvatar": {
+          "type": "string",
+          "maxLength": 500000,
+          "description": "Profile picture URL or compressed Data URL."
+        },
+        "ownerToken": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Ownership identifier used to restrict deletion to the sender."
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 700000,
+          "description": "Optional attached image URL or compressed Data URL."
+        },
+        "linkUrl": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional attached external URL."
+        },
+        "linkTitle": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Optional label for the attached link."
+        },
+        "username": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 24,
+          "pattern": "^[a-zA-Z0-9_.-]+$",
+          "description": "Display username for a user record."
+        },
+        "usernameLower": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 24,
+          "pattern": "^[a-z0-9_.-]+$",
+          "description": "Unique lowercase username key."
+        },
+        "passwordHash": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "SHA-256 salted password hash."
+        },
+        "avatar": {
+          "type": "string",
+          "maxLength": 500000,
+          "description": "User profile picture."
+        },
+        "postId": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Target post ID for a like or comment."
+        },
+        "actorKey": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Unique actor identifier for a like."
+        }
+      },
+      "required": ["body", "tag", "alias"]
+    }
+  },
+  "firestore": {
+    "/posts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/Post"
+      },
+      "description": "Public flow posts, user account records, likes, and comments."
+    }
+  }
+}

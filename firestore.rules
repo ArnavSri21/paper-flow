@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidPostPayload(data) {
+      return data.keys().hasAll(['body', 'tag', 'alias', 'ts']) &&
+        data.body is string && data.body.size() >= 1 && data.body.size() <= 5000 &&
+        data.tag is string && data.tag in ['other', 'confession', 'story', 'opinion', 'news', 'question'] &&
+        data.alias is string && data.alias.size() >= 1 && data.alias.size() <= 30 &&
+        (!('title' in data) || data.title == null || (data.title is string && data.title.size() <= 120)) &&
+        (!('imageUrl' in data) || data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() <= 800000)) &&
+        (!('linkUrl' in data) || data.linkUrl == null || (data.linkUrl is string && data.linkUrl.size() <= 500)) &&
+        (!('linkTitle' in data) || data.linkTitle == null || (data.linkTitle is string && data.linkTitle.size() <= 100)) &&
+        (!('avatar' in data) || data.avatar == null || (data.avatar is string && data.avatar.size() <= 600000)) &&
+        (!('authorAvatar' in data) || data.authorAvatar == null || (data.authorAvatar is string && data.authorAvatar.size() <= 600000));
+    }
+
+    match /posts/{postId} {
+      allow get: if isValidId(postId);
+      allow list: if resource.data.body is string && resource.data.body.size() <= 5000;
+      allow create: if isValidId(postId) && isValidPostPayload(request.resource.data);
+      allow update: if isValidId(postId) && isValidPostPayload(request.resource.data);
+      allow delete: if isValidId(postId);
+    }
+  }
+}

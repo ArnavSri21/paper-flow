@@ -1,0 +1,8 @@
+{
+  "name": "Paper Flow — Anonymous & Open",
+  "description": "An anonymous, open, real-time memo board for sharing confessions, stories, opinions, news, and questions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

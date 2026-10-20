@@ -2,7 +2,7 @@
   "entities": {
     "Post": {
       "title": "Post",
-      "description": "A flow post, user profile record, like record, or comment record stored in the posts collection.",
+      "description": "A flow post, user profile record, like record, comment record, or pin record stored in the posts collection.",
       "type": "object",
       "properties": {
         "title": {
@@ -34,7 +34,7 @@
         },
         "docType": {
           "type": "string",
-          "enum": ["post", "user", "like", "comment"],
+          "enum": ["post", "user", "like", "comment", "pin"],
           "description": "Record discriminator inside the posts collection."
         },
         "authorUsername": {
@@ -94,7 +94,7 @@
         "postId": {
           "type": "string",
           "maxLength": 128,
-          "description": "Target post ID for a like or comment."
+          "description": "Target post ID for a like, comment, or pin."
         },
         "actorKey": {
           "type": "string",
@@ -110,7 +110,7 @@
       "schema": {
         "$ref": "#/entities/Post"
       },
-      "description": "Public flow posts, user account records, likes, and comments."
+      "description": "Public flow posts, user account records, likes, comments, and developer pin records."
     }
   }
 }

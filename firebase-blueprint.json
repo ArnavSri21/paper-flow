@@ -110,6 +110,10 @@
           "type": "string",
           "maxLength": 400,
           "description": "Optional snapshot of the author bio."
+        },
+        "editedAt": {
+          "type": "number",
+          "description": "Unix timestamp in ms when the flow author last edited the flow."
         }
       },
       "required": ["body", "tag", "alias"]

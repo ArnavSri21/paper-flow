@@ -1310,8 +1310,29 @@
     border: 1px solid var(--card-border);
     background: var(--surface-subtle);
     padding: 0.35rem;
-    border-radius: 2px;
+    border-radius: 6px;
     overflow: hidden;
+    max-height: 520px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: top center;
+    transition:
+      max-height 0.44s var(--bubble-smooth),
+      opacity 0.32s var(--bubble-smooth),
+      margin-top 0.36s var(--bubble-smooth),
+      padding 0.36s var(--bubble-smooth),
+      border-width 0.25s ease,
+      transform 0.38s var(--bubble-spring);
+  }
+  .card-media.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    pointer-events: none;
+    transform: translateY(-6px) scale(0.98);
   }
   .card-media img {
     width: 100%;
@@ -1320,6 +1341,38 @@
     display: block;
     cursor: zoom-in;
     background: var(--surface-subtle);
+  }
+  .card-attachment-corner {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 0.55rem;
+  }
+  .attachment-corner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    background: var(--surface-subtle);
+    border: 1px dashed var(--card-border);
+    border-radius: 999px;
+    padding: 2px 10px;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      transform 0.35s var(--bubble-spring),
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+  .attachment-corner-badge:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+    background: var(--surface-hover);
+    transform: translateY(-1px) scale(1.04);
   }
   .card-link-attachment {
     margin-top: 0.75rem;
@@ -1478,6 +1531,15 @@
     border-color: var(--accent);
     color: #fff;
   }
+  .btn-edit-own {
+    color: var(--ink);
+    border-color: var(--card-border);
+  }
+  .btn-edit-own:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
   .btn-expand {
     color: var(--accent);
     border-color: transparent;
@@ -1489,6 +1551,127 @@
     padding: 0 4px;
   }
   .btn-expand:hover { background: transparent; color: var(--accent); border-color: transparent; text-decoration: underline; }
+
+  /* NATIVE-STYLE PUSH NOTIFICATION STACK (MOBILE & LAPTOP) */
+  .os-notification-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    max-width: 360px;
+    width: calc(100vw - 2rem);
+    pointer-events: none;
+  }
+  .os-notification-card {
+    pointer-events: auto;
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), 3px 3px 0 var(--ink);
+    padding: 0.8rem 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    cursor: pointer;
+    animation: notifSlideIn 0.42s var(--bubble-spring);
+    transition: transform 0.25s var(--bubble-spring), opacity 0.25s ease;
+  }
+  .os-notification-card:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  @keyframes notifSlideIn {
+    from { opacity: 0; transform: translateY(-18px) scale(0.92); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .os-notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    border: 1px solid var(--ink);
+  }
+  .os-notif-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .os-notif-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.15rem;
+  }
+  .os-notif-title {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .os-notif-text {
+    font-family: var(--sans);
+    font-size: 0.76rem;
+    color: var(--ink-muted);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .os-notif-close {
+    background: transparent;
+    border: none;
+    color: var(--ink-muted);
+    font-size: 0.78rem;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .os-notif-close:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+  .btn-notif-bell {
+    background: var(--surface-subtle);
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    padding: 0.26rem 0.62rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .btn-notif-bell.active {
+    background: #e4f5e9;
+    border-color: #16a34a;
+    color: #14532d;
+  }
+  body.dark-mode .btn-notif-bell.active {
+    background: #132f1c;
+    border-color: #22c55e;
+    color: #86efac;
+  }
 
   /* COMMENTS SECTION WITH SMOOTH HEIGHT TRANSITION ANIMATION */
   .comments-section {
@@ -2027,6 +2210,12 @@
         <span id="darkModeLabel">🌙 Dark Mode</span>
         <span class="theme-switch-pill" id="darkModeStatusPill">OFF</span>
       </button>
+
+      <!-- REPLY NOTIFICATIONS TOGGLE (MOBILE & LAPTOP) -->
+      <button type="button" class="btn-side-option" id="sideBtnNotifications" onclick="toggleReplyNotifications()">
+        <span id="notifMenuLabel">🔔 Reply Alerts</span>
+        <span class="theme-switch-pill" id="notifStatusPill">ENABLE</span>
+      </button>
     </div>
 
     <!-- GAMES BANNER (IN SIDE PANEL) -->
@@ -2163,11 +2352,11 @@
   <span class="fab-plus-icon">+</span>
 </button>
 
-<!-- POST A FLOW POPUP MODAL -->
+<!-- POST / EDIT A FLOW POPUP MODAL -->
 <div class="modal-backdrop" id="composeModalBackdrop" onclick="handleComposeBackdropClick(event)">
   <div class="compose-modal-window" onclick="event.stopPropagation()">
     <div class="compose-header">
-      <span class="compose-header-left">Post a Flow</span>
+      <span class="compose-header-left" id="composeHeaderTitle">Post a Flow</span>
       <div style="display: flex; align-items: center; gap: 0.75rem;">
         <span id="composeAuthBadge" style="font-size: 0.65rem; opacity: 0.85;"></span>
         <button class="modal-close" onclick="closeComposeModal()" aria-label="Close">✕</button>
@@ -2355,7 +2544,9 @@
   let searchQuery = '';
   let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
+  let expandedFlowsSet = new Set();
   let pendingDeleteConfirmId = null;
+  let editingPostId = null;
 
   // Attachment draft state
   let draftImageData = '';
@@ -2426,10 +2617,12 @@
       }
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
+    seenReplyIdsSet = loadSeenReplyIdsSet();
     if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies')) {
       activeViewMode = 'board';
     }
     renderAuthUI();
+    syncNotificationUI();
     renderAll();
   }
 
@@ -2466,6 +2659,265 @@
   };
 
   syncDarkModeUI();
+
+  // ── MOBILE & LAPTOP REPLY NOTIFICATIONS SYSTEM ──────────────────────────────
+  const NOTIF_ENABLED_KEY = 'paperflow_reply_notif_enabled_v1';
+  const SEEN_REPLIES_PREFIX = 'paperflow_seen_replies_v1_';
+  let swRegistration = null;
+  let hasInitialSnapshotLoaded = false;
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      swRegistration = reg;
+    }).catch(() => {});
+
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'OPEN_REPLIED_FLOW' && event.data.postId) {
+        jumpToFlowFromReply(event.data.postId);
+      }
+    });
+  }
+
+  function getSeenRepliesStorageKey() {
+    const actor = currentUser ? `user_${currentUser.usernameLower}` : guestToken;
+    return SEEN_REPLIES_PREFIX + actor;
+  }
+
+  function loadSeenReplyIdsSet() {
+    try {
+      const raw = localStorage.getItem(getSeenRepliesStorageKey());
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr);
+      }
+    } catch (e) {}
+    return new Set();
+  }
+
+  let seenReplyIdsSet = loadSeenReplyIdsSet();
+
+  function saveSeenReplyIdsSet() {
+    try {
+      const arr = Array.from(seenReplyIdsSet).slice(-500);
+      localStorage.setItem(getSeenRepliesStorageKey(), JSON.stringify(arr));
+    } catch (e) {}
+  }
+
+  function isReplyNotifPreferenceEnabled() {
+    try {
+      const val = localStorage.getItem(NOTIF_ENABLED_KEY);
+      if (val === 'false') return false;
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function syncNotificationUI() {
+    const pill = document.getElementById('notifStatusPill');
+    const bellBtn = document.getElementById('headerNotifBell');
+    const prefEnabled = isReplyNotifPreferenceEnabled();
+    const hasAPI = 'Notification' in window;
+    const perm = hasAPI ? Notification.permission : 'default';
+
+    let statusText = 'ON';
+    let isActive = prefEnabled;
+    if (!prefEnabled) {
+      statusText = 'MUTED';
+      isActive = false;
+    } else if (hasAPI && perm === 'default') {
+      statusText = 'ENABLE';
+    } else if (hasAPI && perm === 'denied') {
+      statusText = 'IN-APP';
+    }
+
+    if (pill) pill.textContent = statusText;
+    if (bellBtn) {
+      bellBtn.classList.toggle('active', isActive && (!hasAPI || perm === 'granted'));
+      bellBtn.innerHTML = `<span>${isActive ? '🔔' : '🔕'}</span><span>${statusText === 'ENABLE' ? 'Enable Alerts' : (isActive ? 'Alerts On' : 'Muted')}</span>`;
+    }
+  }
+
+  window.requestBrowserNotificationPermission = async function (silent = false) {
+    if (!('Notification' in window)) {
+      if (!silent) showToast('Live reply notifications enabled!');
+      syncNotificationUI();
+      return false;
+    }
+    if (Notification.permission === 'granted') {
+      syncNotificationUI();
+      return true;
+    }
+    if (Notification.permission === 'denied') {
+      if (!silent) {
+        showToast('Browser blocked OS popups — live in-app & sound alerts are active!');
+      }
+      syncNotificationUI();
+      return false;
+    }
+    try {
+      const result = await Notification.requestPermission();
+      syncNotificationUI();
+      if (result === 'granted') {
+        if (!silent) {
+          showToast('Mobile & laptop reply notifications enabled! 🔔');
+          sendSystemAndInAppReplyNotification({
+            title: 'Paper Flow Notifications Active 🔔',
+            body: `You will now receive mobile & laptop notifications whenever someone replies to @${currentUser?.username || 'your'} flows.`,
+            postId: null
+          });
+        }
+        return true;
+      }
+    } catch (e) {}
+    syncNotificationUI();
+    return false;
+  };
+
+  window.toggleReplyNotifications = async function () {
+    const hasAPI = 'Notification' in window;
+    if (hasAPI && Notification.permission === 'default') {
+      localStorage.setItem(NOTIF_ENABLED_KEY, 'true');
+      await requestBrowserNotificationPermission(false);
+      return;
+    }
+
+    const currentlyEnabled = isReplyNotifPreferenceEnabled();
+    const nextState = !currentlyEnabled;
+    try {
+      localStorage.setItem(NOTIF_ENABLED_KEY, nextState ? 'true' : 'false');
+    } catch (e) {}
+    syncNotificationUI();
+
+    if (nextState) {
+      showToast('Reply notifications enabled 🔔');
+      await requestBrowserNotificationPermission(true);
+    } else {
+      showToast('Reply notifications muted 🔕');
+    }
+  };
+
+  function playNotificationChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.setValueAtTime(587.33, now);       // D5
+      osc1.frequency.setValueAtTime(880, now + 0.11);   // A5
+      osc2.frequency.setValueAtTime(293.66, now);       // D4
+      osc2.frequency.setValueAtTime(440, now + 0.11);   // A4
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.4);
+      osc2.stop(now + 0.4);
+    } catch (e) {}
+  }
+
+  function showInAppOSNotificationCard({ title, body, postId }) {
+    let stack = document.getElementById('osNotificationStack');
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.id = 'osNotificationStack';
+      stack.className = 'os-notification-stack';
+      document.body.appendChild(stack);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'os-notification-card';
+    card.innerHTML = `
+      <div class="os-notif-icon">💬</div>
+      <div class="os-notif-body">
+        <div class="os-notif-meta">
+          <span>Paper Flow · Reply Alert</span>
+          <span>Now</span>
+        </div>
+        <div class="os-notif-title">${esc(title)}</div>
+        <div class="os-notif-text">${esc(body)}</div>
+      </div>
+      <button type="button" class="os-notif-close" aria-label="Dismiss notification">✕</button>
+    `;
+
+    const closeBtn = card.querySelector('.os-notif-close');
+    const dismiss = () => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(-12px) scale(0.95)';
+      setTimeout(() => card.remove(), 240);
+    };
+
+    closeBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      dismiss();
+    };
+
+    card.onclick = () => {
+      dismiss();
+      if (postId) {
+        jumpToFlowFromReply(postId);
+      }
+    };
+
+    stack.appendChild(card);
+    setTimeout(dismiss, 7500);
+  }
+
+  async function sendSystemAndInAppReplyNotification({ title, body, postId }) {
+    if (!isReplyNotifPreferenceEnabled()) return;
+
+    playNotificationChime();
+    showInAppOSNotificationCard({ title, body, postId });
+
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([180, 80, 180]); } catch (e) {}
+    }
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notifOptions = {
+        body,
+        tag: postId ? `paperflow-reply-${postId}-${Date.now()}` : `paperflow-notif-${Date.now()}`,
+        renotify: true,
+        vibrate: [180, 80, 180],
+        data: { postId }
+      };
+
+      let shownViaSW = false;
+      if (swRegistration && typeof swRegistration.showNotification === 'function') {
+        try {
+          await swRegistration.showNotification(title, notifOptions);
+          shownViaSW = true;
+        } catch (e) {}
+      }
+
+      if (!shownViaSW) {
+        try {
+          const n = new Notification(title, notifOptions);
+          n.onclick = () => {
+            window.focus();
+            n.close();
+            if (postId) jumpToFlowFromReply(postId);
+          };
+        } catch (e) {}
+      }
+    }
+  }
+
+  syncNotificationUI();
 
   const TAG_LABELS = {
     all: 'All Flows',
@@ -2610,11 +3062,71 @@
   }, { passive: true });
 
   window.openComposeModal = function () {
+    editingPostId = null;
+    const headerTitle = document.getElementById('composeHeaderTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    if (headerTitle) headerTitle.textContent = 'Post a Flow';
+    if (submitBtn) submitBtn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
+    document.getElementById('composeModalBackdrop').classList.add('open');
+    document.getElementById('fabPostBtn')?.classList.add('modal-open');
+    if (currentUser && 'Notification' in window && Notification.permission === 'default') {
+      requestBrowserNotificationPermission(true);
+    }
+  };
+
+  window.openEditFlowModal = function (postId) {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post || !canCurrentUserEditPost(post)) {
+      showToast('You can only edit flows that you posted.');
+      return;
+    }
+
+    editingPostId = post.id;
+    const headerTitle = document.getElementById('composeHeaderTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    if (headerTitle) headerTitle.textContent = 'Edit Your Flow';
+    if (submitBtn) submitBtn.textContent = 'Save Changes →';
+
+    renderCategorySelectOptions();
+    const effectiveCat = getEffectivePostCategory(post);
+    document.getElementById('postTitle').value = post.title || '';
+    document.getElementById('postBody').value = post.hasEmptyBody ? '' : (post.body || '');
+    const selectEl = document.getElementById('postTag');
+    if (selectEl) {
+      selectEl.value = effectiveCat;
+    }
+
+    // Populate existing image attachment if any
+    if (post.imageUrl) {
+      draftImageData = post.imageUrl;
+      document.getElementById('postImageUrl').value = post.imageUrl.startsWith('http') ? post.imageUrl : '';
+      showComposeImagePreview(post.imageUrl);
+      document.getElementById('imageAttachmentPanel').classList.add('open');
+      document.getElementById('toggleImgBtn').classList.add('active');
+    } else {
+      clearImageAttachment();
+    }
+
+    // Populate existing link attachment if any
+    if (post.linkUrl) {
+      document.getElementById('postLinkUrl').value = post.linkUrl || '';
+      document.getElementById('postLinkTitle').value = post.linkTitle || '';
+      document.getElementById('linkAttachmentPanel').classList.add('open');
+      document.getElementById('toggleLinkBtn').classList.add('active');
+    } else {
+      clearLinkAttachment();
+    }
+
     document.getElementById('composeModalBackdrop').classList.add('open');
     document.getElementById('fabPostBtn')?.classList.add('modal-open');
   };
 
   window.closeComposeModal = function () {
+    editingPostId = null;
+    const headerTitle = document.getElementById('composeHeaderTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    if (headerTitle) headerTitle.textContent = 'Post a Flow';
+    if (submitBtn) submitBtn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
     document.getElementById('composeModalBackdrop').classList.remove('open');
     document.getElementById('fabPostBtn')?.classList.remove('modal-open');
   };
@@ -2818,6 +3330,46 @@
       Object.keys(nextComments).forEach(pId => {
         nextComments[pId].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       });
+
+      // Detect newly added replies to currentUser's flows for Mobile & Laptop Notifications
+      const newlyArrivedRepliesForMe = [];
+      Object.values(nextComments).forEach(commentList => {
+        commentList.forEach(c => {
+          if (!seenReplyIdsSet.has(c.docId)) {
+            seenReplyIdsSet.add(c.docId);
+            if (hasInitialSnapshotLoaded && currentUser) {
+              const targetPost = nextPosts.find(p => p.id === c.postId);
+              if (targetPost && isPostAuthoredByUser(targetPost, currentUser)) {
+                newlyArrivedRepliesForMe.push({ comment: c, post: targetPost });
+              }
+            }
+          }
+        });
+      });
+
+      if (!hasInitialSnapshotLoaded) {
+        hasInitialSnapshotLoaded = true;
+        saveSeenReplyIdsSet();
+        // Check if opened via notification URL ?flow=
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetFlowId = urlParams.get('flow');
+        if (targetFlowId && nextPosts.some(p => p.id === targetFlowId)) {
+          setTimeout(() => jumpToFlowFromReply(targetFlowId), 200);
+        }
+      } else if (newlyArrivedRepliesForMe.length > 0) {
+        saveSeenReplyIdsSet();
+        newlyArrivedRepliesForMe.forEach(({ comment, post }) => {
+          const replier = comment.authorUsername ? `@${comment.author}` : (comment.author || 'Someone');
+          const flowLabel = post.title
+            ? `"${post.title.slice(0, 42)}"`
+            : (post.hasEmptyBody ? 'your media flow' : `"${(post.body || '').slice(0, 42)}…"`);
+          sendSystemAndInAppReplyNotification({
+            title: `${replier} replied to ${flowLabel}`,
+            body: comment.text || 'New reply on your flow',
+            postId: post.id
+          });
+        });
+      }
 
       allPosts = nextPosts;
       likesByPost = nextLikes;
@@ -3321,6 +3873,10 @@
       const av = renderAvatarHTML(currentUser.username, currentUser.avatar, '', isDev);
 
       headerBar.innerHTML = `
+        <button type="button" class="btn-notif-bell" id="headerNotifBell" onclick="toggleReplyNotifications()" title="Toggle mobile &amp; laptop reply notifications">
+          <span>🔔</span>
+          <span>Alerts On</span>
+        </button>
         <button class="user-pill-btn" onclick="openAuthModal('profile')" title="Edit Profile &amp; About">
           ${av}
           <span>@${esc(currentUser.username)}</span>
@@ -3328,6 +3884,7 @@
         </button>
         <button class="btn-small" onclick="logoutUser()" style="border-color: var(--ink); color: var(--ink);">Sign Out</button>
       `;
+      syncNotificationUI();
       bannerUser.innerHTML = `Signed in as <strong>@${esc(currentUser.username)}</strong> ${devBadgeHTML}`;
       composeBadge.innerHTML = `@${esc(currentUser.username)} ${devBadgeHTML}`;
       composeIdentity.className = 'compose-identity-bar';
@@ -3338,7 +3895,7 @@
         </div>
         <button type="button" class="compose-identity-action" onclick="openAuthModal('profile')">Edit Profile</button>
       `;
-      submitBtn.textContent = 'Publish Flow →';
+      submitBtn.textContent = editingPostId ? 'Save Changes →' : 'Publish Flow →';
     } else {
       headerBar.innerHTML = `
         <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
@@ -3456,42 +4013,80 @@
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.textContent = 'Publishing…';
+    const isEditing = Boolean(editingPostId);
+    btn.textContent = isEditing ? 'Saving…' : 'Publishing…';
 
     try {
       const firestoreTag = selectedTag === 'updates' ? 'other' : selectedTag;
-      const payload = {
-        title: title || null,
-        body: body || ' ',
-        hasEmptyBody: !body,
-        tag: firestoreTag,
-        customCategory: selectedTag === 'updates' ? 'updates' : null,
-        alias: currentUser.username.slice(0, 30),
-        authorUsername: currentUser.usernameLower,
-        authorAvatar: currentUser.avatar || '',
-        authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
-        ownerToken: `user:${currentUser.usernameLower}`,
-        imageUrl: draftImageData || null,
-        linkUrl: linkUrl || null,
-        linkTitle: linkTitle || null,
-        ts: serverTimestamp()
-      };
 
-      await addDoc(postsCol, payload);
+      if (isEditing) {
+        const existingPost = allPosts.find(p => p.id === editingPostId);
+        if (!existingPost || !canCurrentUserEditPost(existingPost)) {
+          showToast('You can only edit your own flows.');
+          return;
+        }
 
-      document.getElementById('postTitle').value = '';
-      document.getElementById('postBody').value  = '';
-      document.getElementById('postTag').value   = 'other';
-      clearImageAttachment();
-      clearLinkAttachment();
-      closeComposeModal();
-      showToast('Flow published to the board!');
+        const updatedPayload = {
+          title: title || null,
+          body: body || ' ',
+          hasEmptyBody: !body,
+          tag: firestoreTag,
+          customCategory: selectedTag === 'updates' ? 'updates' : null,
+          alias: existingPost.alias || currentUser.username.slice(0, 30),
+          authorUsername: existingPost.authorUsername || currentUser.usernameLower,
+          authorAvatar: currentUser.avatar || existingPost.authorAvatar || '',
+          authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
+          ownerToken: existingPost.ownerToken || `user:${currentUser.usernameLower}`,
+          imageUrl: draftImageData || null,
+          linkUrl: linkUrl || null,
+          linkTitle: linkTitle || null,
+          ts: existingPost.ts || serverTimestamp(),
+          editedAt: Date.now()
+        };
+
+        await setDoc(doc(db, "posts", editingPostId), updatedPayload, { merge: true });
+
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postBody').value  = '';
+        document.getElementById('postTag').value   = 'other';
+        clearImageAttachment();
+        clearLinkAttachment();
+        closeComposeModal();
+        showToast('Flow updated!');
+      } else {
+        const payload = {
+          title: title || null,
+          body: body || ' ',
+          hasEmptyBody: !body,
+          tag: firestoreTag,
+          customCategory: selectedTag === 'updates' ? 'updates' : null,
+          alias: currentUser.username.slice(0, 30),
+          authorUsername: currentUser.usernameLower,
+          authorAvatar: currentUser.avatar || '',
+          authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
+          ownerToken: `user:${currentUser.usernameLower}`,
+          imageUrl: draftImageData || null,
+          linkUrl: linkUrl || null,
+          linkTitle: linkTitle || null,
+          ts: serverTimestamp()
+        };
+
+        await addDoc(postsCol, payload);
+
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postBody').value  = '';
+        document.getElementById('postTag').value   = 'other';
+        clearImageAttachment();
+        clearLinkAttachment();
+        closeComposeModal();
+        showToast('Flow published to the board!');
+      }
     } catch (e) {
       console.error(e);
-      showToast('Error publishing flow.');
+      showToast(isEditing ? 'Error updating flow.' : 'Error publishing flow.');
     } finally {
       btn.disabled = false;
-      btn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
+      btn.textContent = editingPostId ? 'Save Changes →' : (currentUser ? 'Publish Flow →' : 'Sign In to Publish →');
     }
   };
 
@@ -3508,6 +4103,11 @@
       return true;
     }
     return false;
+  }
+
+  function canCurrentUserEditPost(post) {
+    if (!currentUser) return false;
+    return isPostAuthoredByUser(post, currentUser);
   }
 
   function canCurrentUserDeletePost(post) {
@@ -4058,6 +4658,11 @@
 
     const displayBody = post.hasEmptyBody ? '' : (post.body || '');
     const isLong = displayBody.length > 400;
+    const hasImage = Boolean(post.imageUrl);
+    const hasLink = Boolean(post.linkUrl);
+    const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
+    const hasExpandable = isLong || hasImage;
+    const isExpanded = expandedFlowsSet.has(post.id);
     const timeAgo = post.ts ? formatTime(post.ts.toDate ? post.ts.toDate() : new Date(post.ts)) : 'just now';
 
     const authorName = post.alias || 'Anonymous';
@@ -4069,20 +4674,21 @@
     const isStarred = isPostStarredByCurrentUser(post.id);
     const comments = getPostCommentsList(post);
     const isCommentsOpen = openCommentsSet.has(post.id);
+    const canEdit = canCurrentUserEditPost(post);
     const canDelete = canCurrentUserDeletePost(post);
     const isConfirmingDelete = pendingDeleteConfirmId === post.id;
 
     let mediaHTML = '';
-    if (post.imageUrl) {
+    if (hasImage) {
       const safeSrc = esc(post.imageUrl);
       mediaHTML = `
-        <div class="card-media">
+        <div class="card-media ${isExpanded ? '' : 'collapsed'}" id="media-${post.id}">
           <img src="${safeSrc}" alt="Flow attachment" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
         </div>`;
     }
 
     let linkHTML = '';
-    if (post.linkUrl) {
+    if (hasLink) {
       const safeUrl = esc(post.linkUrl);
       const displayTitle = esc(post.linkTitle || post.linkUrl);
       const domain = esc(formatHostname(post.linkUrl));
@@ -4095,6 +4701,13 @@
           <span class="card-link-arrow">Open ↗</span>
         </a>`;
     }
+
+    const attachmentCornerHTML = attachmentCount > 0 ? `
+      <div class="card-attachment-corner">
+        <span class="attachment-corner-badge" id="attach-corner-${post.id}" ${hasExpandable ? `onclick="toggleExpand('${post.id}')" title="Click to ${isExpanded ? 'hide' : 'view'} attachment"` : ''}>
+          📎 ${attachmentCount} attachment${attachmentCount === 1 ? '' : 's'} attached
+        </span>
+      </div>` : '';
 
     const commentsListHTML = comments.map(c => {
       const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
@@ -4143,7 +4756,7 @@
                 ? `<span class="dev-badge">⚡ Developer</span>`
                 : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : '')}
             </div>
-            <div class="card-time">🕐 ${timeAgo}</div>
+            <div class="card-time">🕐 ${timeAgo}${post.editedAt ? ' · <em>edited</em>' : ''}</div>
           </div>
         </div>
         <div class="card-top-right">
@@ -4160,7 +4773,7 @@
       </div>
 
       ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}
-      ${displayBody ? `<div class="card-body ${isLong ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>` : ''}
+      ${displayBody ? `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>` : ''}
       ${mediaHTML}
       ${linkHTML}
 
@@ -4177,11 +4790,14 @@
         </div>
 
         <div class="card-actions">
-          ${isLong ? `<button class="btn-small btn-expand" onclick="toggleExpand('${post.id}', this)">Read more</button>` : ''}
+          ${hasExpandable ? `<button class="btn-small btn-expand" id="expand-btn-${post.id}" onclick="toggleExpand('${post.id}', this)">${isExpanded ? 'View less' : 'View more'}</button>` : ''}
           ${viewerIsDev ? `<button class="btn-small btn-pin-dev ${pinned ? 'pinned' : ''}" onclick="togglePinPost('${post.id}')">📌 ${pinned ? 'Unpin' : 'Pin'}</button>` : ''}
+          ${canEdit ? `<button class="btn-small btn-edit-own" onclick="openEditFlowModal('${post.id}')">✎ Edit</button>` : ''}
           ${canDelete ? `<button class="btn-small btn-delete-own" onclick="deletePost('${post.id}')">${isConfirmingDelete ? 'Confirm Delete?' : 'Delete'}</button>` : ''}
         </div>
       </div>
+
+      ${attachmentCornerHTML}
 
       <div class="comments-section ${isCommentsOpen ? 'open' : ''}" id="comments-sec-${post.id}">
         ${comments.length > 0 ? `<div class="comments-list">${commentsListHTML}</div>` : `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Start the conversation below.</div>`}
@@ -4202,14 +4818,33 @@
   }
 
   window.toggleExpand = function(id, btn) {
-    const el = document.getElementById('body-' + id);
-    if (!el) return;
-    if (el.classList.contains('collapsed')) {
-      el.classList.remove('collapsed');
-      btn.textContent = 'Read less';
+    const isNowExpanded = !expandedFlowsSet.has(id);
+    if (isNowExpanded) {
+      expandedFlowsSet.add(id);
     } else {
-      el.classList.add('collapsed');
-      btn.textContent = 'Read more';
+      expandedFlowsSet.delete(id);
+    }
+
+    const bodyEl = document.getElementById('body-' + id);
+    const mediaEl = document.getElementById('media-' + id);
+    const expandBtn = btn || document.getElementById('expand-btn-' + id);
+    const cornerBadge = document.getElementById('attach-corner-' + id);
+
+    const post = allPosts.find(p => p.id === id);
+    const displayBody = post ? (post.hasEmptyBody ? '' : (post.body || '')) : '';
+    const isLong = displayBody.length > 400;
+
+    if (bodyEl && isLong) {
+      bodyEl.classList.toggle('collapsed', !isNowExpanded);
+    }
+    if (mediaEl) {
+      mediaEl.classList.toggle('collapsed', !isNowExpanded);
+    }
+    if (expandBtn) {
+      expandBtn.textContent = isNowExpanded ? 'View less' : 'View more';
+    }
+    if (cornerBadge) {
+      cornerBadge.title = `Click to ${isNowExpanded ? 'hide' : 'view'} attachment`;
     }
   };
 

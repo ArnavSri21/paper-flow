@@ -34,7 +34,7 @@
         },
         "docType": {
           "type": "string",
-          "enum": ["post", "user", "like", "comment", "pin", "star", "msg_request", "paper_msg"],
+          "enum": ["post", "user", "like", "comment", "pin", "star", "msg_request", "paper_msg", "report"],
           "description": "Record discriminator inside the posts collection."
         },
         "authorUsername": {

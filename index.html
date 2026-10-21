@@ -2113,25 +2113,53 @@
 
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* ── PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER) ── */
-  .container.messages-mode-container {
-    max-width: 1060px;
+  /* ── PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER — CONSTANT FULL PAGE) ── */
+  body.pm-fullscreen-open {
+    overflow: hidden !important;
+    height: 100dvh;
+    touch-action: manipulation;
+  }
+  body.pm-fullscreen-open #fabPostBtn,
+  body.pm-fullscreen-open #topChrome {
+    display: none !important;
   }
   .paper-messages-shell {
     display: none;
-    height: calc(100vh - 185px);
-    min-height: 540px;
-    max-height: 760px;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
     background: var(--card-bg);
-    border: 2px solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
-    border-radius: 14px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 500;
     overflow: hidden;
-    animation: fadeSlideIn 0.28s var(--bubble-smooth);
   }
   .paper-messages-shell.active {
     display: grid;
-    grid-template-columns: 330px 1fr;
+    grid-template-columns: 340px 1fr;
+  }
+  .pm-exit-back-btn {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.18s ease, transform 0.22s var(--bubble-ease);
+  }
+  .pm-exit-back-btn:hover {
+    background: rgba(255, 255, 255, 0.26);
+    transform: scale(1.08);
   }
   /* Left Sidebar */
   .pm-sidebar {
@@ -2644,6 +2672,209 @@
     line-height: 1.55;
   }
 
+  .pm-status-tag.blocked-tag {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #ef4444;
+    font-weight: 600;
+  }
+  body.dark-mode .pm-status-tag.blocked-tag {
+    background: #3f1111;
+    color: #f87171;
+  }
+  /* Chat Header Right & Three-Dots Block Menu */
+  .pm-chat-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+  .btn-pm-more {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .btn-pm-more:hover {
+    background: rgba(255,255,255,0.24);
+  }
+  .pm-chat-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 195px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    padding: 0.35rem;
+    z-index: 60;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .pm-chat-dropdown.open {
+    display: flex;
+  }
+  .pm-dropdown-item {
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink);
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: 100%;
+  }
+  .pm-dropdown-item:hover {
+    background: var(--surface-hover);
+  }
+  .pm-dropdown-item.danger {
+    color: #dc2626;
+    font-weight: 600;
+  }
+  body.dark-mode .pm-dropdown-item.danger {
+    color: #f87171;
+  }
+
+  /* ── THREE-DOTS MENU ON FLOW CARDS & DEVELOPER REPORTS SECTION ── */
+  .card-more-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn-card-more {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .btn-card-more:hover {
+    background: var(--surface-hover);
+    border-color: var(--card-border);
+    color: var(--ink);
+  }
+  .card-more-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    min-width: 215px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 4px 4px 0 var(--ink);
+    padding: 0.35rem;
+    z-index: 45;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .card-more-dropdown.open {
+    display: flex;
+  }
+  .card-more-header {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    padding: 0.25rem 0.55rem;
+    border-bottom: 1px dashed var(--card-border);
+    margin-bottom: 2px;
+  }
+  .card-more-item {
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    width: 100%;
+  }
+  .card-more-item:hover {
+    background: var(--surface-hover);
+  }
+  .card-more-item.report-opt {
+    color: #dc2626;
+  }
+  body.dark-mode .card-more-item.report-opt {
+    color: #f87171;
+  }
+  .report-moderation-card {
+    background: var(--card-bg);
+    border: 1.5px solid #dc2626;
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1rem;
+    box-shadow: 3px 3px 0 rgba(220, 38, 38, 0.25);
+  }
+  .report-mod-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-bottom: 0.55rem;
+    margin-bottom: 0.65rem;
+    border-bottom: 1px dashed var(--card-border);
+  }
+  .report-count-pill {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #ef4444;
+  }
+  body.dark-mode .report-count-pill {
+    background: #3f1111;
+    color: #f87171;
+  }
+  .report-reasons-list {
+    margin-top: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--surface-subtle);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
   @media (max-width: 760px) {
     header { padding: 0.6rem 1rem; flex-wrap: wrap; }
     .header-meta { display: none; }
@@ -2654,7 +2885,8 @@
     .about-window-body { padding: 1.25rem; }
     .paper-messages-shell.active {
       grid-template-columns: 1fr;
-      height: calc(100vh - 150px);
+      width: 100vw;
+      height: 100dvh;
     }
     .paper-messages-shell.mobile-chat-open .pm-sidebar {
       display: none;
@@ -2748,6 +2980,12 @@
       <button type="button" class="btn-side-option" id="sideBtnMessages" onclick="switchViewMode('messages')">
         <span>🔒 Paper Messages</span>
         <span class="side-option-badge" id="sideCountMessages">0</span>
+      </button>
+
+      <!-- DEVELOPER REPORTS SECTION (VISIBLE ONLY TO MARVELIST) -->
+      <button type="button" class="btn-side-option" id="sideBtnReports" onclick="switchViewMode('reports')" style="display: none;">
+        <span>🚩 Reports</span>
+        <span class="side-option-badge" id="sideCountReports">0</span>
       </button>
 
       <!-- ABOUT OPTION -->
@@ -3120,13 +3358,17 @@
   let starsByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
   let commentsByPost = {};   // postId -> Array<{ docId, author, authorUsername, authorAvatar, ownerToken, text, createdAt }>
   let pinnedPostsMap = {};   // postId -> { docId, pinnedAt }
-  let msgRequestsByPair = {}; // pairKey -> { docId, pairKey, fromUser, fromDisplay, toUser, toDisplay, status, encryptedNote, updatedAt }
+  let reportsByPost = {};    // postId -> Array<{ docId, postId, actorKey, reporterUsername, reason, flowTitleSnapshot, flowBodySnapshot, flowAuthorSnapshot, createdAt }>
+  let autoRemovedPostIds = new Set(); // postIds already auto-removed after >3 reports
+  let msgRequestsByPair = {}; // pairKey -> { docId, pairKey, fromUser, fromDisplay, toUser, toDisplay, status, blockedBy, encryptedNote, updatedAt }
   let paperMessagesByPair = {}; // pairKey -> Array<{ docId, pairKey, fromUser, fromDisplay, toUser, toDisplay, encryptedBody, isRequestNote, createdAt }>
   let decryptedTextCache = {}; // docId -> plaintext string
   let activeChatPeerLower = null; // currently selected usernameLower in Paper Messages
   let activePmTab = 'chats'; // 'chats' | 'requests' | 'users'
+  let isPmChatMenuOpen = false;
+  let openCardMoreMenuId = null;
   let activeFilter = 'all';
-  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies' | 'messages'
+  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies' | 'messages' | 'reports'
   let searchQuery = '';
   let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
@@ -3204,9 +3446,12 @@
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
     seenReplyIdsSet = loadSeenReplyIdsSet();
-    if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies' || activeViewMode === 'messages')) {
+    if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies' || activeViewMode === 'messages' || activeViewMode === 'reports')) {
       activeViewMode = 'board';
       activeChatPeerLower = null;
+    }
+    if (user && !isDeveloperUser(user.usernameLower) && activeViewMode === 'reports') {
+      activeViewMode = 'board';
     }
     renderAuthUI();
     syncNotificationUI();
@@ -3582,7 +3827,7 @@
     }
   });
 
-  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES / PAPER MESSAGES) ──
+  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES / PAPER MESSAGES / REPORTS) ──
   window.switchViewMode = function (mode) {
     if ((mode === 'my-flows' || mode === 'replies' || mode === 'messages') && !currentUser) {
       toggleSidePanel(false);
@@ -3592,10 +3837,20 @@
       openAuthModal('login');
       return;
     }
+    if (mode === 'reports' && (!currentUser || !isDeveloperUser(currentUser.usernameLower))) {
+      toggleSidePanel(false);
+      showToast('Only @Marvelist (Developer) can access the Reports section.');
+      return;
+    }
     activeViewMode = mode;
+    isPmChatMenuOpen = false;
+    openCardMoreMenuId = null;
+    document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
     toggleSidePanel(false);
     renderAll();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (mode !== 'messages') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
@@ -3620,6 +3875,8 @@
     }
     activeChatPeerLower = cleanLower;
     activeViewMode = 'messages';
+    isPmChatMenuOpen = false;
+    document.body.classList.add('pm-fullscreen-open');
     const shell = document.getElementById('paperMessagesShell');
     shell?.classList.add('mobile-chat-open');
     toggleSidePanel(false);
@@ -3852,6 +4109,7 @@
       const nextStars = {};
       const nextComments = {};
       const nextPins = {};
+      const nextReports = {};
       const nextMsgRequests = {};
       const nextPaperMessages = {};
 
@@ -3952,7 +4210,7 @@
           return;
         }
 
-        // 6. Paper Messages Request Record
+        // 6. Paper Messages Request / Block Record
         if (id.startsWith('__msgreq__') || data.docType === 'msg_request') {
           const pk = data.pairKey;
           if (pk && data.fromUser && data.toUser) {
@@ -3966,10 +4224,13 @@
               toUser: String(data.toUser).toLowerCase(),
               toDisplay: data.toDisplay || data.toUser,
               status: data.status || 'pending',
+              blockedBy: data.blockedBy ? String(data.blockedBy).toLowerCase() : null,
               encryptedNote: data.body || '',
               updatedAt: data.updatedAt || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now())
             };
-            queueDecryptPaperRecord(id, data.body || '', data.fromUser, data.toUser);
+            if (data.status !== 'blocked') {
+              queueDecryptPaperRecord(id, data.body || '', data.fromUser, data.toUser);
+            }
           }
           return;
         }
@@ -3998,7 +4259,27 @@
           return;
         }
 
-        // 8. Standard Flow Post
+        // 8. Flow Report Record
+        if (id.startsWith('__report__') || data.docType === 'report') {
+          const pId = data.postId;
+          if (pId) {
+            if (!nextReports[pId]) nextReports[pId] = [];
+            nextReports[pId].push({
+              docId: id,
+              postId: pId,
+              actorKey: data.actorKey || '',
+              reporterUsername: data.reporterUsername || data.alias || 'Reader',
+              reason: data.reason || data.body || 'Reported flow',
+              flowTitleSnapshot: data.flowTitleSnapshot || '',
+              flowBodySnapshot: data.flowBodySnapshot || '',
+              flowAuthorSnapshot: data.flowAuthorSnapshot || '',
+              createdAt: data.createdAt || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now())
+            });
+          }
+          return;
+        }
+
+        // 9. Standard Flow Post
         nextPosts.push({ id, ...data });
         if (data.authorUsername) {
           registerUserInDirectory(data.authorUsername, data.alias || data.authorUsername, data.authorAvatar, data.authorBio);
@@ -4077,11 +4358,26 @@
         });
       }
 
-      allPosts = nextPosts;
+      // Auto-remove any flow with more than 3 reports (i.e. >= 4 reports)
+      const survivingPosts = [];
+      nextPosts.forEach(p => {
+        const postReports = nextReports[p.id] || [];
+        if (postReports.length > 3) {
+          if (!autoRemovedPostIds.has(p.id)) {
+            autoRemovedPostIds.add(p.id);
+            deleteDoc(doc(db, "posts", p.id)).catch(() => {});
+          }
+        } else {
+          survivingPosts.push(p);
+        }
+      });
+
+      allPosts = survivingPosts;
       likesByPost = nextLikes;
       starsByPost = nextStars;
       commentsByPost = nextComments;
       pinnedPostsMap = nextPins;
+      reportsByPost = nextReports;
       msgRequestsByPair = nextMsgRequests;
       paperMessagesByPair = nextPaperMessages;
 
@@ -5281,13 +5577,21 @@
     return list;
   }
 
+  function isChatBlocked(peerLower) {
+    if (!currentUser || !peerLower) return false;
+    const pairKey = getConversationPairKey(currentUser.usernameLower, peerLower);
+    const req = msgRequestsByPair[pairKey];
+    return Boolean(req && req.status === 'blocked');
+  }
+
   function canDirectMessageWithoutRequest(peerLower) {
     if (!currentUser) return false;
+    const pairKey = getConversationPairKey(currentUser.usernameLower, peerLower);
+    const req = msgRequestsByPair[pairKey];
+    if (req && req.status === 'blocked') return false;
     // Developer @Marvelist can message any user directly without a request,
     // and any conversation with @Marvelist is unlocked once initiated.
     if (isDeveloperUser(currentUser.usernameLower)) return true;
-    const pairKey = getConversationPairKey(currentUser.usernameLower, peerLower);
-    const req = msgRequestsByPair[pairKey];
     if (req && req.status === 'accepted') return true;
     // Also if @Marvelist has already messaged this user, unlock reply immediately
     const msgs = paperMessagesByPair[pairKey] || [];
@@ -5298,7 +5602,11 @@
   }
 
   window.switchPmTab = function (tab) {
-    activePmTab = tab;
+    if (tab === 'users' && (!currentUser || !isDeveloperUser(currentUser.usernameLower))) {
+      activePmTab = 'chats';
+    } else {
+      activePmTab = tab;
+    }
     renderPaperMessagesUI();
   };
 
@@ -5314,6 +5622,7 @@
       };
     }
     activeChatPeerLower = cleanLower;
+    isPmChatMenuOpen = false;
     document.getElementById('paperMessagesShell')?.classList.add('mobile-chat-open');
     renderPaperMessagesUI();
     setTimeout(() => {
@@ -5323,7 +5632,77 @@
   };
 
   window.closeMobilePmChat = function () {
+    isPmChatMenuOpen = false;
     document.getElementById('paperMessagesShell')?.classList.remove('mobile-chat-open');
+  };
+
+  window.togglePmChatMenu = function (e) {
+    if (e) e.stopPropagation();
+    isPmChatMenuOpen = !isPmChatMenuOpen;
+    const menu = document.getElementById('pmChatHeaderDropdown');
+    if (menu) menu.classList.toggle('open', isPmChatMenuOpen);
+  };
+
+  window.toggleBlockPaperChat = async function (peerLower) {
+    if (!currentUser || !peerLower) return;
+    isPmChatMenuOpen = false;
+    const me = currentUser.usernameLower;
+    const peerEntry = usersDirectory[peerLower] || { username: peerLower, usernameLower: peerLower };
+    const pairKey = getConversationPairKey(me, peerLower);
+    const reqDocId = `__msgreq__${pairKey}`;
+    const existingReq = msgRequestsByPair[pairKey];
+    const currentlyBlocked = existingReq && existingReq.status === 'blocked';
+
+    try {
+      if (existingReq) {
+        await deleteDoc(doc(db, "posts", existingReq.docId || reqDocId));
+      }
+
+      if (currentlyBlocked) {
+        // Unblock: if there were messages before, restore to 'accepted', otherwise leave cleared
+        const priorMsgs = paperMessagesByPair[pairKey] || [];
+        if (priorMsgs.length > 0) {
+          await setDoc(doc(db, "posts", reqDocId), {
+            title: null,
+            body: existingReq.encryptedNote || 'accepted',
+            tag: 'other',
+            alias: currentUser.username.slice(0, 30),
+            ts: serverTimestamp(),
+            docType: 'msg_request',
+            pairKey,
+            fromUser: existingReq.fromUser || me,
+            fromDisplay: existingReq.fromDisplay || currentUser.username,
+            toUser: existingReq.toUser || peerLower,
+            toDisplay: existingReq.toDisplay || peerEntry.username || peerLower,
+            status: 'accepted',
+            blockedBy: null,
+            updatedAt: Date.now()
+          });
+        }
+        showToast(`Unblocked @${peerEntry.username || peerLower}.`);
+      } else {
+        await setDoc(doc(db, "posts", reqDocId), {
+          title: null,
+          body: existingReq?.encryptedNote || 'blocked',
+          tag: 'other',
+          alias: currentUser.username.slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'msg_request',
+          pairKey,
+          fromUser: existingReq?.fromUser || me,
+          fromDisplay: existingReq?.fromDisplay || currentUser.username,
+          toUser: existingReq?.toUser || peerLower,
+          toDisplay: existingReq?.toDisplay || peerEntry.username || peerLower,
+          status: 'blocked',
+          blockedBy: me,
+          updatedAt: Date.now()
+        });
+        showToast(`Blocked @${peerEntry.username || peerLower} in Paper Messages.`);
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Could not update block status.');
+    }
   };
 
   window.sendPaperMessageRequest = async function (peerLower) {
@@ -5507,16 +5886,27 @@
 
     const me = currentUser.usernameLower;
     const isDev = isDeveloperUser(me);
+    if (!isDev && activePmTab === 'users') {
+      activePmTab = 'chats';
+    }
+
     const selfHeader = document.getElementById('pmSidebarHeader');
     const tabsBar = document.getElementById('pmTabsBar');
     const listEl = document.getElementById('pmSidebarList');
     const mainEl = document.getElementById('pmMainPane');
-    const searchVal = (document.getElementById('pmSearchInput')?.value || '').trim().toLowerCase().replace(/^@/, '');
+    const searchInputEl = document.getElementById('pmSearchInput');
+    if (searchInputEl) {
+      searchInputEl.placeholder = isDev
+        ? 'Search @username or filter all users…'
+        : 'Search exact @username to message…';
+    }
+    const searchVal = (searchInputEl?.value || '').trim().toLowerCase().replace(/^@/, '');
 
-    // 1. Constant Username Sidebar Header
+    // 1. Constant Username Sidebar Header with Small Back Arrow at Top
     const myAv = renderAvatarHTML(currentUser.username, currentUser.avatar || '', '', isDev);
     selfHeader.innerHTML = `
       <div class="pm-self-identity">
+        <button type="button" class="pm-exit-back-btn" onclick="switchViewMode('board')" title="Back to Flow Board" aria-label="Back to Flow Board">←</button>
         ${myAv}
         <div class="pm-self-meta">
           <div class="pm-self-title">
@@ -5526,10 +5916,10 @@
           <div class="pm-self-sub">🔒 Paper Messages · Constant ID</div>
         </div>
       </div>
-      <button type="button" class="btn-small" style="color:#fff;border-color:rgba(255,255,255,0.35);font-size:0.6rem;padding:3px 9px;" onclick="switchPmTab('users')" title="Find user">${isDev ? '⚡ All Users' : '+ New'}</button>
+      ${isDev ? `<button type="button" class="btn-small" style="color:#fff;border-color:rgba(255,255,255,0.35);font-size:0.6rem;padding:3px 9px;" onclick="switchPmTab('users')" title="All Users Directory">⚡ All Users</button>` : ''}
     `;
 
-    // 2. Sidebar Tabs
+    // 2. Sidebar Tabs (All Users tab is ONLY visible to @Marvelist)
     const incomingReqs = getIncomingPendingRequestsForMe();
     const allUsersList = getAllPlatformUsersForDirectory();
     const chatsList = getMyConversationPeers();
@@ -5543,44 +5933,64 @@
         <span>📩 Requests</span>
         ${incomingReqs.length > 0 ? `<span class="pm-tab-badge">${incomingReqs.length}</span>` : ''}
       </button>
+      ${isDev ? `
       <button type="button" class="pm-tab-btn ${activePmTab === 'users' ? 'active' : ''}" onclick="switchPmTab('users')">
-        <span>${isDev ? '⚡ All Users' : '👥 Directory'}</span>
+        <span>⚡ All Users</span>
         <span class="pm-tab-badge">${allUsersList.length}</span>
-      </button>
+      </button>` : ''}
     `;
 
     // 3. Sidebar List Rendering
     listEl.innerHTML = '';
 
-    // If user typed a username in the search box that isn't in the list yet, offer direct selection
-    if (searchVal && searchVal !== me && !allUsersList.some(u => u.usernameLower === searchVal)) {
-      const customBtn = document.createElement('div');
-      customBtn.className = 'pm-list-item';
-      customBtn.onclick = () => selectPmChatPeer(searchVal, searchVal);
-      customBtn.innerHTML = `
-        ${renderAvatarHTML(searchVal, '', '', isDeveloperUser(searchVal))}
-        <div class="pm-item-info">
-          <div class="pm-item-top">
-            <span class="pm-item-name">@${esc(searchVal)}</span>
-            <span class="pm-status-tag ${isDev ? 'direct-dev' : 'pending'}">${isDev ? 'Direct Chat' : 'Send Request'}</span>
+    // Exact-username match lookup in search box (works for both normal users and @Marvelist)
+    if (searchVal && searchVal !== me) {
+      const exactUser = usersDirectory[searchVal];
+      const alreadyInChats = chatsList.some(c => c.usernameLower === searchVal);
+      if (exactUser && (!alreadyInChats || activePmTab !== 'chats')) {
+        const customBtn = document.createElement('div');
+        customBtn.className = 'pm-list-item';
+        customBtn.onclick = () => selectPmChatPeer(exactUser.usernameLower, exactUser.username);
+        customBtn.innerHTML = `
+          ${renderAvatarHTML(exactUser.username, exactUser.avatar || '', '', isDeveloperUser(exactUser.usernameLower))}
+          <div class="pm-item-info">
+            <div class="pm-item-top">
+              <span class="pm-item-name">@${esc(exactUser.username)}</span>
+              <span class="pm-status-tag ${isDev ? 'direct-dev' : 'pending'}">${isDev ? 'Direct Chat' : 'Exact Match'}</span>
+            </div>
+            <div class="pm-item-preview">Click to message @${esc(exactUser.username)}</div>
           </div>
-          <div class="pm-item-preview">Click to message @${esc(searchVal)}</div>
-        </div>
-      `;
-      listEl.appendChild(customBtn);
+        `;
+        listEl.appendChild(customBtn);
+      } else if (!exactUser && /^[a-z0-9_.-]{3,24}$/.test(searchVal)) {
+        const customBtn = document.createElement('div');
+        customBtn.className = 'pm-list-item';
+        customBtn.onclick = () => selectPmChatPeer(searchVal, searchVal);
+        customBtn.innerHTML = `
+          ${renderAvatarHTML(searchVal, '', '', isDeveloperUser(searchVal))}
+          <div class="pm-item-info">
+            <div class="pm-item-top">
+              <span class="pm-item-name">@${esc(searchVal)}</span>
+              <span class="pm-status-tag ${isDev ? 'direct-dev' : 'pending'}">${isDev ? 'Direct Chat' : 'Send Request'}</span>
+            </div>
+            <div class="pm-item-preview">Message exact username @${esc(searchVal)}</div>
+          </div>
+        `;
+        listEl.appendChild(customBtn);
+      }
     }
 
     if (activePmTab === 'chats') {
       const filteredChats = chatsList.filter(c =>
-        !searchVal || c.usernameLower.includes(searchVal) || c.username.toLowerCase().includes(searchVal)
+        !searchVal || c.usernameLower === searchVal || (isDev && c.usernameLower.includes(searchVal))
       );
 
-      if (filteredChats.length === 0) {
+      if (filteredChats.length === 0 && !searchVal) {
         const emptyDiv = document.createElement('div');
         emptyDiv.style.cssText = 'padding: 2rem 1rem; text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted); line-height: 1.6;';
         emptyDiv.innerHTML = isDev
-          ? `No active chats yet.<br><button type="button" class="btn-small" style="margin-top:0.6rem;" onclick="switchPmTab('users')">⚡ Open Full User List (${allUsersList.length}) →</button>`
-          : `No active chats yet.<br><button type="button" class="btn-small" style="margin-top:0.6rem;" onclick="switchPmTab('users')">Find Someone to Message →</button>`;
+          ? `No active chats yet.<br><button type="button" class="btn-small" style="margin-top:0.6rem;" onclick="switchPmTab('users')">⚡ Open All Users (${allUsersList.length}) →</button>`
+          : `No active chats yet.<br>Click any user's profile on the Flow Board or type their <strong>exact @username</strong> in the search box above to send a request.`;
         listEl.appendChild(emptyDiv);
       } else {
         filteredChats.forEach(peer => {
@@ -5590,13 +6000,17 @@
           const lastMsg = msgs[msgs.length - 1];
           const peerDir = usersDirectory[peer.usernameLower] || peer;
           const peerIsDev = isDeveloperUser(peer.usernameLower);
-          const previewText = lastMsg
-            ? (decryptedTextCache[lastMsg.docId] || '🔒 Encrypted message')
-            : (req ? (decryptedTextCache[req.docId] || '🔒 Message request') : 'Start encrypted chat');
+          const previewText = (req && req.status === 'blocked')
+            ? '🚫 Conversation blocked'
+            : (lastMsg
+                ? (decryptedTextCache[lastMsg.docId] || '🔒 Encrypted message')
+                : (req ? (decryptedTextCache[req.docId] || '🔒 Message request') : 'Start encrypted chat'));
           const timeStr = lastMsg?.createdAt ? formatTime(new Date(lastMsg.createdAt)) : '';
 
           let statusBadge = '';
-          if (req && req.status === 'pending') {
+          if (req && req.status === 'blocked') {
+            statusBadge = `<span class="pm-status-tag blocked-tag">Blocked</span>`;
+          } else if (req && req.status === 'pending') {
             statusBadge = req.toUser === me
               ? `<span class="pm-status-tag incoming-req">New Request</span>`
               : `<span class="pm-status-tag pending">Pending</span>`;
@@ -5651,7 +6065,7 @@
           listEl.appendChild(item);
         });
       }
-    } else if (activePmTab === 'users') {
+    } else if (activePmTab === 'users' && isDev) {
       const filteredUsers = allUsersList.filter(u =>
         !searchVal || u.usernameLower.includes(searchVal) || u.username.toLowerCase().includes(searchVal)
       );
@@ -5659,24 +6073,16 @@
       if (filteredUsers.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.style.cssText = 'padding: 2rem 1rem; text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);';
-        emptyDiv.textContent = 'No users found. Type any @username in the search box above to message them.';
+        emptyDiv.textContent = 'No users found.';
         listEl.appendChild(emptyDiv);
       } else {
         filteredUsers.forEach(u => {
           const peerIsDev = isDeveloperUser(u.usernameLower);
           const pk = getConversationPairKey(me, u.usernameLower);
           const req = msgRequestsByPair[pk];
-          const canDirect = canDirectMessageWithoutRequest(u.usernameLower);
-
-          let tagHTML = '';
-          if (isDev) {
-            tagHTML = `<span class="pm-status-tag direct-dev">⚡ Direct Access</span>`;
-          } else if (canDirect) {
-            tagHTML = `<span class="pm-status-tag incoming-req">Connected</span>`;
-          } else if (req && req.status === 'pending') {
-            tagHTML = `<span class="pm-status-tag pending">Pending</span>`;
-          } else {
-            tagHTML = `<span class="pm-status-tag">Send Request</span>`;
+          let tagHTML = `<span class="pm-status-tag direct-dev">⚡ Direct Access</span>`;
+          if (req && req.status === 'blocked') {
+            tagHTML = `<span class="pm-status-tag blocked-tag">Blocked</span>`;
           }
 
           const item = document.createElement('div');
@@ -5712,10 +6118,11 @@
           </p>
           <p style="margin-top: 0.65rem; font-family: var(--mono); font-size: 0.68rem;">
             ${isDev
-              ? `⚡ <strong>Developer Access (@Marvelist):</strong> You have direct access to message any user from the complete user directory without sending a request.`
-              : `📩 Select any user on the left to send a short request message first. Once they accept, full real-time messaging unlocks.`
+              ? `⚡ <strong>Developer Access (@Marvelist):</strong> You have direct access to message any user from the All Users panel without sending a request.`
+              : `📩 Click any user's profile on the Flow Board or search their <strong>exact @username</strong> on the left to send a short request message.`
             }
           </p>
+          <button type="button" class="btn-small" style="margin-top: 1rem;" onclick="switchViewMode('board')">← Back to Flow Board</button>
         </div>
       `;
       return;
@@ -5727,6 +6134,8 @@
     const peerIsDev = isDeveloperUser(peerLower);
     const pairKey = getConversationPairKey(me, peerLower);
     const reqRecord = msgRequestsByPair[pairKey];
+    const isBlocked = Boolean(reqRecord && reqRecord.status === 'blocked');
+    const blockedByMe = Boolean(isBlocked && (!reqRecord.blockedBy || reqRecord.blockedBy === me));
     const messages = paperMessagesByPair[pairKey] || [];
     const unlocked = canDirectMessageWithoutRequest(peerLower);
 
@@ -5755,7 +6164,7 @@
     }).join('');
 
     let incomingApprovalBoxHTML = '';
-    if (!unlocked && reqRecord && reqRecord.status === 'pending' && reqRecord.toUser === me) {
+    if (!isBlocked && !unlocked && reqRecord && reqRecord.status === 'pending' && reqRecord.toUser === me) {
       const reqNote = decryptedTextCache[reqRecord.docId] || '🔒 Encrypted request message';
       incomingApprovalBoxHTML = `
         <div class="pm-request-approval-box">
@@ -5771,7 +6180,16 @@
     }
 
     let bottomBarHTML = '';
-    if (unlocked) {
+    if (isBlocked) {
+      bottomBarHTML = `
+        <div class="pm-request-composer" style="border-top-color: #dc2626;">
+          <div class="pm-request-composer-label" style="color: #dc2626; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap;">
+            <span>${blockedByMe ? `🚫 You blocked <strong>@${esc(peerName)}</strong>. Messaging is disabled.` : `🚫 This conversation is blocked.`}</span>
+            ${blockedByMe ? `<button type="button" class="btn-small" onclick="toggleBlockPaperChat('${esc(peerLower)}')">Unblock @${esc(peerName)}</button>` : ''}
+          </div>
+        </div>
+      `;
+    } else if (unlocked) {
       bottomBarHTML = `
         <div class="pm-compose-bar">
           <input
@@ -5827,7 +6245,7 @@
     mainEl.innerHTML = `
       <div class="pm-chat-header">
         <div class="pm-chat-header-left">
-          <button type="button" class="pm-mobile-back" onclick="closeMobilePmChat()" aria-label="Back to chats">←</button>
+          <button type="button" class="pm-mobile-back" onclick="closeMobilePmChat()" aria-label="Back to chats" title="Back to chats">←</button>
           <span class="clickable-profile" onclick="openUserProfileModal('${esc(peerName)}', '${esc(peerLower)}', event)" style="display:inline-flex;align-items:center;gap:0.55rem;">
             ${renderAvatarHTML(peerName, peerDir.avatar || '', '', peerIsDev)}
             <div>
@@ -5839,9 +6257,22 @@
             </div>
           </span>
         </div>
-        <span class="pm-status-tag ${unlocked ? 'incoming-req' : 'pending'}">
-          ${isDev ? '⚡ Dev Direct' : (unlocked ? '✓ Connected' : '🔒 Request Gate')}
-        </span>
+        <div class="pm-chat-header-right">
+          <span class="pm-status-tag ${isBlocked ? 'blocked-tag' : (unlocked ? 'incoming-req' : 'pending')}">
+            ${isBlocked ? '🚫 Blocked' : (isDev ? '⚡ Dev Direct' : (unlocked ? '✓ Connected' : '🔒 Request Gate'))}
+          </span>
+          <button type="button" class="btn-pm-more" onclick="togglePmChatMenu(event)" title="Chat options" aria-label="Chat options">⋮</button>
+          <div class="pm-chat-dropdown ${isPmChatMenuOpen ? 'open' : ''}" id="pmChatHeaderDropdown" onclick="event.stopPropagation()">
+            <button type="button" class="pm-dropdown-item" onclick="isPmChatMenuOpen=false; openUserProfileModal('${esc(peerName)}', '${esc(peerLower)}', event)">
+              <span>👤</span>
+              <span>View @${esc(peerName)} Profile</span>
+            </button>
+            <button type="button" class="pm-dropdown-item danger" onclick="toggleBlockPaperChat('${esc(peerLower)}')">
+              <span>${isBlocked ? '🔓' : '🚫'}</span>
+              <span>${isBlocked ? `Unblock @${esc(peerName)}` : `Block @${esc(peerName)}`}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="pm-messages-area" id="pmMessagesScrollArea">
@@ -5857,12 +6288,119 @@
     `;
   };
 
+  // ── FLOW REPORTING (THREE DOTS ON EACH FLOW, AUTO-REMOVE >3 REPORTS, DEV VIEW) ──
+  window.toggleCardMoreMenu = function (postId, e) {
+    if (e) e.stopPropagation();
+    const nextId = openCardMoreMenuId === postId ? null : postId;
+    openCardMoreMenuId = nextId;
+    document.querySelectorAll('.card-more-dropdown').forEach(el => {
+      el.classList.toggle('open', el.id === `card-more-menu-${nextId}`);
+    });
+  };
+
+  document.addEventListener('click', () => {
+    if (openCardMoreMenuId) {
+      openCardMoreMenuId = null;
+      document.querySelectorAll('.card-more-dropdown.open').forEach(el => el.classList.remove('open'));
+    }
+    if (isPmChatMenuOpen) {
+      isPmChatMenuOpen = false;
+      document.getElementById('pmChatHeaderDropdown')?.classList.remove('open');
+    }
+  });
+
+  window.submitFlowReport = async function (postId, reason = 'Reported by community member') {
+    openCardMoreMenuId = null;
+    document.querySelectorAll('.card-more-dropdown.open').forEach(el => el.classList.remove('open'));
+
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const actorKey = getCurrentActorKey();
+    const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const reportDocId = `__report__${postId}__${safeActorId}`;
+    const existingList = reportsByPost[postId] || [];
+    const alreadyReported = existingList.some(r => r.actorKey === actorKey || r.docId === reportDocId);
+
+    if (alreadyReported) {
+      showToast('You have already reported this flow.');
+      return;
+    }
+
+    try {
+      await setDoc(doc(db, "posts", reportDocId), {
+        title: null,
+        body: reason.slice(0, 300),
+        tag: 'other',
+        alias: (currentUser?.username || 'Reader').slice(0, 30),
+        ts: serverTimestamp(),
+        docType: 'report',
+        postId,
+        actorKey,
+        reporterUsername: currentUser?.username || 'Reader',
+        reason: reason.slice(0, 200),
+        flowTitleSnapshot: (post.title || '').slice(0, 120),
+        flowBodySnapshot: (post.hasEmptyBody ? '[Media Attachment Flow]' : (post.body || '')).slice(0, 600),
+        flowAuthorSnapshot: post.authorUsername ? `@${post.alias || post.authorUsername}` : (post.alias || 'Anonymous'),
+        createdAt: Date.now()
+      });
+
+      const newCount = existingList.length + 1;
+      if (newCount > 3) {
+        await deleteDoc(doc(db, "posts", postId));
+        showToast('Flow reached more than 3 reports and has been automatically removed.');
+      } else {
+        showToast(`Flow reported to @Marvelist (${newCount}/3 before auto-removal).`);
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Could not submit report.');
+    }
+  };
+
+  window.dismissReportsForPost = async function (postId) {
+    if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) return;
+    const list = reportsByPost[postId] || [];
+    try {
+      await Promise.allSettled(list.map(r => deleteDoc(doc(db, "posts", r.docId))));
+      showToast('Reports cleared for this flow.');
+    } catch (e) {
+      showToast('Could not clear reports.');
+    }
+  };
+
+  window.deleteReportedFlowAsDev = async function (postId) {
+    if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      const list = reportsByPost[postId] || [];
+      await Promise.allSettled(list.map(r => deleteDoc(doc(db, "posts", r.docId))));
+      showToast('Reported flow & reports deleted.');
+    } catch (e) {
+      showToast('Could not delete reported flow.');
+    }
+  };
+
+  function getReportedPostGroups() {
+    return Object.entries(reportsByPost)
+      .filter(([, list]) => Array.isArray(list) && list.length > 0)
+      .map(([postId, reports]) => {
+        const livePost = allPosts.find(p => p.id === postId) || null;
+        const latestAt = Math.max(...reports.map(r => r.createdAt || 0));
+        return { postId, reports, livePost, latestAt };
+      })
+      .sort((a, b) => b.reports.length - a.reports.length || b.latestAt - a.latestAt);
+  }
+
   function renderSidePanelCounts() {
     const countAllEl = document.getElementById('sideCountAll');
     const countMyEl = document.getElementById('sideCountMyFlows');
     const countStarEl = document.getElementById('sideCountStarred');
     const countRepEl = document.getElementById('sideCountReplies');
     const countMsgEl = document.getElementById('sideCountMessages');
+    const sideBtnReports = document.getElementById('sideBtnReports');
+    const countReportsEl = document.getElementById('sideCountReports');
+    const isDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
 
     if (countAllEl) countAllEl.textContent = allPosts.length;
     if (countMyEl) countMyEl.textContent = currentUser ? getMyPosts().length : 0;
@@ -5873,12 +6411,19 @@
       const totalChats = getMyConversationPeers().length;
       countMsgEl.textContent = pendingIn > 0 ? `${pendingIn} new` : totalChats;
     }
+    if (sideBtnReports) {
+      sideBtnReports.style.display = isDev ? 'flex' : 'none';
+    }
+    if (countReportsEl) {
+      countReportsEl.textContent = getReportedPostGroups().length;
+    }
 
     document.getElementById('sideBtnBoard')?.classList.toggle('active', activeViewMode === 'board');
     document.getElementById('sideBtnMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('sideBtnStarred')?.classList.toggle('active', activeViewMode === 'starred');
     document.getElementById('sideBtnReplies')?.classList.toggle('active', activeViewMode === 'replies');
     document.getElementById('sideBtnMessages')?.classList.toggle('active', activeViewMode === 'messages');
+    sideBtnReports?.classList.toggle('active', activeViewMode === 'reports');
   }
 
   function renderFilters() {
@@ -5941,32 +6486,84 @@
     const searchBubble = document.getElementById('floatingSearchBubble');
     const qLower = searchQuery.toLowerCase();
 
-    // MODE 5: PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER)
+    // MODE 5: PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER — CONSTANT FULL PAGE)
     if (activeViewMode === 'messages') {
+      document.body.classList.add('pm-fullscreen-open');
       mainContainer?.classList.add('messages-mode-container');
       if (feed) feed.style.display = 'none';
       if (pmShell) pmShell.classList.add('active');
       if (filterWrap) filterWrap.style.display = 'none';
       if (searchBubble) searchBubble.style.display = 'none';
-      if (sectionTitle) sectionTitle.textContent = 'Paper Messages';
-      const isDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
-      if (feedCount) {
-        feedCount.textContent = isDev
-          ? `AES-256 Encrypted · Developer Full Access (@${currentUser?.username})`
-          : `AES-256 Encrypted · @${currentUser?.username || ''}`;
-      }
-      if (viewBanner) {
-        viewBanner.classList.add('show');
-        viewBannerText.innerHTML = `🔒 <strong>Paper Messages</strong> — Signed in permanently as <strong>@${esc(currentUser?.username || '')}</strong>`;
-      }
       renderPaperMessagesUI();
       return;
     }
 
+    document.body.classList.remove('pm-fullscreen-open');
     mainContainer?.classList.remove('messages-mode-container');
     if (feed) feed.style.display = 'block';
     if (pmShell) pmShell.classList.remove('active');
     if (searchBubble) searchBubble.style.display = 'inline-flex';
+
+    // MODE 6: DEVELOPER REPORTS MODERATION SECTION (MARVELIST ONLY)
+    if (activeViewMode === 'reports') {
+      if (sectionTitle) sectionTitle.textContent = 'Reported Flows';
+      if (filterWrap) filterWrap.style.display = 'none';
+      if (viewBanner) {
+        viewBanner.classList.add('show');
+        viewBannerText.innerHTML = `🚩 <strong>Developer Moderation (@Marvelist)</strong> — Flows with &gt;3 reports are removed automatically`;
+      }
+
+      const groups = getReportedPostGroups();
+      feedCount.textContent = `${groups.length} reported flow${groups.length !== 1 ? 's' : ''}`;
+
+      if (groups.length === 0) {
+        feed.innerHTML = `<div class="empty-state"><span class="empty-icon">🚩</span><p>No reported flows right now. Everything looks clean!</p></div>`;
+        return;
+      }
+
+      feed.innerHTML = '';
+      groups.forEach(({ postId, reports, livePost }) => {
+        const firstRep = reports[0];
+        const titleText = livePost?.title || firstRep?.flowTitleSnapshot || '';
+        const bodyText = livePost
+          ? (livePost.hasEmptyBody ? '[Media Attachment Flow]' : (livePost.body || ''))
+          : (firstRep?.flowBodySnapshot || '[Removed Flow]');
+        const authorText = livePost
+          ? (livePost.authorUsername ? `@${livePost.alias || livePost.authorUsername}` : (livePost.alias || 'Anonymous'))
+          : (firstRep?.flowAuthorSnapshot || 'Unknown');
+        const isAutoRemoved = !livePost || reports.length > 3;
+
+        const card = document.createElement('div');
+        card.className = 'report-moderation-card';
+        const reasonsHTML = reports.map(r => {
+          const rTime = r.createdAt ? formatTime(new Date(r.createdAt)) : '';
+          return `<div>• <strong>@${esc(r.reporterUsername)}</strong>: ${esc(r.reason)} <span style="opacity:0.65;">(${rTime})</span></div>`;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="report-mod-top">
+            <div style="font-family: var(--mono); font-size: 0.74rem;">
+              <strong>Flow by ${esc(authorText)}</strong>
+              ${isAutoRemoved ? `<span style="color:#dc2626;margin-left:0.4rem;">(Auto-Removed &gt;3 Reports)</span>` : ''}
+            </div>
+            <span class="report-count-pill">🚩 ${reports.length} Report${reports.length !== 1 ? 's' : ''} ${reports.length <= 3 ? `(${4 - reports.length} more until auto-removal)` : ''}</span>
+          </div>
+          ${titleText ? `<div class="card-title" style="font-size:1rem;margin-bottom:0.35rem;">${esc(titleText)}</div>` : ''}
+          <div class="card-body" style="font-size:0.88rem;margin-bottom:0.5rem;">${esc(bodyText)}</div>
+          <div class="report-reasons-list">
+            <div style="font-weight:600;color:var(--ink);">Submitted Reports:</div>
+            ${reasonsHTML}
+          </div>
+          <div style="display:flex;gap:0.55rem;justify-content:flex-end;flex-wrap:wrap;margin-top:0.75rem;">
+            ${livePost ? `<button type="button" class="btn-small" onclick="jumpToFlowFromReply('${esc(postId)}')">View on Board →</button>` : ''}
+            <button type="button" class="btn-small" onclick="dismissReportsForPost('${esc(postId)}')">✓ Dismiss Reports</button>
+            <button type="button" class="btn-small btn-delete-own" onclick="deleteReportedFlowAsDev('${esc(postId)}')">🗑 Remove Flow &amp; Reports</button>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+      return;
+    }
 
     // MODE 3: REPLIES TO MY FLOWS PAGE
     if (activeViewMode === 'replies') {
@@ -6227,6 +6824,27 @@
             title="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
             aria-label="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
           >${isStarred ? '★' : '☆'}</button>
+          <div class="card-more-wrap">
+            <button
+              type="button"
+              class="btn-card-more"
+              onclick="toggleCardMoreMenu('${post.id}', event)"
+              title="More options"
+              aria-label="More options"
+            >⋮</button>
+            <div class="card-more-dropdown" id="card-more-menu-${post.id}" onclick="event.stopPropagation()">
+              <div class="card-more-header">Report Flow (${(reportsByPost[post.id] || []).length}/3)</div>
+              <button type="button" class="card-more-item report-opt" onclick="submitFlowReport('${post.id}', 'Spam or misleading')">
+                <span>🚩 Spam or misleading</span>
+              </button>
+              <button type="button" class="card-more-item report-opt" onclick="submitFlowReport('${post.id}', 'Harassment or hate speech')">
+                <span>🚩 Harassment or hate</span>
+              </button>
+              <button type="button" class="card-more-item report-opt" onclick="submitFlowReport('${post.id}', 'Inappropriate content')">
+                <span>🚩 Inappropriate content</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

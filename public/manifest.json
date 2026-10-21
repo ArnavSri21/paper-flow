@@ -1,0 +1,57 @@
+{
+  "id": "/",
+  "name": "Paper Flow — Anonymous & Open",
+  "short_name": "Paper Flow",
+  "description": "Share anonymous confessions, stories, opinions, and questions in real time, and chat privately with end-to-end encrypted Paper Messages on Paper Flow.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "theme_color": "#1a1209",
+  "background_color": "#f5f0e8",
+  "categories": ["social", "lifestyle", "communication"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "The Flow Board",
+      "short_name": "Board",
+      "description": "Browse all live flows on Paper Flow",
+      "url": "/?view=board",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Paper Messages",
+      "short_name": "Messages",
+      "description": "Open end-to-end encrypted Paper Messages",
+      "url": "/?view=messages",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Post a Flow",
+      "short_name": "Post Flow",
+      "description": "Publish a new flow to the board",
+      "url": "/?action=compose",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

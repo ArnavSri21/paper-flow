@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#1a1209"/>
+  <rect x="44" y="44" width="424" height="424" rx="72" fill="#f5f0e8" stroke="#c84b2f" stroke-width="10"/>
+  <line x1="96" y1="148" x2="416" y2="148" stroke="#d4c9b0" stroke-width="6"/>
+  <line x1="96" y1="212" x2="416" y2="212" stroke="#d4c9b0" stroke-width="6"/>
+  <line x1="96" y1="276" x2="416" y2="276" stroke="#d4c9b0" stroke-width="6"/>
+  <line x1="96" y1="340" x2="416" y2="340" stroke="#d4c9b0" stroke-width="6"/>
+  <text x="256" y="315" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-weight="700" font-size="210" fill="#1a1209">PF</text>
+  <circle cx="392" cy="124" r="28" fill="#c84b2f"/>
+</svg>

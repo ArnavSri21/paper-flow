@@ -135,16 +135,20 @@
     100% { transform: scale(1); }
   }
 
-  /* TOP CHROME (HEADER + BANNER) WITH SCROLL-DOWN AUTO-HIDE */
+  /* TOP CHROME (HEADER + BANNER) WITH GPU-ONLY SCROLL-DOWN AUTO-HIDE (NO LAYOUT SHIFT) */
   .top-chrome {
     position: sticky;
     top: 0;
     z-index: 120;
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
   body.top-banner-hidden .top-chrome {
-    transform: translateY(-100%);
+    transform: translate3d(0, -100%, 0);
+    pointer-events: none;
   }
 
   /* HEADER */
@@ -161,6 +165,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    min-width: 0;
   }
   .btn-hamburger {
     background: var(--card-bg);
@@ -191,11 +196,10 @@
     background: var(--ink);
     transition: transform 0.25s var(--bubble-spring);
   }
-  .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; cursor: pointer; transition: transform 0.3s var(--bubble-spring); }
-  .masthead:hover { transform: scale(1.015); }
-  .masthead-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
-  .masthead-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
-  .header-right { display: flex; align-items: center; gap: 1.2rem; }
+  .masthead { display: flex; flex-direction: column; padding: 0.8rem 0; cursor: pointer; min-width: 0; }
+  .masthead-title { font-family: var(--serif); font-size: 2.1rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .masthead-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; white-space: nowrap; }
+  .header-right { display: flex; align-items: center; gap: 1.2rem; flex-shrink: 0; }
   .header-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); text-align: right; line-height: 1.7; }
 
   /* HEADER AUTH BAR (ONLY AT THE TOP) */
@@ -286,7 +290,8 @@
 
   .banner {
     border-bottom: 1px solid var(--card-border);
-    padding: 0.5rem 2rem;
+    padding: 0 2rem;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -296,28 +301,16 @@
     font-family: var(--mono);
     font-size: 0.72rem;
     letter-spacing: 0.05em;
-    max-height: 44px;
+    white-space: nowrap;
     overflow: hidden;
-    transition:
-      max-height 0.34s cubic-bezier(0.22, 1, 0.36, 1),
-      padding 0.34s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.26s ease,
-      border-width 0.26s ease;
-  }
-  body.top-banner-hidden .banner {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-    border-bottom-width: 0;
   }
   body.dark-mode .banner {
     background: #16130f;
     border-bottom-color: var(--card-border);
   }
-  .banner-left { display: flex; align-items: center; gap: 1.2rem; }
+  .banner-left { display: flex; align-items: center; gap: 1.2rem; min-width: 0; overflow: hidden; }
   .banner-label { background: var(--accent); color: #fff; padding: 2px 8px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
-  .banner-ticker { opacity: 0.85; }
+  .banner-ticker { opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* MAIN CONTAINER */
   .container { max-width: 820px; margin: 0 auto; padding: 1.75rem 1.5rem 5.5rem; }
@@ -3921,17 +3914,53 @@
     }
   };
 
-  // ── HIDE TOP BANNER ON SCROLL DOWN ──────────────────────────────────────────
-  let lastScrollY = window.scrollY || 0;
+  // ── HIDE TOP BANNER ON SCROLL DOWN (HYSTERESIS + RAF TO PREVENT JITTER) ─────
+  let lastScrollY = Math.max(0, window.scrollY || 0);
+  let scrollDirectionAccum = 0;
+  let lastHeaderToggleTs = 0;
+  let scrollTicking = false;
+
   window.addEventListener('scroll', () => {
-    const currentY = window.scrollY || 0;
-    const delta = currentY - lastScrollY;
-    if (currentY > 48 && delta > 4) {
-      document.body.classList.add('top-banner-hidden');
-    } else if (delta < -5 || currentY <= 24) {
-      document.body.classList.remove('top-banner-hidden');
-    }
-    lastScrollY = currentY;
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(() => {
+      scrollTicking = false;
+      if (activeViewMode === 'messages') return;
+
+      const currentY = Math.max(0, window.scrollY || 0);
+      const delta = currentY - lastScrollY;
+      lastScrollY = currentY;
+
+      // Ignore tiny subpixel/bounce deltas
+      if (Math.abs(delta) < 1.5) return;
+
+      // Reset accumulator when scroll direction reverses
+      if ((delta > 0 && scrollDirectionAccum < 0) || (delta < 0 && scrollDirectionAccum > 0)) {
+        scrollDirectionAccum = 0;
+      }
+      scrollDirectionAccum += delta;
+
+      const now = performance.now();
+      // Cooldown lock prevents rapid toggling during transition
+      if (now - lastHeaderToggleTs < 280) return;
+
+      const isHidden = document.body.classList.contains('top-banner-hidden');
+      if (currentY <= 36) {
+        if (isHidden) {
+          document.body.classList.remove('top-banner-hidden');
+          lastHeaderToggleTs = now;
+          scrollDirectionAccum = 0;
+        }
+      } else if (!isHidden && currentY > 120 && scrollDirectionAccum > 36) {
+        document.body.classList.add('top-banner-hidden');
+        lastHeaderToggleTs = now;
+        scrollDirectionAccum = 0;
+      } else if (isHidden && scrollDirectionAccum < -32) {
+        document.body.classList.remove('top-banner-hidden');
+        lastHeaderToggleTs = now;
+        scrollDirectionAccum = 0;
+      }
+    });
   }, { passive: true });
 
   window.openComposeModal = function () {

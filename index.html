@@ -3055,35 +3055,7 @@
     gap: 0.3rem;
   }
 
-  /* ── PWA & NATIVE APP SHELL EXPERIENCE (INSTALL UI, OFFLINE BANNER, BOTTOM DOCK) ── */
-  .btn-install-app-header {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.38rem;
-    background: var(--card-bg);
-    color: var(--ink);
-    border: 1.5px solid var(--ink);
-    border-radius: 999px;
-    padding: 0.42rem 0.9rem;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 var(--accent);
-    white-space: nowrap;
-  }
-  .btn-install-app-header:hover {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
-  }
-  .btn-install-app-header.installed-hidden {
-    display: none !important;
-  }
-
+  /* ── PWA & NATIVE APP SHELL EXPERIENCE (OFFLINE BANNER, BOTTOM DOCK) ── */
   .offline-connectivity-banner {
     display: none;
     align-items: center;
@@ -3100,71 +3072,6 @@
   }
   .offline-connectivity-banner.show {
     display: flex;
-  }
-
-  .pwa-install-banner {
-    position: fixed;
-    left: 50%;
-    bottom: 4.8rem;
-    transform: translateX(-50%) translateY(140%);
-    width: min(560px, calc(100vw - 1.5rem));
-    background: var(--card-bg);
-    color: var(--ink);
-    border: 2px solid var(--ink);
-    border-radius: 14px;
-    box-shadow: 5px 5px 0 var(--ink);
-    padding: 0.78rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.85rem;
-    z-index: 250;
-    transition: transform 0.36s var(--bubble-spring);
-  }
-  .pwa-install-banner.show {
-    transform: translateX(-50%) translateY(0);
-  }
-  body.pm-fullscreen-open .pwa-install-banner {
-    display: none !important;
-  }
-  .pwa-banner-left {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    min-width: 0;
-  }
-  .pwa-banner-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    border: 1.5px solid var(--ink);
-    object-fit: cover;
-    flex-shrink: 0;
-    background: var(--bg);
-  }
-  .pwa-banner-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .pwa-banner-title {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 0.96rem;
-    color: var(--ink);
-    line-height: 1.2;
-  }
-  .pwa-banner-sub {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    color: var(--ink-muted);
-    margin-top: 2px;
-  }
-  .pwa-banner-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    flex-shrink: 0;
   }
 
   /* Native App Bottom Navigation Bar */
@@ -3282,7 +3189,6 @@
     .compose-row { flex-direction: column; align-items: stretch; }
     .fab-post-btn { display: none; }
     .about-window-body { padding: 1.25rem; }
-    .btn-install-app-header span.install-label-full { display: none; }
     .paper-messages-shell.active {
       grid-template-columns: 1fr;
       width: 100vw;
@@ -3325,10 +3231,6 @@
     </div>
     <div class="header-right">
       <div class="header-meta" id="headerDate"></div>
-      <button type="button" class="btn-install-app-header" id="headerInstallAppBtn" onclick="triggerPWAInstall()" title="Install Paper Flow App">
-        <span>📲</span>
-        <span class="install-label-full">Install App</span>
-      </button>
       <div class="header-user-bar" id="headerUserBar">
         <button class="btn-login-trigger" onclick="openAuthModal('login')">Sign In / Register</button>
       </div>
@@ -3412,12 +3314,6 @@
       <button type="button" class="btn-side-option" id="sideBtnNotifications" onclick="toggleReplyNotifications()">
         <span id="notifMenuLabel">🔔 Reply Alerts</span>
         <span class="theme-switch-pill" id="notifStatusPill">ENABLE</span>
-      </button>
-
-      <!-- INSTALL APP OPTION (PWA INSTALL) -->
-      <button type="button" class="btn-side-option" id="sideBtnInstallApp" onclick="triggerPWAInstall()">
-        <span id="sideInstallAppLabel">📲 Install Paper Flow App</span>
-        <span class="theme-switch-pill" id="sideInstallAppPill">INSTALL</span>
       </button>
     </div>
 
@@ -3731,34 +3627,6 @@
 <!-- IMAGE LIGHTBOX -->
 <div class="lightbox-backdrop" id="lightboxBackdrop" onclick="closeLightbox()">
   <img id="lightboxImg" src="" alt="Full size attachment" />
-</div>
-
-<!-- IN-APP PWA INSTALL PROMPT BANNER -->
-<div class="pwa-install-banner" id="pwaInstallBanner" role="region" aria-label="Install Paper Flow App">
-  <div class="pwa-banner-left">
-    <img src="/pwa-192x192.png" alt="Paper Flow App Icon" class="pwa-banner-icon" />
-    <div class="pwa-banner-text">
-      <div class="pwa-banner-title">Paper Flow App</div>
-      <div class="pwa-banner-sub">Same accounts synced · Instant notifications · Offline ready</div>
-    </div>
-  </div>
-  <div class="pwa-banner-actions">
-    <button type="button" class="btn-post" style="padding: 0.45rem 0.95rem; font-size: 0.68rem;" onclick="triggerPWAInstall()">Install</button>
-    <button type="button" class="btn-small" style="padding: 0.35rem 0.55rem;" onclick="dismissPWAInstallBanner()" aria-label="Dismiss install banner">✕</button>
-  </div>
-</div>
-
-<!-- PWA INSTALL GUIDE MODAL (FOR iOS SAFARI & DESKTOP/MOBILE FALLBACK) -->
-<div class="modal-backdrop" id="pwaInstallModalBackdrop" onclick="if(event.target.id==='pwaInstallModalBackdrop') closePWAInstallModal()">
-  <div class="modal-window" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <span>Install Paper Flow App</span>
-      <button class="modal-close" onclick="closePWAInstallModal()" aria-label="Close">✕</button>
-    </div>
-    <div class="modal-body" id="pwaInstallModalBody">
-      <!-- Populated dynamically based on device platform -->
-    </div>
-  </div>
 </div>
 
 <!-- NATIVE APP BOTTOM NAVIGATION DOCK -->
@@ -7504,132 +7372,7 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   };
 
-  // ── PWA INSTALLABILITY, SERVICE WORKER & OFFLINE CONNECTIVITY ───────────────
-  let deferredInstallPrompt = null;
-  const PWA_BANNER_DISMISSED_KEY = 'paperflow_pwa_banner_dismissed_v1';
-
-  function isRunningStandaloneApp() {
-    return (
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches ||
-      window.navigator.standalone === true
-    );
-  }
-
-  function isIOSDevice() {
-    const ua = (window.navigator.userAgent || '').toLowerCase();
-    return /iphone|ipad|ipod/.test(ua);
-  }
-
-  function syncPWAInstallUI() {
-    const isInstalled = isRunningStandaloneApp();
-    const headerBtn = document.getElementById('headerInstallAppBtn');
-    const sideBtn = document.getElementById('sideBtnInstallApp');
-    const sideLabel = document.getElementById('sideInstallAppLabel');
-    const sidePill = document.getElementById('sideInstallAppPill');
-    const banner = document.getElementById('pwaInstallBanner');
-
-    if (isInstalled) {
-      headerBtn?.classList.add('installed-hidden');
-      banner?.classList.remove('show');
-      if (sideLabel) sideLabel.textContent = '📱 Paper Flow App Active';
-      if (sidePill) sidePill.textContent = 'INSTALLED';
-      if (sideBtn) sideBtn.onclick = () => showToast('You are running the installed Paper Flow App!');
-      return;
-    }
-
-    headerBtn?.classList.remove('installed-hidden');
-    if (sideLabel) sideLabel.textContent = '📲 Install Paper Flow App';
-    if (sidePill) sidePill.textContent = deferredInstallPrompt ? 'READY' : 'INSTALL';
-
-    const dismissed = sessionStorage.getItem(PWA_BANNER_DISMISSED_KEY) === 'true';
-    if (!dismissed && (deferredInstallPrompt || isIOSDevice())) {
-      banner?.classList.add('show');
-    }
-  }
-
-  window.dismissPWAInstallBanner = function () {
-    sessionStorage.setItem(PWA_BANNER_DISMISSED_KEY, 'true');
-    document.getElementById('pwaInstallBanner')?.classList.remove('show');
-  };
-
-  window.closePWAInstallModal = function () {
-    document.getElementById('pwaInstallModalBackdrop')?.classList.remove('open');
-  };
-
-  window.triggerPWAInstall = async function () {
-    toggleSidePanel(false);
-    if (isRunningStandaloneApp()) {
-      showToast('Paper Flow is already installed and running as an app!');
-      return;
-    }
-
-    if (deferredInstallPrompt) {
-      try {
-        await deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') {
-          deferredInstallPrompt = null;
-          document.getElementById('pwaInstallBanner')?.classList.remove('show');
-          showToast('Paper Flow App installed!');
-        }
-      } catch (e) {}
-      syncPWAInstallUI();
-      return;
-    }
-
-    // Show guided install instructions modal (iOS Safari or Desktop/Mobile browser)
-    const modalBody = document.getElementById('pwaInstallModalBody');
-    const modalBackdrop = document.getElementById('pwaInstallModalBackdrop');
-    if (!modalBody || !modalBackdrop) return;
-
-    const ios = isIOSDevice();
-    modalBody.innerHTML = `
-      <div style="display:flex;align-items:center;gap:0.85rem;padding:0.75rem;background:var(--surface-subtle);border:1.5px solid var(--card-border);border-radius:10px;">
-        <img src="/pwa-192x192.png" alt="Paper Flow App" style="width:52px;height:52px;border-radius:12px;border:1.5px solid var(--ink);" />
-        <div>
-          <div style="font-family:var(--serif);font-weight:700;font-size:1.08rem;color:var(--ink);">Paper Flow App</div>
-          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--ink-muted);">Same @${esc(currentUser?.username || 'username')} account · Live Board · Encrypted Paper Messages</div>
-        </div>
-      </div>
-
-      ${ios ? `
-        <div class="modal-note" style="font-size:0.74rem;line-height:1.65;">
-          <strong>Install on iPhone / iPad (Safari):</strong><br>
-          1. Tap the <strong>Share</strong> button <span style="display:inline-block;padding:1px 6px;border:1px solid var(--card-border);background:var(--card-bg);">⎋</span> in Safari’s toolbar.<br>
-          2. Scroll down and tap <strong>Add to Home Screen</strong>.<br>
-          3. Tap <strong>Add</strong> in the top-right corner to launch Paper Flow as a standalone app.
-        </div>
-      ` : `
-        <div class="modal-note" style="font-size:0.74rem;line-height:1.65;">
-          <strong>Install on Desktop / Android:</strong><br>
-          1. Click the <strong>Install Paper Flow</strong> icon <span style="display:inline-block;padding:1px 6px;border:1px solid var(--card-border);background:var(--card-bg);">⊕</span> in your browser’s address bar (or open the browser menu <strong>⋮ → Install app / Add to Home screen</strong>).<br>
-          2. If you are viewing inside a preview frame, open <a href="${esc(window.location.href)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-weight:600;text-decoration:underline;">Paper Flow in a new tab ↗</a> first, then click <strong>Install App</strong>.
-        </div>
-      `}
-
-      <div style="display:flex;gap:0.6rem;justify-content:flex-end;">
-        <button type="button" class="btn-modal-submit" onclick="closePWAInstallModal()">Got It →</button>
-      </div>
-    `;
-    modalBackdrop.classList.add('open');
-  };
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    syncPWAInstallUI();
-  });
-
-  window.addEventListener('appinstalled', () => {
-    deferredInstallPrompt = null;
-    syncPWAInstallUI();
-    showToast('Paper Flow App installed successfully!');
-  });
-
-  window.matchMedia('(display-mode: standalone)').addEventListener?.('change', syncPWAInstallUI);
-
-  // Offline / Online Connectivity Banner
+  // ── SERVICE WORKER & OFFLINE CONNECTIVITY ─────────────────────────────────
   function syncOnlineConnectivityUI() {
     const offlineBanner = document.getElementById('offlineConnectivityBanner');
     const isOnline = navigator.onLine !== false;
@@ -7675,9 +7418,8 @@
     } catch (e) {}
   })();
 
-  // Initial render of Auth UI & PWA state
+  // Initial render of Auth UI & connectivity state
   renderAuthUI();
-  syncPWAInstallUI();
   syncOnlineConnectivityUI();
 </script>
 </body>

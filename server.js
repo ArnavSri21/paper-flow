@@ -43,6 +43,14 @@ app.get('/sitemap.xml', (req, res) => {
 </urlset>`);
 });
 
+app.get('/Paper-Flow.apk', (req, res) => {
+  const apkPath = path.join(__dirname, 'public', 'Paper-Flow.apk');
+  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+  res.setHeader('Content-Disposition', 'attachment; filename="Paper-Flow.apk"');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(apkPath);
+});
+
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 

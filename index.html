@@ -638,6 +638,95 @@
     transform: translateY(-1px);
   }
 
+  /* PAPER FLOW ANDROID APK SECTION IN SIDE PANEL */
+  .paperflow-apk-section {
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 3px 3px 0 var(--ink);
+    position: relative;
+  }
+  .paperflow-apk-header {
+    background: #1a1209;
+    color: #f5f0e8;
+    padding: 0.55rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+  body.dark-mode .paperflow-apk-header {
+    background: #241f18;
+    color: var(--ink);
+  }
+  .paperflow-apk-body {
+    padding: 0.95rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+  .paperflow-apk-top {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .paperflow-apk-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid var(--ink);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .paperflow-apk-title {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .paperflow-apk-sub {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+  }
+  .btn-paperflow-apk {
+    background: var(--accent);
+    color: #ffffff;
+    border: 1.5px solid var(--ink);
+    padding: 0.58rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    box-shadow: 2px 2px 0 var(--ink);
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .btn-paperflow-apk:hover {
+    background: var(--accent-hover);
+    color: #ffffff;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
   /* SIDEBAR BOX IN SIDE PANEL */
   .sidebar-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 2px; }
   .sidebar-box-header { background: #1a1209; color: #f5f0e8; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -3317,6 +3406,24 @@
       </button>
     </div>
 
+    <!-- PAPER FLOW ANDROID APK DOWNLOAD (IN SIDE PANEL) -->
+    <section class="paperflow-apk-section" id="paperflowApkSection">
+      <div class="paperflow-apk-header">
+        <span>📱 Android App</span>
+        <span style="opacity: 0.8; font-size: 0.6rem;">v1.0 · LIVE SYNC</span>
+      </div>
+      <div class="paperflow-apk-body">
+        <div class="paperflow-apk-top">
+          <img src="/pwa-192x192.png" alt="Paper Flow App" class="paperflow-apk-icon" />
+          <div>
+            <div class="paperflow-apk-title">Paper Flow APK</div>
+            <div class="paperflow-apk-sub">Sign in with your same @username &amp; password — profile, flows &amp; messages stay synced.</div>
+          </div>
+        </div>
+        <a href="/Paper-Flow.apk" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk">Download APK ↓</a>
+      </div>
+    </section>
+
     <!-- GAMES BANNER (IN SIDE PANEL) -->
     <section class="games-section" id="games">
       <div class="games-header">Games</div>
@@ -3780,6 +3887,26 @@
       }
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
+    if (user) {
+      const myActorKey = `user:${user.usernameLower}`;
+      Object.keys(starsByPost).forEach(pId => {
+        if ((starsByPost[pId] || []).some(s => s.actorKey === myActorKey)) {
+          localStarredSet.add(pId);
+        }
+      });
+      saveLocalStarredSet();
+      // Queue decryption of any loaded Paper Messages or Requests for this signed-in user
+      Object.values(msgRequestsByPair).forEach(req => {
+        if (req.status !== 'blocked') {
+          queueDecryptPaperRecord(req.docId, req.encryptedNote || '', req.fromUser, req.toUser);
+        }
+      });
+      Object.values(paperMessagesByPair).forEach(list => {
+        list.forEach(m => {
+          queueDecryptPaperRecord(m.docId, m.encryptedBody || '', m.fromUser, m.toUser);
+        });
+      });
+    }
     seenReplyIdsSet = loadSeenReplyIdsSet();
     if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies' || activeViewMode === 'messages' || activeViewMode === 'reports')) {
       activeViewMode = 'board';
@@ -3813,6 +3940,11 @@
     const label = document.getElementById('darkModeLabel');
     if (pill) pill.textContent = isDark ? 'ON' : 'OFF';
     if (label) label.textContent = isDark ? '☀️ Dark Mode' : '🌙 Dark Mode';
+    try {
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.setDarkMode === 'function') {
+        window.PaperFlowAndroid.setDarkMode(isDark);
+      }
+    } catch (e) {}
   }
 
   window.toggleDarkMode = function () {
@@ -4052,6 +4184,14 @@
     if ('vibrate' in navigator) {
       try { navigator.vibrate([180, 80, 180]); } catch (e) {}
     }
+    try {
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.vibrate === 'function') {
+        window.PaperFlowAndroid.vibrate(200);
+      }
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.showNotification === 'function') {
+        window.PaperFlowAndroid.showNotification(String(title || 'Paper Flow'), String(body || ''), String(postId || ''));
+      }
+    } catch (e) {}
 
     if ('Notification' in window && Notification.permission === 'granted') {
       const notifOptions = {
@@ -4513,6 +4653,19 @@
               avatar: data.avatar || '',
               bio: data.bio || ''
             };
+            // Live cross-device profile sync when signed in with the same account on Website & Android APK
+            if (currentUser && currentUser.usernameLower === data.usernameLower) {
+              const nextAvatar = data.avatar || '';
+              const nextBio = typeof data.bio === 'string' ? data.bio : '';
+              const nextUsername = data.username || data.alias || currentUser.username;
+              if (currentUser.avatar !== nextAvatar || currentUser.bio !== nextBio || currentUser.username !== nextUsername) {
+                currentUser.avatar = nextAvatar;
+                currentUser.bio = nextBio;
+                currentUser.username = nextUsername;
+                try { localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser)); } catch (e) {}
+                renderAuthUI();
+              }
+            }
           }
           return;
         }
@@ -4751,6 +4904,19 @@
       reportsByPost = nextReports;
       msgRequestsByPair = nextMsgRequests;
       paperMessagesByPair = nextPaperMessages;
+
+      // Sync starred flows across website and Android APK for the signed-in account
+      if (currentUser) {
+        const myActorKey = `user:${currentUser.usernameLower}`;
+        const remoteStarredIds = new Set();
+        Object.keys(nextStars).forEach(pId => {
+          if ((nextStars[pId] || []).some(s => s.actorKey === myActorKey)) {
+            remoteStarredIds.add(pId);
+          }
+        });
+        localStarredSet = remoteStarredIds;
+        saveLocalStarredSet();
+      }
 
       setStatus('live', `Live — ${allPosts.length} flow${allPosts.length !== 1 ? 's' : ''} on the board`);
       renderAll();
@@ -7414,6 +7580,71 @@
         setTimeout(() => openComposeModal(), 180);
       } else if (postParam) {
         setTimeout(() => jumpToFlowFromReply(postParam), 250);
+      }
+    } catch (e) {}
+  })();
+
+  // ── NATIVE ANDROID APK HARDWARE BACK BUTTON & RUNTIME BRIDGE ──────────────
+  window.handleAndroidBackButton = function () {
+    const lightbox = document.getElementById('lightboxBackdrop');
+    if (lightbox && lightbox.classList.contains('open')) {
+      closeLightbox();
+      return true;
+    }
+    const profileModal = document.getElementById('userProfileModalBackdrop');
+    if (profileModal && profileModal.classList.contains('open')) {
+      closeUserProfileModal();
+      return true;
+    }
+    const authModal = document.getElementById('authModalBackdrop');
+    if (authModal && authModal.classList.contains('open')) {
+      closeAuthModal();
+      return true;
+    }
+    const composeModal = document.getElementById('composeModalBackdrop');
+    if (composeModal && composeModal.classList.contains('open')) {
+      closeComposeModal();
+      return true;
+    }
+    const aboutModal = document.getElementById('aboutModalBackdrop');
+    if (aboutModal && aboutModal.classList.contains('open')) {
+      closeAboutModal();
+      return true;
+    }
+    const sidePanel = document.getElementById('sidePanel');
+    if (sidePanel && sidePanel.classList.contains('open')) {
+      toggleSidePanel(false);
+      return true;
+    }
+    if (activeViewMode === 'messages') {
+      const shell = document.getElementById('paperMessagesShell');
+      if (shell && shell.classList.contains('mobile-chat-open')) {
+        closeMobilePmChat();
+        return true;
+      }
+      switchViewMode('board');
+      return true;
+    }
+    if (activeViewMode !== 'board') {
+      switchViewMode('board');
+      return true;
+    }
+    return false;
+  };
+
+  (function syncNativeAndroidApkBadge() {
+    try {
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.isNativeAndroidApp === 'function') {
+        const apkBtn = document.getElementById('sideApkDownloadBtn');
+        if (apkBtn) {
+          apkBtn.textContent = '✓ Android APK Active (Synced)';
+          apkBtn.removeAttribute('download');
+          apkBtn.href = 'javascript:void(0)';
+          apkBtn.onclick = (e) => {
+            e.preventDefault();
+            showToast('Running Paper Flow Android APK — synced live with website!');
+          };
+        }
       }
     } catch (e) {}
   })();

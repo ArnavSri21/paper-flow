@@ -2112,6 +2112,538 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
 
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER) ── */
+  .container.messages-mode-container {
+    max-width: 1060px;
+  }
+  .paper-messages-shell {
+    display: none;
+    height: calc(100vh - 185px);
+    min-height: 540px;
+    max-height: 760px;
+    background: var(--card-bg);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: fadeSlideIn 0.28s var(--bubble-smooth);
+  }
+  .paper-messages-shell.active {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+  }
+  /* Left Sidebar */
+  .pm-sidebar {
+    border-right: 1.5px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .pm-sidebar-header {
+    background: #075e54;
+    color: #fff;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+  }
+  body.dark-mode .pm-sidebar-header {
+    background: #111b21;
+    border-bottom-color: #222e35;
+  }
+  .pm-self-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+  }
+  .pm-self-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 0;
+  }
+  .pm-self-title {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pm-self-sub {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: #a7f3d0;
+    letter-spacing: 0.04em;
+  }
+  .pm-search-wrap {
+    padding: 0.55rem 0.7rem;
+    background: var(--surface-subtle);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .pm-search-input {
+    width: 100%;
+    border: 1px solid var(--card-border);
+    background: var(--input-bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    padding: 0.42rem 0.75rem;
+    border-radius: 999px;
+    outline: none;
+  }
+  .pm-search-input:focus {
+    border-color: #00a884;
+  }
+  .pm-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--card-border);
+    background: var(--surface-subtle);
+  }
+  .pm-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    padding: 0.55rem 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    border-radius: 0;
+  }
+  .pm-tab-btn.active {
+    color: #008069;
+    border-bottom-color: #008069;
+    font-weight: 600;
+    background: var(--card-bg);
+  }
+  body.dark-mode .pm-tab-btn.active {
+    color: #00a884;
+    border-bottom-color: #00a884;
+  }
+  .pm-tab-badge {
+    background: #00a884;
+    color: #fff;
+    font-size: 0.56rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .pm-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .pm-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.72rem 0.85rem;
+    border-bottom: 1px solid var(--card-border);
+    cursor: pointer;
+    background: transparent;
+    text-align: left;
+    transition: background-color 0.16s ease;
+  }
+  .pm-list-item:hover {
+    background: var(--surface-hover);
+  }
+  .pm-list-item.active {
+    background: #e7f8f0;
+    border-left: 3.5px solid #008069;
+  }
+  body.dark-mode .pm-list-item.active {
+    background: #1f2c34;
+    border-left: 3.5px solid #00a884;
+  }
+  .pm-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .pm-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    margin-bottom: 0.18rem;
+  }
+  .pm-item-name {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pm-item-time {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: var(--ink-muted);
+    flex-shrink: 0;
+  }
+  .pm-item-preview {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+  .pm-status-tag {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .pm-status-tag.pending {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #f59e0b;
+  }
+  .pm-status-tag.incoming-req {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #22c55e;
+    font-weight: 600;
+  }
+  .pm-status-tag.direct-dev {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #a855f7;
+  }
+  body.dark-mode .pm-status-tag.pending { background: #3b2a0a; color: #fbbf24; }
+  body.dark-mode .pm-status-tag.incoming-req { background: #0f2e1c; color: #4ade80; }
+  body.dark-mode .pm-status-tag.direct-dev { background: #2e1065; color: #e9d5ff; }
+
+  /* Right Chat Main Pane */
+  .pm-main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    background: #efeae2;
+    position: relative;
+  }
+  body.dark-mode .pm-main {
+    background: #0b141a;
+  }
+  .pm-chat-header {
+    background: #075e54;
+    color: #fff;
+    padding: 0.68rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    z-index: 2;
+  }
+  body.dark-mode .pm-chat-header {
+    background: #202c33;
+  }
+  .pm-chat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+  .pm-mobile-back {
+    display: none;
+    background: rgba(255,255,255,0.14);
+    border: none;
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .pm-peer-title {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .pm-peer-sub {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #d1fae5;
+  }
+  .pm-messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.045) 1px, transparent 0);
+    background-size: 18px 18px;
+  }
+  body.dark-mode .pm-messages-area {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  }
+  .pm-e2ee-banner {
+    align-self: center;
+    max-width: 88%;
+    background: #fef3c7;
+    color: #78350f;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 0.42rem 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    text-align: center;
+    line-height: 1.45;
+    margin-bottom: 0.4rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  body.dark-mode .pm-e2ee-banner {
+    background: #182229;
+    color: #fcd34d;
+    border-color: #2a3942;
+  }
+  .pm-bubble-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 76%;
+  }
+  .pm-bubble-row.outgoing {
+    align-self: flex-end;
+    align-items: flex-end;
+  }
+  .pm-bubble-row.incoming {
+    align-self: flex-start;
+    align-items: flex-start;
+  }
+  .pm-bubble {
+    padding: 0.5rem 0.78rem 0.38rem;
+    border-radius: 12px;
+    font-family: var(--sans);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    word-break: break-word;
+  }
+  .pm-bubble-row.outgoing .pm-bubble {
+    background: #d9fdd3;
+    color: #111b21;
+    border-top-right-radius: 2px;
+  }
+  body.dark-mode .pm-bubble-row.outgoing .pm-bubble {
+    background: #005c4b;
+    color: #e9edef;
+  }
+  .pm-bubble-row.incoming .pm-bubble {
+    background: #ffffff;
+    color: #111b21;
+    border-top-left-radius: 2px;
+  }
+  body.dark-mode .pm-bubble-row.incoming .pm-bubble {
+    background: #202c33;
+    color: #e9edef;
+  }
+  .pm-bubble-req-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(0, 128, 105, 0.14);
+    color: #008069;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+  }
+  body.dark-mode .pm-bubble-req-tag {
+    background: rgba(255,255,255,0.12);
+    color: #5eead4;
+  }
+  .pm-bubble-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.28rem;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    opacity: 0.68;
+    margin-top: 0.18rem;
+  }
+  .pm-ticks {
+    color: #0284c7;
+    font-weight: 700;
+  }
+  body.dark-mode .pm-ticks {
+    color: #53bdeb;
+  }
+  /* Incoming Request Action Box */
+  .pm-request-approval-box {
+    margin: 0.5rem auto;
+    max-width: 420px;
+    width: 100%;
+    background: var(--card-bg);
+    border: 1.5px solid #008069;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  }
+  .pm-request-approval-box h4 {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+  .pm-request-approval-box p {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    margin-bottom: 0.7rem;
+  }
+  .pm-request-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+  .btn-pm-accept {
+    background: #008069;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn-pm-accept:hover { background: #006d59; }
+  .btn-pm-decline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    cursor: pointer;
+  }
+  /* Bottom Compose Bar */
+  .pm-compose-bar {
+    padding: 0.65rem 0.9rem;
+    background: #f0f2f5;
+    border-top: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  body.dark-mode .pm-compose-bar {
+    background: #202c33;
+  }
+  .pm-compose-input {
+    flex: 1;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    padding: 0.58rem 0.95rem;
+    border-radius: 999px;
+    outline: none;
+  }
+  .pm-compose-input:focus {
+    border-color: #00a884;
+  }
+  .btn-pm-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #008069;
+    color: #fff;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .btn-pm-send:hover {
+    background: #00a884;
+  }
+  .pm-request-composer {
+    padding: 0.85rem 1rem;
+    background: var(--card-bg);
+    border-top: 1.5px solid #008069;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .pm-request-composer-label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: #008069;
+  }
+  body.dark-mode .pm-request-composer-label {
+    color: #34d399;
+  }
+  .pm-empty-welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    color: var(--ink-muted);
+  }
+  .pm-empty-welcome h3 {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin: 0.5rem 0 0.35rem;
+  }
+  .pm-empty-welcome p {
+    font-size: 0.84rem;
+    max-width: 390px;
+    line-height: 1.55;
+  }
+
   @media (max-width: 760px) {
     header { padding: 0.6rem 1rem; flex-wrap: wrap; }
     .header-meta { display: none; }
@@ -2120,6 +2652,19 @@
     .compose-row { flex-direction: column; align-items: stretch; }
     .fab-post-btn { right: 1.2rem; bottom: 1.2rem; width: 52px; height: 52px; font-size: 1.75rem; }
     .about-window-body { padding: 1.25rem; }
+    .paper-messages-shell.active {
+      grid-template-columns: 1fr;
+      height: calc(100vh - 150px);
+    }
+    .paper-messages-shell.mobile-chat-open .pm-sidebar {
+      display: none;
+    }
+    .paper-messages-shell:not(.mobile-chat-open) .pm-main {
+      display: none;
+    }
+    .pm-mobile-back {
+      display: inline-flex;
+    }
   }
 </style>
 </head>
@@ -2197,6 +2742,12 @@
       <button type="button" class="btn-side-option" id="sideBtnReplies" onclick="switchViewMode('replies')">
         <span>💬 Replies</span>
         <span class="side-option-badge" id="sideCountReplies">0</span>
+      </button>
+
+      <!-- PAPER MESSAGES OPTION (ENCRYPTED WHATSAPP-STYLE MESSAGING) -->
+      <button type="button" class="btn-side-option" id="sideBtnMessages" onclick="switchViewMode('messages')">
+        <span>🔒 Paper Messages</span>
+        <span class="side-option-badge" id="sideCountMessages">0</span>
       </button>
 
       <!-- ABOUT OPTION -->
@@ -2344,6 +2895,36 @@
     <div class="skeleton skel-card"></div>
     <div class="skeleton skel-card"></div>
     <div class="skeleton skel-card"></div>
+  </div>
+
+  <!-- PAPER MESSAGES: WHATSAPP-STYLE ENCRYPTED MESSAGING WORKSPACE -->
+  <div class="paper-messages-shell" id="paperMessagesShell">
+    <!-- Left Sidebar: Identity, Search, Tabs, Conversations / All Users -->
+    <div class="pm-sidebar">
+      <div class="pm-sidebar-header" id="pmSidebarHeader">
+        <!-- Populated dynamically with constant @username -->
+      </div>
+      <div class="pm-search-wrap">
+        <input
+          type="text"
+          class="pm-search-input"
+          id="pmSearchInput"
+          placeholder="Search @username or start chat…"
+          oninput="renderPaperMessagesUI()"
+        />
+      </div>
+      <div class="pm-tabs" id="pmTabsBar">
+        <!-- Populated dynamically: Chats | Requests | Users -->
+      </div>
+      <div class="pm-list" id="pmSidebarList">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Right Main Chat Pane -->
+    <div class="pm-main" id="pmMainPane">
+      <!-- Populated dynamically -->
+    </div>
   </div>
 </div>
 
@@ -2534,13 +3115,18 @@
 
   // ── STATE ───────────────────────────────────────────────────────────────────
   let allPosts = [];
-  let usersDirectory = {};   // usernameLower -> { username, usernameLower, avatar }
+  let usersDirectory = {};   // usernameLower -> { username, usernameLower, avatar, bio }
   let likesByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
   let starsByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
   let commentsByPost = {};   // postId -> Array<{ docId, author, authorUsername, authorAvatar, ownerToken, text, createdAt }>
   let pinnedPostsMap = {};   // postId -> { docId, pinnedAt }
+  let msgRequestsByPair = {}; // pairKey -> { docId, pairKey, fromUser, fromDisplay, toUser, toDisplay, status, encryptedNote, updatedAt }
+  let paperMessagesByPair = {}; // pairKey -> Array<{ docId, pairKey, fromUser, fromDisplay, toUser, toDisplay, encryptedBody, isRequestNote, createdAt }>
+  let decryptedTextCache = {}; // docId -> plaintext string
+  let activeChatPeerLower = null; // currently selected usernameLower in Paper Messages
+  let activePmTab = 'chats'; // 'chats' | 'requests' | 'users'
   let activeFilter = 'all';
-  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies'
+  let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies' | 'messages'
   let searchQuery = '';
   let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
@@ -2618,8 +3204,9 @@
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
     seenReplyIdsSet = loadSeenReplyIdsSet();
-    if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies')) {
+    if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies' || activeViewMode === 'messages')) {
       activeViewMode = 'board';
+      activeChatPeerLower = null;
     }
     renderAuthUI();
     syncNotificationUI();
@@ -2995,11 +3582,13 @@
     }
   });
 
-  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES) ─────────────
+  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES / PAPER MESSAGES) ──
   window.switchViewMode = function (mode) {
-    if ((mode === 'my-flows' || mode === 'replies') && !currentUser) {
+    if ((mode === 'my-flows' || mode === 'replies' || mode === 'messages') && !currentUser) {
       toggleSidePanel(false);
-      showToast('Please sign in to view your flows and replies!');
+      showToast(mode === 'messages'
+        ? 'Please sign in with your unique username to use Paper Messages!'
+        : 'Please sign in to view your flows and replies!');
       openAuthModal('login');
       return;
     }
@@ -3007,6 +3596,34 @@
     toggleSidePanel(false);
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
+    if (!currentUser) {
+      showToast('Please sign in with your unique username to use Paper Messages!');
+      openAuthModal('login');
+      return;
+    }
+    const cleanLower = String(targetUsernameLower || targetDisplayName || '').trim().toLowerCase().replace(/^@/, '');
+    if (!cleanLower) return;
+    if (cleanLower === currentUser.usernameLower) {
+      showToast('That is your own username!');
+      return;
+    }
+    if (!usersDirectory[cleanLower]) {
+      usersDirectory[cleanLower] = {
+        username: targetDisplayName || cleanLower,
+        usernameLower: cleanLower,
+        avatar: '',
+        bio: ''
+      };
+    }
+    activeChatPeerLower = cleanLower;
+    activeViewMode = 'messages';
+    const shell = document.getElementById('paperMessagesShell');
+    shell?.classList.add('mobile-chat-open');
+    toggleSidePanel(false);
+    renderAll();
   };
 
   window.jumpToFlowFromReply = function (postId) {
@@ -3235,6 +3852,24 @@
       const nextStars = {};
       const nextComments = {};
       const nextPins = {};
+      const nextMsgRequests = {};
+      const nextPaperMessages = {};
+
+      function registerUserInDirectory(uLowerRaw, displayRaw, avatarRaw, bioRaw) {
+        const uLower = String(uLowerRaw || '').trim().toLowerCase();
+        if (!uLower || uLower === 'anonymous' || uLower === 'reader') return;
+        if (!usersDirectory[uLower]) {
+          usersDirectory[uLower] = {
+            username: displayRaw || uLower,
+            usernameLower: uLower,
+            avatar: avatarRaw || '',
+            bio: bioRaw || ''
+          };
+        } else {
+          if (avatarRaw && !usersDirectory[uLower].avatar) usersDirectory[uLower].avatar = avatarRaw;
+          if (bioRaw && !usersDirectory[uLower].bio) usersDirectory[uLower].bio = bioRaw;
+        }
+      }
 
       snapshot.docs.forEach(docSnap => {
         const id = docSnap.id;
@@ -3296,6 +3931,9 @@
         // 5. Comment Record
         if (id.startsWith('__comment__') || data.docType === 'comment') {
           const pId = data.postId;
+          if (data.authorUsername) {
+            registerUserInDirectory(data.authorUsername, data.author || data.alias, data.authorAvatar, data.authorBio);
+          }
           if (pId) {
             if (!nextComments[pId]) nextComments[pId] = [];
             nextComments[pId].push({
@@ -3314,20 +3952,67 @@
           return;
         }
 
-        // 6. Standard Flow Post
+        // 6. Paper Messages Request Record
+        if (id.startsWith('__msgreq__') || data.docType === 'msg_request') {
+          const pk = data.pairKey;
+          if (pk && data.fromUser && data.toUser) {
+            registerUserInDirectory(data.fromUser, data.fromDisplay);
+            registerUserInDirectory(data.toUser, data.toDisplay);
+            nextMsgRequests[pk] = {
+              docId: id,
+              pairKey: pk,
+              fromUser: String(data.fromUser).toLowerCase(),
+              fromDisplay: data.fromDisplay || data.fromUser,
+              toUser: String(data.toUser).toLowerCase(),
+              toDisplay: data.toDisplay || data.toUser,
+              status: data.status || 'pending',
+              encryptedNote: data.body || '',
+              updatedAt: data.updatedAt || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now())
+            };
+            queueDecryptPaperRecord(id, data.body || '', data.fromUser, data.toUser);
+          }
+          return;
+        }
+
+        // 7. Paper Messages Encrypted Chat Bubble Record
+        if (id.startsWith('__pm__') || data.docType === 'paper_msg') {
+          const pk = data.pairKey;
+          if (pk && data.fromUser && data.toUser) {
+            registerUserInDirectory(data.fromUser, data.fromDisplay);
+            registerUserInDirectory(data.toUser, data.toDisplay);
+            if (!nextPaperMessages[pk]) nextPaperMessages[pk] = [];
+            const msgObj = {
+              docId: id,
+              pairKey: pk,
+              fromUser: String(data.fromUser).toLowerCase(),
+              fromDisplay: data.fromDisplay || data.fromUser,
+              toUser: String(data.toUser).toLowerCase(),
+              toDisplay: data.toDisplay || data.toUser,
+              encryptedBody: data.body || '',
+              isRequestNote: Boolean(data.isRequestNote),
+              createdAt: data.createdAt || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now())
+            };
+            nextPaperMessages[pk].push(msgObj);
+            queueDecryptPaperRecord(id, data.body || '', data.fromUser, data.toUser);
+          }
+          return;
+        }
+
+        // 8. Standard Flow Post
         nextPosts.push({ id, ...data });
-        if (data.authorUsername && !usersDirectory[data.authorUsername]) {
-          usersDirectory[data.authorUsername] = {
-            username: data.alias || data.authorUsername,
-            usernameLower: data.authorUsername,
-            avatar: data.authorAvatar || '',
-            bio: data.authorBio || ''
-          };
+        if (data.authorUsername) {
+          registerUserInDirectory(data.authorUsername, data.alias || data.authorUsername, data.authorAvatar, data.authorBio);
+        } else if (data.alias && data.alias.toLowerCase() !== 'anonymous') {
+          registerUserInDirectory(data.alias.toLowerCase(), data.alias, data.authorAvatar, data.authorBio);
         }
       });
 
       Object.keys(nextComments).forEach(pId => {
         nextComments[pId].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      });
+
+      Object.keys(nextPaperMessages).forEach(pk => {
+        nextPaperMessages[pk].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       });
 
       // Detect newly added replies to currentUser's flows for Mobile & Laptop Notifications
@@ -3346,6 +4031,19 @@
         });
       });
 
+      // Also detect newly arrived Paper Messages for currentUser
+      const newlyArrivedPMsForMe = [];
+      Object.values(nextPaperMessages).forEach(msgList => {
+        msgList.forEach(m => {
+          if (!seenReplyIdsSet.has(m.docId)) {
+            seenReplyIdsSet.add(m.docId);
+            if (hasInitialSnapshotLoaded && currentUser && m.toUser === currentUser.usernameLower && m.fromUser !== currentUser.usernameLower) {
+              newlyArrivedPMsForMe.push(m);
+            }
+          }
+        });
+      });
+
       if (!hasInitialSnapshotLoaded) {
         hasInitialSnapshotLoaded = true;
         saveSeenReplyIdsSet();
@@ -3355,8 +4053,10 @@
         if (targetFlowId && nextPosts.some(p => p.id === targetFlowId)) {
           setTimeout(() => jumpToFlowFromReply(targetFlowId), 200);
         }
-      } else if (newlyArrivedRepliesForMe.length > 0) {
-        saveSeenReplyIdsSet();
+      } else {
+        if (newlyArrivedRepliesForMe.length > 0 || newlyArrivedPMsForMe.length > 0) {
+          saveSeenReplyIdsSet();
+        }
         newlyArrivedRepliesForMe.forEach(({ comment, post }) => {
           const replier = comment.authorUsername ? `@${comment.author}` : (comment.author || 'Someone');
           const flowLabel = post.title
@@ -3368,6 +4068,13 @@
             postId: post.id
           });
         });
+        newlyArrivedPMsForMe.forEach(m => {
+          sendSystemAndInAppReplyNotification({
+            title: `🔒 Paper Messages — @${m.fromDisplay}`,
+            body: m.isRequestNote ? `Sent you a message request on Paper Messages` : `Sent you an encrypted message`,
+            postId: null
+          });
+        });
       }
 
       allPosts = nextPosts;
@@ -3375,6 +4082,8 @@
       starsByPost = nextStars;
       commentsByPost = nextComments;
       pinnedPostsMap = nextPins;
+      msgRequestsByPair = nextMsgRequests;
+      paperMessagesByPair = nextPaperMessages;
 
       setStatus('live', `Live — ${allPosts.length} flow${allPosts.length !== 1 ? 's' : ''} on the board`);
       renderAll();
@@ -3801,7 +4510,7 @@
       <div style="display: flex; gap: 0.6rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.2rem;">
         ${isOwnProfile
           ? `<button type="button" class="btn-post" style="padding: 0.5rem 1.1rem; font-size: 0.72rem;" onclick="closeUserProfileModal(); openAuthModal('profile');">✎ Edit Profile &amp; About</button>`
-          : ''
+          : `<button type="button" class="btn-post" style="padding: 0.5rem 1.1rem; font-size: 0.72rem; background: #008069; border-color: #008069;" onclick="closeUserProfileModal(); openPaperMessagesWithUser('${esc(cleanLower)}', '${esc(resolvedName)}');">🔒 Paper Message @${esc(resolvedName)}</button>`
         }
         <button type="button" class="btn-small" onclick="closeUserProfileModal()">Close</button>
       </div>
@@ -4424,21 +5133,752 @@
     return collected;
   }
 
+  // ── PAPER MESSAGES: WEB CRYPTO AES-256-GCM ENCRYPTION & WHATSAPP-STYLE CHAT ──
+  const pairCryptoKeyCache = new Map();
+
+  function sanitizeUserKeyPart(u) {
+    return String(u || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  }
+
+  function getConversationPairKey(u1, u2) {
+    const a = sanitizeUserKeyPart(u1);
+    const b = sanitizeUserKeyPart(u2);
+    return [a, b].sort().join('__');
+  }
+
+  async function getPairAesKey(u1, u2) {
+    const pairKey = getConversationPairKey(u1, u2);
+    if (pairCryptoKeyCache.has(pairKey)) {
+      return pairCryptoKeyCache.get(pairKey);
+    }
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(`paperflow_e2ee_secret_v1::${pairKey}`),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    );
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: enc.encode(`paperflow_pair_salt::${pairKey}`),
+        iterations: 10000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    pairCryptoKeyCache.set(pairKey, key);
+    return key;
+  }
+
+  function bytesToBase64(bytes) {
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  function base64ToBytes(b64) {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  async function encryptPaperMessage(plaintext, u1, u2) {
+    const key = await getPairAesKey(u1, u2);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(plaintext);
+    const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+    return `E2EE1:${bytesToBase64(iv)}:${bytesToBase64(new Uint8Array(cipherBuf))}`;
+  }
+
+  async function decryptPaperMessage(payload, u1, u2) {
+    if (!payload || typeof payload !== 'string') return '';
+    if (!payload.startsWith('E2EE1:')) return payload;
+    try {
+      const parts = payload.split(':');
+      if (parts.length < 3) return '🔒 [Encrypted message]';
+      const iv = base64ToBytes(parts[1]);
+      const data = base64ToBytes(parts.slice(2).join(':'));
+      const key = await getPairAesKey(u1, u2);
+      const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+      return new TextDecoder().decode(plainBuf);
+    } catch (e) {
+      return '🔒 [Encrypted message]';
+    }
+  }
+
+  function queueDecryptPaperRecord(docId, encryptedStr, u1, u2) {
+    if (decryptedTextCache[docId] !== undefined) return;
+    decryptedTextCache[docId] = '🔒 Decrypting…';
+    decryptPaperMessage(encryptedStr, u1, u2).then(plain => {
+      decryptedTextCache[docId] = plain;
+      if (activeViewMode === 'messages') {
+        renderPaperMessagesUI();
+      }
+    });
+  }
+
+  function getMyConversationPeers() {
+    if (!currentUser) return [];
+    const me = currentUser.usernameLower;
+    const peersMap = new Map();
+
+    Object.values(msgRequestsByPair).forEach(req => {
+      if (req.fromUser === me || req.toUser === me) {
+        const peerLower = req.fromUser === me ? req.toUser : req.fromUser;
+        const peerDisplay = req.fromUser === me ? req.toDisplay : req.fromDisplay;
+        peersMap.set(peerLower, {
+          usernameLower: peerLower,
+          username: usersDirectory[peerLower]?.username || peerDisplay || peerLower,
+          lastTs: req.updatedAt || 0
+        });
+      }
+    });
+
+    Object.values(paperMessagesByPair).forEach(list => {
+      list.forEach(m => {
+        if (m.fromUser === me || m.toUser === me) {
+          const peerLower = m.fromUser === me ? m.toUser : m.fromUser;
+          const peerDisplay = m.fromUser === me ? m.toDisplay : m.fromDisplay;
+          const prev = peersMap.get(peerLower);
+          const ts = m.createdAt || 0;
+          if (!prev || ts > prev.lastTs) {
+            peersMap.set(peerLower, {
+              usernameLower: peerLower,
+              username: usersDirectory[peerLower]?.username || peerDisplay || peerLower,
+              lastTs: ts
+            });
+          }
+        }
+      });
+    });
+
+    return Array.from(peersMap.values()).sort((a, b) => b.lastTs - a.lastTs);
+  }
+
+  function getIncomingPendingRequestsForMe() {
+    if (!currentUser) return [];
+    const me = currentUser.usernameLower;
+    return Object.values(msgRequestsByPair).filter(
+      req => req.toUser === me && req.status === 'pending'
+    );
+  }
+
+  function getAllPlatformUsersForDirectory() {
+    const me = currentUser?.usernameLower || '';
+    const list = Object.values(usersDirectory)
+      .filter(u => u && u.usernameLower && u.usernameLower !== me)
+      .sort((a, b) => a.username.localeCompare(b.username));
+    return list;
+  }
+
+  function canDirectMessageWithoutRequest(peerLower) {
+    if (!currentUser) return false;
+    // Developer @Marvelist can message any user directly without a request,
+    // and any conversation with @Marvelist is unlocked once initiated.
+    if (isDeveloperUser(currentUser.usernameLower)) return true;
+    const pairKey = getConversationPairKey(currentUser.usernameLower, peerLower);
+    const req = msgRequestsByPair[pairKey];
+    if (req && req.status === 'accepted') return true;
+    // Also if @Marvelist has already messaged this user, unlock reply immediately
+    const msgs = paperMessagesByPair[pairKey] || [];
+    if (isDeveloperUser(peerLower) && msgs.some(m => isDeveloperUser(m.fromUser))) {
+      return true;
+    }
+    return false;
+  }
+
+  window.switchPmTab = function (tab) {
+    activePmTab = tab;
+    renderPaperMessagesUI();
+  };
+
+  window.selectPmChatPeer = function (peerLower, peerDisplayName) {
+    const cleanLower = String(peerLower || '').trim().toLowerCase().replace(/^@/, '');
+    if (!cleanLower) return;
+    if (!usersDirectory[cleanLower]) {
+      usersDirectory[cleanLower] = {
+        username: peerDisplayName || cleanLower,
+        usernameLower: cleanLower,
+        avatar: '',
+        bio: ''
+      };
+    }
+    activeChatPeerLower = cleanLower;
+    document.getElementById('paperMessagesShell')?.classList.add('mobile-chat-open');
+    renderPaperMessagesUI();
+    setTimeout(() => {
+      const area = document.getElementById('pmMessagesScrollArea');
+      if (area) area.scrollTop = area.scrollHeight;
+    }, 30);
+  };
+
+  window.closeMobilePmChat = function () {
+    document.getElementById('paperMessagesShell')?.classList.remove('mobile-chat-open');
+  };
+
+  window.sendPaperMessageRequest = async function (peerLower) {
+    if (!currentUser) return;
+    const inp = document.getElementById('pmRequestNoteInput');
+    if (!inp) return;
+    const note = inp.value.trim();
+    if (!note) {
+      showToast('Write a short request message first!');
+      return;
+    }
+    if (note.length > 180) {
+      showToast('Keep your request message under 180 characters.');
+      return;
+    }
+
+    inp.disabled = true;
+    const me = currentUser.usernameLower;
+    const peerEntry = usersDirectory[peerLower] || { username: peerLower, usernameLower: peerLower };
+    const pairKey = getConversationPairKey(me, peerLower);
+    const reqDocId = `__msgreq__${pairKey}`;
+    const msgDocId = `__pm__${pairKey}__${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+
+    try {
+      const encrypted = await encryptPaperMessage(note, me, peerLower);
+      decryptedTextCache[reqDocId] = note;
+      decryptedTextCache[msgDocId] = note;
+
+      if (msgRequestsByPair[pairKey]) {
+        await deleteDoc(doc(db, "posts", reqDocId));
+      }
+
+      await setDoc(doc(db, "posts", reqDocId), {
+        title: null,
+        body: encrypted,
+        tag: 'other',
+        alias: currentUser.username.slice(0, 30),
+        ts: serverTimestamp(),
+        docType: 'msg_request',
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        status: 'pending',
+        updatedAt: Date.now()
+      });
+
+      await setDoc(doc(db, "posts", msgDocId), {
+        title: null,
+        body: encrypted,
+        tag: 'other',
+        alias: currentUser.username.slice(0, 30),
+        ts: serverTimestamp(),
+        docType: 'paper_msg',
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        isRequestNote: true,
+        createdAt: Date.now()
+      });
+
+      showToast(`Encrypted message request sent to @${peerEntry.username || peerLower}!`);
+    } catch (e) {
+      console.error(e);
+      showToast('Could not send message request.');
+      inp.disabled = false;
+    }
+  };
+
+  window.respondToPaperMessageRequest = async function (pairKey, decision) {
+    if (!currentUser) return;
+    const req = msgRequestsByPair[pairKey];
+    if (!req) return;
+    const reqRef = doc(db, "posts", req.docId);
+
+    try {
+      await deleteDoc(reqRef);
+      if (decision === 'accept') {
+        await setDoc(reqRef, {
+          title: null,
+          body: req.encryptedNote || 'accepted',
+          tag: 'other',
+          alias: currentUser.username.slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'msg_request',
+          pairKey: req.pairKey,
+          fromUser: req.fromUser,
+          fromDisplay: req.fromDisplay,
+          toUser: req.toUser,
+          toDisplay: req.toDisplay,
+          status: 'accepted',
+          updatedAt: Date.now()
+        });
+        showToast(`Request accepted! You can now chat with @${req.fromDisplay}.`);
+      } else {
+        showToast('Message request declined.');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Could not update request.');
+    }
+  };
+
+  window.sendEncryptedChatMessage = async function (peerLower) {
+    if (!currentUser || !peerLower) return;
+    const inp = document.getElementById('pmMessageInput');
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+
+    if (!canDirectMessageWithoutRequest(peerLower)) {
+      showToast('Please send or accept a message request first.');
+      return;
+    }
+
+    inp.value = '';
+    const me = currentUser.usernameLower;
+    const peerEntry = usersDirectory[peerLower] || { username: peerLower, usernameLower: peerLower };
+    const pairKey = getConversationPairKey(me, peerLower);
+    const msgDocId = `__pm__${pairKey}__${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+
+    try {
+      const encrypted = await encryptPaperMessage(text, me, peerLower);
+      decryptedTextCache[msgDocId] = text;
+
+      // If @Marvelist messages someone without a request doc yet, mark conversation accepted
+      if (isDeveloperUser(me) && (!msgRequestsByPair[pairKey] || msgRequestsByPair[pairKey].status !== 'accepted')) {
+        const reqDocId = `__msgreq__${pairKey}`;
+        if (msgRequestsByPair[pairKey]) {
+          await deleteDoc(doc(db, "posts", reqDocId));
+        }
+        await setDoc(doc(db, "posts", reqDocId), {
+          title: null,
+          body: encrypted,
+          tag: 'other',
+          alias: currentUser.username.slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'msg_request',
+          pairKey,
+          fromUser: me,
+          fromDisplay: currentUser.username,
+          toUser: peerLower,
+          toDisplay: peerEntry.username || peerLower,
+          status: 'accepted',
+          updatedAt: Date.now()
+        });
+      }
+
+      await setDoc(doc(db, "posts", msgDocId), {
+        title: null,
+        body: encrypted,
+        tag: 'other',
+        alias: currentUser.username.slice(0, 30),
+        ts: serverTimestamp(),
+        docType: 'paper_msg',
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        isRequestNote: false,
+        createdAt: Date.now()
+      });
+
+      setTimeout(() => {
+        const area = document.getElementById('pmMessagesScrollArea');
+        if (area) area.scrollTop = area.scrollHeight;
+      }, 40);
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to send encrypted message.');
+    }
+  };
+
+  window.renderPaperMessagesUI = function () {
+    const shell = document.getElementById('paperMessagesShell');
+    if (!shell || !currentUser) return;
+
+    const me = currentUser.usernameLower;
+    const isDev = isDeveloperUser(me);
+    const selfHeader = document.getElementById('pmSidebarHeader');
+    const tabsBar = document.getElementById('pmTabsBar');
+    const listEl = document.getElementById('pmSidebarList');
+    const mainEl = document.getElementById('pmMainPane');
+    const searchVal = (document.getElementById('pmSearchInput')?.value || '').trim().toLowerCase().replace(/^@/, '');
+
+    // 1. Constant Username Sidebar Header
+    const myAv = renderAvatarHTML(currentUser.username, currentUser.avatar || '', '', isDev);
+    selfHeader.innerHTML = `
+      <div class="pm-self-identity">
+        ${myAv}
+        <div class="pm-self-meta">
+          <div class="pm-self-title">
+            <span>@${esc(currentUser.username)}</span>
+            ${isDev ? `<span class="dev-badge">⚡ Dev</span>` : ''}
+          </div>
+          <div class="pm-self-sub">🔒 Paper Messages · Constant ID</div>
+        </div>
+      </div>
+      <button type="button" class="btn-small" style="color:#fff;border-color:rgba(255,255,255,0.35);font-size:0.6rem;padding:3px 9px;" onclick="switchPmTab('users')" title="Find user">${isDev ? '⚡ All Users' : '+ New'}</button>
+    `;
+
+    // 2. Sidebar Tabs
+    const incomingReqs = getIncomingPendingRequestsForMe();
+    const allUsersList = getAllPlatformUsersForDirectory();
+    const chatsList = getMyConversationPeers();
+
+    tabsBar.innerHTML = `
+      <button type="button" class="pm-tab-btn ${activePmTab === 'chats' ? 'active' : ''}" onclick="switchPmTab('chats')">
+        <span>💬 Chats</span>
+        ${chatsList.length > 0 ? `<span class="pm-tab-badge">${chatsList.length}</span>` : ''}
+      </button>
+      <button type="button" class="pm-tab-btn ${activePmTab === 'requests' ? 'active' : ''}" onclick="switchPmTab('requests')">
+        <span>📩 Requests</span>
+        ${incomingReqs.length > 0 ? `<span class="pm-tab-badge">${incomingReqs.length}</span>` : ''}
+      </button>
+      <button type="button" class="pm-tab-btn ${activePmTab === 'users' ? 'active' : ''}" onclick="switchPmTab('users')">
+        <span>${isDev ? '⚡ All Users' : '👥 Directory'}</span>
+        <span class="pm-tab-badge">${allUsersList.length}</span>
+      </button>
+    `;
+
+    // 3. Sidebar List Rendering
+    listEl.innerHTML = '';
+
+    // If user typed a username in the search box that isn't in the list yet, offer direct selection
+    if (searchVal && searchVal !== me && !allUsersList.some(u => u.usernameLower === searchVal)) {
+      const customBtn = document.createElement('div');
+      customBtn.className = 'pm-list-item';
+      customBtn.onclick = () => selectPmChatPeer(searchVal, searchVal);
+      customBtn.innerHTML = `
+        ${renderAvatarHTML(searchVal, '', '', isDeveloperUser(searchVal))}
+        <div class="pm-item-info">
+          <div class="pm-item-top">
+            <span class="pm-item-name">@${esc(searchVal)}</span>
+            <span class="pm-status-tag ${isDev ? 'direct-dev' : 'pending'}">${isDev ? 'Direct Chat' : 'Send Request'}</span>
+          </div>
+          <div class="pm-item-preview">Click to message @${esc(searchVal)}</div>
+        </div>
+      `;
+      listEl.appendChild(customBtn);
+    }
+
+    if (activePmTab === 'chats') {
+      const filteredChats = chatsList.filter(c =>
+        !searchVal || c.usernameLower.includes(searchVal) || c.username.toLowerCase().includes(searchVal)
+      );
+
+      if (filteredChats.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.style.cssText = 'padding: 2rem 1rem; text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted); line-height: 1.6;';
+        emptyDiv.innerHTML = isDev
+          ? `No active chats yet.<br><button type="button" class="btn-small" style="margin-top:0.6rem;" onclick="switchPmTab('users')">⚡ Open Full User List (${allUsersList.length}) →</button>`
+          : `No active chats yet.<br><button type="button" class="btn-small" style="margin-top:0.6rem;" onclick="switchPmTab('users')">Find Someone to Message →</button>`;
+        listEl.appendChild(emptyDiv);
+      } else {
+        filteredChats.forEach(peer => {
+          const pk = getConversationPairKey(me, peer.usernameLower);
+          const msgs = paperMessagesByPair[pk] || [];
+          const req = msgRequestsByPair[pk];
+          const lastMsg = msgs[msgs.length - 1];
+          const peerDir = usersDirectory[peer.usernameLower] || peer;
+          const peerIsDev = isDeveloperUser(peer.usernameLower);
+          const previewText = lastMsg
+            ? (decryptedTextCache[lastMsg.docId] || '🔒 Encrypted message')
+            : (req ? (decryptedTextCache[req.docId] || '🔒 Message request') : 'Start encrypted chat');
+          const timeStr = lastMsg?.createdAt ? formatTime(new Date(lastMsg.createdAt)) : '';
+
+          let statusBadge = '';
+          if (req && req.status === 'pending') {
+            statusBadge = req.toUser === me
+              ? `<span class="pm-status-tag incoming-req">New Request</span>`
+              : `<span class="pm-status-tag pending">Pending</span>`;
+          }
+
+          const item = document.createElement('div');
+          item.className = 'pm-list-item' + (activeChatPeerLower === peer.usernameLower ? ' active' : '');
+          item.onclick = () => selectPmChatPeer(peer.usernameLower, peerDir.username);
+          item.innerHTML = `
+            ${renderAvatarHTML(peerDir.username, peerDir.avatar || '', '', peerIsDev)}
+            <div class="pm-item-info">
+              <div class="pm-item-top">
+                <span class="pm-item-name">
+                  <span>@${esc(peerDir.username)}</span>
+                  ${peerIsDev ? `<span class="dev-badge">⚡</span>` : ''}
+                </span>
+                <span class="pm-item-time">${timeStr}</span>
+              </div>
+              <div class="pm-item-preview">
+                <span style="overflow:hidden;text-overflow:ellipsis;">${lastMsg?.fromUser === me ? '<span class="pm-ticks">✓✓</span> ' : ''}${esc(previewText)}</span>
+                ${statusBadge}
+              </div>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      }
+    } else if (activePmTab === 'requests') {
+      if (incomingReqs.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.style.cssText = 'padding: 2rem 1rem; text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);';
+        emptyDiv.textContent = 'No pending incoming message requests.';
+        listEl.appendChild(emptyDiv);
+      } else {
+        incomingReqs.forEach(req => {
+          const peerLower = req.fromUser;
+          const peerDir = usersDirectory[peerLower] || { username: req.fromDisplay || peerLower, avatar: '' };
+          const notePreview = decryptedTextCache[req.docId] || '🔒 Encrypted request note';
+          const item = document.createElement('div');
+          item.className = 'pm-list-item' + (activeChatPeerLower === peerLower ? ' active' : '');
+          item.onclick = () => selectPmChatPeer(peerLower, peerDir.username);
+          item.innerHTML = `
+            ${renderAvatarHTML(peerDir.username, peerDir.avatar || '', '', isDeveloperUser(peerLower))}
+            <div class="pm-item-info">
+              <div class="pm-item-top">
+                <span class="pm-item-name">@${esc(peerDir.username)}</span>
+                <span class="pm-status-tag incoming-req">Request</span>
+              </div>
+              <div class="pm-item-preview">${esc(notePreview)}</div>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      }
+    } else if (activePmTab === 'users') {
+      const filteredUsers = allUsersList.filter(u =>
+        !searchVal || u.usernameLower.includes(searchVal) || u.username.toLowerCase().includes(searchVal)
+      );
+
+      if (filteredUsers.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.style.cssText = 'padding: 2rem 1rem; text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);';
+        emptyDiv.textContent = 'No users found. Type any @username in the search box above to message them.';
+        listEl.appendChild(emptyDiv);
+      } else {
+        filteredUsers.forEach(u => {
+          const peerIsDev = isDeveloperUser(u.usernameLower);
+          const pk = getConversationPairKey(me, u.usernameLower);
+          const req = msgRequestsByPair[pk];
+          const canDirect = canDirectMessageWithoutRequest(u.usernameLower);
+
+          let tagHTML = '';
+          if (isDev) {
+            tagHTML = `<span class="pm-status-tag direct-dev">⚡ Direct Access</span>`;
+          } else if (canDirect) {
+            tagHTML = `<span class="pm-status-tag incoming-req">Connected</span>`;
+          } else if (req && req.status === 'pending') {
+            tagHTML = `<span class="pm-status-tag pending">Pending</span>`;
+          } else {
+            tagHTML = `<span class="pm-status-tag">Send Request</span>`;
+          }
+
+          const item = document.createElement('div');
+          item.className = 'pm-list-item' + (activeChatPeerLower === u.usernameLower ? ' active' : '');
+          item.onclick = () => selectPmChatPeer(u.usernameLower, u.username);
+          item.innerHTML = `
+            ${renderAvatarHTML(u.username, u.avatar || '', '', peerIsDev)}
+            <div class="pm-item-info">
+              <div class="pm-item-top">
+                <span class="pm-item-name">
+                  <span>@${esc(u.username)}</span>
+                  ${peerIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
+                </span>
+                ${tagHTML}
+              </div>
+              <div class="pm-item-preview">${esc(u.bio || 'Paper Flow Member')}</div>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      }
+    }
+
+    // 4. Right Main Chat Pane Rendering
+    if (!activeChatPeerLower) {
+      mainEl.innerHTML = `
+        <div class="pm-empty-welcome">
+          <div style="font-size: 3rem;">🔒</div>
+          <h3>Paper Messages</h3>
+          <p>
+            End-to-end encrypted WhatsApp-style messaging inside Paper Flow.<br>
+            Your username <strong>@${esc(currentUser.username)}</strong> remains constant throughout.
+          </p>
+          <p style="margin-top: 0.65rem; font-family: var(--mono); font-size: 0.68rem;">
+            ${isDev
+              ? `⚡ <strong>Developer Access (@Marvelist):</strong> You have direct access to message any user from the complete user directory without sending a request.`
+              : `📩 Select any user on the left to send a short request message first. Once they accept, full real-time messaging unlocks.`
+            }
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    const peerLower = activeChatPeerLower;
+    const peerDir = usersDirectory[peerLower] || { username: peerLower, usernameLower: peerLower, avatar: '', bio: '' };
+    const peerName = peerDir.username || peerLower;
+    const peerIsDev = isDeveloperUser(peerLower);
+    const pairKey = getConversationPairKey(me, peerLower);
+    const reqRecord = msgRequestsByPair[pairKey];
+    const messages = paperMessagesByPair[pairKey] || [];
+    const unlocked = canDirectMessageWithoutRequest(peerLower);
+
+    // Preserve any text typed into inputs before re-render
+    const prevMsgDraft = document.getElementById('pmMessageInput')?.value || '';
+    const prevReqDraft = document.getElementById('pmRequestNoteInput')?.value || '';
+
+    const bubblesHTML = messages.map(m => {
+      const isOutgoing = m.fromUser === me;
+      const text = decryptedTextCache[m.docId] !== undefined ? decryptedTextCache[m.docId] : '🔒 Decrypting…';
+      const timeLabel = m.createdAt
+        ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+      return `
+        <div class="pm-bubble-row ${isOutgoing ? 'outgoing' : 'incoming'}">
+          <div class="pm-bubble">
+            ${m.isRequestNote ? `<div class="pm-bubble-req-tag">📩 Short Request Message</div>` : ''}
+            <div>${esc(text)}</div>
+            <div class="pm-bubble-meta">
+              <span>${timeLabel}</span>
+              ${isOutgoing ? `<span class="pm-ticks">✓✓</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    let incomingApprovalBoxHTML = '';
+    if (!unlocked && reqRecord && reqRecord.status === 'pending' && reqRecord.toUser === me) {
+      const reqNote = decryptedTextCache[reqRecord.docId] || '🔒 Encrypted request message';
+      incomingApprovalBoxHTML = `
+        <div class="pm-request-approval-box">
+          <h4>📩 Message Request from @${esc(peerName)}</h4>
+          <p>"${esc(reqNote)}"</p>
+          <p style="font-size:0.7rem;">Accept this request to allow @${esc(peerName)} to chat with you on Paper Messages.</p>
+          <div class="pm-request-actions">
+            <button type="button" class="btn-pm-accept" onclick="respondToPaperMessageRequest('${pairKey}', 'accept')">✓ Accept Request</button>
+            <button type="button" class="btn-pm-decline" onclick="respondToPaperMessageRequest('${pairKey}', 'decline')">✕ Decline</button>
+          </div>
+        </div>
+      `;
+    }
+
+    let bottomBarHTML = '';
+    if (unlocked) {
+      bottomBarHTML = `
+        <div class="pm-compose-bar">
+          <input
+            type="text"
+            class="pm-compose-input"
+            id="pmMessageInput"
+            placeholder="Message @${esc(peerName)} as @${esc(currentUser.username)} (AES-256 encrypted)…"
+            maxlength="2000"
+            value="${esc(prevMsgDraft)}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();sendEncryptedChatMessage('${esc(peerLower)}');}"
+          />
+          <button type="button" class="btn-pm-send" onclick="sendEncryptedChatMessage('${esc(peerLower)}')" title="Send Encrypted Message">➤</button>
+        </div>
+      `;
+    } else if (reqRecord && reqRecord.status === 'pending' && reqRecord.fromUser === me) {
+      bottomBarHTML = `
+        <div class="pm-request-composer">
+          <div class="pm-request-composer-label">
+            ⏳ Short request message sent to <strong>@${esc(peerName)}</strong>. Waiting for @${esc(peerName)} to accept before you can send more messages.
+          </div>
+        </div>
+      `;
+    } else if (reqRecord && reqRecord.status === 'pending' && reqRecord.toUser === me) {
+      bottomBarHTML = `
+        <div class="pm-request-composer">
+          <div class="pm-request-composer-label">
+            📩 Accept <strong>@${esc(peerName)}</strong>’s request above to start messaging.
+          </div>
+        </div>
+      `;
+    } else {
+      bottomBarHTML = `
+        <div class="pm-request-composer">
+          <div class="pm-request-composer-label">
+            🔒 Before messaging <strong>@${esc(peerName)}</strong>, send a short encrypted request message first (max 180 chars):
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input
+              type="text"
+              class="pm-compose-input"
+              id="pmRequestNoteInput"
+              placeholder="Write a short request message to @${esc(peerName)}…"
+              maxlength="180"
+              value="${esc(prevReqDraft)}"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();sendPaperMessageRequest('${esc(peerLower)}');}"
+            />
+            <button type="button" class="btn-pm-accept" onclick="sendPaperMessageRequest('${esc(peerLower)}')">Send Request ➤</button>
+          </div>
+        </div>
+      `;
+    }
+
+    mainEl.innerHTML = `
+      <div class="pm-chat-header">
+        <div class="pm-chat-header-left">
+          <button type="button" class="pm-mobile-back" onclick="closeMobilePmChat()" aria-label="Back to chats">←</button>
+          <span class="clickable-profile" onclick="openUserProfileModal('${esc(peerName)}', '${esc(peerLower)}', event)" style="display:inline-flex;align-items:center;gap:0.55rem;">
+            ${renderAvatarHTML(peerName, peerDir.avatar || '', '', peerIsDev)}
+            <div>
+              <div class="pm-peer-title">
+                <span>@${esc(peerName)}</span>
+                ${peerIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
+              </div>
+              <div class="pm-peer-sub">🔒 End-to-End Encrypted · Click to view profile</div>
+            </div>
+          </span>
+        </div>
+        <span class="pm-status-tag ${unlocked ? 'incoming-req' : 'pending'}">
+          ${isDev ? '⚡ Dev Direct' : (unlocked ? '✓ Connected' : '🔒 Request Gate')}
+        </span>
+      </div>
+
+      <div class="pm-messages-area" id="pmMessagesScrollArea">
+        <div class="pm-e2ee-banner">
+          🔒 Messages and request notes in <strong>Paper Messages</strong> are end-to-end encrypted with AES-256-GCM.<br>
+          Your username <strong>@${esc(currentUser.username)}</strong> is constant.
+        </div>
+        ${bubblesHTML}
+        ${incomingApprovalBoxHTML}
+      </div>
+
+      ${bottomBarHTML}
+    `;
+  };
+
   function renderSidePanelCounts() {
     const countAllEl = document.getElementById('sideCountAll');
     const countMyEl = document.getElementById('sideCountMyFlows');
     const countStarEl = document.getElementById('sideCountStarred');
     const countRepEl = document.getElementById('sideCountReplies');
+    const countMsgEl = document.getElementById('sideCountMessages');
 
     if (countAllEl) countAllEl.textContent = allPosts.length;
     if (countMyEl) countMyEl.textContent = currentUser ? getMyPosts().length : 0;
     if (countStarEl) countStarEl.textContent = getStarredPosts().length;
     if (countRepEl) countRepEl.textContent = currentUser ? getRepliesToMyPosts().length : 0;
+    if (countMsgEl) {
+      const pendingIn = getIncomingPendingRequestsForMe().length;
+      const totalChats = getMyConversationPeers().length;
+      countMsgEl.textContent = pendingIn > 0 ? `${pendingIn} new` : totalChats;
+    }
 
     document.getElementById('sideBtnBoard')?.classList.toggle('active', activeViewMode === 'board');
     document.getElementById('sideBtnMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('sideBtnStarred')?.classList.toggle('active', activeViewMode === 'starred');
     document.getElementById('sideBtnReplies')?.classList.toggle('active', activeViewMode === 'replies');
+    document.getElementById('sideBtnMessages')?.classList.toggle('active', activeViewMode === 'messages');
   }
 
   function renderFilters() {
@@ -4491,12 +5931,42 @@
 
   function renderFeed() {
     const feed = document.getElementById('feed');
+    const pmShell = document.getElementById('paperMessagesShell');
+    const mainContainer = document.querySelector('.container');
     const sectionTitle = document.getElementById('feedSectionTitle');
     const feedCount = document.getElementById('feedCount');
     const viewBanner = document.getElementById('viewModeBanner');
     const viewBannerText = document.getElementById('viewModeBannerText');
     const filterWrap = document.getElementById('filterDropdownWrap');
+    const searchBubble = document.getElementById('floatingSearchBubble');
     const qLower = searchQuery.toLowerCase();
+
+    // MODE 5: PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER)
+    if (activeViewMode === 'messages') {
+      mainContainer?.classList.add('messages-mode-container');
+      if (feed) feed.style.display = 'none';
+      if (pmShell) pmShell.classList.add('active');
+      if (filterWrap) filterWrap.style.display = 'none';
+      if (searchBubble) searchBubble.style.display = 'none';
+      if (sectionTitle) sectionTitle.textContent = 'Paper Messages';
+      const isDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
+      if (feedCount) {
+        feedCount.textContent = isDev
+          ? `AES-256 Encrypted · Developer Full Access (@${currentUser?.username})`
+          : `AES-256 Encrypted · @${currentUser?.username || ''}`;
+      }
+      if (viewBanner) {
+        viewBanner.classList.add('show');
+        viewBannerText.innerHTML = `🔒 <strong>Paper Messages</strong> — Signed in permanently as <strong>@${esc(currentUser?.username || '')}</strong>`;
+      }
+      renderPaperMessagesUI();
+      return;
+    }
+
+    mainContainer?.classList.remove('messages-mode-container');
+    if (feed) feed.style.display = 'block';
+    if (pmShell) pmShell.classList.remove('active');
+    if (searchBubble) searchBubble.style.display = 'inline-flex';
 
     // MODE 3: REPLIES TO MY FLOWS PAGE
     if (activeViewMode === 'replies') {

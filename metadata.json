@@ -1,6 +1,6 @@
 {
   "name": "Paper Flow — Anonymous & Open",
-  "description": "An anonymous, open, real-time memo board for sharing confessions, stories, opinions, news, and questions.",
+  "description": "Share anonymous confessions, stories, opinions, and questions in real time, and chat privately with end-to-end encrypted Paper Messages on Paper Flow.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

@@ -31,6 +31,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Paper Flow" />
+<meta name="color-scheme" content="light dark" />
 <meta name="theme-color" content="#1a1209" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -154,6 +155,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #f5f0e8;
     --ink: #1a1209;
     --ink-muted: #5a4f3e;
@@ -172,6 +174,7 @@
 
   /* DARK MODE THEME */
   body.dark-mode {
+    color-scheme: dark;
     --bg: #0f0d0b;
     --ink: #f3ede2;
     --ink-muted: #a69c8a;
@@ -1519,6 +1522,9 @@
   .card-author-name span {
     white-space: nowrap;
   }
+  .card-author-name .dev-badge {
+    margin-left: 0.35rem;
+  }
   .verified-user-dot {
     font-size: 0.6rem;
     color: var(--ink-muted);
@@ -2419,8 +2425,43 @@
   .empty-state p { font-family: var(--serif); font-style: italic; font-size: 1.1rem; }
 
   /* TOAST */
-  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: var(--bg); padding: 0.7rem 1.4rem; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.05em; border-radius: 2px; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 999; pointer-events: none; white-space: nowrap; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast {
+    position: fixed;
+    bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%) translateY(14px) scale(0.95);
+    opacity: 0;
+    visibility: hidden;
+    background: #1a1209;
+    color: #f5f0e8;
+    border: 1px solid var(--card-border);
+    padding: 0.65rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.22s ease,
+      visibility 0.22s ease;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  body.dark-mode .toast {
+    background: #241f18;
+    color: #f3ede2;
+    border-color: #4a3f31;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
 
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -3411,19 +3452,19 @@
     .header-user-bar {
       width: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.5rem;
       min-width: 0;
       box-sizing: border-box;
     }
     .user-pill-btn {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-width: 0;
       max-width: calc(100% - 85px);
-      padding: 0.28rem 0.55rem 0.28rem 0.35rem;
+      padding: 0.28rem 0.6rem 0.28rem 0.35rem;
       font-size: 0.68rem;
-      gap: 0.35rem;
+      gap: 0.38rem;
     }
     .user-pill-btn span {
       white-space: nowrap;
@@ -7795,10 +7836,18 @@
     }
     const t = document.getElementById('toast');
     if (!t) return;
+    clearTimeout(window.__toastTimeout);
+    clearTimeout(window.__toastClearTextTimeout);
     t.textContent = msg;
     t.classList.add('show');
-    clearTimeout(window.__toastTimeout);
-    window.__toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+    window.__toastTimeout = setTimeout(() => {
+      t.classList.remove('show');
+      window.__toastClearTextTimeout = setTimeout(() => {
+        if (!t.classList.contains('show')) {
+          t.textContent = '';
+        }
+      }, 280);
+    }, 2400);
   };
 
   // ── SERVICE WORKER & OFFLINE CONNECTIVITY ─────────────────────────────────

@@ -2493,7 +2493,11 @@
   }
   .paper-messages-shell.active {
     display: grid;
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-rows: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
   }
   .pm-exit-back-btn {
     background: rgba(245, 240, 232, 0.12);
@@ -2751,7 +2755,11 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 0;
+    max-height: 100%;
     min-width: 0;
+    overflow: hidden;
+    position: relative;
     background: var(--bg);
     background-image: repeating-linear-gradient(
       0deg,
@@ -2760,7 +2768,6 @@
       rgba(180, 160, 120, 0.14) 27px,
       rgba(180, 160, 120, 0.14) 28px
     );
-    position: relative;
   }
   body.dark-mode .pm-main {
     background: var(--bg);
@@ -2773,6 +2780,7 @@
     );
   }
   .pm-chat-header {
+    flex-shrink: 0;
     background: #1a1209;
     color: #f5f0e8;
     padding: 0.72rem 1.05rem;
@@ -2829,12 +2837,31 @@
     color: var(--ink-muted);
   }
   .pm-messages-area {
-    flex: 1;
+    flex: 1 1 0%;
+    min-height: 0;
+    max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
     padding: 1.1rem 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
+  }
+  .pm-messages-area::-webkit-scrollbar {
+    width: 6px;
+  }
+  .pm-messages-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .pm-messages-area::-webkit-scrollbar-thumb {
+    background: rgba(26, 18, 9, 0.22);
+    border-radius: 999px;
+  }
+  body.dark-mode .pm-messages-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
   }
   .pm-e2ee-banner {
     align-self: center;
@@ -2999,7 +3026,10 @@
   }
   /* Bottom Compose Bar */
   .pm-compose-bar {
+    flex-shrink: 0;
+    z-index: 10;
     padding: 0.7rem 0.95rem;
+    padding-bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
     background: var(--surface-subtle);
     border-top: 2px solid var(--ink);
     display: flex;
@@ -3049,7 +3079,10 @@
     box-shadow: 3px 3px 0 var(--ink);
   }
   .pm-request-composer {
+    flex-shrink: 0;
+    z-index: 10;
     padding: 0.85rem 1.05rem;
+    padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
     background: var(--surface-subtle);
     border-top: 2px solid var(--accent);
     display: flex;
@@ -3499,15 +3532,26 @@
     .fab-post-btn { display: none; }
     .about-window-body { padding: 1.25rem; }
     .paper-messages-shell.active {
-      grid-template-columns: 1fr;
+      grid-template-columns: 100%;
+      grid-template-rows: 100%;
       width: 100vw;
       height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
     }
     .paper-messages-shell.mobile-chat-open .pm-sidebar {
       display: none;
     }
     .paper-messages-shell:not(.mobile-chat-open) .pm-main {
       display: none;
+    }
+    .paper-messages-shell.mobile-chat-open .pm-main {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
+      overflow: hidden;
     }
     .pm-mobile-back {
       display: inline-flex;
@@ -4407,13 +4451,14 @@
       document.body.appendChild(stack);
     }
 
+    const isPm = Boolean(postId && (String(postId).startsWith('pm:') || String(postId).startsWith('pm_')));
     const card = document.createElement('div');
     card.className = 'os-notification-card';
     card.innerHTML = `
-      <div class="os-notif-icon">💬</div>
+      <div class="os-notif-icon">${isPm ? '🔒' : '💬'}</div>
       <div class="os-notif-body">
         <div class="os-notif-meta">
-          <span>Paper Flow · Reply Alert</span>
+          <span>${isPm ? 'Paper Messages · Encrypted' : 'Paper Flow · Reply Alert'}</span>
           <span>Now</span>
         </div>
         <div class="os-notif-title">${esc(title)}</div>
@@ -4621,14 +4666,25 @@
     activeChatPeerLower = cleanLower;
     activeViewMode = 'messages';
     isPmChatMenuOpen = false;
+    window.__pmForceScrollBottom = true;
     document.body.classList.add('pm-fullscreen-open');
     const shell = document.getElementById('paperMessagesShell');
     shell?.classList.add('mobile-chat-open');
     toggleSidePanel(false);
     renderAll();
+    setTimeout(() => {
+      const area = document.getElementById('pmMessagesScrollArea');
+      if (area) area.scrollTop = area.scrollHeight;
+    }, 50);
   };
 
   window.jumpToFlowFromReply = function (postId) {
+    if (!postId) return;
+    if (String(postId).startsWith('pm:') || String(postId).startsWith('pm_')) {
+      const peer = String(postId).replace(/^pm[:_]/, '');
+      openPaperMessagesWithUser(peer);
+      return;
+    }
     activeViewMode = 'board';
     activeFilter = 'all';
     clearSearchInput();
@@ -5119,17 +5175,28 @@
         });
       });
 
+      // Detect newly arrived Message Requests for currentUser
+      const newlyArrivedReqsForMe = [];
+      Object.values(nextMsgRequests).forEach(req => {
+        if (!seenReplyIdsSet.has(req.docId)) {
+          seenReplyIdsSet.add(req.docId);
+          if (hasInitialSnapshotLoaded && currentUser && req.toUser === currentUser.usernameLower && req.fromUser !== currentUser.usernameLower && req.status === 'pending') {
+            newlyArrivedReqsForMe.push(req);
+          }
+        }
+      });
+
       if (!hasInitialSnapshotLoaded) {
         hasInitialSnapshotLoaded = true;
         saveSeenReplyIdsSet();
-        // Check if opened via notification URL ?flow=
+        // Check if opened via notification URL ?flow= or ?post=
         const urlParams = new URLSearchParams(window.location.search);
-        const targetFlowId = urlParams.get('flow');
-        if (targetFlowId && nextPosts.some(p => p.id === targetFlowId)) {
+        const targetFlowId = urlParams.get('flow') || urlParams.get('post');
+        if (targetFlowId) {
           setTimeout(() => jumpToFlowFromReply(targetFlowId), 200);
         }
       } else {
-        if (newlyArrivedRepliesForMe.length > 0 || newlyArrivedPMsForMe.length > 0) {
+        if (newlyArrivedRepliesForMe.length > 0 || newlyArrivedPMsForMe.length > 0 || newlyArrivedReqsForMe.length > 0) {
           saveSeenReplyIdsSet();
         }
         newlyArrivedRepliesForMe.forEach(({ comment, post }) => {
@@ -5143,11 +5210,42 @@
             postId: post.id
           });
         });
-        newlyArrivedPMsForMe.forEach(m => {
+
+        newlyArrivedPMsForMe.forEach(async (m) => {
+          let plain = decryptedTextCache[m.docId];
+          if (!plain || plain.startsWith('🔒')) {
+            try {
+              plain = await decryptPaperMessage(m.encryptedBody || '', m.fromUser, m.toUser);
+              if (plain) decryptedTextCache[m.docId] = plain;
+            } catch (e) {}
+          }
+          const preview = (plain && !plain.startsWith('🔒')) ? plain.slice(0, 90) : 'Sent you a secure message';
+          const sender = m.fromDisplay ? `@${m.fromDisplay}` : `@${m.fromUser}`;
           sendSystemAndInAppReplyNotification({
-            title: `🔒 Paper Messages — @${m.fromDisplay}`,
-            body: m.isRequestNote ? `Sent you a message request on Paper Messages` : `Sent you an encrypted message`,
-            postId: null
+            title: `💬 Message from ${sender}`,
+            body: preview,
+            postId: `pm:${m.fromUser}`
+          });
+          if (activeViewMode === 'messages' && activeChatPeerLower === m.fromUser) {
+            window.__pmForceScrollBottom = true;
+            renderPaperMessagesUI();
+          }
+        });
+
+        newlyArrivedReqsForMe.forEach(async (req) => {
+          let plainNote = decryptedTextCache[req.docId];
+          if (!plainNote || plainNote.startsWith('🔒')) {
+            try {
+              plainNote = await decryptPaperMessage(req.encryptedNote || '', req.fromUser, req.toUser);
+              if (plainNote) decryptedTextCache[req.docId] = plainNote;
+            } catch (e) {}
+          }
+          const preview = (plainNote && !plainNote.startsWith('🔒')) ? `"${plainNote.slice(0, 80)}"` : 'Sent you a message request on Paper Messages';
+          const sender = req.fromDisplay ? `@${req.fromDisplay}` : `@${req.fromUser}`;
+          sendSystemAndInAppReplyNotification({
+            title: `📩 Message Request from ${sender}`,
+            body: preview,
+            postId: `pm:${req.fromUser}`
           });
         });
       }
@@ -6432,12 +6530,13 @@
     }
     activeChatPeerLower = cleanLower;
     isPmChatMenuOpen = false;
+    window.__pmForceScrollBottom = true;
     document.getElementById('paperMessagesShell')?.classList.add('mobile-chat-open');
     renderPaperMessagesUI();
     setTimeout(() => {
       const area = document.getElementById('pmMessagesScrollArea');
       if (area) area.scrollTop = area.scrollHeight;
-    }, 30);
+    }, 40);
   };
 
   window.closeMobilePmChat = function () {
@@ -6576,6 +6675,36 @@
         createdAt: Date.now()
       });
 
+      if (!paperMessagesByPair[pairKey]) paperMessagesByPair[pairKey] = [];
+      paperMessagesByPair[pairKey].push({
+        docId: msgDocId,
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        encryptedBody: encrypted,
+        isRequestNote: true,
+        createdAt: Date.now()
+      });
+      msgRequestsByPair[pairKey] = {
+        docId: reqDocId,
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        status: 'pending',
+        encryptedNote: encrypted,
+        updatedAt: Date.now()
+      };
+      window.__pmForceScrollBottom = true;
+      renderPaperMessagesUI();
+      setTimeout(() => {
+        const area = document.getElementById('pmMessagesScrollArea');
+        if (area) area.scrollTop = area.scrollHeight;
+      }, 40);
+
       showToast(`Encrypted message request sent to @${peerEntry.username || peerLower}!`);
     } catch (e) {
       console.error(e);
@@ -6679,6 +6808,21 @@
         createdAt: Date.now()
       });
 
+      if (!paperMessagesByPair[pairKey]) paperMessagesByPair[pairKey] = [];
+      paperMessagesByPair[pairKey].push({
+        docId: msgDocId,
+        pairKey,
+        fromUser: me,
+        fromDisplay: currentUser.username,
+        toUser: peerLower,
+        toDisplay: peerEntry.username || peerLower,
+        encryptedBody: encrypted,
+        isRequestNote: false,
+        createdAt: Date.now()
+      });
+
+      window.__pmForceScrollBottom = true;
+      renderPaperMessagesUI();
       setTimeout(() => {
         const area = document.getElementById('pmMessagesScrollArea');
         if (area) area.scrollTop = area.scrollHeight;
@@ -6951,6 +7095,9 @@
     // Preserve any text typed into inputs before re-render
     const prevMsgDraft = document.getElementById('pmMessageInput')?.value || '';
     const prevReqDraft = document.getElementById('pmRequestNoteInput')?.value || '';
+    const prevArea = document.getElementById('pmMessagesScrollArea');
+    const wasNearBottom = prevArea ? (prevArea.scrollHeight - prevArea.scrollTop - prevArea.clientHeight < 120) : true;
+    const prevScrollTop = prevArea ? prevArea.scrollTop : null;
 
     const bubblesHTML = messages.map(m => {
       const isOutgoing = m.fromUser === me;
@@ -7095,6 +7242,16 @@
 
       ${bottomBarHTML}
     `;
+
+    const scrollArea = document.getElementById('pmMessagesScrollArea');
+    if (scrollArea) {
+      if (window.__pmForceScrollBottom || wasNearBottom || prevScrollTop === null) {
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+      } else {
+        scrollArea.scrollTop = prevScrollTop;
+      }
+      window.__pmForceScrollBottom = false;
+    }
   };
 
   // ── FLOW REPORTING (THREE DOTS ON EACH FLOW, AUTO-REMOVE >3 REPORTS, DEV VIEW) ──

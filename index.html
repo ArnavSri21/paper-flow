@@ -7634,8 +7634,8 @@
 
   (function syncNativeAndroidApkBadge() {
     try {
+      const apkBtn = document.getElementById('sideApkDownloadBtn');
       if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.isNativeAndroidApp === 'function') {
-        const apkBtn = document.getElementById('sideApkDownloadBtn');
         if (apkBtn) {
           apkBtn.textContent = '✓ Android APK Active (Synced)';
           apkBtn.removeAttribute('download');
@@ -7645,6 +7645,42 @@
             showToast('Running Paper Flow Android APK — synced live with website!');
           };
         }
+        return;
+      }
+
+      // Ensure Service Worker cache never holds a stale HTML response for Paper-Flow.apk
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          keys.forEach((k) => {
+            caches.open(k).then((cache) => {
+              cache.delete('/Paper-Flow.apk');
+              cache.delete('/public/Paper-Flow.apk');
+            }).catch(() => {});
+          });
+        }).catch(() => {});
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          regs.forEach((r) => r.update().catch(() => {}));
+        }).catch(() => {});
+      }
+
+      // Verify whether /Paper-Flow.apk or /public/Paper-Flow.apk is live on the current host
+      if (apkBtn) {
+        fetch('/Paper-Flow.apk', { method: 'HEAD', cache: 'no-store' })
+          .then((res) => {
+            const ct = (res.headers.get('content-type') || '').toLowerCase();
+            if (res.ok && !ct.includes('text/html')) {
+              apkBtn.href = '/Paper-Flow.apk';
+            } else {
+              return fetch('/public/Paper-Flow.apk', { method: 'HEAD', cache: 'no-store' }).then((res2) => {
+                if (res2.ok) {
+                  apkBtn.href = '/public/Paper-Flow.apk';
+                }
+              });
+            }
+          })
+          .catch(() => {});
       }
     } catch (e) {}
   })();

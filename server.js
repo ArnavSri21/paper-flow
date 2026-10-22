@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -43,13 +44,35 @@ app.get('/sitemap.xml', (req, res) => {
 </urlset>`);
 });
 
-app.get('/Paper-Flow.apk', (req, res) => {
-  const apkPath = path.join(__dirname, 'public', 'Paper-Flow.apk');
+function serveApkFile(req, res) {
+  const rootApk = path.join(__dirname, 'Paper-Flow.apk');
+  const publicApk = path.join(__dirname, 'public', 'Paper-Flow.apk');
+  const targetApk = fs.existsSync(rootApk) ? rootApk : publicApk;
+
+  if (!fs.existsSync(targetApk)) {
+    res.status(404).type('text/plain').send('APK not found');
+    return;
+  }
+
+  const stat = fs.statSync(targetApk);
   res.setHeader('Content-Type', 'application/vnd.android.package-archive');
   res.setHeader('Content-Disposition', 'attachment; filename="Paper-Flow.apk"');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.sendFile(apkPath);
-});
+  res.setHeader('Content-Length', String(stat.size));
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  if (req.method === 'HEAD') {
+    res.status(200).end();
+    return;
+  }
+
+  const stream = fs.createReadStream(targetApk);
+  stream.pipe(res);
+}
+
+app.get('/Paper-Flow.apk', serveApkFile);
+app.get('/public/Paper-Flow.apk', serveApkFile);
+app.get('/api/download-apk', serveApkFile);
 
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));

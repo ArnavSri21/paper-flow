@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paperflow-app-shell-v2';
+const CACHE_NAME = 'paperflow-app-shell-v4';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
 
 const PRECACHE_URLS = [
@@ -9,8 +9,7 @@ const PRECACHE_URLS = [
   '/pwa-192x192.png',
   '/pwa-512x512.png',
   '/pwa-maskable-512x512.png',
-  '/apple-touch-icon.png',
-  '/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png'
+  '/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -41,6 +40,16 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+
+  // NEVER intercept APK binary downloads or APK API routes in Service Worker
+  if (
+    url.pathname.toLowerCase().endsWith('.apk') ||
+    url.pathname.toLowerCase().endsWith('.idsig') ||
+    url.pathname.includes('download-apk') ||
+    url.pathname.includes('Paper-Flow')
+  ) {
+    return;
+  }
 
   // Cache-first for Google Fonts stylesheets and font files
   if (
@@ -73,8 +82,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          if (response && response.status === 200 && response.headers.get('content-type')?.includes('text/html')) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          }
           return response;
         })
         .catch(async () => {
@@ -113,6 +124,7 @@ self.addEventListener('notificationclick', (event) => {
           client.focus();
           if (targetPostId) {
             client.postMessage({ type: 'OPEN_POST_FROM_NOTIFICATION', postId: targetPostId });
+            client.postMessage({ type: 'OPEN_REPLIED_FLOW', postId: targetPostId });
           }
           return;
         }

@@ -54,31 +54,30 @@ function serveApkFile(req, res) {
     return;
   }
 
-  const stat = fs.statSync(targetApk);
-  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-  res.setHeader('Content-Disposition', 'attachment; filename="Paper-Flow.apk"');
-  res.setHeader('Content-Length', String(stat.size));
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-
-  if (req.method === 'HEAD') {
-    res.status(200).end();
-    return;
-  }
-
-  const stream = fs.createReadStream(targetApk);
-  stream.pipe(res);
+  res.sendFile(targetApk, {
+    acceptRanges: true,
+    etag: true,
+    lastModified: true,
+    headers: {
+      'Content-Type': 'application/vnd.android.package-archive',
+      'Content-Disposition': 'attachment; filename="Paper-Flow.apk"',
+      'Cache-Control': 'public, max-age=60, must-revalidate',
+      'X-Content-Type-Options': 'nosniff',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
 }
 
 app.get('/Paper-Flow.apk', serveApkFile);
 app.get('/public/Paper-Flow.apk', serveApkFile);
+app.get('/download/Paper-Flow.apk', serveApkFile);
 app.get('/api/download-apk', serveApkFile);
 
 app.get('/api/app-version', (req, res) => {
   res.json({
     latestVersionCode: 2,
     latestVersionName: '1.0.1',
-    apkUrl: '/Paper-Flow.apk',
+    apkUrl: '/download/Paper-Flow.apk',
     title: 'Paper Flow Update Available',
     releaseNotes: 'Performance improvements, fixed badge layout, suppressed persistent popups, and disabled pinch zooming.'
   });

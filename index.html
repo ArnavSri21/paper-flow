@@ -3626,7 +3626,7 @@
     <section class="paperflow-apk-section" id="paperflowApkSection">
       <div class="paperflow-apk-header">
         <span>📱 Android App</span>
-        <span style="opacity: 0.8; font-size: 0.6rem;">v1.0 · LIVE SYNC</span>
+        <span style="opacity: 0.8; font-size: 0.6rem;">v1.0.2 · LIVE SYNC</span>
       </div>
       <div class="paperflow-apk-body">
         <div class="paperflow-apk-top">
@@ -3636,7 +3636,7 @@
             <div class="paperflow-apk-sub">Sign in with your same @username &amp; password — profile, flows &amp; messages stay synced.</div>
           </div>
         </div>
-        <a href="/Paper-Flow.apk" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk">Download APK ↓</a>
+        <a href="/download/Paper-Flow.apk" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Download APK ↓</a>
       </div>
     </section>
 
@@ -3649,7 +3649,7 @@
       <div class="paperflow-update-body">
         <div class="paperflow-update-title" id="updateTitle">A new version of Paper Flow is ready!</div>
         <div class="paperflow-update-notes" id="updateNotes">An update is available with improvements and bug fixes. Download to update now.</div>
-        <a href="/Paper-Flow.apk" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk">Update Paper Flow ↓</a>
+        <a href="/download/Paper-Flow.apk" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
       </div>
     </section>
 
@@ -7895,12 +7895,109 @@
     return false;
   };
 
+  const LIVE_WEB_ORIGIN = 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app';
+
+  window.downloadPaperFlowApk = async function (event, btnEl) {
+    if (event) event.preventDefault();
+    const isWebView = window.isRunningInNativeApp() || /; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent || '');
+    const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
+    const candidatePaths = [
+      '/api/download-apk',
+      '/download/Paper-Flow.apk',
+      '/Paper-Flow.apk',
+      '/public/Paper-Flow.apk'
+    ];
+
+    if (isWebView) {
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.2&t=' + Date.now();
+      return false;
+    }
+
+    const origText = btnEl ? btnEl.textContent : 'Download APK ↓';
+    if (btnEl) {
+      btnEl.textContent = 'Downloading APK…';
+      btnEl.style.pointerEvents = 'none';
+      btnEl.style.opacity = '0.8';
+    }
+
+    try {
+      let validBuffer = null;
+      let validUrl = '';
+
+      for (const p of candidatePaths) {
+        try {
+          const url = baseOrigin + p + '?v=1.0.2&t=' + Date.now();
+          const res = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store'
+          });
+          if (!res.ok) continue;
+          const ct = (res.headers.get('content-type') || '').toLowerCase();
+          if (ct.includes('text/html')) continue;
+
+          const buf = await res.arrayBuffer();
+          if (buf && buf.byteLength > 200000) {
+            const head = new Uint8Array(buf, 0, 4);
+            // Verify ZIP / APK magic bytes: PK\x03\x04 (0x50, 0x4B, 0x03, 0x04)
+            if (head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04) {
+              validBuffer = buf;
+              validUrl = baseOrigin + p;
+              break;
+            }
+          }
+        } catch (innerErr) {}
+      }
+
+      if (validBuffer) {
+        const blob = new Blob([validBuffer], { type: 'application/vnd.android.package-archive' });
+        const blobUrl = URL.createObjectURL(blob);
+        const tempLink = document.createElement('a');
+        tempLink.style.display = 'none';
+        tempLink.href = blobUrl;
+        tempLink.setAttribute('download', 'Paper-Flow.apk');
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        setTimeout(() => {
+          try {
+            document.body.removeChild(tempLink);
+            URL.revokeObjectURL(blobUrl);
+          } catch (e) {}
+        }, 60000);
+
+        if (btnEl) btnEl.textContent = '✓ APK Downloaded!';
+        showToast('Paper-Flow.apk downloaded! Tap the file to install.');
+        setTimeout(() => {
+          if (btnEl) btnEl.textContent = origText;
+        }, 3500);
+        return false;
+      }
+
+      // Fallback to direct browser navigation if fetch buffer was unavailable
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.2&t=' + Date.now();
+    } catch (err) {
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.2&t=' + Date.now();
+    } finally {
+      if (btnEl) {
+        btnEl.style.pointerEvents = '';
+        btnEl.style.opacity = '';
+        setTimeout(() => {
+          if (btnEl && btnEl.textContent === 'Downloading APK…') {
+            btnEl.textContent = origText;
+          }
+        }, 2500);
+      }
+    }
+    return false;
+  };
+
   (async function syncNativeAndroidAndUpdates() {
     try {
       const isApp = window.isRunningInNativeApp();
       const apkSection = document.getElementById('paperflowApkSection');
       const updateSection = document.getElementById('paperflowUpdateSection');
       const apkBtn = document.getElementById('sideApkDownloadBtn');
+      const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
 
       if (isApp) {
         // 1. In native app: Remove the static APK download block completely
@@ -7912,7 +8009,7 @@
             ? window.PaperFlowAndroid.getAppVersionCode()
             : 2;
 
-          const res = await fetch('/api/app-version', { cache: 'no-store' });
+          const res = await fetch(baseOrigin + '/api/app-version', { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             if (data && data.latestVersionCode && data.latestVersionCode > currentVersionCode) {
@@ -7925,7 +8022,9 @@
                 if (badge && data.latestVersionName) badge.textContent = `v${data.latestVersionName}`;
                 if (title && data.title) title.textContent = data.title;
                 if (notes && data.releaseNotes) notes.textContent = data.releaseNotes;
-                if (btn && data.apkUrl) btn.href = data.apkUrl;
+                if (btn && data.apkUrl) {
+                  btn.href = data.apkUrl.startsWith('http') ? data.apkUrl : (baseOrigin + data.apkUrl);
+                }
               }
             } else {
               // No updates: keep update box hidden
@@ -7950,6 +8049,8 @@
             caches.open(k).then((cache) => {
               cache.delete('/Paper-Flow.apk');
               cache.delete('/public/Paper-Flow.apk');
+              cache.delete('/download/Paper-Flow.apk');
+              cache.delete('/api/download-apk');
             }).catch(() => {});
           });
         }).catch(() => {});
@@ -7958,24 +8059,6 @@
         navigator.serviceWorker.getRegistrations().then((regs) => {
           regs.forEach((r) => r.update().catch(() => {}));
         }).catch(() => {});
-      }
-
-      // Verify whether /Paper-Flow.apk or /public/Paper-Flow.apk is live on the current host
-      if (apkBtn) {
-        fetch('/Paper-Flow.apk', { method: 'HEAD', cache: 'no-store' })
-          .then((res) => {
-            const ct = (res.headers.get('content-type') || '').toLowerCase();
-            if (res.ok && !ct.includes('text/html')) {
-              apkBtn.href = '/Paper-Flow.apk';
-            } else {
-              return fetch('/public/Paper-Flow.apk', { method: 'HEAD', cache: 'no-store' }).then((res2) => {
-                if (res2.ok) {
-                  apkBtn.href = '/public/Paper-Flow.apk';
-                }
-              });
-            }
-          })
-          .catch(() => {});
       }
     } catch (e) {}
   })();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paperflow-app-shell-v4';
+const CACHE_NAME = 'paperflow-app-shell-v6';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
 
 const PRECACHE_URLS = [
@@ -41,10 +41,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // NEVER intercept APK binary downloads or APK API routes in Service Worker
+  // NEVER intercept APK binary downloads or API routes in Service Worker
   if (
     url.pathname.toLowerCase().endsWith('.apk') ||
     url.pathname.toLowerCase().endsWith('.idsig') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/download/') ||
     url.pathname.includes('download-apk') ||
     url.pathname.includes('Paper-Flow')
   ) {

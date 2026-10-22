@@ -74,6 +74,16 @@ app.get('/Paper-Flow.apk', serveApkFile);
 app.get('/public/Paper-Flow.apk', serveApkFile);
 app.get('/api/download-apk', serveApkFile);
 
+app.get('/api/app-version', (req, res) => {
+  res.json({
+    latestVersionCode: 2,
+    latestVersionName: '1.0.1',
+    apkUrl: '/Paper-Flow.apk',
+    title: 'Paper Flow Update Available',
+    releaseNotes: 'Performance improvements, fixed badge layout, suppressed persistent popups, and disabled pinch zooming.'
+  });
+});
+
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 

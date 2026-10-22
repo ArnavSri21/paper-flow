@@ -145,7 +145,19 @@ public class MainActivity extends Activity {
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
+        settings.setTextZoom(100);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+        // Disallow pinch-to-zoom multi-finger gestures completely
+        wv.setOnTouchListener(new android.view.View.OnTouchListener() {
+            @Override
+            public boolean onTouch(android.view.View v, android.view.MotionEvent event) {
+                if (event.getPointerCount() > 1) {
+                    return true;
+                }
+                return false;
+            }
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             settings.setMediaPlaybackRequiresUserGesture(false);
@@ -313,6 +325,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean isNativeAndroidApp() {
             return true;
+        }
+
+        @JavascriptInterface
+        public int getAppVersionCode() {
+            return 2;
+        }
+
+        @JavascriptInterface
+        public String getAppVersionName() {
+            return "1.0.1";
         }
 
         @JavascriptInterface

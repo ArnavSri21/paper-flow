@@ -3743,7 +3743,7 @@
       <div class="games-header">Games</div>
       <div class="games-body">
         <div class="game-title">Obsidian Sudoku</div>
-        <a href="https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.0/app-debug.apk" class="btn-obsidian-download" download="Obsidian-Sudoku.apk">Download APK ↓</a>
+        <a href="https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.2/obsidian-sudoku-debug.apk" id="obsidianSudokuDownloadBtn" class="btn-obsidian-download" download="Obsidian-Sudoku.apk" onclick="return downloadObsidianSudokuApk(event, this)">Download APK ↓</a>
       </div>
     </section>
 
@@ -8196,6 +8196,86 @@
     }
     return false;
   };
+
+  const OBSIDIAN_SUDOKU_FALLBACK_URL = 'https://github.com/ArnavSri21/SudokuClash/releases/download/v1.0.0/obsidian-sudoku-debug.apk';
+  const OBSIDIAN_SUDOKU_PAPERFLOW_URL = 'https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.2/obsidian-sudoku-debug.apk';
+
+  async function resolveObsidianSudokuApkUrl() {
+    // 1. Check ArnavSri21/paper-flow releases for an uploaded APK asset (e.g. v1.0.2/obsidian-sudoku-debug.apk)
+    try {
+      const pfRes = await fetch('https://api.github.com/repos/ArnavSri21/paper-flow/releases', { cache: 'no-store' });
+      if (pfRes.ok) {
+        const pfReleases = await pfRes.json();
+        if (Array.isArray(pfReleases)) {
+          for (const rel of pfReleases) {
+            if (Array.isArray(rel.assets)) {
+              const apkAsset = rel.assets.find(a =>
+                a && a.browser_download_url && a.name && a.name.toLowerCase().endsWith('.apk') && (!a.state || a.state === 'uploaded')
+              );
+              if (apkAsset) {
+                return apkAsset.browser_download_url;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 2. Check ArnavSri21/SudokuClash latest release for the uploaded Obsidian Sudoku APK asset
+    try {
+      const scRes = await fetch('https://api.github.com/repos/ArnavSri21/SudokuClash/releases/latest', { cache: 'no-store' });
+      if (scRes.ok) {
+        const scRel = await scRes.json();
+        if (scRel && Array.isArray(scRel.assets)) {
+          const preferred = scRel.assets.find(a =>
+            a && a.browser_download_url && (a.name === 'obsidian-sudoku-debug.apk' || a.name === 'Obsidian-Sudoku.apk') && (!a.state || a.state === 'uploaded')
+          ) || scRel.assets.find(a =>
+            a && a.browser_download_url && a.name && a.name.toLowerCase().endsWith('.apk') && (!a.state || a.state === 'uploaded')
+          );
+          if (preferred) {
+            return preferred.browser_download_url;
+          }
+        }
+      }
+    } catch (e) {}
+
+    return OBSIDIAN_SUDOKU_FALLBACK_URL;
+  }
+
+  window.downloadObsidianSudokuApk = async function (event, btnEl) {
+    if (event) event.preventDefault();
+    const origText = btnEl ? btnEl.textContent : 'Download APK ↓';
+    if (btnEl) {
+      btnEl.textContent = 'Preparing APK…';
+      btnEl.style.pointerEvents = 'none';
+      btnEl.style.opacity = '0.85';
+    }
+    try {
+      const targetUrl = await resolveObsidianSudokuApkUrl();
+      if (btnEl) btnEl.href = targetUrl;
+      showToast('Downloading Obsidian Sudoku APK…');
+      window.location.href = targetUrl;
+    } catch (e) {
+      window.location.href = OBSIDIAN_SUDOKU_FALLBACK_URL;
+    } finally {
+      if (btnEl) {
+        setTimeout(() => {
+          btnEl.textContent = origText;
+          btnEl.style.pointerEvents = '';
+          btnEl.style.opacity = '';
+        }, 2200);
+      }
+    }
+    return false;
+  };
+
+  // Pre-sync the Obsidian Sudoku download button href on startup
+  resolveObsidianSudokuApkUrl().then((url) => {
+    const btn = document.getElementById('obsidianSudokuDownloadBtn');
+    if (btn && url) {
+      btn.href = url;
+    }
+  }).catch(() => {});
 
   (async function syncNativeAndroidAndUpdates() {
     try {

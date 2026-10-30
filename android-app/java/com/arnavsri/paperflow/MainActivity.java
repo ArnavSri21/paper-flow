@@ -166,12 +166,6 @@ public class MainActivity extends Activity {
             settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.setAcceptThirdPartyCookies(wv, true);
-        }
-
         wv.addJavascriptInterface(new AndroidBridge(), "PaperFlowAndroid");
 
         wv.setWebViewClient(new WebViewClient() {
@@ -344,7 +338,9 @@ public class MainActivity extends Activity {
                 public void run() {
                     try {
                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                        String combinedText = (text != null && !text.isEmpty()) ? (text + "\n" + url) : url;
+                        String combinedText = (text != null && !text.isEmpty())
+                                ? (url != null && !text.contains(url) ? (text + "\n" + url) : text)
+                                : (url != null ? url : "");
                         shareIntent.putExtra(Intent.EXTRA_SUBJECT, title != null ? title : "Paper Flow");
                         shareIntent.putExtra(Intent.EXTRA_TEXT, combinedText);
 

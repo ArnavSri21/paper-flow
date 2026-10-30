@@ -37,13 +37,13 @@
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 <meta name="googlebot" content="index, follow" />
 <link rel="manifest" href="/manifest.json" />
-<link rel="canonical" id="seoCanonicalLink" href="https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/" />
+<link rel="canonical" id="seoCanonicalLink" href="https://paperflow.hs.vc/" />
 
 <!-- Favicon, PWA Icons & iOS Touch Icons -->
 <link rel="icon" type="image/svg+xml" href="/icon.svg" />
 <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
 <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
-<link rel="shortcut icon" type="image/png" href="/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png" />
+<link rel="shortcut icon" type="image/png" href="/pwa-192x192.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
 <!-- OpenGraph / Facebook / Discord / LinkedIn Social Cards -->
@@ -52,35 +52,16 @@
 <meta property="og:locale" content="en_US" />
 <meta property="og:title" content="Paper Flow — Anonymous & Open" />
 <meta property="og:description" content="Share anonymous confessions, stories, opinions, and questions in real time, and chat privately with end-to-end encrypted Paper Messages on Paper Flow." />
-<meta property="og:url" id="seoOgUrl" content="https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/" />
-<meta property="og:image" id="seoOgImage" content="https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png" />
+<meta property="og:url" id="seoOgUrl" content="https://paperflow.hs.vc/" />
+<meta property="og:image" id="seoOgImage" content="https://paperflow.hs.vc/pwa-512x512.png" />
 <meta property="og:image:alt" content="Paper Flow — Anonymous & Open real-time community memo board and encrypted Paper Messages" />
 
 <!-- Twitter / X Large Summary Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Paper Flow — Anonymous & Open" />
 <meta name="twitter:description" content="Share anonymous confessions, stories, opinions, and questions in real time, and chat privately with end-to-end encrypted Paper Messages on Paper Flow." />
-<meta name="twitter:image" id="seoTwitterImage" content="https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png" />
+<meta name="twitter:image" id="seoTwitterImage" content="https://paperflow.hs.vc/pwa-512x512.png" />
 <meta name="twitter:image:alt" content="Paper Flow — Anonymous & Open real-time community memo board" />
-
-<script>
-  // Dynamic URL resolution for canonical and social card URLs
-  (function () {
-    try {
-      var origin = window.location.origin;
-      var canonicalHref = origin + window.location.pathname;
-      var imgHref = origin + '/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png';
-      var canEl = document.getElementById('seoCanonicalLink');
-      var ogUrlEl = document.getElementById('seoOgUrl');
-      var ogImgEl = document.getElementById('seoOgImage');
-      var twImgEl = document.getElementById('seoTwitterImage');
-      if (canEl) canEl.setAttribute('href', canonicalHref);
-      if (ogUrlEl) ogUrlEl.setAttribute('content', canonicalHref);
-      if (ogImgEl) ogImgEl.setAttribute('content', imgHref);
-      if (twImgEl) twImgEl.setAttribute('content', imgHref);
-    } catch (e) {}
-  })();
-</script>
 
 <!-- Schema.org Structured Data (JSON-LD) -->
 <script type="application/ld+json">
@@ -91,8 +72,8 @@
       "@type": "WebApplication",
       "name": "Paper Flow — Anonymous & Open",
       "alternateName": "Paper Flow By Arnav Srivastava",
-      "url": "https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/",
-      "image": "https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/assets/aistudio/Gemini_Generated_Image_c21huac21huac21h_a1825740.png",
+      "url": "https://paperflow.hs.vc/",
+      "image": "https://paperflow.hs.vc/pwa-512x512.png",
       "applicationCategory": "SocialNetworkingApplication",
       "operatingSystem": "All",
       "browserRequirements": "Requires JavaScript and modern web browser",
@@ -118,7 +99,7 @@
       "@type": "WebSite",
       "name": "Paper Flow",
       "alternateName": "Paper Flow — Anonymous & Open",
-      "url": "https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/",
+      "url": "https://paperflow.hs.vc/",
       "description": "An anonymous, open, real-time memo board for sharing confessions, stories, opinions, news, and questions.",
       "publisher": {
         "@type": "Person",
@@ -207,9 +188,9 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* FLUID BUBBLE ANIMATION SYSTEM FOR ALL INTERACTIVE ELEMENTS */
+  /* ULTRA-SMOOTH HARDWARE-ACCELERATED INTERACTION SYSTEM (60FPS, NO LAYOUT THRASH) */
   :root {
-    --bubble-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --bubble-spring: cubic-bezier(0.22, 1, 0.36, 1);
     --bubble-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
@@ -237,39 +218,27 @@
   .btn-star-flow,
   .floating-search-trigger {
     transition:
-      transform 0.36s var(--bubble-spring),
-      box-shadow 0.28s var(--bubble-smooth),
-      background-color 0.22s ease,
-      border-color 0.22s ease,
-      color 0.22s ease,
-      border-radius 0.36s var(--bubble-spring);
-    will-change: transform;
+      transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.16s ease,
+      border-color 0.16s ease,
+      color 0.16s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   button:hover:not(:disabled),
   .btn-file-upload:hover,
   .btn-obsidian-download:hover,
   .card-link-attachment:hover {
-    transform: translateY(-2px) scale(1.035);
+    transform: translateY(-1px);
   }
 
   button:active:not(:disabled),
   .btn-file-upload:active,
   .btn-obsidian-download:active,
   .card-link-attachment:active {
-    transform: translateY(0) scale(0.92) !important;
-    transition-duration: 0.12s;
-  }
-
-  /* Clickable fluid bubble pulse effect */
-  .bubble-pop-anim {
-    animation: fluidBubblePop 0.48s var(--bubble-spring);
-  }
-  @keyframes fluidBubblePop {
-    0%   { transform: scale(1); }
-    35%  { transform: scale(1.16); }
-    68%  { transform: scale(0.94); }
-    100% { transform: scale(1); }
+    transform: scale(0.96) !important;
+    transition-duration: 0.08s;
   }
 
   /* TOP CHROME (HEADER + BANNER) WITH GPU-ONLY SCROLL-DOWN AUTO-HIDE (NO LAYOUT SHIFT) */
@@ -948,8 +917,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 1.3rem;
+    gap: 0.65rem;
+    margin-bottom: 1.15rem;
     border-bottom: 2px solid var(--ink);
     padding-bottom: 0.55rem;
     flex-wrap: wrap;
@@ -957,16 +926,30 @@
   .feed-header-left {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    min-width: 0;
   }
-  .feed-title { font-family: var(--serif); font-size: 1.5rem; font-style: italic; }
-  .feed-count { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); }
+  .feed-title {
+    font-family: var(--serif);
+    font-size: 1.45rem;
+    font-style: italic;
+    white-space: nowrap;
+    margin: 0;
+  }
+  .feed-count {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
 
   .feed-header-controls {
     display: flex;
     align-items: center;
     gap: 0.45rem;
     margin-left: auto;
+    flex-shrink: 0;
   }
 
   .floating-search-bubble {
@@ -1286,44 +1269,41 @@
     transition: opacity 0.2s ease;
   }
   .fab-news-refresh::after {
-    inset: -11px;
-    filter: blur(14px);
+    inset: -8px;
+    filter: blur(8px);
   }
   .fab-news-refresh.is-refreshing {
     border-color: rgba(255, 165, 80, 0.95);
-    background: rgba(28, 20, 14, 0.88);
+    background: rgba(28, 20, 14, 0.92);
     color: #fff;
     box-shadow:
-      0 0 24px rgba(255, 106, 0, 0.85),
-      0 0 46px rgba(255, 45, 85, 0.55),
-      inset 0 0 14px rgba(255, 149, 0, 0.5);
-    transform: scale(1.08);
+      0 0 20px rgba(255, 106, 0, 0.8),
+      0 0 36px rgba(255, 45, 85, 0.45);
+    transform: scale(1.05);
   }
   .fab-news-refresh.is-refreshing::before {
     opacity: 1;
-    animation: siriOrbSpin 0.65s linear infinite;
+    animation: siriOrbSpin 0.7s linear infinite;
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
     mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
   }
   .fab-news-refresh.is-refreshing::after {
-    opacity: 0.92;
-    animation: siriOrbSpin 0.65s linear infinite reverse;
+    opacity: 0.85;
+    animation: siriOrbSpin 0.7s linear infinite reverse;
   }
   .fab-news-refresh.is-refreshing .fab-refresh-svg {
-    animation: refreshLogoSpin 0.52s linear infinite;
-    filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.9));
+    animation: refreshLogoSpin 0.55s linear infinite;
   }
   @keyframes siriOrbSpin {
-    0%   { transform: rotate(0deg) scale(1); }
-    50%  { transform: rotate(180deg) scale(1.07); }
-    100% { transform: rotate(360deg) scale(1); }
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   @keyframes refreshLogoSpin {
     0%   { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
 
-  /* IPHONE SIRI-STYLE ORANGE LIQUID GLASS EDGE GLOW OVERLAY (DARK MODE TOGGLE) */
+  /* IPHONE SIRI-STYLE ORANGE LIQUID GLASS EDGE GLOW OVERLAY (GPU-ACCELERATED) */
   .siri-theme-glow-overlay {
     position: fixed;
     inset: 0;
@@ -1332,17 +1312,17 @@
     opacity: 0;
     overflow: hidden;
     visibility: hidden;
+    will-change: opacity, transform;
   }
   .siri-theme-glow-overlay.active {
     visibility: visible;
-    animation: siriViewportWave 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: siriViewportWave 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
-  /* Crisp glowing orange/amber/coral conic border ring along screen perimeter */
   .siri-theme-glow-overlay::before {
     content: '';
     position: absolute;
     inset: 0;
-    padding: 6px;
+    padding: 5px;
     background: conic-gradient(
       from 0deg at 50% 50%,
       #ff4500 0deg,
@@ -1358,52 +1338,31 @@
       linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    filter: drop-shadow(0 0 14px rgba(255, 106, 0, 0.95));
   }
-  /* Deep inward frosted glass + warm orange Siri bloom around all 4 viewport edges */
   .siri-theme-glow-overlay::after {
     content: '';
     position: absolute;
     inset: 0;
     box-shadow:
-      inset 0 0 38px 10px rgba(255, 102, 0, 0.72),
-      inset 0 0 85px 24px rgba(255, 149, 0, 0.42),
-      inset 0 0 140px 38px rgba(255, 59, 48, 0.24);
-    backdrop-filter: blur(3px) saturate(145%);
-    -webkit-backdrop-filter: blur(3px) saturate(145%);
-    -webkit-mask: radial-gradient(
-      ellipse 88% 86% at 50% 50%,
-      transparent 68%,
-      rgba(0, 0, 0, 0.65) 86%,
-      #000 100%
-    );
-    mask: radial-gradient(
-      ellipse 88% 86% at 50% 50%,
-      transparent 68%,
-      rgba(0, 0, 0, 0.65) 86%,
-      #000 100%
-    );
+      inset 0 0 32px 8px rgba(255, 102, 0, 0.65),
+      inset 0 0 70px 18px rgba(255, 149, 0, 0.34);
   }
   @keyframes siriViewportWave {
     0% {
       opacity: 0;
-      transform: scale(1.015);
-      filter: hue-rotate(-10deg) brightness(1.15);
+      transform: scale(1.01);
     }
-    22% {
+    25% {
       opacity: 1;
       transform: scale(1);
-      filter: hue-rotate(8deg) brightness(1.25);
     }
-    58% {
-      opacity: 0.92;
+    60% {
+      opacity: 0.85;
       transform: scale(1);
-      filter: hue-rotate(-6deg) brightness(1.12);
     }
     100% {
       opacity: 0;
-      transform: scale(1.008);
-      filter: hue-rotate(12deg) brightness(1);
+      transform: scale(1.004);
     }
   }
 
@@ -1621,11 +1580,11 @@
     background: var(--card-bg);
     border: 1.5px solid var(--card-border);
     border-radius: 2px;
-    padding: 1.25rem;
-    margin-bottom: 1.25rem;
+    padding: 1.15rem;
+    margin-bottom: 1.1rem;
     position: relative;
-    transition: box-shadow 0.2s, transform 0.2s;
-    animation: fadeSlideIn 0.3s ease both;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+    animation: fadeSlideIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
   .card.card-developer {
@@ -1649,22 +1608,24 @@
     text-transform: uppercase;
     padding: 3px 9px;
     margin-bottom: 0.75rem;
+    white-space: nowrap;
   }
   .card-top-bar {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
+    margin-bottom: 0.7rem;
+    flex-wrap: nowrap;
     min-width: 0;
   }
   .card-author {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.5rem;
     min-width: 0;
     flex: 1 1 auto;
+    overflow: hidden;
   }
   /* CLICKABLE PROFILE TRIGGER ON FLOWS AND REPLIES */
   .clickable-profile {
@@ -1672,23 +1633,19 @@
     border-radius: 999px;
     padding: 2px 6px 2px 2px;
     margin: 0;
-    transition:
-      transform 0.32s var(--bubble-spring),
-      background-color 0.2s ease;
+    transition: background-color 0.15s ease;
   }
   .clickable-profile:hover {
     background: var(--surface-hover);
-    transform: translateY(-1px) scale(1.03);
-  }
-  .clickable-profile:active {
-    transform: scale(0.95);
   }
   .card-author-info {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    flex: 1 1 auto;
     line-height: 1.25;
     gap: 2px;
+    overflow: hidden;
   }
   .card-author-name {
     font-family: var(--mono);
@@ -1697,19 +1654,23 @@
     color: var(--ink);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
     min-width: 0;
     line-height: 1.3;
   }
-  .card-author-name span {
+  .card-author-name > span:first-child {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
   .card-author-name .dev-badge {
-    margin-left: 0.35rem;
+    margin-left: 0.2rem;
+    flex-shrink: 0;
   }
   .verified-user-dot {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     color: var(--ink-muted);
     border: 1px solid var(--card-border);
     padding: 0 4px;
@@ -1717,16 +1678,20 @@
     border-radius: 2px;
     line-height: 1.2;
     flex-shrink: 0;
+    white-space: nowrap;
   }
   .card-time {
     font-family: var(--mono);
-    font-size: 0.63rem;
+    font-size: 0.62rem;
     color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .card-top-right {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     flex-shrink: 0;
     margin-left: auto;
   }
@@ -1829,26 +1794,34 @@
     border: 1px dashed var(--card-border);
     border-left: 3px solid #198754;
     border-radius: 8px;
-    padding: 0.65rem 0.85rem;
+    padding: 0.75rem 0.9rem;
     margin-top: 0.35rem;
     margin-bottom: 0.25rem;
   }
-  .ai-summary-box-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  .btn-ai-readmore {
+    margin-top: 0.55rem;
+    background: rgba(25, 135, 84, 0.1);
+    border: 1px solid rgba(25, 135, 84, 0.35);
     color: #198754;
-    margin-bottom: 0.35rem;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
   }
-  body.dark-mode .ai-summary-box-header {
+  body.dark-mode .btn-ai-readmore {
+    background: rgba(47, 179, 117, 0.14);
+    border-color: rgba(47, 179, 117, 0.4);
     color: #4ade80;
+  }
+  .btn-ai-readmore:hover {
+    background: #198754;
+    color: #ffffff;
+    border-color: #198754;
   }
   .ai-news-column-header {
     background: var(--card-bg);
@@ -2039,15 +2012,7 @@
     overflow: hidden;
     max-height: 520px;
     opacity: 1;
-    transform: translateY(0) scale(1);
-    transform-origin: top center;
-    transition:
-      max-height 0.44s var(--bubble-smooth),
-      opacity 0.32s var(--bubble-smooth),
-      margin-top 0.36s var(--bubble-smooth),
-      padding 0.36s var(--bubble-smooth),
-      border-width 0.25s ease,
-      transform 0.38s var(--bubble-spring);
+    transition: max-height 0.22s ease, opacity 0.18s ease, margin-top 0.18s ease;
   }
   .card-media.collapsed {
     max-height: 0;
@@ -2057,7 +2022,6 @@
     padding-bottom: 0;
     border-width: 0;
     pointer-events: none;
-    transform: translateY(-6px) scale(0.98);
   }
   .card-media img {
     width: 100%;
@@ -2152,20 +2116,22 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 0.95rem;
-    padding-top: 0.75rem;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
     border-top: 1px dashed var(--card-border);
   }
   .card-interactions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
   }
   .card-actions {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
   .btn-small {
     background: transparent;
@@ -2174,25 +2140,19 @@
     color: var(--ink-muted);
     font-family: var(--mono);
     font-size: 0.66rem;
-    padding: 5px 12px;
+    padding: 5px 11px;
     cursor: pointer;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     display: inline-flex;
     align-items: center;
-    gap: 0.38rem;
-    transition:
-      transform 0.38s var(--bubble-spring),
-      box-shadow 0.28s var(--bubble-smooth),
-      background-color 0.22s ease,
-      border-color 0.22s ease,
-      color 0.22s ease;
+    gap: 0.32rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .btn-small:hover {
     background: var(--ink);
     color: var(--bg);
     border-color: var(--ink);
-    transform: translateY(-2px) scale(1.06);
-    box-shadow: 2px 2px 0 var(--ink);
   }
   .btn-like {
     position: relative;
@@ -2418,7 +2378,7 @@
     color: #86efac;
   }
 
-  /* COMMENTS SECTION WITH SMOOTH HEIGHT TRANSITION ANIMATION */
+  /* COMMENTS SECTION WITH FAST TRANSITION */
   .comments-section {
     max-height: 0;
     opacity: 0;
@@ -2431,11 +2391,8 @@
     gap: 0.65rem;
     pointer-events: none;
     transition:
-      max-height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.28s ease,
-      margin-top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      padding-top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.28s ease;
+      max-height 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.16s ease;
   }
   .comments-section.open {
     max-height: 460px;
@@ -3879,7 +3836,7 @@
   @media (max-width: 760px) {
     header {
       padding: 0.5rem 0.75rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 0.45rem;
       box-sizing: border-box;
       max-width: 100vw;
@@ -3888,41 +3845,49 @@
     .header-left {
       flex: 1 1 auto;
       min-width: 0;
-      gap: 0.65rem;
+      gap: 0.55rem;
+    }
+    .masthead {
+      min-width: 0;
+      overflow: hidden;
     }
     .masthead-title {
-      font-size: 1.22rem;
-      max-width: calc(100vw - 75px);
+      font-size: 1.08rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .masthead-sub {
+      font-size: 0.56rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .header-meta { display: none; }
     .header-right {
-      width: 100%;
+      flex: 0 0 auto;
       display: flex;
       justify-content: flex-end;
       align-items: center;
       min-width: 0;
-      gap: 0.45rem;
+      gap: 0.35rem;
       box-sizing: border-box;
     }
     .header-user-bar {
-      width: 100%;
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.35rem;
       min-width: 0;
       box-sizing: border-box;
     }
     .user-pill-btn {
       flex: 0 1 auto;
       min-width: 0;
-      max-width: calc(100% - 85px);
-      padding: 0.28rem 0.6rem 0.28rem 0.35rem;
-      font-size: 0.68rem;
-      gap: 0.38rem;
+      max-width: 150px;
+      padding: 0.24rem 0.5rem 0.24rem 0.3rem;
+      font-size: 0.65rem;
+      gap: 0.3rem;
     }
     .user-pill-btn span {
       white-space: nowrap;
@@ -3931,36 +3896,74 @@
       min-width: 0;
     }
     .user-pill-btn .dev-badge {
-      flex-shrink: 0;
-      font-size: 0.52rem;
-      padding: 1px 4px;
+      display: none;
     }
-    .header-user-bar .btn-small {
+    .header-user-bar .btn-small,
+    .btn-login-trigger {
       flex-shrink: 0;
-      padding: 0.3rem 0.65rem;
-      font-size: 0.68rem;
+      padding: 0.28rem 0.58rem;
+      font-size: 0.64rem;
       white-space: nowrap;
     }
     .banner {
       padding: 0 0.75rem;
-      height: 32px;
+      height: 30px;
       box-sizing: border-box;
       max-width: 100vw;
       overflow: hidden;
     }
     .banner-left {
       width: 100%;
-      gap: 0.75rem;
+      gap: 0.5rem;
+      overflow: hidden;
     }
-    .container { padding: 1.2rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px)); }
+    .container { padding: 0.9rem 0.75rem calc(6.2rem + env(safe-area-inset-bottom, 0px)); }
+    .quick-column-switcher {
+      width: 100%;
+      display: flex;
+      box-sizing: border-box;
+      gap: 0.35rem;
+      padding: 0.28rem;
+    }
+    .quick-switch-btn {
+      flex: 1 1 50%;
+      justify-content: center;
+      padding: 0.42rem 0.5rem;
+      font-size: 0.68rem;
+      min-width: 0;
+    }
+    .feed-header {
+      gap: 0.45rem;
+      margin-bottom: 0.95rem;
+      flex-wrap: nowrap;
+    }
+    .feed-header-left {
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: 0.45rem;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+    .feed-title {
+      font-size: 1.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .feed-count {
+      font-size: 0.62rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .compose-row { flex-direction: column; align-items: stretch; }
     .fab-news-refresh {
-      right: 1.15rem;
-      bottom: calc(74px + env(safe-area-inset-bottom, 0px));
-      width: 50px;
-      height: 50px;
+      right: 1rem;
+      bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+      width: 48px;
+      height: 48px;
     }
-    .about-window-body { padding: 1.25rem; }
+    .about-window-body { padding: 1.15rem; }
     .paper-messages-shell.active {
       grid-template-columns: 100%;
       grid-template-rows: 100%;
@@ -3989,39 +3992,69 @@
   }
 
   @media (max-width: 600px) {
+    .card {
+      padding: 0.95rem;
+      margin-bottom: 0.95rem;
+    }
     .card-top-bar {
-      gap: 0.4rem;
-      align-items: center;
-      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: flex-start;
+      flex-wrap: nowrap;
     }
     .card-author {
-      gap: 0.45rem;
+      gap: 0.4rem;
       min-width: 0;
+      flex: 1 1 auto;
     }
     .card-author-name {
-      font-size: 0.7rem;
-      gap: 0.3rem;
-      flex-wrap: wrap;
+      font-size: 0.68rem;
+      gap: 0.25rem;
+      flex-wrap: nowrap;
     }
-    .card-author-name span {
-      white-space: nowrap;
+    .ai-summary-badge {
+      font-size: 0.54rem;
+      padding: 1px 6px;
     }
     .dev-badge {
-      font-size: 0.54rem;
+      font-size: 0.52rem;
       padding: 1px 4px;
     }
+    .news-card-date-pill {
+      display: none;
+    }
     .card-tag {
-      font-size: 0.58rem;
+      font-size: 0.55rem;
       padding: 1px 5px;
     }
     .btn-star-flow {
-      width: 28px;
-      height: 28px;
-      font-size: 0.85rem;
-    }
-    .btn-card-more {
       width: 26px;
       height: 26px;
+      font-size: 0.82rem;
+    }
+    .btn-card-more {
+      width: 24px;
+      height: 24px;
+    }
+    .card-title {
+      font-size: 1.08rem;
+    }
+    .card-body {
+      font-size: 0.88rem;
+      line-height: 1.58;
+    }
+    .card-footer {
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      padding-top: 0.6rem;
+    }
+    .card-interactions {
+      gap: 0.32rem;
+      flex-wrap: nowrap;
+    }
+    .btn-small {
+      font-size: 0.62rem;
+      padding: 4px 9px;
+      gap: 0.25rem;
     }
   }
 </style>
@@ -4627,16 +4660,6 @@
   const guestToken = getOrCreateGuestToken();
   let localStarredSet = loadLocalStarredSet();
 
-  // Global fluid bubble pop listener on interactive clicks
-  document.addEventListener('click', (e) => {
-    const interactive = e.target.closest('button, .btn-file-upload, .btn-obsidian-download, .card-link-attachment');
-    if (interactive && !interactive.disabled) {
-      interactive.classList.remove('bubble-pop-anim');
-      void interactive.offsetWidth;
-      interactive.classList.add('bubble-pop-anim');
-    }
-  });
-
   function getStarStorageKey() {
     const actor = currentUser ? `user_${currentUser.usernameLower}` : guestToken;
     return LOCAL_STARS_PREFIX + actor;
@@ -4786,7 +4809,7 @@
     if (!reg || !('pushManager' in reg)) return;
     try {
       const origin = (window.location.hostname === 'appassets.androidplatform.net' || !window.location.origin || window.location.origin.includes('file:'))
-        ? 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app'
+        ? 'https://paperflow.hs.vc'
         : window.location.origin;
 
       const res = await fetch(origin + '/api/push-vapid-public-key');
@@ -8693,7 +8716,7 @@
     });
 
     feedCount.textContent = activeFilter === 'news'
-      ? `${filtered.length} news brief${filtered.length !== 1 ? 's' : ''} · sorted by date (${newsDateSortOrder === 'oldest' ? 'oldest first' : 'newest first'})`
+      ? `${filtered.length} brief${filtered.length !== 1 ? 's' : ''}`
       : `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
     const isNewsActiveView = activeViewMode === 'board' && activeFilter === 'news';
@@ -8720,7 +8743,7 @@
       const emptyMsg = qLower
         ? `No items matching "${esc(searchQuery)}".`
         : (activeFilter === 'news'
-            ? (isRefreshingAiNews ? 'Summarizing the latest Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click Refresh Latest News above!')
+            ? (isRefreshingAiNews ? 'Summarizing the latest Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click the refresh button to load!')
             : (activeViewMode === 'my-flows'
                 ? 'You have not posted any flows yet. Click + to publish one!'
                 : (activeViewMode === 'starred'
@@ -8733,6 +8756,7 @@
       return;
     }
 
+    const fragment = document.createDocumentFragment();
     let lastDateGroupLabel = null;
     filtered.forEach((post, i) => {
       if (activeFilter === 'news') {
@@ -8746,12 +8770,13 @@
             <span class="news-date-group-pill">📅 ${esc(groupLabel)}</span>
             <span class="news-date-group-line"></span>
           `;
-          feed.appendChild(dateDivider);
+          fragment.appendChild(dateDivider);
         }
       }
       const card = makeCard(post, i);
-      feed.appendChild(card);
+      fragment.appendChild(card);
     });
+    feed.appendChild(fragment);
   }
 
   function formatHostname(url) {
@@ -8836,6 +8861,39 @@
     }
   }
 
+  function splitAiNewsIntroAndFull(bodyText) {
+    const clean = String(bodyText || '').trim();
+    if (!clean) return { intro: '', hasMore: false, full: '' };
+    const paragraphs = clean.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+    if (paragraphs.length > 1) {
+      return {
+        intro: paragraphs[0],
+        hasMore: true,
+        full: clean
+      };
+    }
+    const sentences = clean.match(/[^.!?]+[.!?]+(\s|$)/g);
+    if (sentences && sentences.length > 2) {
+      const hook = sentences.slice(0, 2).join('').trim();
+      if (hook.length < clean.length - 30) {
+        return {
+          intro: hook,
+          hasMore: true,
+          full: clean
+        };
+      }
+    }
+    if (clean.length > 220) {
+      const cut = clean.slice(0, 200).replace(/\s+\S*$/, '') + '…';
+      return {
+        intro: cut,
+        hasMore: true,
+        full: clean
+      };
+    }
+    return { intro: clean, hasMore: false, full: clean };
+  }
+
   function makeCard(post, i) {
     const isAiNewsCard = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
     const postAuthorIsDev = !isAiNewsCard && isDeveloperUser(post.authorUsername || post.alias);
@@ -8852,15 +8910,19 @@
       + (postAuthorIsDev ? ' card-developer' : '')
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
-    div.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
+    if (i < 6) {
+      div.style.animationDelay = `${i * 0.025}s`;
+    } else {
+      div.style.animation = 'none';
+    }
 
     const displayBody = post.hasEmptyBody ? '' : (post.body || '');
-    // Never clamp AI News summaries so the user can read the full detailed briefing without leaving the site
-    const isLong = !isAiNewsCard && displayBody.length > 400;
+    const aiSplit = isAiNewsCard ? splitAiNewsIntroAndFull(displayBody) : null;
+    const isLong = isAiNewsCard ? Boolean(aiSplit && aiSplit.hasMore) : (displayBody.length > 400);
     const hasImage = Boolean(post.imageUrl);
     const hasLink = Boolean(post.linkUrl);
     const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
-    const hasExpandable = isLong || hasImage;
+    const hasExpandable = (!isAiNewsCard && isLong) || hasImage;
     const isExpanded = expandedFlowsSet.has(post.id);
     const postMs = getPostTimestampMs(post);
     const rawTs = postMs ? new Date(postMs) : null;
@@ -8906,7 +8968,7 @@
             <span class="card-link-title">🔗 ${displayTitle}</span>
             <span class="card-link-domain">${domain}</span>
           </div>
-          <span class="card-link-arrow">${isAiNewsCard ? 'Read Source ↗' : 'Open ↗'}</span>
+          <span class="card-link-arrow">${isAiNewsCard ? 'Source ↗' : 'Open ↗'}</span>
         </a>`;
     }
 
@@ -8924,12 +8986,8 @@
     const bodySectionHTML = displayBody
       ? (isAiNewsCard
           ? `<div class="ai-summary-box">
-               <div class="ai-summary-box-header">
-                 <span>✨ Summarized by AI</span>
-                 <span>·</span>
-                 <span>In-Depth Tech &amp; AI Briefing${post.sourceName ? ` · Source: ${esc(post.sourceName)}` : ''}${formattedFullDate ? ` · 📅 ${esc(formattedFullDate)}` : ''}</span>
-               </div>
-               <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.68;">${esc(displayBody)}</div>
+               <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.65;">${esc(isExpanded ? aiSplit.full : aiSplit.intro)}</div>
+               ${aiSplit.hasMore ? `<button type="button" class="btn-ai-readmore" id="ai-readmore-btn-${post.id}" onclick="toggleExpand('${post.id}', this)"><span>${isExpanded ? 'Show less ↑' : 'Read more ↓'}</span></button>` : ''}
              </div>`
           : `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>`)
       : '';
@@ -8948,12 +9006,10 @@
                     ? `<span class="dev-badge">⚡ Developer</span>`
                     : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : ''))}
             </div>
-            <div class="card-time">${isAiNewsCard && formattedFullDate ? `📅 <strong>${esc(formattedFullDate)}</strong> (${esc(timeAgo)})` : `🕐 ${timeAgo}`}${post.editedAt ? ' · <em>edited</em>' : ''}${isAiNewsCard && post.sourceName ? ` · <strong>${esc(post.sourceName)}</strong>` : ''}</div>
+            <div class="card-time">${isAiNewsCard && formattedFullDate ? `📅 ${esc(formattedFullDate)} (${esc(timeAgo)})` : `🕐 ${timeAgo}`}${post.editedAt ? ' · <em>edited</em>' : ''}${isAiNewsCard && post.sourceName ? ` · <strong>${esc(post.sourceName)}</strong>` : ''}</div>
           </div>
         </div>
         <div class="card-top-right">
-          ${isAiNewsCard && formattedFullDate ? `<span class="news-card-date-pill">📅 ${esc(formattedFullDate.split(' · ')[0])}</span>` : ''}
-          ${isAiNewsCard ? `<span class="ai-summary-badge">✨ Summarized by AI</span>` : ''}
           <span class="card-tag tag-${esc(displayCategory)}">${TAG_LABELS[displayCategory] || 'General'}</span>
           <button
             type="button"
@@ -9046,13 +9102,24 @@
 
     const bodyEl = document.getElementById('body-' + id);
     const mediaEl = document.getElementById('media-' + id);
-    const expandBtn = btn || document.getElementById('expand-btn-' + id);
+    const expandBtn = document.getElementById('expand-btn-' + id);
+    const aiReadMoreBtn = document.getElementById('ai-readmore-btn-' + id);
     const cornerBadge = document.getElementById('attach-corner-' + id);
 
     const post = findPostAnywhere(id);
+    const isAiNewsCard = Boolean(post && (post.isAiNews || post.summarizedByAi || post.docType === 'ai_news'));
     const displayBody = post ? (post.hasEmptyBody ? '' : (post.body || '')) : '';
-    const isLong = displayBody.length > 400;
 
+    if (isAiNewsCard && bodyEl) {
+      const aiSplit = splitAiNewsIntroAndFull(displayBody);
+      bodyEl.textContent = isNowExpanded ? aiSplit.full : aiSplit.intro;
+      if (aiReadMoreBtn) {
+        aiReadMoreBtn.innerHTML = `<span>${isNowExpanded ? 'Show less ↑' : 'Read more ↓'}</span>`;
+      }
+      return;
+    }
+
+    const isLong = displayBody.length > 400;
     if (bodyEl && isLong) {
       bodyEl.classList.toggle('collapsed', !isNowExpanded);
     }
@@ -9297,7 +9364,7 @@
       curY += 76;
     }
 
-    // Footer Watermark & Live Web Link
+    // Footer Watermark (Clean Paper Flow branding without server URL text)
     const footerY = cardY + cardH - 44;
     ctx.strokeStyle = cardBorder;
     ctx.lineWidth = 1.5;
@@ -9308,13 +9375,13 @@
 
     ctx.font = '22px "SF Mono", Menlo, Consolas, monospace';
     ctx.fillStyle = textMuted;
-    ctx.fillText('Read & join the discussion at:', cardX + 44, footerY);
+    ctx.fillText('Paper Flow — Anonymous & Open', cardX + 44, footerY);
 
     ctx.font = 'bold 22px "SF Mono", Menlo, Consolas, monospace';
     ctx.fillStyle = accentColor;
-    const urlText = shareUrl.replace(/^https?:\/\//i, '');
-    const urlW = ctx.measureText(urlText).width;
-    ctx.fillText(urlText, cardX + cardW - 44 - urlW, footerY);
+    const brandRight = 'paperflow.hs.vc';
+    const urlW = ctx.measureText(brandRight).width;
+    ctx.fillText(brandRight, cardX + cardW - 44 - urlW, footerY);
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
@@ -9342,17 +9409,13 @@
     }
 
     try {
-      const origin = (window.location.hostname === 'appassets.androidplatform.net' || !window.location.origin || window.location.origin.includes('file:'))
-        ? LIVE_WEB_ORIGIN
-        : window.location.origin;
-
-      const shareUrl = `${origin}/?post=${encodeURIComponent(post.id)}`;
+      const shareUrl = `${LIVE_WEB_ORIGIN}/?post=${encodeURIComponent(post.id)}`;
       const title = post.title ? `${post.title} — Paper Flow` : 'Paper Flow Discussion';
       const excerpt = (post.hasEmptyBody ? '' : (post.body || '')).trim().slice(0, 140);
-      const shareText = `${post.title ? post.title + '\n\n' : ''}${excerpt ? excerpt + '…\n\n' : ''}Read & discuss on Paper Flow:\n${shareUrl}`;
+      const shareText = `${post.title ? post.title + '\n\n' : ''}${excerpt ? excerpt + (excerpt.length >= 140 ? '…' : '') + '\n\n' : ''}Read & discuss on Paper Flow:`;
 
-      // Generate the snapshot image blob in under 30ms
-      const { blob, canvas } = await generateFlowSnapshotCanvas(post, shareUrl);
+      // Generate the snapshot image blob cleanly without any server text
+      const { blob, canvas } = await generateFlowSnapshotCanvas(post);
       const safeFileTitle = (post.title || 'flow').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24);
       const fileName = `paperflow-${safeFileTitle}-${post.id.slice(0, 8)}.png`;
       const shareFile = new File([blob], fileName, { type: 'image/png' });
@@ -9360,7 +9423,7 @@
       // 1. If running in native Android app with AndroidBridge
       if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.shareFlow === 'function') {
         const dataUrl = canvas.toDataURL('image/png');
-        window.PaperFlowAndroid.shareFlow(title, shareText, shareUrl, dataUrl);
+        window.PaperFlowAndroid.shareFlow(title, `${shareText} ${shareUrl}`, shareUrl, dataUrl);
         showToast('Opening Share…');
         return;
       }
@@ -9372,13 +9435,12 @@
           try {
             await navigator.share({
               title,
-              text: shareText,
-              url: shareUrl,
+              text: `${shareText} ${shareUrl}`,
               files: [shareFile]
             });
             sharedSuccessfully = true;
           } catch (err) {
-            if (err.name === 'AbortError') return; // User simply closed the share sheet
+            if (err.name === 'AbortError') return;
           }
         }
 
@@ -9612,7 +9674,7 @@
     return false;
   };
 
-  const LIVE_WEB_ORIGIN = 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app';
+  const LIVE_WEB_ORIGIN = 'https://paperflow.hs.vc';
 
   window.downloadPaperFlowApk = async function (event, btnEl) {
     if (event) event.preventDefault();
@@ -9646,7 +9708,7 @@
           const url = baseOrigin + p + '?v=1.0.3&t=' + Date.now();
           const res = await fetch(url, {
             method: 'GET',
-            credentials: 'include',
+            credentials: 'same-origin',
             cache: 'no-store'
           });
           if (!res.ok) continue;

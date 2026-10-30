@@ -732,11 +732,12 @@ app.get('/api/download-apk', serveApkFile);
 
 app.get('/api/app-version', (req, res) => {
   res.json({
-    latestVersionCode: 2,
-    latestVersionName: '1.0.1',
-    apkUrl: '/download/Paper-Flow.apk',
-    title: 'Paper Flow Update Available',
-    releaseNotes: 'Performance improvements, AI-summarized Tech & AI News column, fixed badge layout, suppressed persistent popups, and disabled pinch zooming.'
+    latestVersionCode: 3,
+    latestVersionName: '1.0.3',
+    tag: 'Updated',
+    apkUrl: '/download/Paper-Flow.apk?v=1.0.3',
+    title: 'Paper Flow v1.0.3 (Updated)',
+    releaseNotes: 'Updated with AI-summarized Tech & AI News column, floating Siri-glow circular refresh button, iPhone Siri orange glass Dark Mode transition, centered + bottom dock, and scrollable Paper Messages.'
   });
 });
 

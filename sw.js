@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paperflow-app-shell-v6';
+const CACHE_NAME = 'paperflow-app-shell-v7';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
 
 const PRECACHE_URLS = [

@@ -329,12 +329,62 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public int getAppVersionCode() {
-            return 2;
+            return 3;
         }
 
         @JavascriptInterface
         public String getAppVersionName() {
-            return "1.0.1";
+            return "1.0.3";
+        }
+
+        @JavascriptInterface
+        public void shareFlow(final String title, final String text, final String url, final String base64Png) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                        String combinedText = (text != null && !text.isEmpty()) ? (text + "\n" + url) : url;
+                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title != null ? title : "Paper Flow");
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, combinedText);
+
+                        boolean hasImage = false;
+                        if (base64Png != null && !base64Png.isEmpty()) {
+                            try {
+                                String clean = base64Png;
+                                if (clean.contains(",")) {
+                                    clean = clean.substring(clean.indexOf(",") + 1);
+                                }
+                                byte[] bytes = android.util.Base64.decode(clean, android.util.Base64.DEFAULT);
+                                java.io.File cacheDir = getExternalCacheDir();
+                                if (cacheDir == null) cacheDir = getCacheDir();
+                                java.io.File shareImg = new java.io.File(cacheDir, "flow_snapshot.png");
+                                java.io.FileOutputStream fos = new java.io.FileOutputStream(shareImg);
+                                fos.write(bytes);
+                                fos.flush();
+                                fos.close();
+
+                                android.os.StrictMode.setVmPolicy(new android.os.StrictMode.VmPolicy.Builder().build());
+                                Uri uri = Uri.fromFile(shareImg);
+                                shareIntent.setType("image/png");
+                                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                hasImage = true;
+                            } catch (Exception ignored) {
+                            }
+                        }
+
+                        if (!hasImage) {
+                            shareIntent.setType("text/plain");
+                        }
+
+                        Intent chooser = Intent.createChooser(shareIntent, "Share Flow");
+                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(chooser);
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
         }
 
         @JavascriptInterface

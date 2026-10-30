@@ -4,6 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import webpush from 'web-push';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -738,6 +739,200 @@ app.get('/api/app-version', (req, res) => {
     apkUrl: '/download/Paper-Flow.apk?v=1.0.3',
     title: 'Paper Flow v1.0.3 (Updated)',
     releaseNotes: 'Updated with AI-summarized Tech & AI News column, floating Siri-glow circular refresh button, iPhone Siri orange glass Dark Mode transition, centered + bottom dock, and scrollable Paper Messages.'
+  });
+});
+
+// ── WEB PUSH & CONSTANT BACKGROUND NOTIFICATIONS ENGINE ────────────────────────
+const VAPID_PUBLIC_KEY = 'BGFFQRyPCHVbwWABejyqdpiOovIMThEHa4D10b6fkxFULQFxwZcE_ko98W7jLlC0-au1hLtRS9R6Yw5XZps1eSA';
+const VAPID_PRIVATE_KEY = 'lasHOuS2mq23bYgw87rfMFbaYxK3ftRKza86tC5EUQE';
+
+webpush.setVapidDetails(
+  'mailto:arnavsri210@gmail.com',
+  VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY
+);
+
+const PUSH_SUBS_FILE = path.join(__dirname, 'push_subscriptions.json');
+let pushSubscriptions = [];
+
+function loadPushSubscriptions() {
+  try {
+    if (fs.existsSync(PUSH_SUBS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(PUSH_SUBS_FILE, 'utf-8'));
+      if (Array.isArray(data)) return data;
+    }
+  } catch (e) {}
+  return [];
+}
+
+function savePushSubscriptions() {
+  try {
+    fs.writeFileSync(PUSH_SUBS_FILE, JSON.stringify(pushSubscriptions, null, 2), 'utf-8');
+  } catch (e) {}
+}
+
+pushSubscriptions = loadPushSubscriptions();
+
+app.get('/api/push-vapid-public-key', (req, res) => {
+  res.json({ ok: true, publicKey: VAPID_PUBLIC_KEY });
+});
+
+app.post('/api/push-subscribe', (req, res) => {
+  const { subscription, usernameLower } = req.body || {};
+  if (!subscription || !subscription.endpoint) {
+    res.status(400).json({ ok: false, error: 'Invalid subscription' });
+    return;
+  }
+  const endpoint = subscription.endpoint;
+  const existingIdx = pushSubscriptions.findIndex(s => s.subscription?.endpoint === endpoint);
+  const entry = {
+    subscription,
+    usernameLower: usernameLower ? String(usernameLower).trim().toLowerCase() : 'guest',
+    updatedAt: Date.now()
+  };
+  if (existingIdx >= 0) {
+    pushSubscriptions[existingIdx] = entry;
+  } else {
+    pushSubscriptions.push(entry);
+  }
+  savePushSubscriptions();
+  res.json({ ok: true, count: pushSubscriptions.length });
+});
+
+app.post('/api/push-unsubscribe', (req, res) => {
+  const { endpoint } = req.body || {};
+  if (endpoint) {
+    pushSubscriptions = pushSubscriptions.filter(s => s.subscription?.endpoint !== endpoint);
+    savePushSubscriptions();
+  }
+  res.json({ ok: true });
+});
+
+async function sendPushToSubscribers(payload, filterFn) {
+  const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  const targets = filterFn ? pushSubscriptions.filter(filterFn) : pushSubscriptions;
+  const deadEndpoints = new Set();
+
+  await Promise.allSettled(
+    targets.map(async (entry) => {
+      try {
+        await webpush.sendNotification(entry.subscription, payloadStr, {
+          TTL: 60 * 60 * 24 // 24 hours
+        });
+      } catch (err) {
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          deadEndpoints.add(entry.subscription.endpoint);
+        }
+      }
+    })
+  );
+
+  if (deadEndpoints.size > 0) {
+    pushSubscriptions = pushSubscriptions.filter(s => !deadEndpoints.has(s.subscription?.endpoint));
+    savePushSubscriptions();
+  }
+}
+
+// Endpoint to broadcast a developer flow alert to all subscribers
+app.post('/api/push-notify-developer-flow', async (req, res) => {
+  const { postId, title, body, author } = req.body || {};
+  const notifPayload = {
+    title: `⚡ Developer Update: ${title || 'New Developer Flow'}`,
+    body: (body || 'The developer shared a new update on Paper Flow. Tap to read and reply.').slice(0, 140),
+    postId: postId || '',
+    url: `/?post=${encodeURIComponent(postId || '')}`,
+    tag: `dev_${postId || Date.now()}`
+  };
+  sendPushToSubscribers(notifPayload).catch(() => {});
+  res.json({ ok: true, sentTo: pushSubscriptions.length });
+});
+
+// Endpoint to notify post author when someone replies
+app.post('/api/push-notify-reply', async (req, res) => {
+  const { postId, targetUsername, flowTitle, replier, text } = req.body || {};
+  if (!targetUsername) {
+    res.json({ ok: false, error: 'targetUsername required' });
+    return;
+  }
+  const cleanTarget = String(targetUsername).trim().toLowerCase();
+  const notifPayload = {
+    title: `@${replier || 'Someone'} replied to "${(flowTitle || 'your flow').slice(0, 36)}"`,
+    body: (text || 'New reply on your flow').slice(0, 140),
+    postId: postId || '',
+    url: `/?post=${encodeURIComponent(postId || '')}`,
+    tag: `reply_${postId}_${Date.now()}`
+  };
+  sendPushToSubscribers(notifPayload, (entry) => entry.usernameLower === cleanTarget).catch(() => {});
+  res.json({ ok: true });
+});
+
+// Cache of latest developer flows for background sync and polling
+let cachedDeveloperFlows = [];
+let seenDevPostIds = new Set();
+let isCheckingFirestoreDevPosts = false;
+
+async function checkFirestoreForNewDeveloperFlows() {
+  if (isCheckingFirestoreDevPosts) return;
+  isCheckingFirestoreDevPosts = true;
+  try {
+    const url = 'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts?pageSize=30';
+    const resp = await fetch(url);
+    if (!resp.ok) return;
+    const json = await resp.json();
+    if (!json.documents || !Array.isArray(json.documents)) return;
+
+    const devFlows = [];
+    json.documents.forEach((doc) => {
+      const fields = doc.fields || {};
+      const id = doc.name ? doc.name.split('/').pop() : '';
+      if (!id || id.startsWith('__')) return;
+
+      const authorUsername = fields.authorUsername?.stringValue || '';
+      const alias = fields.alias?.stringValue || '';
+      const isDev = authorUsername.toLowerCase() === 'marvelist' || alias.toLowerCase() === 'marvelist';
+      if (!isDev) return;
+
+      const title = fields.title?.stringValue || null;
+      const body = fields.body?.stringValue || '';
+      const ts = fields.ts?.timestampValue ? new Date(fields.ts.timestampValue).getTime() : Date.now();
+
+      devFlows.push({ id, title, body, authorUsername, alias, ts });
+
+      // If this is a newly discovered developer post, push notification to all subscribers!
+      if (!seenDevPostIds.has(id)) {
+        seenDevPostIds.add(id);
+        if (seenDevPostIds.size > 1) { // Avoid blasting on initial server boot
+          const notifPayload = {
+            title: `⚡ Developer Update: ${title || 'New Flow from Developer'}`,
+            body: (body || 'The developer shared a new update on Paper Flow. Tap to read.').slice(0, 140),
+            postId: id,
+            url: `/?post=${encodeURIComponent(id)}`,
+            tag: `dev_${id}`
+          };
+          sendPushToSubscribers(notifPayload).catch(() => {});
+        }
+      }
+    });
+
+    devFlows.sort((a, b) => b.ts - a.ts);
+    cachedDeveloperFlows = devFlows;
+  } catch (e) {
+    // Graceful error ignore
+  } finally {
+    isCheckingFirestoreDevPosts = false;
+  }
+}
+
+// Background poll Firestore every 45 seconds to keep notifications constant even if no one is visiting
+checkFirestoreForNewDeveloperFlows().catch(() => {});
+setInterval(() => {
+  checkFirestoreForNewDeveloperFlows().catch(() => {});
+}, 45 * 1000);
+
+app.get('/api/developer-flows/latest', (req, res) => {
+  res.json({
+    ok: true,
+    items: cachedDeveloperFlows
   });
 });
 

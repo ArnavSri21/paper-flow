@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paperflow-app-shell-v7';
+const CACHE_NAME = 'paperflow-app-shell-v8';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
 
 const PRECACHE_URLS = [
@@ -115,10 +115,68 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// ── CONSTANT BACKGROUND NOTIFICATIONS (EVEN WHEN WEBSITE OR APP IS CLOSED) ──
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'Paper Flow Update', body: event.data.text() };
+    }
+  }
+
+  const title = data.title || 'Paper Flow';
+  const options = {
+    body: data.body || 'New update available on Paper Flow',
+    icon: '/pwa-192x192.png',
+    badge: '/pwa-192x192.png',
+    vibrate: [120, 60, 120],
+    tag: data.tag || data.postId || 'paperflow-alert',
+    renotify: true,
+    data: {
+      postId: data.postId || '',
+      url: data.url || (data.postId ? `/?post=${encodeURIComponent(data.postId)}` : '/')
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Periodic Background Sync: fetches developer flows in background if push was missed
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'paperflow-background-sync' || event.tag === 'paperflow-alerts') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
+async function checkBackgroundFlowAlerts() {
+  try {
+    const res = await fetch('/api/developer-flows/latest');
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json || !json.items || json.items.length === 0) return;
+    const latest = json.items[0];
+    const cache = await caches.open('paperflow-seen-dev-alerts-v1');
+    const seen = await cache.match(`/seen-dev/${latest.id}`);
+    if (!seen) {
+      await cache.put(`/seen-dev/${latest.id}`, new Response('1'));
+      await self.registration.showNotification(`⚡ Developer Update: ${latest.title || 'New Developer Flow'}`, {
+        body: (latest.body || 'The developer shared a new update on Paper Flow. Tap to read.').slice(0, 130),
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        data: { postId: latest.id, url: `/?post=${encodeURIComponent(latest.id)}` }
+      });
+    }
+  } catch (err) {}
+}
+
 // Focus or open the Paper Flow app window when a notification is clicked
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetPostId = event.notification?.data?.postId || '';
+  const targetUrl = event.notification?.data?.url || (targetPostId ? `/?post=${encodeURIComponent(targetPostId)}` : '/');
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
@@ -132,7 +190,7 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       if (self.clients.openWindow) {
-        return self.clients.openWindow(targetPostId ? `/?post=${encodeURIComponent(targetPostId)}` : '/');
+        return self.clients.openWindow(targetUrl);
       }
     })
   );

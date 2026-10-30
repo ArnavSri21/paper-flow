@@ -2230,6 +2230,26 @@
     65%  { transform: scale(0.88) rotate(6deg); }
     100% { transform: scale(1) rotate(0deg); }
   }
+  .btn-share-flow {
+    color: var(--ink);
+    border-color: var(--card-border);
+  }
+  .btn-share-flow:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .btn-share-flow.sharing {
+    opacity: 0.65;
+    pointer-events: none;
+    animation: sharePulse 1s infinite alternate ease-in-out;
+  }
+  @keyframes sharePulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(0.94); }
+  }
   .btn-pin-dev {
     border-color: #8b5cf6;
     color: #6d28d9;
@@ -4751,9 +4771,68 @@
   let swRegistration = null;
   let hasInitialSnapshotLoaded = false;
 
+  function urlB64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  async function registerPushNotifications(reg) {
+    if (!reg || !('pushManager' in reg)) return;
+    try {
+      const origin = (window.location.hostname === 'appassets.androidplatform.net' || !window.location.origin || window.location.origin.includes('file:'))
+        ? 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app'
+        : window.location.origin;
+
+      const res = await fetch(origin + '/api/push-vapid-public-key');
+      if (!res.ok) return;
+      const { publicKey } = await res.json();
+      if (!publicKey) return;
+
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlB64ToUint8Array(publicKey)
+          });
+        }
+      }
+
+      if (sub) {
+        await fetch(origin + '/api/push-subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: sub,
+            usernameLower: currentUser?.usernameLower || 'guest'
+          })
+        });
+      }
+
+      // Register Periodic Background Sync for constant flow checks when app is closed
+      if ('periodicSync' in reg) {
+        try {
+          const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+          if (status.state === 'granted') {
+            await reg.periodicSync.register('paperflow-background-sync', {
+              minInterval: 15 * 60 * 1000
+            });
+          }
+        } catch (e) {}
+      }
+    } catch (e) {}
+  }
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(reg => {
       swRegistration = reg;
+      registerPushNotifications(reg);
     }).catch(() => {});
 
     navigator.serviceWorker.addEventListener('message', (event) => {
@@ -4843,11 +4922,12 @@
       const result = await Notification.requestPermission();
       syncNotificationUI();
       if (result === 'granted') {
+        if (swRegistration) registerPushNotifications(swRegistration);
         if (!silent) {
           showToast('Mobile & laptop reply notifications enabled! 🔔');
           sendSystemAndInAppReplyNotification({
             title: 'Paper Flow Notifications Active 🔔',
-            body: `You will now receive mobile & laptop notifications whenever someone replies to @${currentUser?.username || 'your'} flows.`,
+            body: `You will now receive notifications for developer updates and replies even when Paper Flow is not running.`,
             postId: null
           });
         }
@@ -5693,6 +5773,21 @@
         }
       });
 
+      // Detect newly arrived Developer Flows for instant notifications
+      const newlyArrivedDevFlows = [];
+      nextPosts.forEach(p => {
+        const devKey = `dev_${p.id}`;
+        if (!seenReplyIdsSet.has(devKey)) {
+          seenReplyIdsSet.add(devKey);
+          if (hasInitialSnapshotLoaded) {
+            const authorIsDev = isDeveloperUser(p.authorUsername || p.alias);
+            if (authorIsDev) {
+              newlyArrivedDevFlows.push(p);
+            }
+          }
+        }
+      });
+
       if (!hasInitialSnapshotLoaded) {
         hasInitialSnapshotLoaded = true;
         saveSeenReplyIdsSet();
@@ -5703,7 +5798,7 @@
           setTimeout(() => jumpToFlowFromReply(targetFlowId), 200);
         }
       } else {
-        if (newlyArrivedRepliesForMe.length > 0 || newlyArrivedPMsForMe.length > 0 || newlyArrivedReqsForMe.length > 0) {
+        if (newlyArrivedRepliesForMe.length > 0 || newlyArrivedPMsForMe.length > 0 || newlyArrivedReqsForMe.length > 0 || newlyArrivedDevFlows.length > 0) {
           saveSeenReplyIdsSet();
         }
         newlyArrivedRepliesForMe.forEach(({ comment, post }) => {
@@ -5714,6 +5809,14 @@
           sendSystemAndInAppReplyNotification({
             title: `${replier} replied to ${flowLabel}`,
             body: comment.text || 'New reply on your flow',
+            postId: post.id
+          });
+        });
+
+        newlyArrivedDevFlows.forEach(post => {
+          sendSystemAndInAppReplyNotification({
+            title: `⚡ Developer Update: ${post.title || 'New Developer Flow'}`,
+            body: (post.body || 'The developer shared a new flow on Paper Flow. Tap to read.').slice(0, 130),
             postId: post.id
           });
         });
@@ -6490,7 +6593,21 @@
           ts: serverTimestamp()
         };
 
-        await addDoc(postsCol, payload);
+        const newDocRef = await addDoc(postsCol, payload);
+
+        // If developer created this flow, send push broadcast to all subscribed users
+        if (isDev) {
+          fetch('/api/push-notify-developer-flow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              postId: newDocRef.id,
+              title: title || 'New Flow from Developer',
+              body: (body || '').slice(0, 150),
+              author: currentUser.username
+            })
+          }).catch(() => {});
+        }
 
         document.getElementById('postTitle').value = '';
         document.getElementById('postBody').value  = '';
@@ -6795,6 +6912,22 @@
         ownerToken: getCurrentActorKey(),
         createdAt: Date.now()
       });
+
+      // Notify post author via Web Push in case their app / website is closed
+      if (post.authorUsername && post.authorUsername.toLowerCase() !== currentUser.usernameLower) {
+        fetch('/api/push-notify-reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            postId: postId,
+            targetUsername: post.authorUsername,
+            flowTitle: post.title || 'your flow',
+            replier: currentUser.username,
+            text: text.slice(0, 140)
+          })
+        }).catch(() => {});
+      }
+
       openCommentsSet.add(postId);
       inp.value = '';
     } catch (e) {
@@ -8869,6 +9002,10 @@
             <span>💬</span>
             <span>${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}</span>
           </button>
+          <button class="btn-small btn-share-flow" id="share-btn-${post.id}" onclick="shareFlowPost('${post.id}', event)" title="Share this flow snapshot & link">
+            <span>↗</span>
+            <span>Share</span>
+          </button>
         </div>
 
         <div class="card-actions">
@@ -8927,6 +9064,360 @@
     }
     if (cornerBadge) {
       cornerBadge.title = `Click to ${isNowExpanded ? 'hide' : 'view'} attachment`;
+    }
+  };
+
+  // ── CARD SHARE & INSTANT FLOW SNAPSHOT ──────────────────────────────────────
+  function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  }
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+    const words = String(text || '').split(/\s+/);
+    const lines = [];
+    let currentLine = '';
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const testLine = currentLine ? (currentLine + ' ' + word) : word;
+      const testWidth = ctx.measureText(testLine).width;
+      if (testWidth > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    return lines;
+  }
+
+  async function generateFlowSnapshotCanvas(post, shareUrl) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = 1200;
+
+    const pad = 64;
+    const innerW = width - pad * 2;
+    const isDark = document.body.classList.contains('dark-mode');
+
+    // Pre-calculate line wrapped titles and bodies
+    ctx.font = 'bold 44px "Newsreader", Georgia, serif';
+    const titleLines = post.title ? wrapCanvasText(ctx, post.title, innerW - 88) : [];
+
+    ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const rawBody = post.hasEmptyBody ? '' : (post.body || '');
+    const bodyLines = rawBody ? wrapCanvasText(ctx, rawBody.slice(0, 750), innerW - 88).slice(0, 14) : [];
+
+    const isAiNews = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
+    const isDev = !isAiNews && isDeveloperUser(post.authorUsername || post.alias);
+
+    // Compute dynamic canvas height
+    let contentH = pad;
+    contentH += 56; // Top brand bar
+    contentH += 30; // Divider
+    contentH += 86; // Author row
+    contentH += 24; // Spacing
+    if (titleLines.length > 0) {
+      contentH += titleLines.length * 56 + 18;
+    }
+    if (bodyLines.length > 0) {
+      contentH += bodyLines.length * 44 + 24;
+    }
+    if (post.linkUrl) {
+      contentH += 76;
+    }
+    contentH += 110; // Footer & URL
+    contentH += pad;
+
+    const height = Math.max(720, contentH);
+    canvas.width = width;
+    canvas.height = height;
+
+    const bgOuter = isDark ? '#12100e' : '#f5efe6';
+    const bgCard = isDark ? '#1c1915' : '#ffffff';
+    const textInk = isDark ? '#f5f0e8' : '#1a1209';
+    const textMuted = isDark ? '#a89e90' : '#6b6357';
+    const cardBorder = isDark ? '#38322a' : '#ded6c7';
+    const accentColor = '#c84b2f';
+
+    // Outer background
+    ctx.fillStyle = bgOuter;
+    ctx.fillRect(0, 0, width, height);
+
+    // Inner card
+    const cardX = pad;
+    const cardY = pad;
+    const cardW = width - pad * 2;
+    const cardH = height - pad * 2;
+    const r = 24;
+
+    ctx.save();
+    ctx.shadowColor = isDark ? 'rgba(0,0,0,0.5)' : 'rgba(26,18,9,0.14)';
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = bgCard;
+    roundRect(ctx, cardX, cardY, cardW, cardH, r);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.strokeStyle = cardBorder;
+    ctx.lineWidth = 3;
+    roundRect(ctx, cardX, cardY, cardW, cardH, r);
+    ctx.stroke();
+
+    let curY = cardY + 52;
+
+    // Top Brand Bar: PAPER FLOW ✦ REAL-TIME MEMO BOARD
+    ctx.fillStyle = accentColor;
+    ctx.font = 'bold 22px "SF Mono", Menlo, Consolas, monospace';
+    ctx.fillText('PAPER FLOW ✦ REAL-TIME MEMO BOARD', cardX + 44, curY);
+
+    // Category Tag Pill
+    const tagText = (isAiNews ? 'AI TECH NEWS' : (isDev ? 'DEVELOPER UPDATE' : (post.tag || 'GENERAL'))).toUpperCase();
+    ctx.font = 'bold 20px "SF Mono", Menlo, Consolas, monospace';
+    const tagWidth = ctx.measureText(tagText).width + 36;
+    const tagX = cardX + cardW - tagWidth - 44;
+    ctx.fillStyle = isAiNews ? 'rgba(200, 75, 47, 0.15)' : (isDev ? 'rgba(139, 92, 246, 0.18)' : 'rgba(0, 0, 0, 0.08)');
+    roundRect(ctx, tagX, curY - 26, tagWidth, 36, 18);
+    ctx.fill();
+    ctx.fillStyle = isAiNews ? accentColor : (isDev ? '#7c3aed' : textInk);
+    ctx.fillText(tagText, tagX + 18, curY);
+
+    curY += 46;
+
+    // Divider line
+    ctx.strokeStyle = cardBorder;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cardX + 44, curY);
+    ctx.lineTo(cardX + cardW - 44, curY);
+    ctx.stroke();
+
+    curY += 48;
+
+    // Author Bar
+    const authorName = isAiNews
+      ? 'Paper Flow AI News'
+      : (post.alias || (post.authorUsername ? `@${post.authorUsername}` : 'Anonymous'));
+
+    // Avatar Circle
+    ctx.save();
+    ctx.fillStyle = isAiNews ? '#c84b2f' : (isDev ? '#7c3aed' : '#2c251e');
+    ctx.beginPath();
+    ctx.arc(cardX + 44 + 28, curY + 28, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(authorName.charAt(0).toUpperCase() || 'P', cardX + 44 + 28, curY + 28);
+    ctx.restore();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillStyle = textInk;
+    ctx.fillText(authorName, cardX + 118, curY + 26);
+
+    if (isDev) {
+      const devBadgeX = cardX + 118 + ctx.measureText(authorName).width + 16;
+      ctx.fillStyle = '#7c3aed';
+      roundRect(ctx, devBadgeX, curY + 4, 142, 28, 14);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText('⚡ DEVELOPER', devBadgeX + 14, curY + 24);
+    } else if (isAiNews) {
+      const aiBadgeX = cardX + 118 + ctx.measureText(authorName).width + 16;
+      ctx.fillStyle = accentColor;
+      roundRect(ctx, aiBadgeX, curY + 4, 178, 28, 14);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText('✨ SUMMARIZED BY AI', aiBadgeX + 14, curY + 24);
+    }
+
+    const postMs = getPostTimestampMs(post);
+    const dateStr = postMs ? (new Date(postMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + formatTime(new Date(postMs))) : 'Shared recently';
+    ctx.font = '20px "SF Mono", Menlo, Consolas, monospace';
+    ctx.fillStyle = textMuted;
+    ctx.fillText(dateStr + (post.sourceName ? ` · Source: ${post.sourceName}` : ''), cardX + 118, curY + 54);
+
+    curY += 92;
+
+    // Title
+    if (titleLines.length > 0) {
+      ctx.font = 'bold 44px "Newsreader", Georgia, serif';
+      ctx.fillStyle = textInk;
+      titleLines.forEach(line => {
+        ctx.fillText(line, cardX + 44, curY);
+        curY += 56;
+      });
+      curY += 14;
+    }
+
+    // Body
+    if (bodyLines.length > 0) {
+      ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = isDark ? '#ded6c7' : '#2b2621';
+      bodyLines.forEach(line => {
+        ctx.fillText(line, cardX + 44, curY);
+        curY += 44;
+      });
+      curY += 20;
+    }
+
+    // Link Preview Bar (if flow has link)
+    if (post.linkUrl) {
+      ctx.fillStyle = isDark ? '#26221c' : '#f4eee4';
+      roundRect(ctx, cardX + 44, curY, cardW - 88, 56, 12);
+      ctx.fill();
+      ctx.strokeStyle = cardBorder;
+      ctx.lineWidth = 1;
+      roundRect(ctx, cardX + 44, curY, cardW - 88, 56, 12);
+      ctx.stroke();
+
+      ctx.fillStyle = accentColor;
+      ctx.font = '22px "SF Mono", monospace';
+      ctx.fillText('🔗 ' + formatHostname(post.linkUrl) + ' ↗', cardX + 64, curY + 36);
+      curY += 76;
+    }
+
+    // Footer Watermark & Live Web Link
+    const footerY = cardY + cardH - 44;
+    ctx.strokeStyle = cardBorder;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cardX + 44, footerY - 32);
+    ctx.lineTo(cardX + cardW - 44, footerY - 32);
+    ctx.stroke();
+
+    ctx.font = '22px "SF Mono", Menlo, Consolas, monospace';
+    ctx.fillStyle = textMuted;
+    ctx.fillText('Read & join the discussion at:', cardX + 44, footerY);
+
+    ctx.font = 'bold 22px "SF Mono", Menlo, Consolas, monospace';
+    ctx.fillStyle = accentColor;
+    const urlText = shareUrl.replace(/^https?:\/\//i, '');
+    const urlW = ctx.measureText(urlText).width;
+    ctx.fillText(urlText, cardX + cardW - 44 - urlW, footerY);
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve({ blob, canvas });
+      }, 'image/png');
+    });
+  }
+
+  window.shareFlowPost = async function (postId, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const post = findPostAnywhere(postId);
+    if (!post) {
+      showToast('Flow not found.');
+      return;
+    }
+
+    const shareBtn = document.getElementById(`share-btn-${postId}`);
+    if (shareBtn) {
+      shareBtn.classList.add('sharing');
+      shareBtn.innerHTML = '<span>⏳</span><span>Sharing…</span>';
+    }
+
+    try {
+      const origin = (window.location.hostname === 'appassets.androidplatform.net' || !window.location.origin || window.location.origin.includes('file:'))
+        ? LIVE_WEB_ORIGIN
+        : window.location.origin;
+
+      const shareUrl = `${origin}/?post=${encodeURIComponent(post.id)}`;
+      const title = post.title ? `${post.title} — Paper Flow` : 'Paper Flow Discussion';
+      const excerpt = (post.hasEmptyBody ? '' : (post.body || '')).trim().slice(0, 140);
+      const shareText = `${post.title ? post.title + '\n\n' : ''}${excerpt ? excerpt + '…\n\n' : ''}Read & discuss on Paper Flow:\n${shareUrl}`;
+
+      // Generate the snapshot image blob in under 30ms
+      const { blob, canvas } = await generateFlowSnapshotCanvas(post, shareUrl);
+      const safeFileTitle = (post.title || 'flow').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24);
+      const fileName = `paperflow-${safeFileTitle}-${post.id.slice(0, 8)}.png`;
+      const shareFile = new File([blob], fileName, { type: 'image/png' });
+
+      // 1. If running in native Android app with AndroidBridge
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.shareFlow === 'function') {
+        const dataUrl = canvas.toDataURL('image/png');
+        window.PaperFlowAndroid.shareFlow(title, shareText, shareUrl, dataUrl);
+        showToast('Opening Share…');
+        return;
+      }
+
+      // 2. Web Share API with image file attachment (Phones & Tablets)
+      let sharedSuccessfully = false;
+      if (navigator.share) {
+        if (navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+          try {
+            await navigator.share({
+              title,
+              text: shareText,
+              url: shareUrl,
+              files: [shareFile]
+            });
+            sharedSuccessfully = true;
+          } catch (err) {
+            if (err.name === 'AbortError') return; // User simply closed the share sheet
+          }
+        }
+
+        // Fallback to text & link share if file share wasn't accepted
+        if (!sharedSuccessfully) {
+          try {
+            await navigator.share({
+              title,
+              text: shareText,
+              url: shareUrl
+            });
+            sharedSuccessfully = true;
+          } catch (err) {
+            if (err.name === 'AbortError') return;
+          }
+        }
+      }
+
+      // 3. Desktop / Browser without Web Share: Copy link and download snapshot PNG
+      if (!sharedSuccessfully) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+        }
+        const tempA = document.createElement('a');
+        tempA.href = URL.createObjectURL(blob);
+        tempA.download = fileName;
+        document.body.appendChild(tempA);
+        tempA.click();
+        tempA.remove();
+        showToast('Link copied & flow snapshot saved!');
+      }
+    } catch (err) {
+      console.error('Share error:', err);
+      showToast('Could not open share sheet.');
+    } finally {
+      if (shareBtn) {
+        shareBtn.classList.remove('sharing');
+        shareBtn.innerHTML = '<span>↗</span><span>Share</span>';
+      }
     }
   };
 

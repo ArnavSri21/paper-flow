@@ -1176,59 +1176,11 @@
   }
   .filter-count { opacity: 0.65; font-size: 0.6rem; }
 
-  /* FLUID FLOATING PLUS (+) BUTTON */
-  .fab-post-btn {
-    position: fixed;
-    right: 2rem;
-    bottom: 2rem;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    border: 2px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--ink);
-    font-family: var(--mono);
-    font-size: 2.1rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 250;
-    transition:
-      transform 0.44s var(--bubble-spring),
-      border-radius 0.44s var(--bubble-spring),
-      box-shadow 0.3s var(--bubble-smooth),
-      background-color 0.22s ease !important;
-  }
-  .fab-post-btn .fab-plus-icon {
-    display: inline-block;
-    line-height: 1;
-    transition: transform 0.44s var(--bubble-spring);
-  }
-  .fab-post-btn:hover {
-    background: var(--accent-hover);
-    border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%;
-    transform: translate(-2px, -4px) scale(1.11) !important;
-    box-shadow: 6px 6px 0 var(--ink);
-  }
-  .fab-post-btn:hover .fab-plus-icon {
-    transform: rotate(90deg) scale(1.12);
-  }
-  .fab-post-btn:active {
-    transform: scale(0.88) !important;
-    border-radius: 50%;
-  }
-  .fab-post-btn.modal-open .fab-plus-icon {
-    transform: rotate(135deg) scale(1.08);
-  }
-
   /* FLOATING CIRCULAR REFRESH BUTTON (NEWS COLUMN) WITH SIRI-LIKE GLOW */
   .fab-news-refresh {
     position: fixed;
-    right: 2.18rem;
-    bottom: 6.45rem;
+    right: 2rem;
+    bottom: calc(4.8rem + env(safe-area-inset-bottom, 0px));
     width: 54px;
     height: 54px;
     border-radius: 50%;
@@ -1277,17 +1229,20 @@
     transition: transform 0.5s var(--bubble-spring);
   }
   .fab-news-refresh:hover:not(.is-refreshing) {
-    transform: translateY(-3px) scale(1.09);
-    border-color: #ff6a00;
+    transform: translateY(-2px) scale(1.06);
     box-shadow:
-      0 0 18px rgba(255, 106, 0, 0.45),
-      0 0 32px rgba(255, 45, 85, 0.25),
-      inset 0 1px 2px rgba(255, 255, 255, 0.75);
+      4px 4px 0 var(--ink),
+      inset 0 1px 1px rgba(255, 255, 255, 0.7);
   }
-  .fab-news-refresh:hover:not(.is-refreshing) .fab-refresh-svg {
-    transform: rotate(95deg);
+  body.dark-mode .fab-news-refresh:hover:not(.is-refreshing) {
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.55),
+      inset 0 1px 1px rgba(255, 255, 255, 0.25);
   }
-  /* Siri-like liquid glass multi-color & orange-amber aura when refreshing */
+  .fab-news-refresh:active:not(.is-refreshing) {
+    transform: scale(0.92);
+  }
+  /* Siri-like liquid glass multi-color & orange-amber aura ONLY when refreshing */
   .fab-news-refresh::before,
   .fab-news-refresh::after {
     content: '';
@@ -1307,39 +1262,39 @@
     opacity: 0;
     pointer-events: none;
     z-index: -1;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
   }
   .fab-news-refresh::after {
-    inset: -10px;
+    inset: -11px;
     filter: blur(14px);
   }
   .fab-news-refresh.is-refreshing {
-    border-color: rgba(255, 165, 80, 0.92);
-    background: rgba(28, 20, 14, 0.86);
+    border-color: rgba(255, 165, 80, 0.95);
+    background: rgba(28, 20, 14, 0.88);
     color: #fff;
     box-shadow:
-      0 0 22px rgba(255, 106, 0, 0.75),
-      0 0 42px rgba(255, 45, 85, 0.48),
-      inset 0 0 12px rgba(255, 149, 0, 0.45);
+      0 0 24px rgba(255, 106, 0, 0.85),
+      0 0 46px rgba(255, 45, 85, 0.55),
+      inset 0 0 14px rgba(255, 149, 0, 0.5);
     transform: scale(1.08);
   }
   .fab-news-refresh.is-refreshing::before {
-    opacity: 0.95;
-    animation: siriOrbSpin 1.35s linear infinite;
+    opacity: 1;
+    animation: siriOrbSpin 0.65s linear infinite;
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
     mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
   }
   .fab-news-refresh.is-refreshing::after {
-    opacity: 0.85;
-    animation: siriOrbSpin 1.35s linear infinite reverse;
+    opacity: 0.92;
+    animation: siriOrbSpin 0.65s linear infinite reverse;
   }
   .fab-news-refresh.is-refreshing .fab-refresh-svg {
-    animation: refreshLogoSpin 0.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.85));
+    animation: refreshLogoSpin 0.52s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.9));
   }
   @keyframes siriOrbSpin {
     0%   { transform: rotate(0deg) scale(1); }
-    50%  { transform: rotate(180deg) scale(1.06); }
+    50%  { transform: rotate(180deg) scale(1.07); }
     100% { transform: rotate(360deg) scale(1); }
   }
   @keyframes refreshLogoSpin {
@@ -3872,9 +3827,6 @@
   .container {
     padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
-  .fab-post-btn {
-    bottom: calc(4.6rem + env(safe-area-inset-bottom, 0px));
-  }
   .toast {
     bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
   }
@@ -3961,7 +3913,6 @@
     }
     .container { padding: 1.2rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px)); }
     .compose-row { flex-direction: column; align-items: stretch; }
-    .fab-post-btn { display: none; }
     .fab-news-refresh {
       right: 1.15rem;
       bottom: calc(74px + env(safe-area-inset-bottom, 0px));
@@ -4376,11 +4327,6 @@
 <!-- IPHONE SIRI-STYLE ORANGE GLASS GLOW OVERLAY WHEN TOGGLING DARK MODE -->
 <div id="siriThemeGlowOverlay" class="siri-theme-glow-overlay" aria-hidden="true"></div>
 
-<!-- FLOATING PLUS (+) BUTTON TO OPEN POST POPUP -->
-<button type="button" class="fab-post-btn" id="fabPostBtn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">
-  <span class="fab-plus-icon">+</span>
-</button>
-
 <!-- POST / EDIT A FLOW POPUP MODAL -->
 <div class="modal-backdrop" id="composeModalBackdrop" onclick="handleComposeBackdropClick(event)">
   <div class="compose-modal-window" onclick="event.stopPropagation()">
@@ -4538,10 +4484,6 @@
   <button type="button" class="app-nav-item" id="appNavNews" onclick="openNewsColumn()">
     <span class="app-nav-icon">📰</span>
     <span>News</span>
-  </button>
-  <button type="button" class="app-nav-item" id="appNavMyFlows" onclick="switchViewMode('my-flows')">
-    <span class="app-nav-icon">✍</span>
-    <span>My Flows</span>
   </button>
   <button type="button" class="app-nav-post-btn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">+</button>
   <button type="button" class="app-nav-item" id="appNavReplies" onclick="switchViewMode('replies')">
@@ -8059,18 +8001,21 @@
     });
   }
 
+  let activeNewsRefreshSeq = 0;
   window.fetchAndSyncAiTechNews = async function (forceRefresh = false) {
-    if (isRefreshingAiNews) return;
+    if (isRefreshingAiNews && !forceRefresh) return;
+    const mySeq = ++activeNewsRefreshSeq;
+    const shouldShowGlow = Boolean(forceRefresh || aiTechNewsItems.length === 0);
     isRefreshingAiNews = true;
+    const startTs = Date.now();
     const refreshBtn = document.getElementById('btnRefreshAiNews');
-    if (refreshBtn) {
+    if (refreshBtn && shouldShowGlow) {
       refreshBtn.classList.add('is-refreshing');
-      refreshBtn.disabled = true;
     }
 
     try {
       const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
-      const endpoint = `${baseOrigin}/api/ai-tech-news${forceRefresh ? '?refresh=1' : ''}`;
+      const endpoint = `${baseOrigin}/api/ai-tech-news${forceRefresh ? `?refresh=1&t=${Date.now()}` : ''}`;
       const res = await fetch(endpoint, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
@@ -8136,11 +8081,19 @@
         showToast('Showing cached AI-summarized Tech & AI news.');
       }
     } finally {
-      isRefreshingAiNews = false;
-      const btnAfter = document.getElementById('btnRefreshAiNews');
-      if (btnAfter) {
-        btnAfter.classList.remove('is-refreshing');
-        btnAfter.disabled = false;
+      if (shouldShowGlow) {
+        const elapsed = Date.now() - startTs;
+        const minGlowMs = 680;
+        if (elapsed < minGlowMs) {
+          await new Promise(r => setTimeout(r, minGlowMs - elapsed));
+        }
+      }
+      if (mySeq === activeNewsRefreshSeq) {
+        isRefreshingAiNews = false;
+        const btnAfter = document.getElementById('btnRefreshAiNews');
+        if (btnAfter) {
+          btnAfter.classList.remove('is-refreshing');
+        }
       }
     }
   };
@@ -8196,9 +8149,8 @@
     sideBtnReports?.classList.toggle('active', activeViewMode === 'reports');
 
     // Sync Native App Bottom Navigation Dock
-    document.getElementById('appNavBoard')?.classList.toggle('active', (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'starred' || activeViewMode === 'reports');
+    document.getElementById('appNavBoard')?.classList.toggle('active', (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'my-flows' || activeViewMode === 'starred' || activeViewMode === 'reports');
     document.getElementById('appNavNews')?.classList.toggle('active', isNewsActive);
-    document.getElementById('appNavMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('appNavReplies')?.classList.toggle('active', activeViewMode === 'replies');
     document.getElementById('appNavMessages')?.classList.toggle('active', activeViewMode === 'messages');
 

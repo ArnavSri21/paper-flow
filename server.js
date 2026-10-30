@@ -370,6 +370,199 @@ function parseJsonArrayFromText(rawText) {
 }
 
 let inFlightNewsPromise = null;
+let inFlightDeepEnrichPromise = null;
+
+function mergeIntoAiTechNewsState(newItems, groundingSources = []) {
+  if (!Array.isArray(newItems) || newItems.length === 0) return;
+  const mergedMap = new Map();
+  for (const item of [...newItems, ...aiTechNewsState.items]) {
+    if (!item || !item.id) continue;
+    const prev = mergedMap.get(item.id);
+    if (!prev || (item.body && (!prev.body || item.body.length >= prev.body.length))) {
+      mergedMap.set(item.id, item);
+    }
+  }
+  aiTechNewsState.items = Array.from(mergedMap.values())
+    .sort((a, b) => (b.publishedAt || b.createdAt || 0) - (a.publishedAt || a.createdAt || 0))
+    .slice(0, 40);
+  aiTechNewsState.lastUpdated = Date.now();
+  if (groundingSources.length > 0) {
+    aiTechNewsState.groundingSources = groundingSources.slice(0, 6);
+  }
+}
+
+function enrichAiTechNewsInBackground(liveSeeds) {
+  if (inFlightDeepEnrichPromise || !Array.isArray(liveSeeds) || liveSeeds.length === 0) {
+    return;
+  }
+
+  inFlightDeepEnrichPromise = (async () => {
+    try {
+      const now = Date.now();
+      const seedByUrl = new Map();
+      liveSeeds.forEach((s) => {
+        seedByUrl.set(String(s.url || '').trim().toLowerCase(), s);
+      });
+
+      const enrichedDetailsMap = new Map();
+      await Promise.allSettled(
+        liveSeeds.slice(0, 26).map(async (s) => {
+          const details = await fetchArticleExcerptAndDiscussion(s);
+          enrichedDetailsMap.set(s.url, details);
+        })
+      );
+
+      // Immediately upgrade existing items with scraped article paragraphs & HN commentary
+      const upgradedSeedItems = [];
+      for (let i = 0; i < liveSeeds.length && upgradedSeedItems.length < 28; i++) {
+        const s = liveSeeds[i];
+        const isAiTopic = /\b(ai|llm|gpt|openai|gemini|anthropic|claude|neural|model|robot|gpu|nvidia|machine learning|deepmind|agent|transformer)\b/i.test(
+          s.title
+        );
+        const pubMs = s.publishedAt || s.createdAt || now - i * 180000;
+        const details = enrichedDetailsMap.get(s.url) || {};
+        const comprehensiveBody = buildComprehensiveSummary(s, details);
+        upgradedSeedItems.push({
+          id: makeDeterministicNewsId(s.title, s.url),
+          title: s.title.slice(0, 118),
+          body: comprehensiveBody,
+          tag: 'news',
+          topic: isAiTopic ? 'AI & Machine Learning' : 'Technology',
+          alias: 'Paper Flow AI News',
+          authorUsername: 'ai_news_desk',
+          isAiNews: true,
+          summarizedByAi: true,
+          aiAttribution: 'Summarized by AI',
+          linkUrl: s.url,
+          linkTitle: `${s.sourceName}: ${s.title}`.slice(0, 98),
+          sourceName: s.sourceName,
+          groundingSources: [],
+          publishedAt: pubMs,
+          createdAt: pubMs,
+          ts: pubMs,
+        });
+      }
+      mergeIntoAiTechNewsState(upgradedSeedItems);
+
+      const ai = getAiClient();
+      if (!ai) return;
+
+      const seedContext =
+        liveSeeds.length > 0
+          ? `\nHere are verified live Tech & AI articles ordered from newest to oldest:\n` +
+            liveSeeds
+              .slice(0, 14)
+              .map((s, i) => {
+                const det = enrichedDetailsMap.get(s.url);
+                const snippet = det?.metaDesc || det?.bodyParagraphs?.[0] || '';
+                return `${i + 1}. "${s.title}" — Source: ${s.sourceName} — Published: ${new Date(
+                  s.publishedAt
+                ).toISOString()} — URL: ${s.url}${snippet ? ` — Excerpt: ${snippet.slice(0, 240)}` : ''}`;
+              })
+              .join('\n')
+          : '';
+
+      const prompt = `Summarize the following latest breaking Technology and Artificial Intelligence (AI) news stories, ordered from newest to oldest.
+${seedContext}
+
+Return ONLY a valid JSON array of up to 14 distinct Tech & AI news items sorted by newest date first.
+IMPORTANT: Make each "summary" a comprehensive, detailed 3-paragraph briefing (800 to 1,500 characters) separated by "\\n\\n" so the reader gets the complete story, technical details, key numbers/features, and industry impact right on our website without needing to leave!
+Each object in the JSON array MUST have these exact fields:
+- "title": Clear, engaging headline (max 110 characters)
+- "summary": Detailed 3-paragraph AI summary (800 to 1,500 characters)
+- "sourceName": Publisher name
+- "sourceUrl": Direct https:// URL to the original news source article
+- "publishedAt": ISO 8601 timestamp string of the article's publication date/time
+- "topic": Either "AI" or "Tech"
+
+Output strictly the raw JSON array and nothing else.`;
+
+      let response;
+      try {
+        response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+        });
+      } catch (primaryErr) {
+        response = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: prompt,
+        });
+      }
+
+      const parsed = parseJsonArrayFromText(response?.text || '');
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const aiItems = parsed
+          .map((item, idx) => {
+            const title = String(item.title || '').trim();
+            const rawSummary = String(item.summary || '').trim();
+            if (!title || !rawSummary) return null;
+
+            let sourceUrl = String(item.sourceUrl || item.url || '').trim();
+            const matchingSeed = seedByUrl.get(sourceUrl.toLowerCase()) || liveSeeds[idx];
+            if (!sourceUrl || !sourceUrl.startsWith('http')) {
+              if (matchingSeed?.url) sourceUrl = matchingSeed.url;
+            }
+            if (!sourceUrl || !sourceUrl.startsWith('http')) return null;
+
+            const exactSeed = seedByUrl.get(sourceUrl.toLowerCase());
+            let pubMs = exactSeed?.publishedAt || 0;
+            if (!pubMs && item.publishedAt) {
+              const parsedDate = Date.parse(String(item.publishedAt));
+              if (!Number.isNaN(parsedDate) && parsedDate > 0 && parsedDate <= Date.now() + 60000) {
+                pubMs = parsedDate;
+              }
+            }
+            if (!pubMs) {
+              pubMs = matchingSeed?.publishedAt || Date.now() - idx * 180000;
+            }
+
+            const sourceName =
+              String(item.sourceName || '').trim() || extractDomainName(sourceUrl);
+            const topic = String(item.topic || 'AI').toUpperCase().includes('AI')
+              ? 'AI & Machine Learning'
+              : 'Technology';
+            const details = enrichedDetailsMap.get(sourceUrl) || {};
+            const fullSummary =
+              rawSummary.length >= 600
+                ? rawSummary.slice(0, 2600)
+                : buildComprehensiveSummary(
+                    exactSeed || { title, url: sourceUrl, sourceName },
+                    details,
+                    rawSummary
+                  );
+
+            return {
+              id: makeDeterministicNewsId(title, sourceUrl),
+              title: title.slice(0, 118),
+              body: fullSummary,
+              tag: 'news',
+              topic,
+              alias: 'Paper Flow AI News',
+              authorUsername: 'ai_news_desk',
+              isAiNews: true,
+              summarizedByAi: true,
+              aiAttribution: 'Summarized by AI',
+              linkUrl: sourceUrl,
+              linkTitle: `${sourceName}: ${title}`.slice(0, 98),
+              sourceName,
+              groundingSources: [],
+              publishedAt: pubMs,
+              createdAt: pubMs,
+              ts: pubMs,
+            };
+          })
+          .filter(Boolean);
+
+        mergeIntoAiTechNewsState(aiItems);
+      }
+    } catch (e) {
+      // Background enrichment is best-effort
+    } finally {
+      inFlightDeepEnrichPromise = null;
+    }
+  })();
+}
 
 async function refreshAiTechNews(force = false) {
   const now = Date.now();
@@ -389,169 +582,17 @@ async function refreshAiTechNews(force = false) {
   inFlightNewsPromise = (async () => {
     try {
       const liveSeeds = await fetchLiveTechArticlesSeed();
-      const seedByUrl = new Map();
-      liveSeeds.forEach((s) => {
-        seedByUrl.set(String(s.url || '').trim().toLowerCase(), s);
-      });
-
-      // Enrich top 26 articles in parallel with actual article paragraphs & technical context
-      const enrichedDetailsMap = new Map();
-      await Promise.allSettled(
-        liveSeeds.slice(0, 26).map(async (s) => {
-          const details = await fetchArticleExcerptAndDiscussion(s);
-          enrichedDetailsMap.set(s.url, details);
-        })
-      );
-
-      const seedContext =
-        liveSeeds.length > 0
-          ? `\nHere are verified live Tech & AI articles ordered from newest to oldest that you should summarize in depth and supplement with Google Search:\n` +
-            liveSeeds
-              .slice(0, 16)
-              .map((s, i) => {
-                const det = enrichedDetailsMap.get(s.url);
-                const snippet = det?.metaDesc || det?.bodyParagraphs?.[0] || '';
-                return `${i + 1}. "${s.title}" — Source: ${s.sourceName} — Published: ${new Date(
-                  s.publishedAt
-                ).toISOString()} — URL: ${s.url}${snippet ? ` — Excerpt: ${snippet.slice(0, 240)}` : ''}`;
-              })
-              .join('\n')
-          : '';
-
-      const ai = getAiClient();
-      let generatedItems = [];
-      let groundingSources = [];
-
-      if (ai) {
-        const prompt = `Use Google Search to find and summarize the latest breaking Technology and Artificial Intelligence (AI) news stories happening today, ordered from newest to oldest.
-${seedContext}
-
-Return ONLY a valid JSON array of 16 distinct, up-to-date Tech & AI news items sorted by newest date first.
-IMPORTANT: Make each "summary" a comprehensive, detailed 3-paragraph briefing (800 to 1,500 characters) separated by "\\n\\n" so the reader gets the complete story, technical details, key numbers/features, and industry impact right on our website without needing to leave!
-Each object in the JSON array MUST have these exact fields:
-- "title": Clear, engaging headline (max 110 characters)
-- "summary": Detailed 3-paragraph AI summary (800 to 1,500 characters) covering: (1) What was announced/reported and key facts, (2) Technical details, architecture, or how it works, and (3) Why it matters for the tech & AI industry
-- "sourceName": Publisher name (e.g. "TechCrunch", "The Verge", "Ars Technica", "OpenAI", "Google AI", "MIT Technology Review", "Wired")
-- "sourceUrl": Direct https:// URL to the original news source article (prefer the verified URLs from the live articles above or direct article URLs from Google Search)
-- "publishedAt": ISO 8601 timestamp string of the article's publication date/time
-- "topic": Either "AI" or "Tech"
-
-Output strictly the raw JSON array and nothing else.`;
-
-        try {
-          let response;
-          try {
-            response = await ai.models.generateContent({
-              model: 'gemini-3.8-flash',
-              contents: prompt,
-            });
-          } catch (primaryErr) {
-            response = await ai.models.generateContent({
-              model: 'gemini-3-flash-preview',
-              contents: prompt,
-            });
-          }
-
-          const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-          groundingSources = chunks
-            .map((c) => c?.web)
-            .filter((w) => w && w.uri)
-            .map((w) => ({
-              uri: w.uri,
-              title: w.title || extractDomainName(w.uri),
-            }));
-
-          const parsed = parseJsonArrayFromText(response.text || '');
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            generatedItems = parsed
-              .map((item, idx) => {
-                const title = String(item.title || '').trim();
-                const rawSummary = String(item.summary || '').trim();
-                if (!title || !rawSummary) return null;
-
-                let sourceUrl = String(item.sourceUrl || item.url || '').trim();
-                const matchingSeed =
-                  seedByUrl.get(sourceUrl.toLowerCase()) || liveSeeds[idx];
-                if (!sourceUrl || !sourceUrl.startsWith('http')) {
-                  if (groundingSources[idx]?.uri) {
-                    sourceUrl = groundingSources[idx].uri;
-                  } else if (matchingSeed?.url) {
-                    sourceUrl = matchingSeed.url;
-                  }
-                }
-
-                if (!sourceUrl || !sourceUrl.startsWith('http')) return null;
-
-                const exactSeed = seedByUrl.get(sourceUrl.toLowerCase());
-                let pubMs = exactSeed?.publishedAt || 0;
-                if (!pubMs && item.publishedAt) {
-                  const parsedDate = Date.parse(String(item.publishedAt));
-                  if (!Number.isNaN(parsedDate) && parsedDate > 0 && parsedDate <= now + 60000) {
-                    pubMs = parsedDate;
-                  }
-                }
-                if (!pubMs) {
-                  pubMs = matchingSeed?.publishedAt || now - idx * 180000;
-                }
-
-                const sourceName =
-                  String(item.sourceName || '').trim() || extractDomainName(sourceUrl);
-                const topic = String(item.topic || 'AI').toUpperCase().includes('AI')
-                  ? 'AI & Machine Learning'
-                  : 'Technology';
-
-                const details = enrichedDetailsMap.get(sourceUrl) || {};
-                const fullSummary =
-                  rawSummary.length >= 600
-                    ? rawSummary.slice(0, 2600)
-                    : buildComprehensiveSummary(
-                        exactSeed || { title, url: sourceUrl, sourceName },
-                        details,
-                        rawSummary
-                      );
-
-                return {
-                  id: makeDeterministicNewsId(title, sourceUrl),
-                  title: title.slice(0, 118),
-                  body: fullSummary,
-                  tag: 'news',
-                  topic,
-                  alias: 'Paper Flow AI News',
-                  authorUsername: 'ai_news_desk',
-                  isAiNews: true,
-                  summarizedByAi: true,
-                  aiAttribution: 'Summarized by AI',
-                  linkUrl: sourceUrl,
-                  linkTitle: `${sourceName}: ${title}`.slice(0, 98),
-                  sourceName,
-                  groundingSources: groundingSources.slice(0, 4),
-                  publishedAt: pubMs,
-                  createdAt: pubMs,
-                  ts: pubMs,
-                };
-              })
-              .filter(Boolean);
-          }
-        } catch (aiErr) {
-          // Silently fall back to enriched multi-paragraph summarization below
-        }
-      }
-
-      // Accommodate up to 26 comprehensive Tech & AI news items in the News section
-      if (generatedItems.length < 26 && liveSeeds.length > 0) {
-        const existingUrls = new Set(generatedItems.map((i) => i.linkUrl));
-        for (let i = 0; i < liveSeeds.length && generatedItems.length < 26; i++) {
+      if (liveSeeds.length > 0) {
+        const fastItems = [];
+        for (let i = 0; i < liveSeeds.length && fastItems.length < 28; i++) {
           const s = liveSeeds[i];
-          if (existingUrls.has(s.url)) continue;
-          existingUrls.add(s.url);
           const isAiTopic = /\b(ai|llm|gpt|openai|gemini|anthropic|claude|neural|model|robot|gpu|nvidia|machine learning|deepmind|agent|transformer)\b/i.test(
             s.title
           );
           const pubMs = s.publishedAt || s.createdAt || now - i * 180000;
-          const details = enrichedDetailsMap.get(s.url) || {};
-          const comprehensiveBody = buildComprehensiveSummary(s, details);
+          const comprehensiveBody = buildComprehensiveSummary(s, {});
 
-          generatedItems.push({
+          fastItems.push({
             id: makeDeterministicNewsId(s.title, s.url),
             title: s.title.slice(0, 118),
             body: comprehensiveBody,
@@ -565,29 +606,16 @@ Output strictly the raw JSON array and nothing else.`;
             linkUrl: s.url,
             linkTitle: `${s.sourceName}: ${s.title}`.slice(0, 98),
             sourceName: s.sourceName,
-            groundingSources: groundingSources.slice(0, 4),
+            groundingSources: [],
             publishedAt: pubMs,
             createdAt: pubMs,
             ts: pubMs,
           });
         }
-      }
 
-      if (generatedItems.length > 0) {
-        const mergedMap = new Map();
-        for (const item of [...generatedItems, ...aiTechNewsState.items]) {
-          // Prefer newly enriched longer summary if item already existed
-          const prev = mergedMap.get(item.id);
-          if (!prev || (item.body && (!prev.body || item.body.length >= prev.body.length))) {
-            mergedMap.set(item.id, item);
-          }
-        }
-        // Strictly sort all news items by date (newest first) and keep up to 40 items
-        aiTechNewsState.items = Array.from(mergedMap.values())
-          .sort((a, b) => (b.publishedAt || b.createdAt || 0) - (a.publishedAt || a.createdAt || 0))
-          .slice(0, 40);
-        aiTechNewsState.lastUpdated = Date.now();
-        aiTechNewsState.groundingSources = groundingSources.slice(0, 6);
+        mergeIntoAiTechNewsState(fastItems);
+        // Trigger deep paragraph & Gemini enrichment asynchronously without blocking the response
+        enrichAiTechNewsInBackground(liveSeeds);
       }
     } catch (err) {
       console.error('AI Tech News refresh error:', err?.message || err);

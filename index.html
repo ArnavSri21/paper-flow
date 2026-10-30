@@ -1616,6 +1616,231 @@
     font-weight: 500;
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
   }
+  .ai-summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #0f5132 0%, #198754 100%);
+    color: #e8fdf0;
+    border: 1px solid #25a267;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    box-shadow: 0 1px 6px rgba(25, 135, 84, 0.25);
+    white-space: nowrap;
+  }
+  body.dark-mode .ai-summary-badge {
+    background: linear-gradient(135deg, #0a3622 0%, #146c43 100%);
+    border-color: #2fb375;
+    color: #d1f7e0;
+  }
+  .card.card-ai-news {
+    border-left: 4px solid #198754;
+  }
+  .ai-summary-box {
+    background: var(--surface-subtle);
+    border: 1px dashed var(--card-border);
+    border-left: 3px solid #198754;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.25rem;
+  }
+  .ai-summary-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #198754;
+    margin-bottom: 0.35rem;
+  }
+  body.dark-mode .ai-summary-box-header {
+    color: #4ade80;
+  }
+  .ai-news-column-header {
+    background: var(--card-bg);
+    border: 1.5px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    border-radius: 14px;
+    padding: 0.9rem 1.15rem;
+    margin-bottom: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+  body.dark-mode .ai-news-column-header {
+    border-color: var(--card-border);
+    box-shadow: 4px 4px 0 #000;
+  }
+  .ai-news-column-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+  .ai-news-column-title {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+  .ai-news-column-sub {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+  }
+  .ai-news-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  /* 1-CLICK QUICK ACCESS SWITCHER BAR (ALL FLOWS vs TECH & AI NEWS) */
+  .quick-column-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+    padding: 0.35rem;
+    background: var(--surface-subtle);
+    border: 1.5px solid var(--card-border);
+    border-radius: 999px;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .quick-switch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.44rem 0.95rem;
+    border-radius: 999px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.22s ease;
+  }
+  .quick-switch-btn:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+  .quick-switch-btn.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    box-shadow: 0 2px 8px rgba(26, 18, 9, 0.18);
+  }
+  .quick-switch-btn.news-switch.active {
+    background: linear-gradient(135deg, #0f5132 0%, #198754 100%);
+    color: #ffffff;
+    border-color: #198754;
+    box-shadow: 0 2px 10px rgba(25, 135, 84, 0.32);
+  }
+  .quick-switch-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(128, 128, 128, 0.18);
+    color: inherit;
+  }
+  .quick-switch-btn.active .quick-switch-count {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+  }
+  body.dark-mode .quick-switch-btn.active:not(.news-switch) .quick-switch-count {
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--bg);
+  }
+  .banner-news-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: linear-gradient(135deg, #0f5132 0%, #198754 100%);
+    color: #e8fdf0;
+    border: 1px solid #2fb375;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 2px 9px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .banner-news-shortcut:hover {
+    filter: brightness(1.1);
+  }
+  /* DATE GROUP DIVIDER IN NEWS COLUMN */
+  .news-date-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 1.1rem 0 0.65rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .news-date-group-header:first-child {
+    margin-top: 0.2rem;
+  }
+  .news-date-group-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--surface-subtle);
+    border: 1px solid var(--card-border);
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .news-date-group-line {
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+  .news-card-date-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--ink);
+    background: var(--surface-subtle);
+    border: 1px solid var(--card-border);
+    padding: 1px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
 
   .card-title { font-family: var(--serif); font-size: 1.22rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.5rem; }
   .card-body { font-size: 0.92rem; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
@@ -3635,6 +3860,10 @@
         <span id="statusText">Connecting to Firebase…</span>
       </span>
     </div>
+    <button type="button" class="banner-news-shortcut" id="topBannerNewsBtn" onclick="openNewsColumn()" title="Open AI-Summarized Tech & AI News Column">
+      <span>📰 Tech &amp; AI News</span>
+      <span>→</span>
+    </button>
     <div id="bannerUserStatus" style="opacity: 0.85;"></div>
   </div>
 
@@ -3653,9 +3882,15 @@
   <div class="side-panel-body">
     <div class="side-nav-group">
       <!-- ALL FLOWS BOARD -->
-      <button type="button" class="btn-side-option active" id="sideBtnBoard" onclick="switchViewMode('board')">
+      <button type="button" class="btn-side-option active" id="sideBtnBoard" onclick="switchViewMode('board', 'all')">
         <span>📋 All Flows</span>
         <span class="side-option-badge" id="sideCountAll">0</span>
+      </button>
+
+      <!-- TECH & AI NEWS COLUMN (AI-SUMMARIZED, EXCLUSIVE TO NEWS COLUMN) -->
+      <button type="button" class="btn-side-option" id="sideBtnNews" onclick="openNewsColumn()">
+        <span>📰 Tech &amp; AI News</span>
+        <span class="side-option-badge" id="sideCountNews">0</span>
       </button>
 
       <!-- MY FLOWS OPTION -->
@@ -3817,7 +4052,29 @@
   <!-- ACTIVE VIEW BANNER FOR MY FLOWS / REPLIES PAGE -->
   <div class="view-mode-banner" id="viewModeBanner">
     <span id="viewModeBannerText">Viewing My Flows</span>
-    <button type="button" class="btn-back-board" onclick="switchViewMode('board')">← Back to All Flows</button>
+    <button type="button" class="btn-back-board" onclick="switchViewMode('board', 'all')">← Back to All Flows</button>
+  </div>
+
+  <!-- 1-CLICK QUICK COLUMN SWITCHER: ALL FLOWS vs TECH & AI NEWS -->
+  <div class="quick-column-switcher" id="quickColumnSwitcher" role="tablist" aria-label="Switch between All Flows and Tech & AI News">
+    <button
+      type="button"
+      class="quick-switch-btn active"
+      id="quickSwitchAll"
+      onclick="switchViewMode('board', 'all')"
+    >
+      <span>📋 All Flows</span>
+      <span class="quick-switch-count" id="quickSwitchCountAll">0</span>
+    </button>
+    <button
+      type="button"
+      class="quick-switch-btn news-switch"
+      id="quickSwitchNews"
+      onclick="openNewsColumn()"
+    >
+      <span>📰 Tech &amp; AI News</span>
+      <span class="quick-switch-count" id="quickSwitchCountNews">0</span>
+    </button>
   </div>
 
   <div class="feed-header">
@@ -4052,9 +4309,13 @@
 
 <!-- NATIVE APP BOTTOM NAVIGATION DOCK -->
 <nav class="app-bottom-nav" id="appBottomNav" aria-label="App Navigation">
-  <button type="button" class="app-nav-item active" id="appNavBoard" onclick="switchViewMode('board')">
+  <button type="button" class="app-nav-item active" id="appNavBoard" onclick="switchViewMode('board', 'all')">
     <span class="app-nav-icon">📋</span>
     <span>Board</span>
+  </button>
+  <button type="button" class="app-nav-item" id="appNavNews" onclick="openNewsColumn()">
+    <span class="app-nav-icon">📰</span>
+    <span>News</span>
   </button>
   <button type="button" class="app-nav-item" id="appNavMyFlows" onclick="switchViewMode('my-flows')">
     <span class="app-nav-icon">✍</span>
@@ -4125,6 +4386,12 @@
   let openCardMoreMenuId = null;
   let activeFilter = 'all';
   let activeViewMode = 'board'; // 'board' | 'my-flows' | 'starred' | 'replies' | 'messages' | 'reports'
+  let aiTechNewsItems = [];
+  let firestoreAiNewsMap = {};
+  let aiNewsLastUpdated = 0;
+  let isRefreshingAiNews = false;
+  let newsDateSortOrder = 'newest'; // 'newest' | 'oldest'
+  const AI_NEWS_CACHE_KEY = 'paperflow_ai_tech_news_cache_v3';
   let searchQuery = '';
   let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
@@ -4618,7 +4885,7 @@
   });
 
   // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES / PAPER MESSAGES / REPORTS) ──
-  window.switchViewMode = function (mode) {
+  window.switchViewMode = function (mode, filterOverride) {
     if ((mode === 'my-flows' || mode === 'replies' || mode === 'messages') && !currentUser) {
       toggleSidePanel(false);
       showToast(mode === 'messages'
@@ -4633,6 +4900,11 @@
       return;
     }
     activeViewMode = mode;
+    if (filterOverride) {
+      activeFilter = filterOverride;
+    } else if (mode === 'board' && activeFilter === 'news') {
+      activeFilter = 'all';
+    }
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
     document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
@@ -4641,6 +4913,18 @@
     if (mode !== 'messages') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  window.openNewsColumn = function () {
+    activeViewMode = 'board';
+    activeFilter = 'news';
+    isPmChatMenuOpen = false;
+    openCardMoreMenuId = null;
+    document.body.classList.remove('pm-fullscreen-open');
+    toggleSidePanel(false);
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    fetchAndSyncAiTechNews(false);
   };
 
   window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
@@ -4949,6 +5233,7 @@
       const nextReports = {};
       const nextMsgRequests = {};
       const nextPaperMessages = {};
+      const nextAiNews = {};
 
       function registerUserInDirectory(uLowerRaw, displayRaw, avatarRaw, bioRaw) {
         const uLower = String(uLowerRaw || '').trim().toLowerCase();
@@ -5129,7 +5414,24 @@
           return;
         }
 
-        // 9. Standard Flow Post
+        // 9. AI-Summarized Tech & AI News Record (Shown ONLY in the News Column, NEVER in All Flows)
+        if (id.startsWith('__ainews__') || data.docType === 'ai_news' || data.isAiNews) {
+          const pubMs = Number(data.publishedAt || data.createdAt) || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now());
+          nextAiNews[id] = {
+            id,
+            ...data,
+            tag: 'news',
+            isAiNews: true,
+            summarizedByAi: true,
+            docType: 'ai_news',
+            publishedAt: pubMs,
+            createdAt: pubMs,
+            ts: pubMs
+          };
+          return;
+        }
+
+        // 10. Standard Flow Post
         nextPosts.push({ id, ...data });
         if (data.authorUsername) {
           registerUserInDirectory(data.authorUsername, data.alias || data.authorUsername, data.authorAvatar, data.authorBio);
@@ -5265,6 +5567,7 @@
       });
 
       allPosts = survivingPosts;
+      firestoreAiNewsMap = nextAiNews;
       likesByPost = nextLikes;
       starsByPost = nextStars;
       commentsByPost = nextComments;
@@ -5286,7 +5589,8 @@
         saveLocalStarredSet();
       }
 
-      setStatus('live', `Live — ${allPosts.length} flow${allPosts.length !== 1 ? 's' : ''} on the board`);
+      const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
+      setStatus('live', `Live — ${boardFlowsCount} flow${boardFlowsCount !== 1 ? 's' : ''} on the board`);
       renderAll();
     },
     (err) => {
@@ -6028,9 +6332,19 @@
     return isPostAuthoredByUser(post, currentUser);
   }
 
+  function findPostAnywhere(id) {
+    if (!id) return null;
+    return (
+      allPosts.find(p => p.id === id) ||
+      aiTechNewsItems.find(p => p.id === id) ||
+      firestoreAiNewsMap[id] ||
+      null
+    );
+  }
+
   // ── DELETE FLOW ─────────────────────────────────────────────────────────────
   window.deletePost = async function (id) {
-    const post = allPosts.find(p => p.id === id);
+    const post = findPostAnywhere(id);
     if (!post || !canCurrentUserDeletePost(post)) {
       showToast('Only the author or @Marvelist can delete this flow.');
       return;
@@ -6083,24 +6397,35 @@
       return;
     }
 
-    const post = allPosts.find(p => p.id === postId);
+    const post = findPostAnywhere(postId);
     if (!post) return;
 
     const actorKey = getCurrentActorKey();
     const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
     const likeDocId = `__like__${postId}__${safeActorId}`;
-    const existingLikeDoc = (likesByPost[postId] || []).find(
+    const existingList = likesByPost[postId] ? [...likesByPost[postId]] : [];
+    const existingLikeDoc = existingList.find(
       l => l.actorKey === actorKey || l.docId === likeDocId
     );
+    const willBeLiked = !existingLikeDoc;
 
-    // Optimistic in-place fluid bubble update for the Like button
+    // Optimistic in-memory update so any subsequent render reflects the change immediately without flicker
+    if (willBeLiked) {
+      likesByPost[postId] = [
+        ...existingList,
+        { docId: likeDocId, actorKey, alias: currentUser.username.slice(0, 30) }
+      ];
+    } else {
+      likesByPost[postId] = existingList.filter(
+        l => l.actorKey !== actorKey && l.docId !== likeDocId
+      );
+    }
+
+    // Seamless in-place update for the Like button & stats (no feed wipe/re-render)
     const likeBtn = document.getElementById(`like-btn-${postId}`);
     if (likeBtn) {
-      const currentLikes = getPostLikesList(post);
-      const willBeLiked = !existingLikeDoc;
-      const nextCount = willBeLiked
-        ? currentLikes.length + (currentLikes.includes(actorKey) ? 0 : 1)
-        : Math.max(0, currentLikes.length - 1);
+      const updatedLikes = getPostLikesList(post);
+      const nextCount = updatedLikes.length;
 
       likeBtn.classList.toggle('liked', willBeLiked);
       likeBtn.classList.remove('like-burst-anim');
@@ -6111,6 +6436,7 @@
         <span>${nextCount > 0 ? nextCount : 'Like'}</span>
       `;
     }
+    renderStats();
 
     try {
       if (existingLikeDoc) {
@@ -6129,6 +6455,10 @@
       }
     } catch (e) {
       console.error(e);
+      // Revert optimistic state if write failed
+      likesByPost[postId] = existingList;
+      updateCardInteractionsInPlace(post);
+      renderStats();
       showToast('Could not update like.');
     }
   };
@@ -6238,7 +6568,7 @@
       return;
     }
 
-    const post = allPosts.find(p => p.id === postId);
+    const post = findPostAnywhere(postId);
     if (!post) return;
 
     inp.disabled = true;
@@ -6275,7 +6605,7 @@
       showToast('Only @Marvelist (Developer) can remove replies.');
       return;
     }
-    const post = allPosts.find(p => p.id === postId);
+    const post = findPostAnywhere(postId);
     if (!post) return;
 
     const list = commentsByPost[postId] || [];
@@ -6316,7 +6646,13 @@
   }
 
   function getStarredPosts() {
-    return allPosts.filter(p => isPostStarredByCurrentUser(p.id));
+    const combined = [...allPosts, ...getCombinedNewsColumnPosts()];
+    const seen = new Set();
+    return combined.filter(p => {
+      if (!p || !p.id || seen.has(p.id)) return false;
+      seen.add(p.id);
+      return isPostStarredByCurrentUser(p.id);
+    });
   }
 
   function getRepliesToMyPosts() {
@@ -7358,8 +7694,228 @@
       .sort((a, b) => b.reports.length - a.reports.length || b.latestAt - a.latestAt);
   }
 
+  // ── AI-SUMMARIZED TECH & AI NEWS ENGINE (EXCLUSIVE TO NEWS COLUMN, SORTED BY DATE) ──
+  function getPostTimestampMs(post) {
+    if (!post) return 0;
+    if (typeof post.publishedAt === 'number' && post.publishedAt > 0) return post.publishedAt;
+    if (typeof post.createdAt === 'number' && post.createdAt > 0) return post.createdAt;
+    if (post.ts && typeof post.ts.toDate === 'function') return post.ts.toDate().getTime();
+    if (typeof post.ts === 'number' && post.ts > 0) return post.ts;
+    if (typeof post.publishedAt === 'string') {
+      const parsed = Date.parse(post.publishedAt);
+      if (!Number.isNaN(parsed)) return parsed;
+    }
+    return 0;
+  }
+
+  function formatNewsFullDate(ms) {
+    if (!ms || Number.isNaN(Number(ms))) return '';
+    const d = new Date(Number(ms));
+    if (isNaN(d.getTime())) return '';
+    const datePart = d.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const timePart = d.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    return `${datePart} · ${timePart}`;
+  }
+
+  function formatNewsDateGroupLabel(ms) {
+    if (!ms || Number.isNaN(Number(ms))) return 'Latest News';
+    const d = new Date(Number(ms));
+    if (isNaN(d.getTime())) return 'Latest News';
+    const now = new Date();
+    const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    const yest = new Date(now.getTime() - 86400000);
+    const yestKey = `${yest.getFullYear()}-${yest.getMonth()}-${yest.getDate()}`;
+    const itemKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+    const fullStr = d.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    if (itemKey === todayKey) return `Today — ${fullStr}`;
+    if (itemKey === yestKey) return `Yesterday — ${fullStr}`;
+    return fullStr;
+  }
+
+  window.toggleNewsDateSort = function () {
+    newsDateSortOrder = newsDateSortOrder === 'newest' ? 'oldest' : 'newest';
+    renderFeed();
+  };
+
+  function loadCachedAiTechNews() {
+    try {
+      const raw = localStorage.getItem(AI_NEWS_CACHE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.items)) {
+        aiTechNewsItems = parsed.items;
+        aiNewsLastUpdated = parsed.updatedAt || 0;
+      }
+    } catch (e) {}
+  }
+  loadCachedAiTechNews();
+
+  function getCombinedNewsColumnPosts() {
+    const mapById = new Map();
+    const seenUrls = new Set();
+    const minRecentThreshold = Date.now() - 30 * 24 * 60 * 60 * 1000; // last 30 days for AI news
+
+    // 1. Live API AI-Summarized Tech & AI News items
+    (aiTechNewsItems || []).forEach(item => {
+      if (!item || !item.id) return;
+      const pubMs = getPostTimestampMs(item) || Date.now();
+      const normUrl = String(item.linkUrl || '').trim().toLowerCase();
+      if (normUrl) seenUrls.add(normUrl);
+      mapById.set(item.id, {
+        ...item,
+        tag: 'news',
+        isAiNews: true,
+        summarizedByAi: true,
+        docType: 'ai_news',
+        publishedAt: pubMs,
+        createdAt: pubMs,
+        ts: pubMs
+      });
+    });
+
+    // 2. Firestore-synced AI News items (shared across web & Android APK)
+    Object.values(firestoreAiNewsMap || {}).forEach(item => {
+      if (!item || !item.id) return;
+      const pubMs = getPostTimestampMs(item) || Date.now();
+      if (pubMs < minRecentThreshold) return;
+      const normUrl = String(item.linkUrl || '').trim().toLowerCase();
+      if (mapById.has(item.id) || (normUrl && seenUrls.has(normUrl))) return;
+      if (normUrl) seenUrls.add(normUrl);
+      mapById.set(item.id, {
+        ...item,
+        tag: 'news',
+        isAiNews: true,
+        summarizedByAi: true,
+        docType: 'ai_news',
+        publishedAt: pubMs,
+        createdAt: pubMs,
+        ts: pubMs
+      });
+    });
+
+    // 3. Community-posted flows in the 'news' category (also shown ONLY in the News column)
+    (allPosts || []).forEach(post => {
+      if (getEffectivePostCategory(post) === 'news') {
+        if (!mapById.has(post.id)) {
+          mapById.set(post.id, post);
+        }
+      }
+    });
+
+    // Strictly sort according to date
+    return Array.from(mapById.values()).sort((a, b) => {
+      const aTime = getPostTimestampMs(a);
+      const bTime = getPostTimestampMs(b);
+      return newsDateSortOrder === 'oldest' ? (aTime - bTime) : (bTime - aTime);
+    });
+  }
+
+  window.fetchAndSyncAiTechNews = async function (forceRefresh = false) {
+    if (isRefreshingAiNews) return;
+    isRefreshingAiNews = true;
+    const refreshBtn = document.getElementById('btnRefreshAiNews');
+    if (refreshBtn) {
+      refreshBtn.textContent = '↻ Summarizing Latest News…';
+      refreshBtn.style.opacity = '0.75';
+      refreshBtn.disabled = true;
+    }
+
+    try {
+      const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
+      const endpoint = `${baseOrigin}/api/ai-tech-news${forceRefresh ? '?refresh=1' : ''}`;
+      const res = await fetch(endpoint, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
+          aiTechNewsItems = data.items
+            .map(item => {
+              const pubMs = Number(item.publishedAt || item.createdAt || item.ts) || Date.now();
+              return {
+                ...item,
+                tag: 'news',
+                isAiNews: true,
+                summarizedByAi: true,
+                docType: 'ai_news',
+                publishedAt: pubMs,
+                createdAt: pubMs,
+                ts: pubMs
+              };
+            })
+            .sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+
+          aiNewsLastUpdated = data.updatedAt || data.lastUpdated || Date.now();
+          try {
+            localStorage.setItem(AI_NEWS_CACHE_KEY, JSON.stringify({
+              updatedAt: aiNewsLastUpdated,
+              items: aiTechNewsItems
+            }));
+          } catch (e) {}
+
+          // Sync AI news items into Firestore as __ainews__* documents with accurate publishedAt timestamps and comprehensive summaries
+          aiTechNewsItems.slice(0, 20).forEach(item => {
+            if (!item.id || !String(item.id).startsWith('__ainews__')) return;
+            const pubMs = getPostTimestampMs(item) || Date.now();
+            const cleanBody = (item.body || '').slice(0, 2600);
+            const existing = firestoreAiNewsMap[item.id];
+            if (!existing || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
+              setDoc(doc(db, "posts", item.id), {
+                title: (item.title || 'Tech & AI Update').slice(0, 118),
+                body: cleanBody,
+                tag: 'news',
+                alias: (item.alias || 'Paper Flow AI News').slice(0, 30),
+                ts: serverTimestamp(),
+                docType: 'ai_news',
+                isAiNews: true,
+                summarizedByAi: true,
+                aiAttribution: 'Summarized by AI',
+                sourceName: (item.sourceName || 'Tech Source').slice(0, 60),
+                linkUrl: (item.linkUrl || '').slice(0, 500),
+                linkTitle: (item.linkTitle || item.title || 'Original Source').slice(0, 98),
+                publishedAt: pubMs,
+                createdAt: pubMs
+              }).catch(() => {});
+            }
+          });
+
+          if (forceRefresh) {
+            showToast('✨ Updated with the latest AI-summarized Tech & AI news!');
+          }
+          renderAll();
+        }
+      }
+    } catch (err) {
+      if (forceRefresh) {
+        showToast('Showing cached AI-summarized Tech & AI news.');
+      }
+    } finally {
+      isRefreshingAiNews = false;
+      const btnAfter = document.getElementById('btnRefreshAiNews');
+      if (btnAfter) {
+        btnAfter.textContent = '↻ Refresh Latest News';
+        btnAfter.style.opacity = '';
+        btnAfter.disabled = false;
+      }
+    }
+  };
+
   function renderSidePanelCounts() {
     const countAllEl = document.getElementById('sideCountAll');
+    const countNewsEl = document.getElementById('sideCountNews');
+    const quickCountAllEl = document.getElementById('quickSwitchCountAll');
+    const quickCountNewsEl = document.getElementById('quickSwitchCountNews');
     const countMyEl = document.getElementById('sideCountMyFlows');
     const countStarEl = document.getElementById('sideCountStarred');
     const countRepEl = document.getElementById('sideCountReplies');
@@ -7371,8 +7927,15 @@
     const repliesCount = currentUser ? getRepliesToMyPosts().length : 0;
     const pendingIn = getIncomingPendingRequestsForMe().length;
     const totalChats = getMyConversationPeers().length;
+    const nonNewsFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
+    const newsColumnCount = getCombinedNewsColumnPosts().length;
+    const isNewsActive = activeViewMode === 'board' && activeFilter === 'news';
+    const isBoardAllActive = activeViewMode === 'board' && activeFilter !== 'news';
 
-    if (countAllEl) countAllEl.textContent = allPosts.length;
+    if (countAllEl) countAllEl.textContent = nonNewsFlowsCount;
+    if (countNewsEl) countNewsEl.textContent = newsColumnCount;
+    if (quickCountAllEl) quickCountAllEl.textContent = nonNewsFlowsCount;
+    if (quickCountNewsEl) quickCountNewsEl.textContent = newsColumnCount;
     if (countMyEl) countMyEl.textContent = currentUser ? getMyPosts().length : 0;
     if (countStarEl) countStarEl.textContent = getStarredPosts().length;
     if (countRepEl) countRepEl.textContent = repliesCount;
@@ -7386,7 +7949,22 @@
       countReportsEl.textContent = getReportedPostGroups().length;
     }
 
-    document.getElementById('sideBtnBoard')?.classList.toggle('active', activeViewMode === 'board');
+    document.getElementById('sideBtnBoard')?.classList.toggle('active', isBoardAllActive);
+    document.getElementById('sideBtnNews')?.classList.toggle('active', isNewsActive);
+    document.getElementById('quickSwitchAll')?.classList.toggle('active', isBoardAllActive);
+    document.getElementById('quickSwitchNews')?.classList.toggle('active', isNewsActive);
+
+    const topBannerBtn = document.getElementById('topBannerNewsBtn');
+    if (topBannerBtn) {
+      if (isNewsActive) {
+        topBannerBtn.innerHTML = `<span>📋 Back to All Flows</span><span>→</span>`;
+        topBannerBtn.onclick = () => switchViewMode('board', 'all');
+      } else {
+        topBannerBtn.innerHTML = `<span>📰 Tech &amp; AI News (${newsColumnCount})</span><span>→</span>`;
+        topBannerBtn.onclick = () => openNewsColumn();
+      }
+    }
+
     document.getElementById('sideBtnMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('sideBtnStarred')?.classList.toggle('active', activeViewMode === 'starred');
     document.getElementById('sideBtnReplies')?.classList.toggle('active', activeViewMode === 'replies');
@@ -7394,7 +7972,8 @@
     sideBtnReports?.classList.toggle('active', activeViewMode === 'reports');
 
     // Sync Native App Bottom Navigation Dock
-    document.getElementById('appNavBoard')?.classList.toggle('active', activeViewMode === 'board' || activeViewMode === 'starred' || activeViewMode === 'reports');
+    document.getElementById('appNavBoard')?.classList.toggle('active', (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'starred' || activeViewMode === 'reports');
+    document.getElementById('appNavNews')?.classList.toggle('active', isNewsActive);
     document.getElementById('appNavMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('appNavReplies')?.classList.toggle('active', activeViewMode === 'replies');
     document.getElementById('appNavMessages')?.classList.toggle('active', activeViewMode === 'messages');
@@ -7414,10 +7993,16 @@
 
   function renderFilters() {
     const tagCounts = {};
+    let nonNewsAllCount = 0;
     allPosts.forEach(p => {
       const cat = getEffectivePostCategory(p);
-      tagCounts[cat] = (tagCounts[cat] || 0) + 1;
+      if (cat !== 'news' && !p.isAiNews && p.docType !== 'ai_news') {
+        nonNewsAllCount++;
+        tagCounts[cat] = (tagCounts[cat] || 0) + 1;
+      }
     });
+    tagCounts['news'] = getCombinedNewsColumnPosts().length;
+
     const categories = ['all','confession','story','opinion','news','question','other'];
     const fg = document.getElementById('filterGroup');
     const labelEl = document.getElementById('filterDropdownLabel');
@@ -7426,7 +8011,7 @@
     }
     fg.innerHTML = '';
     categories.forEach(cat => {
-      const count = cat === 'all' ? allPosts.length : (tagCounts[cat] || 0);
+      const count = cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0);
       const btn = document.createElement('button');
       btn.className = 'filter-btn' + (activeFilter === cat ? ' active' : '');
       btn.innerHTML = `
@@ -7439,6 +8024,9 @@
       btn.onclick = () => {
         activeFilter = cat;
         fg.classList.remove('open');
+        if (cat === 'news') {
+          fetchAndSyncAiTechNews(false);
+        }
         renderAll();
       };
       fg.appendChild(btn);
@@ -7472,6 +8060,8 @@
     const searchBubble = document.getElementById('floatingSearchBubble');
     const qLower = searchQuery.toLowerCase();
 
+    const quickSwitcher = document.getElementById('quickColumnSwitcher');
+
     // MODE 5: PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER — CONSTANT FULL PAGE)
     if (activeViewMode === 'messages') {
       document.body.classList.add('pm-fullscreen-open');
@@ -7480,6 +8070,7 @@
       if (pmShell) pmShell.classList.add('active');
       if (filterWrap) filterWrap.style.display = 'none';
       if (searchBubble) searchBubble.style.display = 'none';
+      if (quickSwitcher) quickSwitcher.style.display = 'none';
       renderPaperMessagesUI();
       return;
     }
@@ -7489,6 +8080,9 @@
     if (feed) feed.style.display = 'block';
     if (pmShell) pmShell.classList.remove('active');
     if (searchBubble) searchBubble.style.display = 'inline-flex';
+    if (quickSwitcher) {
+      quickSwitcher.style.display = (activeViewMode === 'board') ? 'flex' : 'none';
+    }
 
     // MODE 6: DEVELOPER REPORTS MODERATION SECTION (MARVELIST ONLY)
     if (activeViewMode === 'reports') {
@@ -7611,7 +8205,7 @@
       return;
     }
 
-    // MODE 1, 2 & 4: BOARD, MY FLOWS, OR STARRED FLOWS
+    // MODE 1, 2 & 4: BOARD, NEWS COLUMN, MY FLOWS, OR STARRED FLOWS
     if (filterWrap) filterWrap.style.display = 'block';
 
     let baseList = allPosts;
@@ -7629,51 +8223,141 @@
         viewBannerText.innerHTML = `★ Showing your starred flows`;
       }
       baseList = getStarredPosts();
+    } else if (activeFilter === 'news') {
+      if (sectionTitle) sectionTitle.textContent = 'Tech & AI News';
+      if (viewBanner) viewBanner.classList.remove('show');
+      baseList = getCombinedNewsColumnPosts();
     } else {
       if (sectionTitle) sectionTitle.textContent = 'The Board';
       if (viewBanner) viewBanner.classList.remove('show');
     }
 
-    // Filter by category dropdown
-    let filtered = activeFilter === 'all'
-      ? [...baseList]
-      : baseList.filter(p => getEffectivePostCategory(p) === activeFilter);
+    // Filter by category dropdown:
+    // CRITICAL REQUIREMENT: News is shown ONLY in the News column (activeFilter === 'news')
+    // and NEVER in the All Flows board (activeFilter === 'all').
+    let filtered;
+    if (activeFilter === 'news') {
+      filtered = activeViewMode === 'board'
+        ? [...baseList]
+        : baseList.filter(p => getEffectivePostCategory(p) === 'news' || p.isAiNews);
+    } else if (activeFilter === 'all') {
+      filtered = baseList.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news');
+    } else {
+      filtered = baseList.filter(p => getEffectivePostCategory(p) === activeFilter && !p.isAiNews);
+    }
 
     // Filter by search bar (title, body, or username)
     if (qLower) {
       filtered = filtered.filter(p => matchesSearchQuery(p, qLower));
     }
 
-    // Requirement 4: Pinned flows always remain at the top for everyone
+    // Sort items:
+    // In the News column, sort strictly according to date (Newest First or Oldest First).
+    // On other views, pinned flows remain at the top followed by newest date.
     filtered.sort((a, b) => {
-      const aPinned = isPostPinned(a.id);
-      const bPinned = isPostPinned(b.id);
-      if (aPinned && !bPinned) return -1;
-      if (!aPinned && bPinned) return 1;
-      if (aPinned && bPinned) {
-        return (pinnedPostsMap[b.id]?.pinnedAt || 0) - (pinnedPostsMap[a.id]?.pinnedAt || 0);
+      if (activeFilter !== 'news') {
+        const aPinned = isPostPinned(a.id);
+        const bPinned = isPostPinned(b.id);
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        if (aPinned && bPinned) {
+          return (pinnedPostsMap[b.id]?.pinnedAt || 0) - (pinnedPostsMap[a.id]?.pinnedAt || 0);
+        }
       }
-      const aTime = a.ts?.toDate ? a.ts.toDate().getTime() : 0;
-      const bTime = b.ts?.toDate ? b.ts.toDate().getTime() : 0;
+      const aTime = getPostTimestampMs(a);
+      const bTime = getPostTimestampMs(b);
+      if (activeFilter === 'news' && newsDateSortOrder === 'oldest') {
+        return aTime - bTime;
+      }
       return bTime - aTime;
     });
 
-    feedCount.textContent = `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
+    feedCount.textContent = activeFilter === 'news'
+      ? `${filtered.length} news brief${filtered.length !== 1 ? 's' : ''} · sorted by date (${newsDateSortOrder === 'oldest' ? 'oldest first' : 'newest first'})`
+      : `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
-    if (filtered.length === 0) {
-      const emptyMsg = qLower
-        ? `No flows matching "${esc(searchQuery)}".`
-        : (activeViewMode === 'my-flows'
-            ? 'You have not posted any flows yet. Click + to publish one!'
-            : (activeViewMode === 'starred'
-                ? 'You have not starred any flows yet. Click ☆ at the top of any flow to save it here!'
-                : 'No flows here yet. Click + to share a thought!'));
-      feed.innerHTML = `<div class="empty-state"><span class="empty-icon">${activeViewMode === 'starred' ? '⭐' : '📋'}</span><p>${emptyMsg}</p></div>`;
+    const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
+      filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
+
+    // Seamless in-place update when only likes, stars, or comments changed (prevents whole page flash/re-animation)
+    if (
+      feed.dataset.feedSignature === nextFeedSignature &&
+      feed.querySelectorAll('.card').length === filtered.length &&
+      filtered.length > 0
+    ) {
+      const updatedTimeEl = document.getElementById('aiNewsUpdatedTimeLabel');
+      if (updatedTimeEl && aiNewsLastUpdated) {
+        updatedTimeEl.textContent = formatTime(new Date(aiNewsLastUpdated));
+      }
+      filtered.forEach(post => updateCardInteractionsInPlace(post));
       return;
     }
 
+    feed.dataset.feedSignature = nextFeedSignature;
     feed.innerHTML = '';
+
+    // When viewing the News column, render the dedicated AI-Summarized Tech & AI News header banner
+    if (activeFilter === 'news' && activeViewMode === 'board') {
+      const updatedTimeStr = aiNewsLastUpdated ? formatTime(new Date(aiNewsLastUpdated)) : 'just now';
+      const newsHeader = document.createElement('div');
+      newsHeader.className = 'ai-news-column-header';
+      newsHeader.innerHTML = `
+        <div class="ai-news-column-left">
+          <div class="ai-news-column-title">
+            <img src="/pwa-192x192.png" alt="Paper Flow" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--card-border);vertical-align:middle;object-fit:cover;" onerror="this.onerror=null;this.src='/icon.svg';" />
+            <span>Paper Flow AI News Desk</span>
+            <span class="ai-summary-badge">✨ Summarized by AI</span>
+          </div>
+          <div class="ai-news-column-sub">
+            In-depth AI &amp; Tech briefings (${filtered.length} stories) · Sorted chronologically by date with original source links (Updated <span id="aiNewsUpdatedTimeLabel">${esc(updatedTimeStr)}</span>)
+          </div>
+        </div>
+        <div class="ai-news-header-actions">
+          <button type="button" class="btn-small" onclick="toggleNewsDateSort()" title="Toggle Date Sort Order">
+            📅 Date: ${newsDateSortOrder === 'oldest' ? 'Oldest First ↑' : 'Newest First ↓'}
+          </button>
+          <button type="button" class="btn-small" id="btnRefreshAiNews" onclick="fetchAndSyncAiTechNews(true)">
+            ${isRefreshingAiNews ? '↻ Summarizing Latest News…' : '↻ Refresh Latest News'}
+          </button>
+        </div>
+      `;
+      feed.appendChild(newsHeader);
+    }
+
+    if (filtered.length === 0) {
+      const emptyMsg = qLower
+        ? `No items matching "${esc(searchQuery)}".`
+        : (activeFilter === 'news'
+            ? (isRefreshingAiNews ? 'Summarizing the latest Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click Refresh Latest News above!')
+            : (activeViewMode === 'my-flows'
+                ? 'You have not posted any flows yet. Click + to publish one!'
+                : (activeViewMode === 'starred'
+                    ? 'You have not starred any flows yet. Click ☆ at the top of any flow to save it here!'
+                    : 'No flows here yet. Click + to share a thought!')));
+      const emptyEl = document.createElement('div');
+      emptyEl.className = 'empty-state';
+      emptyEl.innerHTML = `<span class="empty-icon">${activeFilter === 'news' ? '📰' : (activeViewMode === 'starred' ? '⭐' : '📋')}</span><p>${emptyMsg}</p>`;
+      feed.appendChild(emptyEl);
+      return;
+    }
+
+    let lastDateGroupLabel = null;
     filtered.forEach((post, i) => {
+      if (activeFilter === 'news') {
+        const postMs = getPostTimestampMs(post);
+        const groupLabel = formatNewsDateGroupLabel(postMs);
+        if (groupLabel !== lastDateGroupLabel) {
+          lastDateGroupLabel = groupLabel;
+          const dateDivider = document.createElement('div');
+          dateDivider.className = 'news-date-group-header';
+          dateDivider.innerHTML = `
+            <span class="news-date-group-pill">📅 ${esc(groupLabel)}</span>
+            <span class="news-date-group-line"></span>
+          `;
+          feed.appendChild(dateDivider);
+        }
+      }
       const card = makeCard(post, i);
       feed.appendChild(card);
     });
@@ -7687,74 +8371,12 @@
     }
   }
 
-  function makeCard(post, i) {
-    const postAuthorIsDev = isDeveloperUser(post.authorUsername || post.alias);
-    const effectiveCategory = getEffectivePostCategory(post);
-    const displayCategory = (effectiveCategory === 'updates' && postAuthorIsDev)
-      ? 'updates'
-      : (post.tag || 'other');
-    const pinned = isPostPinned(post.id);
-    const viewerIsDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
-
-    const div = document.createElement('div');
-    div.id = `card-${post.id}`;
-    div.className = 'card' + (postAuthorIsDev ? ' card-developer' : '') + (pinned ? ' card-pinned' : '');
-    div.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
-
-    const displayBody = post.hasEmptyBody ? '' : (post.body || '');
-    const isLong = displayBody.length > 400;
-    const hasImage = Boolean(post.imageUrl);
-    const hasLink = Boolean(post.linkUrl);
-    const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
-    const hasExpandable = isLong || hasImage;
-    const isExpanded = expandedFlowsSet.has(post.id);
-    const timeAgo = post.ts ? formatTime(post.ts.toDate ? post.ts.toDate() : new Date(post.ts)) : 'just now';
-
-    const authorName = post.alias || 'Anonymous';
-    const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
-    const avatarHTML = renderAvatarHTML(authorName, liveAvatar, '', postAuthorIsDev);
-
-    const likes = getPostLikesList(post);
-    const isLiked = likes.includes(getCurrentActorKey());
-    const isStarred = isPostStarredByCurrentUser(post.id);
+  function renderCommentsListHTML(post) {
     const comments = getPostCommentsList(post);
-    const isCommentsOpen = openCommentsSet.has(post.id);
-    const canEdit = canCurrentUserEditPost(post);
-    const canDelete = canCurrentUserDeletePost(post);
-    const isConfirmingDelete = pendingDeleteConfirmId === post.id;
-
-    let mediaHTML = '';
-    if (hasImage) {
-      const safeSrc = esc(post.imageUrl);
-      mediaHTML = `
-        <div class="card-media ${isExpanded ? '' : 'collapsed'}" id="media-${post.id}">
-          <img src="${safeSrc}" alt="Flow attachment" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
-        </div>`;
+    if (comments.length === 0) {
+      return `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Start the conversation below.</div>`;
     }
-
-    let linkHTML = '';
-    if (hasLink) {
-      const safeUrl = esc(post.linkUrl);
-      const displayTitle = esc(post.linkTitle || post.linkUrl);
-      const domain = esc(formatHostname(post.linkUrl));
-      linkHTML = `
-        <a class="card-link-attachment" href="${safeUrl}" target="_blank" rel="noopener noreferrer">
-          <div class="card-link-left">
-            <span class="card-link-title">🔗 ${displayTitle}</span>
-            <span class="card-link-domain">${domain}</span>
-          </div>
-          <span class="card-link-arrow">Open ↗</span>
-        </a>`;
-    }
-
-    const attachmentCornerHTML = attachmentCount > 0 ? `
-      <div class="card-attachment-corner">
-        <span class="attachment-corner-badge" id="attach-corner-${post.id}" ${hasExpandable ? `onclick="toggleExpand('${post.id}')" title="Click to ${isExpanded ? 'hide' : 'view'} attachment"` : ''}>
-          📎 ${attachmentCount} attachment${attachmentCount === 1 ? '' : 's'} attached
-        </span>
-      </div>` : '';
-
-    const commentsListHTML = comments.map(c => {
+    const itemsHTML = comments.map(c => {
       const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
       const cAvatar = (c.authorUsername && usersDirectory[c.authorUsername]?.avatar) || c.authorAvatar || '';
       const canDelComment = Boolean(c.docId && currentUser && isDeveloperUser(currentUser.usernameLower));
@@ -7780,27 +8402,167 @@
         </div>
       `;
     }).join('');
+    return `<div class="comments-list">${itemsHTML}</div>`;
+  }
+
+  function updateCardInteractionsInPlace(post) {
+    if (!post || !post.id) return;
+    const likes = getPostLikesList(post);
+    const isLiked = likes.includes(getCurrentActorKey());
+    const likeBtn = document.getElementById(`like-btn-${post.id}`);
+    if (likeBtn) {
+      likeBtn.classList.toggle('liked', isLiked);
+      likeBtn.innerHTML = `
+        <span class="like-heart-icon">${isLiked ? '♥' : '♡'}</span>
+        <span>${likes.length > 0 ? likes.length : 'Like'}</span>
+      `;
+    }
+
+    const isStarred = isPostStarredByCurrentUser(post.id);
+    const starBtn = document.getElementById(`star-btn-${post.id}`);
+    if (starBtn) {
+      starBtn.classList.toggle('starred', isStarred);
+      starBtn.textContent = isStarred ? '★' : '☆';
+      starBtn.title = isStarred ? 'Unstar this flow' : 'Star this flow';
+      starBtn.setAttribute('aria-label', isStarred ? 'Unstar this flow' : 'Star this flow');
+    }
+
+    const comments = getPostCommentsList(post);
+    const replyBtn = document.getElementById(`reply-count-btn-${post.id}`);
+    if (replyBtn) {
+      replyBtn.innerHTML = `
+        <span>💬</span>
+        <span>${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}</span>
+      `;
+    }
+
+    const commentsWrap = document.getElementById(`comments-list-wrap-${post.id}`);
+    if (commentsWrap) {
+      const nextCommentsHTML = renderCommentsListHTML(post);
+      if (commentsWrap.innerHTML !== nextCommentsHTML) {
+        commentsWrap.innerHTML = nextCommentsHTML;
+      }
+    }
+  }
+
+  function makeCard(post, i) {
+    const isAiNewsCard = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
+    const postAuthorIsDev = !isAiNewsCard && isDeveloperUser(post.authorUsername || post.alias);
+    const effectiveCategory = getEffectivePostCategory(post);
+    const displayCategory = isAiNewsCard
+      ? 'news'
+      : ((effectiveCategory === 'updates' && postAuthorIsDev) ? 'updates' : (post.tag || 'other'));
+    const pinned = isPostPinned(post.id);
+    const viewerIsDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
+
+    const div = document.createElement('div');
+    div.id = `card-${post.id}`;
+    div.className = 'card'
+      + (postAuthorIsDev ? ' card-developer' : '')
+      + (pinned ? ' card-pinned' : '')
+      + (isAiNewsCard ? ' card-ai-news' : '');
+    div.style.animationDelay = `${Math.min(i * 0.04, 0.3)}s`;
+
+    const displayBody = post.hasEmptyBody ? '' : (post.body || '');
+    // Never clamp AI News summaries so the user can read the full detailed briefing without leaving the site
+    const isLong = !isAiNewsCard && displayBody.length > 400;
+    const hasImage = Boolean(post.imageUrl);
+    const hasLink = Boolean(post.linkUrl);
+    const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
+    const hasExpandable = isLong || hasImage;
+    const isExpanded = expandedFlowsSet.has(post.id);
+    const postMs = getPostTimestampMs(post);
+    const rawTs = postMs ? new Date(postMs) : null;
+    const timeAgo = rawTs ? formatTime(rawTs) : 'just now';
+    const formattedFullDate = postMs ? formatNewsFullDate(postMs) : '';
+
+    const rawAlias = post.alias || '';
+    const authorName = isAiNewsCard
+      ? ((rawAlias && rawAlias !== 'Paper Flow AI Desk') ? rawAlias : 'Paper Flow AI News')
+      : (rawAlias || 'Anonymous');
+    const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
+    const avatarHTML = isAiNewsCard
+      ? `<div class="avatar" style="padding:0; overflow:hidden; border-color: #c84b2f; background: #1a1209;"><img src="/pwa-192x192.png" alt="Paper Flow AI News" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;this.src='/icon.svg';" /></div>`
+      : renderAvatarHTML(authorName, liveAvatar, '', postAuthorIsDev);
+
+    const likes = getPostLikesList(post);
+    const isLiked = likes.includes(getCurrentActorKey());
+    const isStarred = isPostStarredByCurrentUser(post.id);
+    const comments = getPostCommentsList(post);
+    const isCommentsOpen = openCommentsSet.has(post.id);
+    const canEdit = !isAiNewsCard && canCurrentUserEditPost(post);
+    const canDelete = !isAiNewsCard && canCurrentUserDeletePost(post);
+    const isConfirmingDelete = pendingDeleteConfirmId === post.id;
+
+    let mediaHTML = '';
+    if (hasImage) {
+      const safeSrc = esc(post.imageUrl);
+      mediaHTML = `
+        <div class="card-media ${isExpanded ? '' : 'collapsed'}" id="media-${post.id}">
+          <img src="${safeSrc}" alt="Flow attachment" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
+        </div>`;
+    }
+
+    let linkHTML = '';
+    if (hasLink) {
+      const safeUrl = esc(post.linkUrl);
+      const sourceLabel = post.sourceName ? `${post.sourceName} — ` : '';
+      const displayTitle = esc(isAiNewsCard ? `Original Source: ${sourceLabel}${post.linkTitle || post.title || post.linkUrl}` : (post.linkTitle || post.linkUrl));
+      const domain = esc(formatHostname(post.linkUrl));
+      linkHTML = `
+        <a class="card-link-attachment" href="${safeUrl}" target="_blank" rel="noopener noreferrer">
+          <div class="card-link-left">
+            <span class="card-link-title">🔗 ${displayTitle}</span>
+            <span class="card-link-domain">${domain}</span>
+          </div>
+          <span class="card-link-arrow">${isAiNewsCard ? 'Read Source ↗' : 'Open ↗'}</span>
+        </a>`;
+    }
+
+    const attachmentCornerHTML = (!isAiNewsCard && attachmentCount > 0) ? `
+      <div class="card-attachment-corner">
+        <span class="attachment-corner-badge" id="attach-corner-${post.id}" ${hasExpandable ? `onclick="toggleExpand('${post.id}')" title="Click to ${isExpanded ? 'hide' : 'view'} attachment"` : ''}>
+          📎 ${attachmentCount} attachment${attachmentCount === 1 ? '' : 's'} attached
+        </span>
+      </div>` : '';
 
     const commentPlaceholder = currentUser
       ? `Reply as @${esc(currentUser.username)}…`
       : 'Sign in to write a reply…';
 
+    const bodySectionHTML = displayBody
+      ? (isAiNewsCard
+          ? `<div class="ai-summary-box">
+               <div class="ai-summary-box-header">
+                 <span>✨ Summarized by AI</span>
+                 <span>·</span>
+                 <span>In-Depth Tech &amp; AI Briefing${post.sourceName ? ` · Source: ${esc(post.sourceName)}` : ''}${formattedFullDate ? ` · 📅 ${esc(formattedFullDate)}` : ''}</span>
+               </div>
+               <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.68;">${esc(displayBody)}</div>
+             </div>`
+          : `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>`)
+      : '';
+
     div.innerHTML = `
       ${pinned ? `<div class="pinned-ribbon">📌 Pinned by Developer</div>` : ''}
       <div class="card-top-bar">
-        <div class="card-author clickable-profile" onclick="openUserProfileModal('${esc(authorName)}', '${esc(post.authorUsername || '')}', event)" title="View @${esc(authorName)} profile">
+        <div class="card-author ${isAiNewsCard ? '' : 'clickable-profile'}" ${isAiNewsCard ? '' : `onclick="openUserProfileModal('${esc(authorName)}', '${esc(post.authorUsername || '')}', event)" title="View @${esc(authorName)} profile"`}>
           ${avatarHTML}
           <div class="card-author-info">
             <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}">
-              <span>${post.authorUsername ? '@' : ''}${esc(authorName)}</span>
-              ${postAuthorIsDev
-                ? `<span class="dev-badge">⚡ Developer</span>`
-                : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : '')}
+              <span>${(!isAiNewsCard && post.authorUsername) ? '@' : ''}${esc(authorName)}</span>
+              ${isAiNewsCard
+                ? `<span class="ai-summary-badge">✨ Summarized by AI</span>`
+                : (postAuthorIsDev
+                    ? `<span class="dev-badge">⚡ Developer</span>`
+                    : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : ''))}
             </div>
-            <div class="card-time">🕐 ${timeAgo}${post.editedAt ? ' · <em>edited</em>' : ''}</div>
+            <div class="card-time">${isAiNewsCard && formattedFullDate ? `📅 <strong>${esc(formattedFullDate)}</strong> (${esc(timeAgo)})` : `🕐 ${timeAgo}`}${post.editedAt ? ' · <em>edited</em>' : ''}${isAiNewsCard && post.sourceName ? ` · <strong>${esc(post.sourceName)}</strong>` : ''}</div>
           </div>
         </div>
         <div class="card-top-right">
+          ${isAiNewsCard && formattedFullDate ? `<span class="news-card-date-pill">📅 ${esc(formattedFullDate.split(' · ')[0])}</span>` : ''}
+          ${isAiNewsCard ? `<span class="ai-summary-badge">✨ Summarized by AI</span>` : ''}
           <span class="card-tag tag-${esc(displayCategory)}">${TAG_LABELS[displayCategory] || 'General'}</span>
           <button
             type="button"
@@ -7810,7 +8572,7 @@
             title="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
             aria-label="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
           >${isStarred ? '★' : '☆'}</button>
-          <div class="card-more-wrap">
+          ${!isAiNewsCard ? `<div class="card-more-wrap">
             <button
               type="button"
               class="btn-card-more"
@@ -7830,12 +8592,12 @@
                 <span>🚩 Inappropriate content</span>
               </button>
             </div>
-          </div>
+          </div>` : ''}
         </div>
       </div>
 
       ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}
-      ${displayBody ? `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>` : ''}
+      ${bodySectionHTML}
       ${mediaHTML}
       ${linkHTML}
 
@@ -7845,7 +8607,7 @@
             <span class="like-heart-icon">${isLiked ? '♥' : '♡'}</span>
             <span>${likes.length > 0 ? likes.length : 'Like'}</span>
           </button>
-          <button class="btn-small" onclick="toggleCommentsSection('${post.id}')">
+          <button class="btn-small" id="reply-count-btn-${post.id}" onclick="toggleCommentsSection('${post.id}')">
             <span>💬</span>
             <span>${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}</span>
           </button>
@@ -7862,7 +8624,7 @@
       ${attachmentCornerHTML}
 
       <div class="comments-section ${isCommentsOpen ? 'open' : ''}" id="comments-sec-${post.id}">
-        ${comments.length > 0 ? `<div class="comments-list">${commentsListHTML}</div>` : `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Start the conversation below.</div>`}
+        <div id="comments-list-wrap-${post.id}">${renderCommentsListHTML(post)}</div>
         <div class="comment-form">
           <input
             type="text"
@@ -7892,7 +8654,7 @@
     const expandBtn = btn || document.getElementById('expand-btn-' + id);
     const cornerBadge = document.getElementById('attach-corner-' + id);
 
-    const post = allPosts.find(p => p.id === id);
+    const post = findPostAnywhere(id);
     const displayBody = post ? (post.hasEmptyBody ? '' : (post.body || '')) : '';
     const isLong = displayBody.length > 400;
 
@@ -8349,9 +9111,14 @@
     } catch (e) {}
   })();
 
-  // Initial render of Auth UI & connectivity state
+  // Initial render of Auth UI, AI Tech News column sync & connectivity state
   renderAuthUI();
   syncOnlineConnectivityUI();
+  fetchAndSyncAiTechNews(false);
+  // Regularly poll for the latest AI-summarized Tech & AI news every 5 minutes
+  setInterval(() => {
+    fetchAndSyncAiTechNews(false);
+  }, 5 * 60 * 1000);
 </script>
 </body>
 </html>

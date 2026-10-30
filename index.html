@@ -1224,6 +1224,213 @@
     transform: rotate(135deg) scale(1.08);
   }
 
+  /* FLOATING CIRCULAR REFRESH BUTTON (NEWS COLUMN) WITH SIRI-LIKE GLOW */
+  .fab-news-refresh {
+    position: fixed;
+    right: 2.18rem;
+    bottom: 6.45rem;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(255, 250, 242, 0.78);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    color: var(--ink);
+    border: 1.8px solid var(--ink);
+    box-shadow:
+      3px 3px 0 var(--ink),
+      inset 0 1px 1px rgba(255, 255, 255, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 249;
+    padding: 0;
+    isolation: isolate;
+    transition:
+      transform 0.42s var(--bubble-spring),
+      box-shadow 0.32s var(--bubble-smooth),
+      border-color 0.28s ease,
+      background-color 0.28s ease;
+  }
+  body.dark-mode .fab-news-refresh {
+    background: rgba(34, 26, 18, 0.78);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #f5f0e8;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.48),
+      inset 0 1px 1px rgba(255, 255, 255, 0.18);
+  }
+  .fab-news-refresh.visible {
+    display: inline-flex;
+  }
+  .fab-news-refresh .fab-refresh-svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.5s var(--bubble-spring);
+  }
+  .fab-news-refresh:hover:not(.is-refreshing) {
+    transform: translateY(-3px) scale(1.09);
+    border-color: #ff6a00;
+    box-shadow:
+      0 0 18px rgba(255, 106, 0, 0.45),
+      0 0 32px rgba(255, 45, 85, 0.25),
+      inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  }
+  .fab-news-refresh:hover:not(.is-refreshing) .fab-refresh-svg {
+    transform: rotate(95deg);
+  }
+  /* Siri-like liquid glass multi-color & orange-amber aura when refreshing */
+  .fab-news-refresh::before,
+  .fab-news-refresh::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #ff5e00,
+      #ff9500,
+      #ff2d55,
+      #ffb700,
+      #a855f7,
+      #00d2ff,
+      #ff5e00
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+  .fab-news-refresh::after {
+    inset: -10px;
+    filter: blur(14px);
+  }
+  .fab-news-refresh.is-refreshing {
+    border-color: rgba(255, 165, 80, 0.92);
+    background: rgba(28, 20, 14, 0.86);
+    color: #fff;
+    box-shadow:
+      0 0 22px rgba(255, 106, 0, 0.75),
+      0 0 42px rgba(255, 45, 85, 0.48),
+      inset 0 0 12px rgba(255, 149, 0, 0.45);
+    transform: scale(1.08);
+  }
+  .fab-news-refresh.is-refreshing::before {
+    opacity: 0.95;
+    animation: siriOrbSpin 1.35s linear infinite;
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  }
+  .fab-news-refresh.is-refreshing::after {
+    opacity: 0.85;
+    animation: siriOrbSpin 1.35s linear infinite reverse;
+  }
+  .fab-news-refresh.is-refreshing .fab-refresh-svg {
+    animation: refreshLogoSpin 0.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.85));
+  }
+  @keyframes siriOrbSpin {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(1.06); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  @keyframes refreshLogoSpin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* IPHONE SIRI-STYLE ORANGE LIQUID GLASS EDGE GLOW OVERLAY (DARK MODE TOGGLE) */
+  .siri-theme-glow-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+  .siri-theme-glow-overlay.active {
+    visibility: visible;
+    animation: siriViewportWave 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  /* Crisp glowing orange/amber/coral conic border ring along screen perimeter */
+  .siri-theme-glow-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 6px;
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      #ff4500 0deg,
+      #ff9500 65deg,
+      #ffb700 120deg,
+      #ff2d55 185deg,
+      #ff6a00 250deg,
+      #ffaa00 315deg,
+      #ff4500 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    filter: drop-shadow(0 0 14px rgba(255, 106, 0, 0.95));
+  }
+  /* Deep inward frosted glass + warm orange Siri bloom around all 4 viewport edges */
+  .siri-theme-glow-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow:
+      inset 0 0 38px 10px rgba(255, 102, 0, 0.72),
+      inset 0 0 85px 24px rgba(255, 149, 0, 0.42),
+      inset 0 0 140px 38px rgba(255, 59, 48, 0.24);
+    backdrop-filter: blur(3px) saturate(145%);
+    -webkit-backdrop-filter: blur(3px) saturate(145%);
+    -webkit-mask: radial-gradient(
+      ellipse 88% 86% at 50% 50%,
+      transparent 68%,
+      rgba(0, 0, 0, 0.65) 86%,
+      #000 100%
+    );
+    mask: radial-gradient(
+      ellipse 88% 86% at 50% 50%,
+      transparent 68%,
+      rgba(0, 0, 0, 0.65) 86%,
+      #000 100%
+    );
+  }
+  @keyframes siriViewportWave {
+    0% {
+      opacity: 0;
+      transform: scale(1.015);
+      filter: hue-rotate(-10deg) brightness(1.15);
+    }
+    22% {
+      opacity: 1;
+      transform: scale(1);
+      filter: hue-rotate(8deg) brightness(1.25);
+    }
+    58% {
+      opacity: 0.92;
+      transform: scale(1);
+      filter: hue-rotate(-6deg) brightness(1.12);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.008);
+      filter: hue-rotate(12deg) brightness(1);
+    }
+  }
+
   /* COMPOSE POPUP MODAL */
   .compose-modal-window {
     background: var(--card-bg);
@@ -3755,6 +3962,12 @@
     .container { padding: 1.2rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px)); }
     .compose-row { flex-direction: column; align-items: stretch; }
     .fab-post-btn { display: none; }
+    .fab-news-refresh {
+      right: 1.15rem;
+      bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+      width: 50px;
+      height: 50px;
+    }
     .about-window-body { padding: 1.25rem; }
     .paper-messages-shell.active {
       grid-template-columns: 100%;
@@ -3860,10 +4073,6 @@
         <span id="statusText">Connecting to Firebase…</span>
       </span>
     </div>
-    <button type="button" class="banner-news-shortcut" id="topBannerNewsBtn" onclick="openNewsColumn()" title="Open AI-Summarized Tech & AI News Column">
-      <span>📰 Tech &amp; AI News</span>
-      <span>→</span>
-    </button>
     <div id="bannerUserStatus" style="opacity: 0.85;"></div>
   </div>
 
@@ -4153,6 +4362,19 @@
     </div>
   </div>
 </main>
+
+<!-- FLOATING CIRCULAR REFRESH BUTTON FOR NEWS COLUMN (ONLY CIRCULAR REFRESH ICON + SIRI GLOW) -->
+<button type="button" class="fab-news-refresh" id="btnRefreshAiNews" onclick="fetchAndSyncAiTechNews(true)" title="Refresh Latest Tech &amp; AI News" aria-label="Refresh Latest Tech &amp; AI News">
+  <svg class="fab-refresh-svg" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21 12a9 9 0 0 0-15.36-6.36L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M3 12a9 9 0 0 0 15.36 6.36L21 16" />
+    <path d="M21 21v-5h-5" />
+  </svg>
+</button>
+
+<!-- IPHONE SIRI-STYLE ORANGE GLASS GLOW OVERLAY WHEN TOGGLING DARK MODE -->
+<div id="siriThemeGlowOverlay" class="siri-theme-glow-overlay" aria-hidden="true"></div>
 
 <!-- FLOATING PLUS (+) BUTTON TO OPEN POST POPUP -->
 <button type="button" class="fab-post-btn" id="fabPostBtn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">
@@ -4528,8 +4750,22 @@
     } catch (e) {}
   }
 
+  let siriGlowTimer = null;
+  function triggerSiriThemeGlow() {
+    const overlay = document.getElementById('siriThemeGlowOverlay');
+    if (!overlay) return;
+    if (siriGlowTimer) clearTimeout(siriGlowTimer);
+    overlay.classList.remove('active');
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+    siriGlowTimer = setTimeout(() => {
+      overlay.classList.remove('active');
+    }, 1480);
+  }
+
   window.toggleDarkMode = function () {
     const isDark = !document.body.classList.contains('dark-mode');
+    triggerSiriThemeGlow();
     document.body.classList.toggle('dark-mode', isDark);
     try {
       localStorage.setItem(DARK_MODE_KEY, isDark ? 'true' : 'false');
@@ -7828,8 +8064,7 @@
     isRefreshingAiNews = true;
     const refreshBtn = document.getElementById('btnRefreshAiNews');
     if (refreshBtn) {
-      refreshBtn.textContent = '↻ Summarizing Latest News…';
-      refreshBtn.style.opacity = '0.75';
+      refreshBtn.classList.add('is-refreshing');
       refreshBtn.disabled = true;
     }
 
@@ -7904,8 +8139,7 @@
       isRefreshingAiNews = false;
       const btnAfter = document.getElementById('btnRefreshAiNews');
       if (btnAfter) {
-        btnAfter.textContent = '↻ Refresh Latest News';
-        btnAfter.style.opacity = '';
+        btnAfter.classList.remove('is-refreshing');
         btnAfter.disabled = false;
       }
     }
@@ -7953,17 +8187,7 @@
     document.getElementById('sideBtnNews')?.classList.toggle('active', isNewsActive);
     document.getElementById('quickSwitchAll')?.classList.toggle('active', isBoardAllActive);
     document.getElementById('quickSwitchNews')?.classList.toggle('active', isNewsActive);
-
-    const topBannerBtn = document.getElementById('topBannerNewsBtn');
-    if (topBannerBtn) {
-      if (isNewsActive) {
-        topBannerBtn.innerHTML = `<span>📋 Back to All Flows</span><span>→</span>`;
-        topBannerBtn.onclick = () => switchViewMode('board', 'all');
-      } else {
-        topBannerBtn.innerHTML = `<span>📰 Tech &amp; AI News (${newsColumnCount})</span><span>→</span>`;
-        topBannerBtn.onclick = () => openNewsColumn();
-      }
-    }
+    document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActive);
 
     document.getElementById('sideBtnMyFlows')?.classList.toggle('active', activeViewMode === 'my-flows');
     document.getElementById('sideBtnStarred')?.classList.toggle('active', activeViewMode === 'starred');
@@ -8061,6 +8285,7 @@
     const qLower = searchQuery.toLowerCase();
 
     const quickSwitcher = document.getElementById('quickColumnSwitcher');
+    document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', activeViewMode === 'board' && activeFilter === 'news');
 
     // MODE 5: PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER — CONSTANT FULL PAGE)
     if (activeViewMode === 'messages') {
@@ -8276,6 +8501,9 @@
       ? `${filtered.length} news brief${filtered.length !== 1 ? 's' : ''} · sorted by date (${newsDateSortOrder === 'oldest' ? 'oldest first' : 'newest first'})`
       : `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
+    const isNewsActiveView = activeViewMode === 'board' && activeFilter === 'news';
+    document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
+
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
     const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
@@ -8286,44 +8514,12 @@
       feed.querySelectorAll('.card').length === filtered.length &&
       filtered.length > 0
     ) {
-      const updatedTimeEl = document.getElementById('aiNewsUpdatedTimeLabel');
-      if (updatedTimeEl && aiNewsLastUpdated) {
-        updatedTimeEl.textContent = formatTime(new Date(aiNewsLastUpdated));
-      }
       filtered.forEach(post => updateCardInteractionsInPlace(post));
       return;
     }
 
     feed.dataset.feedSignature = nextFeedSignature;
     feed.innerHTML = '';
-
-    // When viewing the News column, render the dedicated AI-Summarized Tech & AI News header banner
-    if (activeFilter === 'news' && activeViewMode === 'board') {
-      const updatedTimeStr = aiNewsLastUpdated ? formatTime(new Date(aiNewsLastUpdated)) : 'just now';
-      const newsHeader = document.createElement('div');
-      newsHeader.className = 'ai-news-column-header';
-      newsHeader.innerHTML = `
-        <div class="ai-news-column-left">
-          <div class="ai-news-column-title">
-            <img src="/pwa-192x192.png" alt="Paper Flow" style="width:24px;height:24px;border-radius:6px;border:1px solid var(--card-border);vertical-align:middle;object-fit:cover;" onerror="this.onerror=null;this.src='/icon.svg';" />
-            <span>Paper Flow AI News Desk</span>
-            <span class="ai-summary-badge">✨ Summarized by AI</span>
-          </div>
-          <div class="ai-news-column-sub">
-            In-depth AI &amp; Tech briefings (${filtered.length} stories) · Sorted chronologically by date with original source links (Updated <span id="aiNewsUpdatedTimeLabel">${esc(updatedTimeStr)}</span>)
-          </div>
-        </div>
-        <div class="ai-news-header-actions">
-          <button type="button" class="btn-small" onclick="toggleNewsDateSort()" title="Toggle Date Sort Order">
-            📅 Date: ${newsDateSortOrder === 'oldest' ? 'Oldest First ↑' : 'Newest First ↓'}
-          </button>
-          <button type="button" class="btn-small" id="btnRefreshAiNews" onclick="fetchAndSyncAiTechNews(true)">
-            ${isRefreshingAiNews ? '↻ Summarizing Latest News…' : '↻ Refresh Latest News'}
-          </button>
-        </div>
-      `;
-      feed.appendChild(newsHeader);
-    }
 
     if (filtered.length === 0) {
       const emptyMsg = qLower

@@ -419,6 +419,119 @@ def verify_apk(apk_path: str):
     print("ALL VERIFICATION CHECKS PASSED: 4-byte aligned, V1 JAR + V2 + V3 signatures verified OK!")
 
 
+def patch_classes_dex(dex_path: str):
+    """
+    Patches MainActivity$AndroidBridge.showNotification (M99 at code_off=5552, 132 code units)
+    so that:
+    1. When called with title="text/plainandroid.intent.extra.TEXT" and postId="android.intent.action.SEND",
+       it constructs an Intent(Intent.ACTION_SEND) with type "text/plain" and EXTRA_TEXT = body,
+       wraps it in Intent.createChooser(intent, "Paper Flow"), sets FLAG_ACTIVITY_NEW_TASK,
+       and invokes MainActivity.startActivity(chooser) to pop up the native Android share sheet.
+    2. Otherwise, it dispatches a high-priority system Notification via NotificationManager.notify
+       with a PendingIntent deep-linking to the flow/message.
+    """
+    with open(dex_path, 'rb') as f:
+        dex = bytearray(f.read())
+
+    code_off = 5552
+    regs, ins, outs, tries, dbg, insns_size = struct.unpack_from('<HHHHII', dex, code_off)
+    if regs == 10 and ins == 4 and insns_size == 132:
+        insns = [
+            # Share check: if (v7 != null && v7.startsWith("text/"))
+            0x0738, 0x0032,                 # 000: if-eqz v7, :not_share (+50 -> 050)
+            0x011a, 0x0117,                 # 002: const-string v1, S279 ("text/")
+            0x206e, 0x008e, 0x0017,         # 004: invoke-virtual {v7, v1}, M142 (String.startsWith)
+            0x010a,                         # 007: move-result v1
+            0x0138, 0x002a,                 # 008: if-eqz v1, :not_share (+42 -> 050)
+
+            # v1 = v7.substring(10) -> "android.intent.extra.TEXT"
+            0x0113, 0x000a,                 # 010: const/16 v1, 10
+            0x206e, 0x008f, 0x0017,         # 012: invoke-virtual {v7, v1}, M143 (String.substring)
+            0x010c,                         # 015: move-result-object v1
+
+            # v2 = v7.replace(v1, "") -> "text/plain"
+            0x021a, 0x0000,                 # 016: const-string v2, S0 ("")
+            0x306e, 0x008d, 0x0217,         # 018: invoke-virtual {v7, v1, v2}, M141 (String.replace)
+            0x020c,                         # 021: move-result-object v2
+
+            # v3 = new Intent(v9) where v9 == "android.intent.action.SEND"
+            0x0322, 0x0009,                 # 022: new-instance v3, T9 (Landroid/content/Intent;)
+            0x2070, 0x0015, 0x0093,         # 024: invoke-direct {v3, v9}, M21 (Intent.<init>(String))
+            0x206e, 0x001d, 0x0023,         # 027: invoke-virtual {v3, v2}, M29 (Intent.setType)
+            0x306e, 0x001b, 0x0813,         # 030: invoke-virtual {v3, v1, v8}, M27 (Intent.putExtra)
+            0x011a, 0x006b,                 # 033: const-string v1, S107 ("Paper Flow")
+            0x2071, 0x0018, 0x0013,         # 035: invoke-static {v3, v1}, M24 (Intent.createChooser)
+            0x030c,                         # 038: move-result-object v3
+            0x0115, 0x1000,                 # 039: const/high16 v1, 0x10000000 (FLAG_ACTIVITY_NEW_TASK)
+            0x206e, 0x001c, 0x0013,         # 041: invoke-virtual {v3, v1}, M28 (Intent.setFlags)
+            0x6154, 0x0009,                 # 044: iget-object v1, v6, F9 (this.this$0)
+            0x206e, 0x0080, 0x0031,         # 046: invoke-virtual {v1, v3}, M128 (MainActivity.startActivity)
+            0x000e,                         # 049: return-void
+
+            # :not_share (050) — OS Notification Dispatch
+            0x6054, 0x0009,                 # 050: iget-object v0, v6, F9 (this.this$0)
+            0x011a, 0x00d4,                 # 052: const-string v1, S212 ("notification")
+            0x206e, 0x0073, 0x0010,         # 054: invoke-virtual {v0, v1}, M115 (getSystemService)
+            0x000c,                         # 057: move-result-object v0
+            0x001f, 0x0006,                 # 058: check-cast v0, T6 (NotificationManager)
+            0x0038, 0x0047,                 # 060: if-eqz v0, :done_ret (+71 -> 131)
+
+            0x0122, 0x0009,                 # 062: new-instance v1, T9 (Intent)
+            0x6254, 0x0009,                 # 064: iget-object v2, v6, F9 (this.this$0)
+            0x031c, 0x0028,                 # 066: const-class v3, T40 (MainActivity.class)
+            0x3070, 0x0014, 0x0321,         # 068: invoke-direct {v1, v2, v3}, M20 (Intent.<init>(Context, Class))
+            0x0215, 0x2400,                 # 071: const/high16 v2, 0x24000000
+            0x206e, 0x001c, 0x0021,         # 073: invoke-virtual {v1, v2}, M28 (Intent.setFlags)
+            0x021a, 0x00e3,                 # 076: const-string v2, S227 ("postId")
+            0x306e, 0x001b, 0x0921,         # 078: invoke-virtual {v1, v2, v9}, M27 (Intent.putExtra)
+
+            0x0415, 0x0c00,                 # 081: const/high16 v4, 0x0c000000
+            0x6254, 0x0009,                 # 083: iget-object v2, v6, F9 (this.this$0)
+            0x1071, 0x006c, 0x0002,         # 085: invoke-static {v2}, M108 (access$504)
+            0x020a,                         # 088: move-result v2
+            0x6354, 0x0009,                 # 089: iget-object v3, v6, F9 (this.this$0)
+            0x4071, 0x0013, 0x4123,         # 091: invoke-static {v3, v2, v1, v4}, M19 (PendingIntent.getActivity)
+            0x040c,                         # 094: move-result-object v4
+
+            0x0122, 0x0003,                 # 095: new-instance v1, T3 (Notification$Builder)
+            0x6354, 0x0009,                 # 097: iget-object v3, v6, F9 (this.this$0)
+            0x051a, 0x00df,                 # 099: const-string v5, S223 ("paperflow_alerts")
+            0x3070, 0x0006, 0x0531,         # 101: invoke-direct {v1, v3, v5}, M6 (Builder.<init>(Context, String))
+
+            0x0315, 0x7f02,                 # 104: const/high16 v3, 0x7f020000
+            0x206e, 0x000d, 0x0031,         # 106: invoke-virtual {v1, v3}, M13 (setSmallIcon)
+            0x206e, 0x000b, 0x0071,         # 109: invoke-virtual {v1, v7}, M11 (setContentTitle)
+            0x206e, 0x000a, 0x0081,         # 112: invoke-virtual {v1, v8}, M10 (setContentText)
+            0x1312,                         # 115: const/4 v3, 1
+            0x206e, 0x0008, 0x0031,         # 116: invoke-virtual {v1, v3}, M8 (setAutoCancel)
+            0x206e, 0x0009, 0x0041,         # 119: invoke-virtual {v1, v4}, M9 (setContentIntent)
+            0x106e, 0x0007, 0x0001,         # 122: invoke-virtual {v1}, M7 (build)
+            0x010c,                         # 125: move-result-object v1
+            0x306e, 0x0012, 0x0120,         # 126: invoke-virtual {v0, v2, v1}, M18 (nm.notify)
+
+            0x0228,                         # 129: goto +2 (-> 131 :done_ret)
+            0x070d,                         # 130: move-exception v7 (catch handler @ 0x82)
+            0x000e                          # 131: return-void (:done_ret)
+        ]
+        assert len(insns) == 132, f"Expected 132 code units, got {len(insns)}"
+        # Clear debug_info_off for M99 so stale line table is not used
+        struct.pack_into('<I', dex, code_off + 8, 0)
+        for idx, word in enumerate(insns):
+            struct.pack_into('<H', dex, code_off + 16 + idx * 2, word)
+
+        # Recompute DEX SHA-1 signature (bytes 12..32) over bytes 32..end
+        sha1_digest = hashlib.sha1(dex[32:]).digest()
+        dex[12:32] = sha1_digest
+
+        # Recompute DEX Adler32 checksum (bytes 8..12) over bytes 12..end
+        adler = zlib.adler32(dex[12:]) & 0xffffffff
+        struct.pack_into('<I', dex, 8, adler)
+
+        with open(dex_path, 'wb') as f:
+            f.write(dex)
+        print("Patched classes.dex M99 with native Android Share Chooser + Notification support!")
+
+
 def build_apk():
     ensure_keys()
     src_apk = os.path.join(ROOT_DIR, 'Paper-Flow.apk')
@@ -431,6 +544,10 @@ def build_apk():
         for member in z.infolist():
             if not member.filename.startswith('META-INF/'):
                 z.extract(member, work_dir)
+
+    dex_file = os.path.join(work_dir, 'classes.dex')
+    if os.path.exists(dex_file):
+        patch_classes_dex(dex_file)
 
     # Sync latest web files from root into assets/www/ (keep compact icon size for fast download)
     for fname in ['index.html', 'manifest.json', 'sw.js', 'icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png']:

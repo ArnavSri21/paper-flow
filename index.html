@@ -4057,6 +4057,212 @@
       gap: 0.25rem;
     }
   }
+
+  /* ── AI-PERSONALIZED NEWS BAR & MATCH BADGES ── */
+  .ai-personalization-bar {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-subtle);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 0.75rem 0.95rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    box-shadow: 2px 3px 10px var(--shadow);
+  }
+  .ai-pers-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    min-width: 0;
+    flex: 1 1 240px;
+  }
+  .ai-pers-title {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .ai-pers-summary {
+    font-size: 0.8rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .ai-pers-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+  }
+  .ai-pers-topic-chip {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(200, 75, 47, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(200, 75, 47, 0.28);
+    font-weight: 600;
+  }
+  .ai-pers-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--surface-alt);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+  .btn-ai-sort-mode {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-ai-sort-mode.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .ai-match-reason-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.13);
+    border: 1px solid rgba(245, 158, 11, 0.32);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 0.45rem;
+  }
+  body.dark-mode .ai-match-reason-pill {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.16);
+    border-color: rgba(251, 191, 36, 0.3);
+  }
+  .phone-saved-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: #059669;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  body.dark-mode .phone-saved-pill {
+    color: #34d399;
+  }
+
+  /* ── SHARE SNAPSHOT POPUP PANEL ── */
+  .share-modal-window {
+    background: var(--card-bg);
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    width: min(460px, 94vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 8px 10px 0 var(--shadow);
+  }
+  .share-modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .share-snapshot-preview-wrap {
+    background: var(--surface-alt);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 280px;
+    overflow: hidden;
+  }
+  .share-snapshot-preview-img {
+    max-width: 100%;
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+    object-fit: contain;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+  }
+  .btn-share-primary-sheet {
+    width: 100%;
+    padding: 0.72rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    box-shadow: 2px 3px 0 var(--ink);
+  }
+  .btn-share-primary-sheet:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .share-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .btn-share-target {
+    padding: 0.55rem 0.65rem;
+    background: var(--surface-alt);
+    color: var(--ink);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 7px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .btn-share-target:hover {
+    border-color: var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -4182,7 +4388,7 @@
         <span>📱 Android App</span>
         <span style="display: inline-flex; align-items: center; gap: 0.4rem;">
           <span class="apk-updated-tag">Updated</span>
-          <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.3 · LIVE SYNC</span>
+          <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.4 · LIVE SYNC</span>
         </span>
       </div>
       <div class="paperflow-apk-body">
@@ -4193,10 +4399,10 @@
               <span>Paper Flow APK</span>
               <span class="apk-updated-tag">Updated</span>
             </div>
-            <div class="paperflow-apk-sub">Includes AI-summarized Tech &amp; AI News, Siri-glow refresh &amp; dark mode transitions, centered + dock &amp; live sync.</div>
+            <div class="paperflow-apk-sub">Includes Native Snapshot Share Sheet, AI-Customized News &amp; User Taste DB, Offline Phone Storage for Starred Flows, and Background Notifications.</div>
           </div>
         </div>
-        <a href="/download/Paper-Flow.apk?v=1.0.3" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Download Updated APK ↓</a>
+        <a href="/download/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Download Updated APK ↓</a>
       </div>
     </section>
 
@@ -4204,12 +4410,12 @@
     <section class="paperflow-update-section" id="paperflowUpdateSection" style="display: none;">
       <div class="paperflow-update-header">
         <span>⚡ App Update Available</span>
-        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.3</span>
+        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.4</span>
       </div>
       <div class="paperflow-update-body">
         <div class="paperflow-update-title" id="updateTitle">A new version of Paper Flow is ready!</div>
-        <div class="paperflow-update-notes" id="updateNotes">Updated with AI-summarized Tech &amp; AI News, Siri-glow refresh &amp; dark mode transitions, and centered + navigation dock.</div>
-        <a href="/download/Paper-Flow.apk?v=1.0.3" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
+        <div class="paperflow-update-notes" id="updateNotes">Updated with Native Snapshot Share Sheet, AI-Customized News &amp; Per-User Taste DB, Phone Storage for Starred Flows, and Background Notifications.</div>
+        <a href="/download/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
       </div>
     </section>
 
@@ -4550,6 +4756,43 @@
   </div>
 </div>
 
+<!-- SHARE FLOW SNAPSHOT POPUP PANEL -->
+<div class="modal-backdrop" id="shareFlowModalBackdrop" onclick="handleShareModalBackdropClick(event)">
+  <div class="share-modal-window" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span>↗ Share Flow Snapshot</span>
+      <button class="modal-close" onclick="closeShareFlowModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="share-modal-body">
+      <div class="share-snapshot-preview-wrap">
+        <img id="shareSnapshotPreviewImg" class="share-snapshot-preview-img" src="" alt="Flow Snapshot Preview" />
+      </div>
+      <button type="button" class="btn-share-primary-sheet" id="btnShareNativeSheet" onclick="triggerNativeShareFromModal()">
+        <span>📲</span>
+        <span>Share Snapshot &amp; Link to Apps</span>
+      </button>
+      <div class="share-quick-grid">
+        <button type="button" class="btn-share-target" onclick="downloadCurrentShareSnapshot()">
+          <span>🖼</span>
+          <span>Save Snapshot PNG</span>
+        </button>
+        <button type="button" class="btn-share-target" onclick="copyCurrentShareLink()">
+          <span>🔗</span>
+          <span>Copy Website Link</span>
+        </button>
+        <button type="button" class="btn-share-target" onclick="shareToExternalApp('whatsapp')">
+          <span>💬</span>
+          <span>WhatsApp</span>
+        </button>
+        <button type="button" class="btn-share-target" onclick="shareToExternalApp('telegram')">
+          <span>✈️</span>
+          <span>Telegram</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- IMAGE LIGHTBOX -->
 <div class="lightbox-backdrop" id="lightboxBackdrop" onclick="closeLightbox()">
   <img id="lightboxImg" src="" alt="Full size attachment" />
@@ -4635,7 +4878,15 @@
   let aiNewsLastUpdated = 0;
   let isRefreshingAiNews = false;
   let newsDateSortOrder = 'newest'; // 'newest' | 'oldest'
-  const AI_NEWS_CACHE_KEY = 'paperflow_ai_tech_news_cache_v3';
+  let newsSortMode = (() => {
+    try {
+      const saved = localStorage.getItem('pf_news_sort_mode');
+      return saved === 'date' ? 'date' : 'personalized';
+    } catch (e) {
+      return 'personalized';
+    }
+  })();
+  const AI_NEWS_CACHE_KEY = 'paperflow_ai_tech_news_cache_v4';
   let searchQuery = '';
   let isSearchBubbleOpen = false;
   let openCommentsSet = new Set();
@@ -4655,14 +4906,147 @@
   const GUEST_TOKEN_KEY = 'paperflow_guest_token_v1';
   const DARK_MODE_KEY = 'paperflow_dark_mode_v1';
   const LOCAL_STARS_PREFIX = 'paperflow_starred_v1_';
+  const STARRED_ARCHIVE_PREFIX = 'paperflow_starred_archive_v2_';
+  const USER_NEWS_DB_PREFIX = 'paperflow_user_news_db_v1_';
 
   let currentUser = loadSessionUser();
   const guestToken = getOrCreateGuestToken();
   let localStarredSet = loadLocalStarredSet();
+  let starredPostsArchiveMap = loadStarredPostsArchiveMap();
+  let userNewsDb = loadUserNewsDb();
+  let remoteUserNewsDatabases = {};
+
+  function getActorStorageSuffix() {
+    return currentUser ? `user_${currentUser.usernameLower}` : guestToken;
+  }
 
   function getStarStorageKey() {
-    const actor = currentUser ? `user_${currentUser.usernameLower}` : guestToken;
-    return LOCAL_STARS_PREFIX + actor;
+    return LOCAL_STARS_PREFIX + getActorStorageSuffix();
+  }
+
+  function getStarredArchiveStorageKey() {
+    return STARRED_ARCHIVE_PREFIX + getActorStorageSuffix();
+  }
+
+  function getUserNewsDbStorageKey() {
+    return USER_NEWS_DB_PREFIX + getActorStorageSuffix();
+  }
+
+  // IndexedDB Phone Storage mirror so Starred Flows survive any cache clear or news refresh
+  function syncStarredArchiveToIndexedDB(archiveMapObj) {
+    try {
+      if (!('indexedDB' in window)) return;
+      const req = indexedDB.open('PaperFlowPhoneStorageDB', 1);
+      req.onupgradeneeded = (e) => {
+        const idb = e.target.result;
+        if (!idb.objectStoreNames.contains('starred_flows')) {
+          idb.createObjectStore('starred_flows');
+        }
+      };
+      req.onsuccess = (e) => {
+        try {
+          const idb = e.target.result;
+          const tx = idb.transaction('starred_flows', 'readwrite');
+          tx.objectStore('starred_flows').put(archiveMapObj, getActorStorageSuffix());
+        } catch (innerErr) {}
+      };
+    } catch (e) {}
+  }
+
+  function restoreStarredArchiveFromIndexedDB() {
+    try {
+      if (!('indexedDB' in window)) return;
+      const req = indexedDB.open('PaperFlowPhoneStorageDB', 1);
+      req.onupgradeneeded = (e) => {
+        const idb = e.target.result;
+        if (!idb.objectStoreNames.contains('starred_flows')) {
+          idb.createObjectStore('starred_flows');
+        }
+      };
+      req.onsuccess = (e) => {
+        try {
+          const idb = e.target.result;
+          const tx = idb.transaction('starred_flows', 'readonly');
+          const getReq = tx.objectStore('starred_flows').get(getActorStorageSuffix());
+          getReq.onsuccess = () => {
+            const val = getReq.result;
+            if (val && typeof val === 'object') {
+              let changed = false;
+              Object.entries(val).forEach(([k, postObj]) => {
+                if (postObj && postObj.id && !starredPostsArchiveMap[k]) {
+                  starredPostsArchiveMap[k] = postObj;
+                  localStarredSet.add(k);
+                  changed = true;
+                }
+              });
+              if (changed) {
+                saveLocalStarredSet();
+                try {
+                  localStorage.setItem(getStarredArchiveStorageKey(), JSON.stringify(starredPostsArchiveMap));
+                } catch (err) {}
+                renderSidePanelCounts();
+                if (activeViewMode === 'starred') renderFeed();
+              }
+            }
+          };
+        } catch (innerErr) {}
+      };
+    } catch (e) {}
+  }
+
+  function loadStarredPostsArchiveMap() {
+    try {
+      const raw = localStorage.getItem(getStarredArchiveStorageKey());
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch (e) {}
+    return {};
+  }
+
+  function saveStarredPostsArchiveMap() {
+    try {
+      localStorage.setItem(getStarredArchiveStorageKey(), JSON.stringify(starredPostsArchiveMap));
+      syncStarredArchiveToIndexedDB(starredPostsArchiveMap);
+    } catch (e) {}
+  }
+
+  function archivePostToPhoneStorage(post) {
+    if (!post || !post.id) return;
+    const snapshot = {
+      id: post.id,
+      title: post.title || null,
+      body: post.body || '',
+      hasEmptyBody: Boolean(post.hasEmptyBody),
+      tag: post.tag || 'other',
+      customCategory: post.customCategory || null,
+      topic: post.topic || null,
+      topicTags: Array.isArray(post.topicTags) ? post.topicTags : [],
+      alias: post.alias || 'Anonymous',
+      authorUsername: post.authorUsername || null,
+      authorAvatar: post.authorAvatar || '',
+      imageUrl: post.imageUrl || null,
+      linkUrl: post.linkUrl || null,
+      linkTitle: post.linkTitle || null,
+      sourceName: post.sourceName || null,
+      isAiNews: Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news'),
+      summarizedByAi: Boolean(post.summarizedByAi || post.isAiNews),
+      docType: post.docType || (post.isAiNews ? 'ai_news' : 'post'),
+      publishedAt: getPostTimestampMs(post) || Date.now(),
+      createdAt: post.createdAt || getPostTimestampMs(post) || Date.now(),
+      savedInPhoneAt: Date.now()
+    };
+    starredPostsArchiveMap[post.id] = snapshot;
+    saveStarredPostsArchiveMap();
+  }
+
+  function removePostFromPhoneStorage(postId) {
+    if (!postId) return;
+    if (starredPostsArchiveMap[postId]) {
+      delete starredPostsArchiveMap[postId];
+      saveStarredPostsArchiveMap();
+    }
   }
 
   function loadLocalStarredSet() {
@@ -4679,6 +5063,55 @@
   function saveLocalStarredSet() {
     try {
       localStorage.setItem(getStarStorageKey(), JSON.stringify(Array.from(localStarredSet)));
+    } catch (e) {}
+  }
+
+  // Ensure any archived starred items in phone storage are present in localStarredSet
+  Object.keys(starredPostsArchiveMap || {}).forEach(id => localStarredSet.add(id));
+  restoreStarredArchiveFromIndexedDB();
+
+  // ── PER-USER NEWS DATABASE & AI CUSTOMIZATION ───────────────────────────────
+  function loadUserNewsDb() {
+    try {
+      const raw = localStorage.getItem(getUserNewsDbStorageKey());
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            interactions: Array.isArray(parsed.interactions) ? parsed.interactions : [],
+            topicWeights: (parsed.topicWeights && typeof parsed.topicWeights === 'object') ? parsed.topicWeights : {},
+            aiProfile: parsed.aiProfile || null,
+            updatedAt: parsed.updatedAt || 0
+          };
+        }
+      }
+    } catch (e) {}
+    return { interactions: [], topicWeights: {}, aiProfile: null, updatedAt: 0 };
+  }
+
+  function saveUserNewsDb() {
+    try {
+      localStorage.setItem(getUserNewsDbStorageKey(), JSON.stringify(userNewsDb));
+    } catch (e) {}
+  }
+  const saveUserNewsDbToLocal = saveUserNewsDb;
+
+  function syncUserActiveNotificationIdentity() {
+    const unameLower = currentUser?.usernameLower || 'guest';
+    try {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SYNC_NOTIF_USER',
+          usernameLower: unameLower
+        });
+      }
+    } catch (e) {}
+    try {
+      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.setNotificationUser === 'function') {
+        window.PaperFlowAndroid.setNotificationUser(unameLower);
+      } else if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.showNotification === 'function') {
+        window.PaperFlowAndroid.showNotification(`__SET_USER__|||${unameLower}`, '', '');
+      }
     } catch (e) {}
   }
 
@@ -4702,14 +5135,26 @@
       }
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
+    starredPostsArchiveMap = loadStarredPostsArchiveMap();
+    Object.keys(starredPostsArchiveMap || {}).forEach(id => localStarredSet.add(id));
+    restoreStarredArchiveFromIndexedDB();
+    userNewsDb = loadUserNewsDb();
+
     if (user) {
-      const myActorKey = `user:${user.usernameLower}`;
+      const myActorKey = `user_${user.usernameLower}`;
+      const legacyActorKey = `user:${user.usernameLower}`;
       Object.keys(starsByPost).forEach(pId => {
-        if ((starsByPost[pId] || []).some(s => s.actorKey === myActorKey)) {
+        if ((starsByPost[pId] || []).some(s => s.actorKey === myActorKey || s.actorKey === legacyActorKey)) {
           localStarredSet.add(pId);
         }
       });
       saveLocalStarredSet();
+      // Merge remote Firestore user news database if available
+      const remoteDb = remoteUserNewsDatabases[user.usernameLower];
+      if (remoteDb && (remoteDb.updatedAt || 0) > (userNewsDb.updatedAt || 0)) {
+        userNewsDb = remoteDb;
+        saveUserNewsDb();
+      }
       // Queue decryption of any loaded Paper Messages or Requests for this signed-in user
       Object.values(msgRequestsByPair).forEach(req => {
         if (req.status !== 'blocked') {
@@ -4722,6 +5167,8 @@
         });
       });
     }
+    syncUserActiveNotificationIdentity();
+    if (swRegistration) registerPushNotifications(swRegistration);
     seenReplyIdsSet = loadSeenReplyIdsSet();
     if (!user && (activeViewMode === 'my-flows' || activeViewMode === 'replies' || activeViewMode === 'messages' || activeViewMode === 'reports')) {
       activeViewMode = 'board';
@@ -5601,7 +6048,7 @@
           return;
         }
 
-        // 3. Star Record
+        // 3. Star Record (with optional full post archive for cross-device & offline phone storage)
         if (id.startsWith('__star__') || data.docType === 'star') {
           const pId = data.postId;
           if (pId) {
@@ -5609,8 +6056,27 @@
             nextStars[pId].push({
               docId: id,
               actorKey: data.actorKey,
-              alias: data.alias
+              alias: data.alias,
+              archivedPostJson: data.archivedPostJson || null
             });
+          }
+          return;
+        }
+
+        // 3b. Per-User News Preference Database Record
+        if (id.startsWith('__userdb__') || data.docType === 'user_news_db') {
+          const uKey = String(data.usernameLower || id.replace(/^__userdb__/, '')).trim().toLowerCase();
+          if (uKey && data.dbPayloadJson) {
+            try {
+              const parsedDb = JSON.parse(data.dbPayloadJson);
+              if (parsedDb && typeof parsedDb === 'object') {
+                remoteUserNewsDatabases[uKey] = parsedDb;
+                if (currentUser && currentUser.usernameLower === uKey && (parsedDb.updatedAt || 0) > (userNewsDb.updatedAt || 0)) {
+                  userNewsDb = parsedDb;
+                  saveUserNewsDb();
+                }
+              }
+            } catch (e) {}
           }
           return;
         }
@@ -5907,18 +6373,30 @@
       msgRequestsByPair = nextMsgRequests;
       paperMessagesByPair = nextPaperMessages;
 
-      // Sync starred flows across website and Android APK for the signed-in account
-      if (currentUser) {
-        const myActorKey = `user:${currentUser.usernameLower}`;
-        const remoteStarredIds = new Set();
-        Object.keys(nextStars).forEach(pId => {
-          if ((nextStars[pId] || []).some(s => s.actorKey === myActorKey)) {
-            remoteStarredIds.add(pId);
+      // Sync starred flows across website, phone storage archive, and Android APK without wiping phone storage
+      const myActorKey = getCurrentActorKey();
+      const legacyActorKey = currentUser ? `user:${currentUser.usernameLower}` : myActorKey;
+      let archiveUpdated = false;
+      Object.keys(nextStars).forEach(pId => {
+        const matchEntry = (nextStars[pId] || []).find(s => s.actorKey === myActorKey || s.actorKey === legacyActorKey);
+        if (matchEntry) {
+          localStarredSet.add(pId);
+          if (matchEntry.archivedPostJson && !starredPostsArchiveMap[pId]) {
+            try {
+              const parsedPost = JSON.parse(matchEntry.archivedPostJson);
+              if (parsedPost && parsedPost.id) {
+                starredPostsArchiveMap[pId] = parsedPost;
+                archiveUpdated = true;
+              }
+            } catch (e) {}
           }
-        });
-        localStarredSet = remoteStarredIds;
-        saveLocalStarredSet();
-      }
+        }
+      });
+      Object.keys(starredPostsArchiveMap || {}).forEach(pId => {
+        localStarredSet.add(pId);
+      });
+      if (archiveUpdated) saveStarredPostsArchiveMap();
+      saveLocalStarredSet();
 
       const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
       setStatus('live', `Live — ${boardFlowsCount} flow${boardFlowsCount !== 1 ? 's' : ''} on the board`);
@@ -6683,8 +7161,210 @@
       allPosts.find(p => p.id === id) ||
       aiTechNewsItems.find(p => p.id === id) ||
       firestoreAiNewsMap[id] ||
+      starredPostsArchiveMap[id] ||
       null
     );
+  }
+
+  // ── PER-USER NEWS PREFERENCE TRACKING & AI ANALYSIS ─────────────────────────
+  function detectClientTopicTags(title, body = '') {
+    const combined = `${title || ''} ${body || ''}`.toLowerCase();
+    const tags = [];
+    const rules = [
+      ['LLMs & Foundation Models', /\b(llm|gpt|claude|gemini|llama|mistral|deepseek|qwen|openai|anthropic|foundation model|reasoning|o1|o3)\b/i],
+      ['AI Agents & Coding', /\b(agent|agentic|coding|copilot|cursor|codegen|autonomy|workflow|tool use|mcp|developer tool|ide)\b/i],
+      ['GPUs, Chips & Hardware', /\b(gpu|nvidia|amd|intel|tpu|tsmc|chip|semiconductor|silicon|npu|cuda|hardware)\b/i],
+      ['Robotics & Embodied AI', /\b(robot|robotics|humanoid|autonomous|drone|self-driving|waymo|figure|boston dynamics)\b/i],
+      ['Open Source & Research', /\b(open source|open-source|arxiv|paper|huggingface|weights|benchmark|mit|stanford|research)\b/i],
+      ['Systems, Cloud & Security', /\b(linux|rust|kernel|database|postgres|cloud|kubernetes|security|encryption|privacy|zero-day|browser)\b/i],
+      ['Science & Deep Tech', /\b(quantum|fusion|biotech|protein|alphafold|space|spacex|physics|materials|neuroscience)\b/i],
+    ];
+    for (const [label, regex] of rules) {
+      if (regex.test(combined)) tags.push(label);
+    }
+    if (tags.length === 0) tags.push('Emerging Tech');
+    return tags;
+  }
+
+  function scoreNewsItemForCurrentUser(item) {
+    if (!item) return { score: 0, matchReason: '', topics: [] };
+    const topics = Array.isArray(item.topicTags) && item.topicTags.length > 0
+      ? item.topicTags
+      : detectClientTopicTags(item.title || '', item.body || '');
+
+    let score = Number(item.interestScore || item.personalizedScore) || 55;
+    const aiProf = (userNewsDb && userNewsDb.aiProfile) ? userNewsDb.aiProfile : null;
+    const weights = (aiProf && aiProf.topicWeights) || (userNewsDb && userNewsDb.topicWeights) || {};
+    const topTopicsList = (aiProf && (aiProf.preferredTopics || aiProf.topTopics)) || [];
+    const prefKeywords = (aiProf && aiProf.preferredKeywords) || [];
+
+    const matchedTopics = [];
+    for (const t of topics) {
+      const w = Number(weights[t]) || (topTopicsList.includes(t) ? 4 : 0);
+      if (w > 0) {
+        score += w * 12;
+        if (matchedTopics.length < 2) matchedTopics.push(t);
+      }
+    }
+
+    const hay = `${item.title || ''} ${item.body || ''} ${item.sourceName || ''}`.toLowerCase();
+    const matchedKeywords = [];
+    for (const kw of prefKeywords) {
+      if (kw && String(kw).length >= 3 && hay.includes(String(kw).toLowerCase())) {
+        score += 16;
+        if (matchedKeywords.length < 2) matchedKeywords.push(kw);
+      }
+    }
+
+    // Recency boost so fresh high-signal stories stay competitive
+    const pubMs = getPostTimestampMs(item);
+    if (pubMs > 0) {
+      const ageHours = Math.max(0, (Date.now() - pubMs) / (1000 * 60 * 60));
+      if (ageHours <= 6) score += 14;
+      else if (ageHours <= 18) score += 8;
+    }
+
+    let matchReason = item.matchReason || '';
+    if (!matchReason) {
+      if (matchedTopics.length > 0 && matchedKeywords.length > 0) {
+        matchReason = `Matches your interest in ${matchedTopics[0]} (${matchedKeywords.join(', ')})`;
+      } else if (matchedTopics.length > 0) {
+        matchReason = `Matches your interest in ${matchedTopics.join(' & ')}`;
+      } else if (matchedKeywords.length > 0) {
+        matchReason = `Matched your topics: ${matchedKeywords.join(', ')}`;
+      }
+    }
+
+    return { score, matchReason, topics };
+  }
+
+  window.analyzeUserNewsTasteWithAi = async function (force = false) {
+    try {
+      const userKey = currentUser ? currentUser.usernameLower : guestToken;
+      const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
+      const res = await fetch(`${baseOrigin}/api/user-news-profile/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userKey,
+          username: currentUser?.username || 'Reader',
+          interactions: (userNewsDb && Array.isArray(userNewsDb.interactions)) ? userNewsDb.interactions : [],
+          force: Boolean(force)
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.profile) {
+          const prof = data.profile;
+          prof.preferredTopics = prof.preferredTopics || prof.topTopics || [];
+          prof.topTopics = prof.topTopics || prof.preferredTopics || [];
+          prof.tasteSummary = prof.tasteSummary || prof.personaSummary || '';
+          prof.personaSummary = prof.personaSummary || prof.tasteSummary || '';
+          userNewsDb.aiProfile = prof;
+          if (prof.topicWeights && typeof prof.topicWeights === 'object') {
+            userNewsDb.topicWeights = prof.topicWeights;
+          }
+          userNewsDb.updatedAt = Date.now();
+          saveUserNewsDb();
+          renderFeed();
+          return prof;
+        }
+      }
+    } catch (e) {}
+    return userNewsDb?.aiProfile || null;
+  };
+
+  let analyzeUserDbTimeout = null;
+  async function recordUserNewsInteraction(post, action = 'read') {
+    if (!post || !post.id) return;
+    const isNewsOrTech = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news' || post.tag === 'news');
+    const topicTags = Array.isArray(post.topicTags) && post.topicTags.length > 0
+      ? post.topicTags
+      : detectClientTopicTags(post.title || '', post.body || '');
+
+    const entry = {
+      postId: post.id,
+      title: (post.title || (post.body || '').slice(0, 90)).slice(0, 120),
+      sourceName: post.sourceName || post.alias || '',
+      topicTags,
+      isNews: isNewsOrTech,
+      action,
+      ts: Date.now()
+    };
+
+    const existingList = Array.isArray(userNewsDb.interactions) ? userNewsDb.interactions : [];
+    const filtered = existingList.filter(it => !(it.postId === post.id && it.action === action));
+    filtered.push(entry);
+    userNewsDb.interactions = filtered.slice(-45);
+    userNewsDb.updatedAt = Date.now();
+
+    // Instant client-side heuristic update so personalization responds immediately
+    const topicWeights = {};
+    const keywordCounts = {};
+    const stopWords = new Set(['the','and','for','with','that','this','from','into','your','have','more','about','what','when','where','which','their','there','will','would','could','after','before','using','first']);
+    userNewsDb.interactions.forEach(it => {
+      const w = it.action === 'star' ? 4 : (it.action === 'like' ? 3 : 1.5);
+      (it.topicTags || []).forEach(t => {
+        topicWeights[t] = (topicWeights[t] || 0) + w;
+      });
+      String(it.title || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(wd => wd.length >= 4 && !stopWords.has(wd))
+        .forEach(wd => {
+          keywordCounts[wd] = (keywordCounts[wd] || 0) + w;
+        });
+    });
+
+    userNewsDb.topicWeights = topicWeights;
+    const topTopics = Object.entries(topicWeights).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k);
+    const preferredKeywords = Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k]) => k);
+    const summaryStr = topTopics.length > 0
+      ? `Tailored for your interest in ${topTopics.slice(0, 2).join(' & ')}.`
+      : 'Personalized as you star, like, and read Tech & AI stories.';
+
+    if (!userNewsDb.aiProfile) {
+      userNewsDb.aiProfile = {
+        topTopics,
+        preferredTopics: topTopics,
+        preferredKeywords,
+        topicWeights,
+        personaSummary: summaryStr,
+        tasteSummary: summaryStr
+      };
+    } else {
+      userNewsDb.aiProfile.topTopics = topTopics.length > 0 ? topTopics : (userNewsDb.aiProfile.topTopics || []);
+      userNewsDb.aiProfile.preferredTopics = userNewsDb.aiProfile.topTopics;
+      userNewsDb.aiProfile.topicWeights = topicWeights;
+      userNewsDb.aiProfile.preferredKeywords = preferredKeywords;
+      if (!userNewsDb.aiProfile.tasteSummary) {
+        userNewsDb.aiProfile.tasteSummary = userNewsDb.aiProfile.personaSummary || summaryStr;
+      }
+    }
+
+    saveUserNewsDb();
+
+    // Persist per-user database to Firestore (__userdb__<userKey>)
+    const userKey = currentUser ? currentUser.usernameLower : guestToken;
+    const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+    setDoc(doc(db, "posts", dbDocId), {
+      title: null,
+      body: 'user_news_db',
+      tag: 'other',
+      alias: (currentUser?.username || 'Reader').slice(0, 30),
+      ts: serverTimestamp(),
+      docType: 'user_news_db',
+      usernameLower: userKey,
+      dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
+      updatedAt: userNewsDb.updatedAt
+    }).catch(() => {});
+
+    // Trigger AI analysis on backend (debounced)
+    clearTimeout(analyzeUserDbTimeout);
+    analyzeUserDbTimeout = setTimeout(() => {
+      window.analyzeUserNewsTasteWithAi(false);
+    }, 600);
   }
 
   // ── DELETE FLOW ─────────────────────────────────────────────────────────────
@@ -6760,6 +7440,7 @@
         ...existingList,
         { docId: likeDocId, actorKey, alias: currentUser.username.slice(0, 30) }
       ];
+      recordUserNewsInteraction(post, 'like');
     } else {
       likesByPost[postId] = existingList.filter(
         l => l.actorKey !== actorKey && l.docId !== likeDocId
@@ -6808,30 +7489,43 @@
     }
   };
 
-  // ── STAR / BOOKMARK FLOW ────────────────────────────────────────────────────
+  // ── STAR / BOOKMARK FLOW (WITH PHONE STORAGE ARCHIVE) ───────────────────────
   function isPostStarredByCurrentUser(postId) {
     const actorKey = getCurrentActorKey();
-    const inRemote = (starsByPost[postId] || []).some(s => s.actorKey === actorKey);
-    return localStarredSet.has(postId) || inRemote;
+    const legacyKey = currentUser ? `user:${currentUser.usernameLower}` : actorKey;
+    const inRemote = (starsByPost[postId] || []).some(s => s.actorKey === actorKey || s.actorKey === legacyKey);
+    return localStarredSet.has(postId) || Boolean(starredPostsArchiveMap[postId]) || inRemote;
   }
 
   window.toggleStarPost = async function (postId) {
     const actorKey = getCurrentActorKey();
+    const legacyKey = currentUser ? `user:${currentUser.usernameLower}` : actorKey;
     const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
     const starDocId = `__star__${postId}__${safeActorId}`;
     const existingStarDoc = (starsByPost[postId] || []).find(
-      s => s.actorKey === actorKey || s.docId === starDocId
+      s => s.actorKey === actorKey || s.actorKey === legacyKey || s.docId === starDocId
     );
     const currentlyStarred = isPostStarredByCurrentUser(postId);
+    const post = findPostAnywhere(postId);
 
     if (currentlyStarred) {
       localStarredSet.delete(postId);
       saveLocalStarredSet();
-      showToast('Removed from Starred Flows');
+      removePostFromPhoneStorage(postId);
+      if (starsByPost[postId]) {
+        starsByPost[postId] = starsByPost[postId].filter(
+          s => s.actorKey !== actorKey && s.actorKey !== legacyKey && s.docId !== starDocId
+        );
+      }
+      showToast('Removed from Starred Flows & Phone Storage');
     } else {
       localStarredSet.add(postId);
       saveLocalStarredSet();
-      showToast('Added to Starred Flows ★');
+      if (post) {
+        archivePostToPhoneStorage(post);
+        recordUserNewsInteraction(post, 'star');
+      }
+      showToast('Saved to Starred Flows & Phone Storage ★');
     }
 
     renderSidePanelCounts();
@@ -6854,6 +7548,7 @@
           await deleteDoc(doc(db, "posts", existingStarDoc.docId));
         }
       } else {
+        const archivedSnapshot = starredPostsArchiveMap[postId] || post || null;
         await setDoc(doc(db, "posts", starDocId), {
           title: null,
           body: 'star',
@@ -6862,7 +7557,8 @@
           ts: serverTimestamp(),
           docType: 'star',
           postId,
-          actorKey
+          actorKey,
+          archivedPostJson: archivedSnapshot ? JSON.stringify(archivedSnapshot).slice(0, 8500) : null
         });
       }
     } catch (e) {
@@ -7007,12 +7703,40 @@
   }
 
   function getStarredPosts() {
-    const combined = [...allPosts, ...getCombinedNewsColumnPosts()];
+    const liveCombined = [...allPosts, ...getCombinedNewsColumnPosts()];
+    const archivedList = Object.values(starredPostsArchiveMap || {});
+    const merged = [...liveCombined, ...archivedList];
     const seen = new Set();
-    return combined.filter(p => {
-      if (!p || !p.id || seen.has(p.id)) return false;
-      seen.add(p.id);
-      return isPostStarredByCurrentUser(p.id);
+    const result = [];
+    let archiveNeedsSave = false;
+
+    for (const p of merged) {
+      if (!p || !p.id || seen.has(p.id)) continue;
+      if (isPostStarredByCurrentUser(p.id)) {
+        seen.add(p.id);
+        // Automatically ensure any starred live item is backed up in phone storage
+        if (!starredPostsArchiveMap[p.id]) {
+          starredPostsArchiveMap[p.id] = {
+            ...p,
+            savedInPhoneAt: Date.now()
+          };
+          archiveNeedsSave = true;
+        }
+        result.push({
+          ...p,
+          isSavedInPhoneStorage: true
+        });
+      }
+    }
+
+    if (archiveNeedsSave) {
+      saveStarredPostsArchiveMap();
+    }
+
+    return result.sort((a, b) => {
+      const aTime = a.savedInPhoneAt || getPostTimestampMs(a);
+      const bTime = b.savedInPhoneAt || getPostTimestampMs(b);
+      return bTime - aTime;
     });
   }
 
@@ -8111,13 +8835,32 @@
     renderFeed();
   };
 
+  window.setNewsSortMode = function(mode) {
+    if (mode === 'personalized' || mode === 'date') {
+      newsSortMode = mode;
+      localStorage.setItem('pf_news_sort_mode', mode);
+      renderFeed();
+    }
+  };
+
+  function cleanRoboticNewsBodyClient(text) {
+    return String(text || '')
+      .replace(/📌\s*(Executive Briefing|Key Overview)\s*:\s*/gi, '')
+      .replace(/🔍\s*(Technical\s*&\s*Industry\s*(Breakdown|Details))\s*:\s*/gi, '')
+      .replace(/💡\s*(Why It Matters(\s*&\s*Key Takeaways)?)\s*:\s*/gi, '')
+      .trim();
+  }
+
   function loadCachedAiTechNews() {
     try {
       const raw = localStorage.getItem(AI_NEWS_CACHE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.items)) {
-        aiTechNewsItems = parsed.items;
+        aiTechNewsItems = parsed.items.map(it => ({
+          ...it,
+          body: cleanRoboticNewsBodyClient(it.body || '')
+        }));
         aiNewsLastUpdated = parsed.updatedAt || 0;
       }
     } catch (e) {}
@@ -8135,15 +8878,21 @@
       const pubMs = getPostTimestampMs(item) || Date.now();
       const normUrl = String(item.linkUrl || '').trim().toLowerCase();
       if (normUrl) seenUrls.add(normUrl);
+      const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
+      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody });
       mapById.set(item.id, {
         ...item,
+        body: cleanedBody,
         tag: 'news',
         isAiNews: true,
         summarizedByAi: true,
         docType: 'ai_news',
         publishedAt: pubMs,
         createdAt: pubMs,
-        ts: pubMs
+        ts: pubMs,
+        personalizedScore: scored.score,
+        matchReason: scored.matchReason || item.matchReason || '',
+        topics: scored.topics
       });
     });
 
@@ -8155,15 +8904,21 @@
       const normUrl = String(item.linkUrl || '').trim().toLowerCase();
       if (mapById.has(item.id) || (normUrl && seenUrls.has(normUrl))) return;
       if (normUrl) seenUrls.add(normUrl);
+      const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
+      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody });
       mapById.set(item.id, {
         ...item,
+        body: cleanedBody,
         tag: 'news',
         isAiNews: true,
         summarizedByAi: true,
         docType: 'ai_news',
         publishedAt: pubMs,
         createdAt: pubMs,
-        ts: pubMs
+        ts: pubMs,
+        personalizedScore: scored.score,
+        matchReason: scored.matchReason || item.matchReason || '',
+        topics: scored.topics
       });
     });
 
@@ -8171,13 +8926,22 @@
     (allPosts || []).forEach(post => {
       if (getEffectivePostCategory(post) === 'news') {
         if (!mapById.has(post.id)) {
-          mapById.set(post.id, post);
+          const scored = scoreNewsItemForCurrentUser(post);
+          mapById.set(post.id, {
+            ...post,
+            personalizedScore: scored.score,
+            matchReason: scored.matchReason || '',
+            topics: scored.topics
+          });
         }
       }
     });
 
-    // Strictly sort according to date
     return Array.from(mapById.values()).sort((a, b) => {
+      if (newsSortMode === 'personalized') {
+        const sDiff = (b.personalizedScore || 0) - (a.personalizedScore || 0);
+        if (Math.abs(sDiff) >= 8) return sDiff;
+      }
       const aTime = getPostTimestampMs(a);
       const bTime = getPostTimestampMs(b);
       return newsDateSortOrder === 'oldest' ? (aTime - bTime) : (bTime - aTime);
@@ -8188,8 +8952,8 @@
     const collected = [];
     try {
       const [devAiRes, devTechRes] = await Promise.allSettled([
-        fetch(`https://dev.to/api/articles?tag=ai&per_page=14&t=${Date.now()}`, { cache: 'no-store' }),
-        fetch(`https://dev.to/api/articles?tag=technology&per_page=10&t=${Date.now()}`, { cache: 'no-store' })
+        fetch(`https://dev.to/api/articles?tag=ai&top=3&per_page=14&t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`https://dev.to/api/articles?tag=programming&top=3&per_page=10&t=${Date.now()}`, { cache: 'no-store' })
       ]);
       const rawArticles = [];
       if (devAiRes.status === 'fulfilled' && devAiRes.value.ok) {
@@ -8201,46 +8965,50 @@
         if (Array.isArray(arr)) rawArticles.push(...arr);
       }
       const seenUrls = new Set();
-      rawArticles.forEach(art => {
-        const url = String(art.url || art.canonical_url || '').trim();
-        const title = String(art.title || '').trim();
-        if (!url || !title || seenUrls.has(url)) return;
-        seenUrls.add(url);
-        const pubMs = Date.parse(art.published_timestamp || art.published_at || '') || Date.now();
-        const desc = String(art.description || title).trim();
-        const tagsList = Array.isArray(art.tag_list) ? art.tag_list.join(', ') : 'AI, Software Engineering, Cloud';
-        const author = (art.user && art.user.name) ? art.user.name : 'Tech Contributor';
-        const readTime = art.reading_time_minutes || 4;
-        const hashSeed = (url + '|' + title).toLowerCase();
-        let h = 2166136261;
-        for (let i = 0; i < hashSeed.length; i++) {
-          h ^= hashSeed.charCodeAt(i);
-          h = Math.imul(h, 16777619);
-        }
-        const detId = `__ainews__devto_${(h >>> 0).toString(16)}${String(art.id || '').slice(0, 6)}`;
-        const summary = [
-          `📌 Key Overview: ${title}. ${desc.endsWith('.') ? desc : desc + '.'} Published on Dev.to by ${author} (${readTime} min read), this briefing covers practical developments across ${tagsList}.`,
-          `🔍 Technical & Industry Details: Engineers and researchers are actively evaluating the architecture, performance trade-offs, and deployment workflows highlighted in "${title}". Key areas of focus include model inference efficiency, developer tooling integration, production reliability, and real-world system scalability across modern AI and software stacks.`,
-          `💡 Why It Matters: As AI models and cloud infrastructure evolve rapidly, these engineering insights help developers and product teams adopt emerging capabilities without having to leave the board.`
-        ].join('\n\n');
-        collected.push({
-          id: detId,
-          title: title.slice(0, 118),
-          body: summary,
-          tag: 'news',
-          alias: 'Paper Flow AI News',
-          isAiNews: true,
-          summarizedByAi: true,
-          docType: 'ai_news',
-          aiAttribution: 'Summarized by AI',
-          sourceName: 'Dev.to Tech & AI',
-          linkUrl: url,
-          linkTitle: title.slice(0, 96),
-          publishedAt: pubMs,
-          createdAt: pubMs,
-          ts: pubMs
+      rawArticles
+        .filter(art => (Number(art.positive_reactions_count) || 0) >= 4)
+        .forEach(art => {
+          const url = String(art.url || art.canonical_url || '').trim();
+          const title = String(art.title || '').trim();
+          if (!url || !title || title.length < 18 || seenUrls.has(url)) return;
+          if (/^(hire|hiring|sponsored|daily thread|open thread)/i.test(title)) return;
+          seenUrls.add(url);
+          const pubMs = Date.parse(art.published_timestamp || art.published_at || '') || Date.now();
+          const desc = String(art.description || title).trim();
+          const tagsList = Array.isArray(art.tag_list) ? art.tag_list.join(', ') : 'AI, Software Engineering, Cloud';
+          const author = (art.user && art.user.name) ? art.user.name : 'Tech Contributor';
+          const readTime = art.reading_time_minutes || 4;
+          const reactions = Number(art.positive_reactions_count) || 8;
+          const hashSeed = (url + '|' + title).toLowerCase();
+          let h = 2166136261;
+          for (let i = 0; i < hashSeed.length; i++) {
+            h ^= hashSeed.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          const detId = `__ainews__devto_${(h >>> 0).toString(16)}${String(art.id || '').slice(0, 6)}`;
+          const summary = [
+            `${title} is drawing strong engineering attention across the developer community (${reactions} reactions, ${readTime} min read by ${author}). ${desc.endsWith('.') ? desc : desc + '.'}`,
+            `Under the hood, the write-up explores practical implementation trade-offs across ${tagsList}, walking through real-world architecture decisions, latency and reliability bottlenecks, and how modern engineering teams are integrating these tools into production workflows.`,
+            `For developers and builders following the space, it offers concrete takeaways on what actually works in production versus hype—making it worth a closer look if you're building with modern AI and software infrastructure.`
+          ].join('\n\n');
+          collected.push({
+            id: detId,
+            title: title.slice(0, 118),
+            body: summary,
+            tag: 'news',
+            alias: 'Paper Flow AI News',
+            isAiNews: true,
+            summarizedByAi: true,
+            docType: 'ai_news',
+            aiAttribution: 'Summarized by AI',
+            sourceName: 'Dev.to Tech & AI',
+            linkUrl: url,
+            linkTitle: title.slice(0, 96),
+            publishedAt: pubMs,
+            createdAt: pubMs,
+            ts: pubMs
+          });
         });
-      });
     } catch (e) {}
     return collected;
   }
@@ -8259,7 +9027,8 @@
 
     try {
       const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
-      const endpoint = `${baseOrigin}/api/ai-tech-news${forceRefresh ? `?refresh=1&t=${Date.now()}` : ''}`;
+      const userKeyParam = encodeURIComponent(getCurrentActorKey());
+      const endpoint = `${baseOrigin}/api/ai-tech-news?user=${userKeyParam}${forceRefresh ? `&refresh=1&t=${Date.now()}` : `&t=${Date.now()}`}`;
       let fetchedItems = null;
       let updatedTs = Date.now();
 
@@ -8270,6 +9039,10 @@
           if (data && Array.isArray(data.items) && data.items.length > 0) {
             fetchedItems = data.items;
             updatedTs = data.updatedAt || data.lastUpdated || Date.now();
+            if (data.userProfile && typeof data.userProfile === 'object') {
+              userNewsDb.aiProfile = data.userProfile;
+              saveUserNewsDbToLocal();
+            }
           }
         }
       } catch (innerNetErr) {}
@@ -8289,6 +9062,7 @@
             const pubMs = Number(item.publishedAt || item.createdAt || item.ts) || Date.now();
             return {
               ...item,
+              body: cleanRoboticNewsBodyClient(item.body || ''),
               tag: 'news',
               isAiNews: true,
               summarizedByAi: true,
@@ -8308,13 +9082,14 @@
           }));
         } catch (e) {}
 
-        // Sync AI news items into Firestore as __ainews__* documents with accurate publishedAt timestamps and comprehensive summaries
-        aiTechNewsItems.slice(0, 20).forEach(item => {
+        // Sync AI news items into Firestore as __ainews__* documents with natural summaries
+        aiTechNewsItems.slice(0, 18).forEach(item => {
           if (!item.id || !String(item.id).startsWith('__ainews__')) return;
           const pubMs = getPostTimestampMs(item) || Date.now();
-          const cleanBody = (item.body || '').slice(0, 2600);
+          const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
           const existing = firestoreAiNewsMap[item.id];
-          if (!existing || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
+          const existingHasRobotic = existing && /📌|🔍|💡/.test(existing.body || '');
+          if (!existing || existingHasRobotic || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
             setDoc(doc(db, "posts", item.id), {
               title: (item.title || 'Tech & AI Update').slice(0, 118),
               body: cleanBody,
@@ -8335,16 +9110,17 @@
         });
 
         if (forceRefresh) {
-          showToast('✨ Updated with the latest AI-summarized Tech & AI news!');
+          analyzeUserNewsTasteWithAi(true).catch(() => {});
+          showToast('✨ Curated & updated with natural AI-summarized Tech news!');
         }
         renderAll();
       } else if (forceRefresh) {
         renderAll();
-        showToast('✨ Synced latest AI-summarized Tech & AI news!');
+        showToast('✨ Synced latest AI-curated Tech & AI news!');
       }
     } catch (err) {
       if (forceRefresh) {
-        showToast('Showing cached AI-summarized Tech & AI news.');
+        showToast('Showing cached AI-curated Tech & AI news.');
       }
     } finally {
       if (shouldShowGlow) {
@@ -8488,6 +9264,44 @@
       alias.includes(cleanUserQ) ||
       uname.includes(cleanUserQ)
     );
+  }
+
+  function buildAiPersonalizationBannerElement() {
+    const bar = document.createElement('div');
+    bar.className = 'ai-personalization-bar';
+    const aiProf = userNewsDb.aiProfile;
+    const combinedWeights = (aiProf && aiProf.topicWeights) || userNewsDb.topicWeights || {};
+    const topWeights = Object.entries(combinedWeights)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(e => e[0]);
+    const profTopics = aiProf ? (aiProf.preferredTopics || aiProf.topTopics || []) : [];
+    const topicsToShow = (Array.isArray(profTopics) && profTopics.length > 0)
+      ? profTopics.slice(0, 4)
+      : (topWeights.length > 0 ? topWeights : ['AI & LLMs', 'Software Engineering', 'Systems & Cloud']);
+    const summaryLine = (aiProf && (aiProf.tasteSummary || aiProf.personaSummary))
+      ? (aiProf.tasteSummary || aiProf.personaSummary)
+      : (topWeights.length > 0
+          ? `Customized for your interest in ${topicsToShow.join(', ')}. Star (☆), like (♥), or expand stories to refine your AI feed.`
+          : `Curated high-signal Tech & AI stories with natural summaries. Star (☆), like (♥), or read stories to train your personal AI news database.`);
+
+    const chipsHTML = topicsToShow.map(t => `<span class="ai-topic-chip">✦ ${esc(t)}</span>`).join('');
+    bar.innerHTML = `
+      <div class="ai-personalization-top">
+        <div class="ai-personalization-title">
+          <span>🧠 AI-Personalized News Database</span>
+          <span style="font-weight:500; opacity:0.8;">(${esc(currentUser ? '@' + currentUser.username : 'Device Profile')})</span>
+        </div>
+        <div class="ai-personalization-controls">
+          <button type="button" class="btn-ai-sort-mode ${newsSortMode === 'personalized' ? 'active' : ''}" onclick="setNewsSortMode('personalized')">✨ For You (AI)</button>
+          <button type="button" class="btn-ai-sort-mode ${newsSortMode === 'date' ? 'active' : ''}" onclick="setNewsSortMode('date')">🕒 Latest By Date</button>
+          <button type="button" class="btn-ai-sort-mode" onclick="analyzeUserNewsTasteWithAi(true).then(() => showToast('🧠 AI updated your personalized news profile!'))">🔄 Analyze My Taste</button>
+        </div>
+      </div>
+      <div class="ai-personalization-summary">${esc(summaryLine)}</div>
+      <div class="ai-topic-chips">${chipsHTML}</div>
+    `;
+    return bar;
   }
 
   function renderFeed() {
@@ -8663,7 +9477,7 @@
       if (sectionTitle) sectionTitle.textContent = 'Starred Flows';
       if (viewBanner) {
         viewBanner.classList.add('show');
-        viewBannerText.innerHTML = `★ Showing your starred flows`;
+        viewBannerText.innerHTML = `★ <strong>Saved on Your Phone Storage</strong> — Starred flows &amp; AI news stay accessible here even after the feed refreshes`;
       }
       baseList = getStarredPosts();
     } else if (activeFilter === 'news') {
@@ -8676,10 +9490,15 @@
     }
 
     // Filter by category dropdown:
-    // CRITICAL REQUIREMENT: News is shown ONLY in the News column (activeFilter === 'news')
+    // CRITICAL REQUIREMENT: InStarred mode, show ALL starred items (including starred AI News!)
+    // On the main board, News is shown ONLY in the News column (activeFilter === 'news')
     // and NEVER in the All Flows board (activeFilter === 'all').
     let filtered;
-    if (activeFilter === 'news') {
+    if (activeViewMode === 'starred') {
+      filtered = activeFilter === 'all'
+        ? [...baseList]
+        : baseList.filter(p => getEffectivePostCategory(p) === activeFilter || (activeFilter === 'news' && p.isAiNews));
+    } else if (activeFilter === 'news') {
       filtered = activeViewMode === 'board'
         ? [...baseList]
         : baseList.filter(p => getEffectivePostCategory(p) === 'news' || p.isAiNews);
@@ -8695,9 +9514,12 @@
     }
 
     // Sort items:
-    // In the News column, sort strictly according to date (Newest First or Oldest First).
-    // On other views, pinned flows remain at the top followed by newest date.
     filtered.sort((a, b) => {
+      if (activeViewMode === 'starred') {
+        const aSaved = starredPostsArchiveMap[a.id]?.starredAt || getPostTimestampMs(a);
+        const bSaved = starredPostsArchiveMap[b.id]?.starredAt || getPostTimestampMs(b);
+        return bSaved - aSaved;
+      }
       if (activeFilter !== 'news') {
         const aPinned = isPostPinned(a.id);
         const bPinned = isPostPinned(b.id);
@@ -8707,6 +9529,10 @@
           return (pinnedPostsMap[b.id]?.pinnedAt || 0) - (pinnedPostsMap[a.id]?.pinnedAt || 0);
         }
       }
+      if (activeFilter === 'news' && newsSortMode === 'personalized') {
+        const sDiff = (b.personalizedScore || 0) - (a.personalizedScore || 0);
+        if (Math.abs(sDiff) >= 8) return sDiff;
+      }
       const aTime = getPostTimestampMs(a);
       const bTime = getPostTimestampMs(b);
       if (activeFilter === 'news' && newsDateSortOrder === 'oldest') {
@@ -8715,18 +9541,19 @@
       return bTime - aTime;
     });
 
-    feedCount.textContent = activeFilter === 'news'
-      ? `${filtered.length} brief${filtered.length !== 1 ? 's' : ''}`
+    feedCount.textContent = activeFilter === 'news' && activeViewMode === 'board'
+      ? `${filtered.length} curated brief${filtered.length !== 1 ? 's' : ''}`
       : `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
     const isNewsActiveView = activeViewMode === 'board' && activeFilter === 'news';
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
 
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
-    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
+    const aiProfileSig = userNewsDb.aiProfile ? (userNewsDb.aiProfile.analyzedAt || '') : Object.keys(userNewsDb.topicWeights || {}).join('+');
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${aiProfileSig}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
 
-    // Seamless in-place update when only likes, stars, or comments changed (prevents whole page flash/re-animation)
+    // Seamless in-place update when only likes, stars, or comments changed
     if (
       feed.dataset.feedSignature === nextFeedSignature &&
       feed.querySelectorAll('.card').length === filtered.length &&
@@ -8739,15 +9566,19 @@
     feed.dataset.feedSignature = nextFeedSignature;
     feed.innerHTML = '';
 
+    if (isNewsActiveView) {
+      feed.appendChild(buildAiPersonalizationBannerElement());
+    }
+
     if (filtered.length === 0) {
       const emptyMsg = qLower
         ? `No items matching "${esc(searchQuery)}".`
-        : (activeFilter === 'news'
-            ? (isRefreshingAiNews ? 'Summarizing the latest Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click the refresh button to load!')
+        : (activeFilter === 'news' && activeViewMode === 'board'
+            ? (isRefreshingAiNews ? 'Curating the most interesting Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click the refresh button to load!')
             : (activeViewMode === 'my-flows'
                 ? 'You have not posted any flows yet. Click + to publish one!'
                 : (activeViewMode === 'starred'
-                    ? 'You have not starred any flows yet. Click ☆ at the top of any flow to save it here!'
+                    ? 'You have not starred any flows or news yet. Tap ☆ on any flow or AI news brief to store it in your phone storage!'
                     : 'No flows here yet. Click + to share a thought!')));
       const emptyEl = document.createElement('div');
       emptyEl.className = 'empty-state';
@@ -8759,7 +9590,7 @@
     const fragment = document.createDocumentFragment();
     let lastDateGroupLabel = null;
     filtered.forEach((post, i) => {
-      if (activeFilter === 'news') {
+      if (activeFilter === 'news' && activeViewMode === 'board' && newsSortMode === 'date') {
         const postMs = getPostTimestampMs(post);
         const groupLabel = formatNewsDateGroupLabel(postMs);
         if (groupLabel !== lastDateGroupLabel) {
@@ -8839,7 +9670,7 @@
     if (starBtn) {
       starBtn.classList.toggle('starred', isStarred);
       starBtn.textContent = isStarred ? '★' : '☆';
-      starBtn.title = isStarred ? 'Unstar this flow' : 'Star this flow';
+      starBtn.title = isStarred ? 'Saved on phone storage (Tap to unstar)' : 'Star & save to phone storage';
       starBtn.setAttribute('aria-label', isStarred ? 'Unstar this flow' : 'Star this flow');
     }
 
@@ -8862,7 +9693,7 @@
   }
 
   function splitAiNewsIntroAndFull(bodyText) {
-    const clean = String(bodyText || '').trim();
+    const clean = cleanRoboticNewsBodyClient(bodyText);
     if (!clean) return { intro: '', hasMore: false, full: '' };
     const paragraphs = clean.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
     if (paragraphs.length > 1) {
@@ -8916,7 +9747,7 @@
       div.style.animation = 'none';
     }
 
-    const displayBody = post.hasEmptyBody ? '' : (post.body || '');
+    const displayBody = post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
     const aiSplit = isAiNewsCard ? splitAiNewsIntroAndFull(displayBody) : null;
     const isLong = isAiNewsCard ? Boolean(aiSplit && aiSplit.hasMore) : (displayBody.length > 400);
     const hasImage = Boolean(post.imageUrl);
@@ -8963,7 +9794,7 @@
       const displayTitle = esc(isAiNewsCard ? `Original Source: ${sourceLabel}${post.linkTitle || post.title || post.linkUrl}` : (post.linkTitle || post.linkUrl));
       const domain = esc(formatHostname(post.linkUrl));
       linkHTML = `
-        <a class="card-link-attachment" href="${safeUrl}" target="_blank" rel="noopener noreferrer">
+        <a class="card-link-attachment" href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="recordUserNewsInteraction(findPostAnywhere('${esc(post.id)}'), 'read')">
           <div class="card-link-left">
             <span class="card-link-title">🔗 ${displayTitle}</span>
             <span class="card-link-domain">${domain}</span>
@@ -8983,17 +9814,26 @@
       ? `Reply as @${esc(currentUser.username)}…`
       : 'Sign in to write a reply…';
 
+    const matchReasonBadgeHTML = (isAiNewsCard && post.matchReason)
+      ? `<div class="ai-match-reason-pill">🎯 ${esc(post.matchReason)}</div>`
+      : '';
+
+    const phoneSavedBadgeHTML = (isStarred && (activeViewMode === 'starred' || post.savedOnPhone || post.isSavedInPhoneStorage || starredPostsArchiveMap[post.id]))
+      ? `<span class="phone-saved-pill" title="Saved permanently in your phone storage">📱 Saved on Phone</span>`
+      : '';
+
     const bodySectionHTML = displayBody
       ? (isAiNewsCard
           ? `<div class="ai-summary-box">
                <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.65;">${esc(isExpanded ? aiSplit.full : aiSplit.intro)}</div>
-               ${aiSplit.hasMore ? `<button type="button" class="btn-ai-readmore" id="ai-readmore-btn-${post.id}" onclick="toggleExpand('${post.id}', this)"><span>${isExpanded ? 'Show less ↑' : 'Read more ↓'}</span></button>` : ''}
+               ${aiSplit.hasMore ? `<button type="button" class="btn-ai-readmore" id="ai-readmore-btn-${post.id}" onclick="toggleExpand('${post.id}', this)"><span>${isExpanded ? 'Show less ↑' : 'Read full story ↓'}</span></button>` : ''}
              </div>`
           : `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>`)
       : '';
 
     div.innerHTML = `
       ${pinned ? `<div class="pinned-ribbon">📌 Pinned by Developer</div>` : ''}
+      ${matchReasonBadgeHTML}
       <div class="card-top-bar">
         <div class="card-author ${isAiNewsCard ? '' : 'clickable-profile'}" ${isAiNewsCard ? '' : `onclick="openUserProfileModal('${esc(authorName)}', '${esc(post.authorUsername || '')}', event)" title="View @${esc(authorName)} profile"`}>
           ${avatarHTML}
@@ -9005,6 +9845,7 @@
                 : (postAuthorIsDev
                     ? `<span class="dev-badge">⚡ Developer</span>`
                     : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : ''))}
+              ${phoneSavedBadgeHTML}
             </div>
             <div class="card-time">${isAiNewsCard && formattedFullDate ? `📅 ${esc(formattedFullDate)} (${esc(timeAgo)})` : `🕐 ${timeAgo}`}${post.editedAt ? ' · <em>edited</em>' : ''}${isAiNewsCard && post.sourceName ? ` · <strong>${esc(post.sourceName)}</strong>` : ''}</div>
           </div>
@@ -9016,7 +9857,7 @@
             class="btn-star-flow ${isStarred ? 'starred' : ''}"
             id="star-btn-${post.id}"
             onclick="toggleStarPost('${post.id}')"
-            title="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
+            title="${isStarred ? 'Saved on phone storage (Tap to unstar)' : 'Star & save to phone storage'}"
             aria-label="${isStarred ? 'Unstar this flow' : 'Star this flow'}"
           >${isStarred ? '★' : '☆'}</button>
           ${!isAiNewsCard ? `<div class="card-more-wrap">
@@ -9107,14 +9948,17 @@
     const cornerBadge = document.getElementById('attach-corner-' + id);
 
     const post = findPostAnywhere(id);
+    if (isNowExpanded && post) {
+      recordUserNewsInteraction(post, 'read');
+    }
     const isAiNewsCard = Boolean(post && (post.isAiNews || post.summarizedByAi || post.docType === 'ai_news'));
-    const displayBody = post ? (post.hasEmptyBody ? '' : (post.body || '')) : '';
+    const displayBody = post ? (post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''))) : '';
 
     if (isAiNewsCard && bodyEl) {
       const aiSplit = splitAiNewsIntroAndFull(displayBody);
       bodyEl.textContent = isNowExpanded ? aiSplit.full : aiSplit.intro;
       if (aiReadMoreBtn) {
-        aiReadMoreBtn.innerHTML = `<span>${isNowExpanded ? 'Show less ↑' : 'Read more ↓'}</span>`;
+        aiReadMoreBtn.innerHTML = `<span>${isNowExpanded ? 'Show less ↑' : 'Read full story ↓'}</span>`;
       }
       return;
     }
@@ -9134,7 +9978,7 @@
     }
   };
 
-  // ── CARD SHARE & INSTANT FLOW SNAPSHOT ──────────────────────────────────────
+  // ── CARD SHARE, SNAPSHOT MODAL & NATIVE ANDROID SHARE CHOOSER ────────────────
   function roundRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -9179,17 +10023,16 @@
     const pad = 64;
     const innerW = width - pad * 2;
     const isDark = document.body.classList.contains('dark-mode');
+    const isAiNews = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
+    const isDev = !isAiNews && isDeveloperUser(post.authorUsername || post.alias);
 
     // Pre-calculate line wrapped titles and bodies
     ctx.font = 'bold 44px "Newsreader", Georgia, serif';
     const titleLines = post.title ? wrapCanvasText(ctx, post.title, innerW - 88) : [];
 
     ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    const rawBody = post.hasEmptyBody ? '' : (post.body || '');
+    const rawBody = post.hasEmptyBody ? '' : (isAiNews ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
     const bodyLines = rawBody ? wrapCanvasText(ctx, rawBody.slice(0, 750), innerW - 88).slice(0, 14) : [];
-
-    const isAiNews = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
-    const isDev = !isAiNews && isDeveloperUser(post.authorUsername || post.alias);
 
     // Compute dynamic canvas height
     let contentH = pad;
@@ -9390,6 +10233,127 @@
     });
   }
 
+  let activeShareSnapshotState = null;
+
+  window.closeShareFlowModal = function (event) {
+    if (event && event.target && event.target.id && event.target.id !== 'shareFlowModalBackdrop') return;
+    const backdrop = document.getElementById('shareFlowModalBackdrop');
+    if (backdrop) backdrop.classList.remove('open');
+  };
+
+  window.downloadCurrentShareSnapshot = function () {
+    if (!activeShareSnapshotState || !activeShareSnapshotState.blob) return;
+    const tempA = document.createElement('a');
+    tempA.href = URL.createObjectURL(activeShareSnapshotState.blob);
+    tempA.download = activeShareSnapshotState.fileName || 'paperflow-snapshot.png';
+    document.body.appendChild(tempA);
+    tempA.click();
+    setTimeout(() => {
+      try {
+        document.body.removeChild(tempA);
+      } catch (e) {}
+    }, 3000);
+    showToast('📸 Flow snapshot PNG saved to your device!');
+  };
+
+  window.copyCurrentShareLink = async function () {
+    if (!activeShareSnapshotState) return;
+    const textToCopy = `${activeShareSnapshotState.shareText} ${activeShareSnapshotState.shareUrl}`;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+        showToast('🔗 Flow link & summary copied!');
+        return;
+      }
+    } catch (e) {}
+    const input = document.getElementById('shareModalLinkInput');
+    if (input) {
+      input.select();
+      document.execCommand('copy');
+      showToast('🔗 Flow link copied!');
+    }
+  };
+
+  window.triggerNativeShareFromModal = async function () {
+    if (!activeShareSnapshotState) return;
+    const { title, shareText, shareUrl, shareFile, dataUrl, hostedSnapshotUrl } = activeShareSnapshotState;
+    const fullShareText = hostedSnapshotUrl
+      ? `${shareText}\n\n📸 Snapshot: ${hostedSnapshotUrl}\n🔗 Open on Paper Flow: ${shareUrl}`
+      : `${shareText}\n\n🔗 ${shareUrl}`;
+
+    // 1. Try Web Share API with PNG snapshot file first (supported on modern mobile Chrome / WebView)
+    if (navigator.share) {
+      if (shareFile && navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+        try {
+          await navigator.share({
+            title,
+            text: `${shareText} ${shareUrl}`,
+            files: [shareFile]
+          });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+      try {
+        await navigator.share({
+          title,
+          text: fullShareText,
+          url: shareUrl
+        });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+
+    // 2. Native Android APK Bridge (triggers Android native Intent.ACTION_SEND Chooser Sheet)
+    if (window.PaperFlowAndroid) {
+      if (typeof window.PaperFlowAndroid.shareFlow === 'function') {
+        try {
+          window.PaperFlowAndroid.shareFlow(title, fullShareText, shareUrl, dataUrl || '');
+          return;
+        } catch (e) {}
+      }
+      if (typeof window.PaperFlowAndroid.showNotification === 'function') {
+        try {
+          window.PaperFlowAndroid.showNotification('text/plainandroid.intent.extra.TEXT', fullShareText, 'android.intent.action.SEND');
+          return;
+        } catch (e) {}
+      }
+    }
+
+    // 3. Fallback: Download snapshot PNG & copy link
+    window.downloadCurrentShareSnapshot();
+    window.copyCurrentShareLink();
+  };
+
+  window.shareToExternalApp = function (appName) {
+    if (!activeShareSnapshotState) return;
+    const { title, shareText, shareUrl, hostedSnapshotUrl } = activeShareSnapshotState;
+    const combined = hostedSnapshotUrl
+      ? `${shareText}\n📸 Snapshot: ${hostedSnapshotUrl}\n🔗 ${shareUrl}`
+      : `${shareText}\n🔗 ${shareUrl}`;
+
+    let targetHref = '';
+    if (appName === 'whatsapp') {
+      targetHref = `https://api.whatsapp.com/send?text=${encodeURIComponent(combined)}`;
+    } else if (appName === 'telegram') {
+      targetHref = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText + (hostedSnapshotUrl ? '\n📸 Snapshot: ' + hostedSnapshotUrl : ''))}`;
+    } else if (appName === 'twitter') {
+      targetHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText.slice(0, 200))}&url=${encodeURIComponent(shareUrl)}`;
+    }
+    if (targetHref) {
+      const a = document.createElement('a');
+      a.href = targetHref;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  };
+
   window.shareFlowPost = async function (postId, event) {
     if (event) {
       event.preventDefault();
@@ -9402,6 +10366,8 @@
       return;
     }
 
+    recordUserNewsInteraction(post, 'share');
+
     const shareBtn = document.getElementById(`share-btn-${postId}`);
     if (shareBtn) {
       shareBtn.classList.add('sharing');
@@ -9411,70 +10377,97 @@
     try {
       const shareUrl = `${LIVE_WEB_ORIGIN}/?post=${encodeURIComponent(post.id)}`;
       const title = post.title ? `${post.title} — Paper Flow` : 'Paper Flow Discussion';
-      const excerpt = (post.hasEmptyBody ? '' : (post.body || '')).trim().slice(0, 140);
-      const shareText = `${post.title ? post.title + '\n\n' : ''}${excerpt ? excerpt + (excerpt.length >= 140 ? '…' : '') + '\n\n' : ''}Read & discuss on Paper Flow:`;
+      const rawBody = post.hasEmptyBody ? '' : (post.isAiNews ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
+      const excerpt = rawBody.trim().slice(0, 150);
+      const shareText = `${post.title ? '📌 ' + post.title + '\n\n' : ''}${excerpt ? excerpt + (rawBody.length > 150 ? '…' : '') + '\n\n' : ''}Read & discuss on Paper Flow:`;
 
-      // Generate the snapshot image blob cleanly without any server text
-      const { blob, canvas } = await generateFlowSnapshotCanvas(post);
+      // 1. Render high-resolution flow snapshot PNG
+      const { blob, canvas } = await generateFlowSnapshotCanvas(post, shareUrl);
+      const dataUrl = canvas.toDataURL('image/png');
       const safeFileTitle = (post.title || 'flow').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24);
-      const fileName = `paperflow-${safeFileTitle}-${post.id.slice(0, 8)}.png`;
+      const fileName = `paperflow-${safeFileTitle}-${String(post.id).slice(-8)}.png`;
       const shareFile = new File([blob], fileName, { type: 'image/png' });
 
-      // 1. If running in native Android app with AndroidBridge
-      if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.shareFlow === 'function') {
-        const dataUrl = canvas.toDataURL('image/png');
-        window.PaperFlowAndroid.shareFlow(title, `${shareText} ${shareUrl}`, shareUrl, dataUrl);
-        showToast('Opening Share…');
-        return;
-      }
+      activeShareSnapshotState = {
+        post,
+        title,
+        shareText,
+        shareUrl,
+        blob,
+        dataUrl,
+        fileName,
+        shareFile,
+        hostedSnapshotUrl: ''
+      };
 
-      // 2. Web Share API with image file attachment (Phones & Tablets)
-      let sharedSuccessfully = false;
-      if (navigator.share) {
-        if (navigator.canShare && navigator.canShare({ files: [shareFile] })) {
-          try {
-            await navigator.share({
-              title,
-              text: `${shareText} ${shareUrl}`,
-              files: [shareFile]
-            });
-            sharedSuccessfully = true;
-          } catch (err) {
-            if (err.name === 'AbortError') return;
+      // 2. Populate & Open the Share Flow Snapshot Modal immediately so the share panel always pops up with snapshot preview
+      const previewImg = document.getElementById('shareModalSnapshotImg');
+      const linkInput = document.getElementById('shareModalLinkInput');
+      const modalBackdrop = document.getElementById('shareFlowModalBackdrop');
+      if (previewImg) previewImg.src = dataUrl;
+      if (linkInput) linkInput.value = shareUrl;
+      if (modalBackdrop) modalBackdrop.classList.add('open');
+
+      // 3. Upload snapshot to get a public snapshot link for native text+snapshot sharing
+      const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
+      let hostedSnapUrl = '';
+      try {
+        const snapRes = await Promise.race([
+          fetch(`${baseOrigin}/api/share-snapshot`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: post.id, dataUrl })
+          }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 650))
+        ]);
+        if (snapRes && snapRes.ok) {
+          const snapData = await snapRes.json();
+          if (snapData && snapData.snapshotUrl) {
+            hostedSnapUrl = snapData.snapshotUrl;
+            activeShareSnapshotState.hostedSnapshotUrl = hostedSnapUrl;
           }
         }
+      } catch (e) {}
 
-        // Fallback to text & link share if file share wasn't accepted
-        if (!sharedSuccessfully) {
-          try {
-            await navigator.share({
-              title,
-              text: shareText,
-              url: shareUrl
-            });
-            sharedSuccessfully = true;
-          } catch (err) {
-            if (err.name === 'AbortError') return;
-          }
+      // 4. Also immediately invoke the phone's native share sheet (Android Chooser / Web Share API with PNG file)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+        try {
+          await navigator.share({
+            title,
+            text: `${shareText} ${shareUrl}`,
+            files: [shareFile]
+          });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
         }
       }
 
-      // 3. Desktop / Browser without Web Share: Copy link and download snapshot PNG
-      if (!sharedSuccessfully) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(shareUrl);
+      if (window.PaperFlowAndroid) {
+        const nativeText = hostedSnapUrl
+          ? `${shareText}\n\n📸 Snapshot: ${hostedSnapUrl}\n🔗 Open on Paper Flow: ${shareUrl}`
+          : `${shareText}\n\n🔗 ${shareUrl}`;
+        if (typeof window.PaperFlowAndroid.shareFlow === 'function') {
+          try {
+            window.PaperFlowAndroid.shareFlow(title, nativeText, shareUrl, dataUrl);
+          } catch (e) {}
+        } else if (typeof window.PaperFlowAndroid.showNotification === 'function') {
+          try {
+            window.PaperFlowAndroid.showNotification('text/plainandroid.intent.extra.TEXT', nativeText, 'android.intent.action.SEND');
+          } catch (e) {}
         }
-        const tempA = document.createElement('a');
-        tempA.href = URL.createObjectURL(blob);
-        tempA.download = fileName;
-        document.body.appendChild(tempA);
-        tempA.click();
-        tempA.remove();
-        showToast('Link copied & flow snapshot saved!');
+      } else if (navigator.share) {
+        try {
+          await navigator.share({
+            title,
+            text: shareText,
+            url: shareUrl
+          });
+        } catch (err) {}
       }
     } catch (err) {
       console.error('Share error:', err);
-      showToast('Could not open share sheet.');
+      showToast('Share panel opened.');
     } finally {
       if (shareBtn) {
         shareBtn.classList.remove('sharing');
@@ -9580,7 +10573,7 @@
     }, 2400);
   };
 
-  // ── SERVICE WORKER & OFFLINE CONNECTIVITY ─────────────────────────────────
+  // ── SERVICE WORKER, PUSH SYNC & OFFLINE CONNECTIVITY ──────────────────────
   function syncOnlineConnectivityUI() {
     const offlineBanner = document.getElementById('offlineConnectivityBanner');
     const isOnline = navigator.onLine !== false;
@@ -9592,17 +10585,73 @@
   });
   window.addEventListener('offline', () => {
     syncOnlineConnectivityUI();
-    showToast('Offline Mode — using cached app data.');
+    showToast('Offline Mode — starred flows on your phone remain available.');
   });
 
-  // Register Service Worker & Handle App Shortcuts / Notification Deep-Links
+  // Poll server background notifications queue (catches developer flows, replies & messages that arrived while app/tab was inactive)
+  let lastBgPollTs = Number(localStorage.getItem('pf_last_bg_notif_ts')) || (Date.now() - 10 * 60 * 1000);
+  async function pollBackgroundNotificationsClient() {
+    try {
+      const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
+      const userKey = currentUser ? currentUser.usernameLower : '';
+      const res = await fetch(`${baseOrigin}/api/background-notifications?user=${encodeURIComponent(userKey)}&since=${lastBgPollTs}&t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !Array.isArray(data.items) || data.items.length === 0) return;
+
+      for (const item of data.items) {
+        if (!item || !item.id) continue;
+        if (Number(item.ts) > lastBgPollTs) {
+          lastBgPollTs = Number(item.ts);
+          localStorage.setItem('pf_last_bg_notif_ts', String(lastBgPollTs));
+        }
+        if (!seenReplyIdsSet.has(item.id)) {
+          seenReplyIdsSet.add(item.id);
+          saveSeenReplyIdsSet();
+          sendSystemAndInAppReplyNotification({
+            title: item.title || 'Paper Flow Alert',
+            body: item.body || 'New update on Paper Flow',
+            postId: item.postId || null
+          });
+        }
+      }
+    } catch (e) {}
+  }
+
+  setInterval(pollBackgroundNotificationsClient, 25000);
+  document.addEventListener('visibilitychange', () => {
+    pollBackgroundNotificationsClient();
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      const userKey = currentUser ? currentUser.usernameLower : '';
+      navigator.serviceWorker.controller.postMessage({ type: 'CHECK_BG_NOTIFICATIONS_NOW', username: userKey });
+    }
+  });
+  window.addEventListener('focus', pollBackgroundNotificationsClient);
+
+  // Register Service Worker, Sync Active User for Background Notifications & Handle Deep-Links
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        const userKey = currentUser ? currentUser.usernameLower : '';
+        if (reg.active) {
+          reg.active.postMessage({ type: 'SYNC_NOTIF_USER', username: userKey });
+          reg.active.postMessage({ type: 'CHECK_BG_NOTIFICATIONS_NOW', username: userKey });
+        }
+        if ('periodicSync' in reg) {
+          reg.periodicSync.register('paperflow-bg-notif-sync', { minInterval: 60 * 1000 }).catch(() => {});
+        }
+        if ('sync' in reg) {
+          reg.sync.register('paperflow-bg-notif-sync').catch(() => {});
+        }
+      }).catch(() => {});
     });
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'OPEN_POST_FROM_NOTIFICATION' && event.data.postId) {
-        jumpToFlowFromReply(event.data.postId);
+        if (String(event.data.postId).startsWith('__pm__') || String(event.data.postId).startsWith('__msgreq__')) {
+          switchViewMode('messages');
+        } else {
+          jumpToFlowFromReply(event.data.postId);
+        }
       }
     });
   }
@@ -9628,6 +10677,11 @@
 
   // ── NATIVE ANDROID APK HARDWARE BACK BUTTON & RUNTIME BRIDGE ──────────────
   window.handleAndroidBackButton = function () {
+    const shareModal = document.getElementById('shareFlowModalBackdrop');
+    if (shareModal && shareModal.classList.contains('open')) {
+      closeShareFlowModal();
+      return true;
+    }
     const lightbox = document.getElementById('lightboxBackdrop');
     if (lightbox && lightbox.classList.contains('open')) {
       closeLightbox();
@@ -9688,7 +10742,7 @@
     ];
 
     if (isWebView) {
-      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.3&t=' + Date.now();
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
       return false;
     }
 
@@ -9701,11 +10755,10 @@
 
     try {
       let validBuffer = null;
-      let validUrl = '';
 
       for (const p of candidatePaths) {
         try {
-          const url = baseOrigin + p + '?v=1.0.3&t=' + Date.now();
+          const url = baseOrigin + p + '?v=1.0.4&t=' + Date.now();
           const res = await fetch(url, {
             method: 'GET',
             credentials: 'same-origin',
@@ -9721,7 +10774,6 @@
             // Verify ZIP / APK magic bytes: PK\x03\x04 (0x50, 0x4B, 0x03, 0x04)
             if (head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04) {
               validBuffer = buf;
-              validUrl = baseOrigin + p;
               break;
             }
           }
@@ -9745,7 +10797,7 @@
         }, 60000);
 
         if (btnEl) btnEl.textContent = '✓ APK Downloaded!';
-        showToast('Updated Paper-Flow.apk (v1.0.3) downloaded! Tap the file to install.');
+        showToast('Updated Paper-Flow.apk (v1.0.4) downloaded! Tap the file to install.');
         setTimeout(() => {
           if (btnEl) btnEl.textContent = origText;
         }, 3500);
@@ -9753,9 +10805,9 @@
       }
 
       // Fallback to direct browser navigation if fetch buffer was unavailable
-      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.3&t=' + Date.now();
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
     } catch (err) {
-      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.3&t=' + Date.now();
+      window.location.href = baseOrigin + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
     } finally {
       if (btnEl) {
         btnEl.style.pointerEvents = '';
@@ -9774,7 +10826,6 @@
   const OBSIDIAN_SUDOKU_PAPERFLOW_URL = 'https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.2/obsidian-sudoku-debug.apk';
 
   async function resolveObsidianSudokuApkUrl() {
-    // 1. Check ArnavSri21/paper-flow releases for an uploaded APK asset (e.g. v1.0.2/obsidian-sudoku-debug.apk)
     try {
       const pfRes = await fetch('https://api.github.com/repos/ArnavSri21/paper-flow/releases', { cache: 'no-store' });
       if (pfRes.ok) {
@@ -9794,7 +10845,6 @@
       }
     } catch (e) {}
 
-    // 2. Check ArnavSri21/SudokuClash latest release for the uploaded Obsidian Sudoku APK asset
     try {
       const scRes = await fetch('https://api.github.com/repos/ArnavSri21/SudokuClash/releases/latest', { cache: 'no-store' });
       if (scRes.ok) {
@@ -9842,7 +10892,6 @@
     return false;
   };
 
-  // Pre-sync the Obsidian Sudoku download button href on startup
   resolveObsidianSudokuApkUrl().then((url) => {
     const btn = document.getElementById('obsidianSudokuDownloadBtn');
     if (btn && url) {
@@ -9855,16 +10904,13 @@
       const isApp = window.isRunningInNativeApp();
       const apkSection = document.getElementById('paperflowApkSection');
       const updateSection = document.getElementById('paperflowUpdateSection');
-      const apkBtn = document.getElementById('sideApkDownloadBtn');
       const baseOrigin = (window.location.hostname === 'appassets.androidplatform.net') ? LIVE_WEB_ORIGIN : '';
 
       if (isApp) {
-        // 1. In native app: Remove the static APK download block completely
         if (apkSection) apkSection.style.display = 'none';
 
-        // 2. Check server version and show update box ONLY once updates are available, not always
         try {
-          const BUNDLED_APK_VERSION_CODE = 3; // v1.0.3
+          const BUNDLED_APK_VERSION_CODE = 4; // v1.0.4
           const bridgeVersionCode = (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.getAppVersionCode === 'function')
             ? window.PaperFlowAndroid.getAppVersionCode()
             : 2;
@@ -9888,7 +10934,6 @@
                 }
               }
             } else {
-              // No updates: keep update box hidden
               if (updateSection) updateSection.style.display = 'none';
             }
           }
@@ -9898,12 +10943,9 @@
         return;
       }
 
-      // ON WEBSITE (Not inside native Android app):
-      // Keep update box hidden and show APK download section
       if (updateSection) updateSection.style.display = 'none';
       if (apkSection) apkSection.style.display = 'block';
 
-      // Ensure Service Worker cache never holds a stale HTML response for Paper-Flow.apk
       if ('caches' in window) {
         caches.keys().then((keys) => {
           keys.forEach((k) => {
@@ -9935,3 +10977,4 @@
 </script>
 </body>
 </html>
+

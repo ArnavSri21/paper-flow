@@ -1,5 +1,6 @@
-const CACHE_NAME = 'paperflow-app-shell-v8';
+const CACHE_NAME = 'paperflow-app-shell-v9';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
+const NOTIF_META_CACHE = 'paperflow-notif-meta-v1';
 
 const PRECACHE_URLS = [
   '/',
@@ -28,7 +29,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME && key !== FONT_CACHE_NAME)
+          .filter((key) => key !== CACHE_NAME && key !== FONT_CACHE_NAME && key !== NOTIF_META_CACHE)
           .map((key) => caches.delete(key))
       )
     ).then(() => self.clients.claim())
@@ -116,6 +117,20 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ── CONSTANT BACKGROUND NOTIFICATIONS (EVEN WHEN WEBSITE OR APP IS CLOSED) ──
+self.addEventListener('message', (event) => {
+  if (!event.data) return;
+  if (event.data.type === 'SYNC_NOTIF_USER') {
+    const userLower = String(event.data.usernameLower || '').trim().toLowerCase();
+    event.waitUntil(
+      caches.open(NOTIF_META_CACHE).then((cache) =>
+        cache.put('/__active_user__', new Response(JSON.stringify({ usernameLower: userLower, ts: Date.now() })))
+      )
+    );
+  } else if (event.data.type === 'CHECK_BG_NOTIFICATIONS_NOW') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
 self.addEventListener('push', (event) => {
   let data = {};
   if (event.data) {
@@ -131,20 +146,34 @@ self.addEventListener('push', (event) => {
     body: data.body || 'New update available on Paper Flow',
     icon: '/pwa-192x192.png',
     badge: '/pwa-192x192.png',
-    vibrate: [120, 60, 120],
-    tag: data.tag || data.postId || 'paperflow-alert',
+    vibrate: [160, 70, 160],
+    tag: data.tag || data.id || data.postId || 'paperflow-alert',
     renotify: true,
+    requireInteraction: false,
     data: {
       postId: data.postId || '',
       url: data.url || (data.postId ? `/?post=${encodeURIComponent(data.postId)}` : '/')
     }
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    caches.open(NOTIF_META_CACHE).then(async (cache) => {
+      if (data.id) {
+        await cache.put(`/seen-notif/${data.id}`, new Response('1'));
+      }
+      return self.registration.showNotification(title, options);
+    })
+  );
 });
 
-// Periodic Background Sync: fetches developer flows in background if push was missed
+// Periodic Background Sync & One-off Background Sync: fetches developer flows & user alerts in background if push was missed
 self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'paperflow-background-sync' || event.tag === 'paperflow-alerts') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
+self.addEventListener('sync', (event) => {
   if (event.tag === 'paperflow-background-sync' || event.tag === 'paperflow-alerts') {
     event.waitUntil(checkBackgroundFlowAlerts());
   }
@@ -152,21 +181,40 @@ self.addEventListener('periodicsync', (event) => {
 
 async function checkBackgroundFlowAlerts() {
   try {
-    const res = await fetch('/api/developer-flows/latest');
+    const cache = await caches.open(NOTIF_META_CACHE);
+    let activeUser = '';
+    try {
+      const userRes = await cache.match('/__active_user__');
+      if (userRes) {
+        const parsed = await userRes.json();
+        activeUser = String(parsed.usernameLower || '').trim().toLowerCase();
+      }
+    } catch (e) {}
+
+    const res = await fetch(`/api/background-notifications?user=${encodeURIComponent(activeUser)}`);
     if (!res.ok) return;
     const json = await res.json();
-    if (!json || !json.items || json.items.length === 0) return;
-    const latest = json.items[0];
-    const cache = await caches.open('paperflow-seen-dev-alerts-v1');
-    const seen = await cache.match(`/seen-dev/${latest.id}`);
-    if (!seen) {
-      await cache.put(`/seen-dev/${latest.id}`, new Response('1'));
-      await self.registration.showNotification(`⚡ Developer Update: ${latest.title || 'New Developer Flow'}`, {
-        body: (latest.body || 'The developer shared a new update on Paper Flow. Tap to read.').slice(0, 130),
-        icon: '/pwa-192x192.png',
-        badge: '/pwa-192x192.png',
-        data: { postId: latest.id, url: `/?post=${encodeURIComponent(latest.id)}` }
-      });
+    if (!json || !Array.isArray(json.notifications)) return;
+
+    for (const notif of json.notifications.slice(0, 5)) {
+      if (!notif || !notif.id) continue;
+      const seenKey = `/seen-notif/${notif.id}`;
+      const alreadySeen = await cache.match(seenKey);
+      if (!alreadySeen) {
+        await cache.put(seenKey, new Response('1'));
+        await self.registration.showNotification(notif.title || 'Paper Flow Update', {
+          body: (notif.body || 'New update on Paper Flow. Tap to open.').slice(0, 140),
+          icon: '/pwa-192x192.png',
+          badge: '/pwa-192x192.png',
+          vibrate: [160, 70, 160],
+          tag: notif.tag || notif.id,
+          renotify: true,
+          data: {
+            postId: notif.postId || '',
+            url: notif.url || (notif.postId ? `/?post=${encodeURIComponent(notif.postId)}` : '/')
+          }
+        });
+      }
     }
   } catch (err) {}
 }

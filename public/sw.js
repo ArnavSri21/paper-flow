@@ -1,5 +1,7 @@
-const CACHE_NAME = 'paperflow-app-shell-v6';
+const CACHE_NAME = 'paperflow-app-shell-v10';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
+const NOTIF_META_CACHE = 'paperflow-notif-meta-v1';
+const CLOUD_API_ORIGIN = 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app';
 
 const PRECACHE_URLS = [
   '/',
@@ -11,6 +13,14 @@ const PRECACHE_URLS = [
   '/pwa-maskable-512x512.png',
   '/apple-touch-icon.png'
 ];
+
+function getSwApiOrigin() {
+  const host = String(self.location.hostname || '').toLowerCase();
+  if (host === 'appassets.androidplatform.net' || host === 'paperflow.hs.vc') {
+    return CLOUD_API_ORIGIN;
+  }
+  return '';
+}
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -28,7 +38,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME && key !== FONT_CACHE_NAME)
+          .filter((key) => key !== CACHE_NAME && key !== FONT_CACHE_NAME && key !== NOTIF_META_CACHE)
           .map((key) => caches.delete(key))
       )
     ).then(() => self.clients.claim())
@@ -115,10 +125,139 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// ── CONSTANT BACKGROUND NOTIFICATIONS (EVEN WHEN WEBSITE OR APP IS CLOSED) ──
+self.addEventListener('message', (event) => {
+  if (!event.data) return;
+  if (event.data.type === 'SYNC_NOTIF_USER') {
+    const userLower = String(event.data.usernameLower || event.data.username || '').trim().toLowerCase();
+    event.waitUntil(
+      caches.open(NOTIF_META_CACHE).then((cache) =>
+        cache.put('/__active_user__', new Response(JSON.stringify({ usernameLower: userLower, ts: Date.now() })))
+      )
+    );
+  } else if (event.data.type === 'CHECK_BG_NOTIFICATIONS_NOW') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'Paper Flow Update', body: event.data.text() };
+    }
+  }
+
+  const title = data.title || 'Paper Flow';
+  const options = {
+    body: data.body || 'New update available on Paper Flow',
+    icon: '/pwa-192x192.png',
+    badge: '/pwa-192x192.png',
+    vibrate: [160, 70, 160],
+    tag: data.tag || data.id || data.postId || 'paperflow-alert',
+    renotify: true,
+    requireInteraction: false,
+    data: {
+      postId: data.postId || '',
+      url: data.url || (data.postId ? `/?post=${encodeURIComponent(data.postId)}` : '/')
+    }
+  };
+
+  event.waitUntil(
+    caches.open(NOTIF_META_CACHE).then(async (cache) => {
+      if (data.id) {
+        await cache.put(`/seen-notif/${data.id}`, new Response('1'));
+      }
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clients) {
+        client.postMessage({
+          type: 'TRIGGER_NATIVE_NOTIFICATION',
+          title,
+          body: options.body,
+          postId: data.postId || ''
+        });
+      }
+      return self.registration.showNotification(title, options);
+    })
+  );
+});
+
+// Periodic Background Sync & One-off Background Sync: fetches developer flows & user alerts in background if push was missed
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'paperflow-background-sync' || event.tag === 'paperflow-bg-notif-sync' || event.tag === 'paperflow-alerts') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'paperflow-background-sync' || event.tag === 'paperflow-bg-notif-sync' || event.tag === 'paperflow-alerts') {
+    event.waitUntil(checkBackgroundFlowAlerts());
+  }
+});
+
+async function checkBackgroundFlowAlerts() {
+  try {
+    const cache = await caches.open(NOTIF_META_CACHE);
+    let activeUser = '';
+    try {
+      const userRes = await cache.match('/__active_user__');
+      if (userRes) {
+        const parsed = await userRes.json();
+        activeUser = String(parsed.usernameLower || '').trim().toLowerCase();
+      }
+    } catch (e) {}
+
+    const apiOrigin = getSwApiOrigin();
+    const res = await fetch(`${apiOrigin}/api/background-notifications?user=${encodeURIComponent(activeUser)}&t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const json = await res.json();
+    const list = Array.isArray(json?.items) ? json.items : (Array.isArray(json?.notifications) ? json.notifications : []);
+    if (list.length === 0) return;
+
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const notif of list.slice(0, 5)) {
+      if (!notif || !notif.id) continue;
+      const seenKey = `/seen-notif/${notif.id}`;
+      const alreadySeen = await cache.match(seenKey);
+      if (!alreadySeen) {
+        await cache.put(seenKey, new Response('1'));
+        const title = notif.title || 'Paper Flow Update';
+        const body = (notif.body || 'New update on Paper Flow. Tap to open.').slice(0, 140);
+        for (const client of clients) {
+          client.postMessage({
+            type: 'TRIGGER_NATIVE_NOTIFICATION',
+            title,
+            body,
+            postId: notif.postId || ''
+          });
+        }
+        try {
+          await self.registration.showNotification(title, {
+            body,
+            icon: '/pwa-192x192.png',
+            badge: '/pwa-192x192.png',
+            vibrate: [160, 70, 160],
+            tag: notif.tag || notif.id,
+            renotify: true,
+            data: {
+              postId: notif.postId || '',
+              url: notif.url || (notif.postId ? `/?post=${encodeURIComponent(notif.postId)}` : '/')
+            }
+          });
+        } catch (e) {}
+      }
+    }
+  } catch (err) {}
+}
+
 // Focus or open the Paper Flow app window when a notification is clicked
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetPostId = event.notification?.data?.postId || '';
+  const targetUrl = event.notification?.data?.url || (targetPostId ? `/?post=${encodeURIComponent(targetPostId)}` : '/');
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
@@ -132,7 +271,7 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       if (self.clients.openWindow) {
-        return self.clients.openWindow(targetPostId ? `/?post=${encodeURIComponent(targetPostId)}` : '/');
+        return self.clients.openWindow(targetUrl);
       }
     })
   );

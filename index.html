@@ -4512,7 +4512,7 @@
                   <div class="paperflow-apk-sub">Includes Native Snapshot Image Share Sheet, AI-Customized News, Offline Phone Storage for Starred Flows, and Background Notifications.</div>
                 </div>
               </div>
-              <a href="/download/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Download APK ↓</a>
+              <a href="/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Download APK ↓</a>
             </div>
           </section>
 
@@ -4521,7 +4521,7 @@
             <div class="games-header">Games</div>
             <div class="games-body">
               <div class="game-title">Obsidian Sudoku</div>
-              <a href="https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.2/obsidian-sudoku-debug.apk" id="obsidianSudokuDownloadBtn" class="btn-obsidian-download" download="Obsidian-Sudoku.apk" onclick="return downloadObsidianSudokuApk(event, this)">Download APK ↓</a>
+              <a href="https://github.com/ArnavSri21/SudokuClash/releases/download/v1.0.0/obsidian-sudoku-debug.apk" id="obsidianSudokuDownloadBtn" class="btn-obsidian-download" download="Obsidian-Sudoku.apk" onclick="return downloadObsidianSudokuApk(event, this)">Download APK ↓</a>
             </div>
           </section>
         </div>
@@ -4537,7 +4537,7 @@
       <div class="paperflow-update-body">
         <div class="paperflow-update-title" id="updateTitle">A new version of Paper Flow is ready!</div>
         <div class="paperflow-update-notes" id="updateNotes">Updated with Native Snapshot Share Sheet, AI-Customized News &amp; Per-User Taste DB, Phone Storage for Starred Flows, and Background Notifications.</div>
-        <a href="/download/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
+        <a href="/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
       </div>
     </section>
 
@@ -11063,17 +11063,22 @@
 
   window.downloadPaperFlowApk = async function (event, btnEl) {
     if (event) event.preventDefault();
+    const host = String(window.location.hostname || '').toLowerCase();
+    const isInsideBundledApk = (
+      host === 'appassets.androidplatform.net' ||
+      !window.location.origin ||
+      window.location.origin.startsWith('file:')
+    );
     const isWebView = window.isRunningInNativeApp() || /; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent || '');
-    const baseOrigin = getApiBaseOrigin();
-    const candidatePaths = [
-      '/api/download-apk',
-      '/download/Paper-Flow.apk',
-      '/Paper-Flow.apk',
-      '/public/Paper-Flow.apk'
-    ];
 
-    if (isWebView) {
-      window.location.href = (baseOrigin || LIVE_WEB_ORIGIN) + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
+    // Direct URL that is guaranteed to work without Cloud Run cookie walls
+    const directApkUrl = isInsideBundledApk
+      ? `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`
+      : `/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`;
+
+    if (isWebView || isInsideBundledApk) {
+      showToast('Starting Paper-Flow.apk download…');
+      window.location.href = directApkUrl;
       return false;
     }
 
@@ -11084,15 +11089,24 @@
       btnEl.style.opacity = '0.8';
     }
 
+    // Try same-origin paths first (works on both paperflow.hs.vc and AI Studio server), then fallback to LIVE_WEB_ORIGIN
+    const candidateUrls = [
+      `/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
+      `/download/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
+      `/api/download-apk?v=1.0.4&t=${Date.now()}`,
+      `/public/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
+      `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`
+    ];
+
     try {
       let validBuffer = null;
 
-      for (const p of candidatePaths) {
+      for (const url of candidateUrls) {
         try {
-          const url = baseOrigin + p + '?v=1.0.4&t=' + Date.now();
+          const isSameOrigin = url.startsWith('/');
           const res = await fetch(url, {
             method: 'GET',
-            credentials: 'same-origin',
+            credentials: isSameOrigin ? 'same-origin' : 'omit',
             cache: 'no-store'
           });
           if (!res.ok) continue;
@@ -11135,10 +11149,10 @@
         return false;
       }
 
-      // Fallback to direct browser navigation if fetch buffer was unavailable
-      window.location.href = (baseOrigin || LIVE_WEB_ORIGIN) + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
+      // Fallback to direct same-origin / live web APK file
+      window.location.href = directApkUrl;
     } catch (err) {
-      window.location.href = (baseOrigin || LIVE_WEB_ORIGIN) + '/download/Paper-Flow.apk?v=1.0.4&t=' + Date.now();
+      window.location.href = directApkUrl;
     } finally {
       if (btnEl) {
         btnEl.style.pointerEvents = '';
@@ -11154,9 +11168,25 @@
   };
 
   const OBSIDIAN_SUDOKU_FALLBACK_URL = 'https://github.com/ArnavSri21/SudokuClash/releases/download/v1.0.0/obsidian-sudoku-debug.apk';
-  const OBSIDIAN_SUDOKU_PAPERFLOW_URL = 'https://github.com/ArnavSri21/paper-flow/releases/download/v1.0.2/obsidian-sudoku-debug.apk';
 
   async function resolveObsidianSudokuApkUrl() {
+    try {
+      const scRes = await fetch('https://api.github.com/repos/ArnavSri21/SudokuClash/releases/latest', { cache: 'no-store' });
+      if (scRes.ok) {
+        const scRel = await scRes.json();
+        if (scRel && Array.isArray(scRel.assets)) {
+          const preferred = scRel.assets.find(a =>
+            a && a.browser_download_url && (a.name === 'obsidian-sudoku-debug.apk' || a.name === 'Obsidian-Sudoku.apk') && (!a.state || a.state === 'uploaded')
+          ) || scRel.assets.find(a =>
+            a && a.browser_download_url && a.name && a.name.toLowerCase().endsWith('.apk') && (!a.state || a.state === 'uploaded')
+          );
+          if (preferred) {
+            return preferred.browser_download_url;
+          }
+        }
+      }
+    } catch (e) {}
+
     try {
       const pfRes = await fetch('https://api.github.com/repos/ArnavSri21/paper-flow/releases', { cache: 'no-store' });
       if (pfRes.ok) {
@@ -11176,49 +11206,28 @@
       }
     } catch (e) {}
 
-    try {
-      const scRes = await fetch('https://api.github.com/repos/ArnavSri21/SudokuClash/releases/latest', { cache: 'no-store' });
-      if (scRes.ok) {
-        const scRel = await scRes.json();
-        if (scRel && Array.isArray(scRel.assets)) {
-          const preferred = scRel.assets.find(a =>
-            a && a.browser_download_url && (a.name === 'obsidian-sudoku-debug.apk' || a.name === 'Obsidian-Sudoku.apk') && (!a.state || a.state === 'uploaded')
-          ) || scRel.assets.find(a =>
-            a && a.browser_download_url && a.name && a.name.toLowerCase().endsWith('.apk') && (!a.state || a.state === 'uploaded')
-          );
-          if (preferred) {
-            return preferred.browser_download_url;
-          }
-        }
-      }
-    } catch (e) {}
-
     return OBSIDIAN_SUDOKU_FALLBACK_URL;
   }
 
   window.downloadObsidianSudokuApk = async function (event, btnEl) {
     if (event) event.preventDefault();
     const origText = btnEl ? btnEl.textContent : 'Download APK ↓';
+    const immediateUrl = (btnEl && btnEl.href && btnEl.href.startsWith('http') && !btnEl.href.includes('/paper-flow/releases/download/v1.0.2/'))
+      ? btnEl.href
+      : OBSIDIAN_SUDOKU_FALLBACK_URL;
     if (btnEl) {
-      btnEl.textContent = 'Preparing APK…';
+      btnEl.textContent = 'Downloading APK…';
       btnEl.style.pointerEvents = 'none';
       btnEl.style.opacity = '0.85';
     }
-    try {
-      const targetUrl = await resolveObsidianSudokuApkUrl();
-      if (btnEl) btnEl.href = targetUrl;
-      showToast('Downloading Obsidian Sudoku APK…');
-      window.location.href = targetUrl;
-    } catch (e) {
-      window.location.href = OBSIDIAN_SUDOKU_FALLBACK_URL;
-    } finally {
-      if (btnEl) {
-        setTimeout(() => {
-          btnEl.textContent = origText;
-          btnEl.style.pointerEvents = '';
-          btnEl.style.opacity = '';
-        }, 2200);
-      }
+    showToast('Downloading Obsidian Sudoku APK…');
+    window.location.href = immediateUrl;
+    if (btnEl) {
+      setTimeout(() => {
+        btnEl.textContent = origText;
+        btnEl.style.pointerEvents = '';
+        btnEl.style.opacity = '';
+      }, 2200);
     }
     return false;
   };

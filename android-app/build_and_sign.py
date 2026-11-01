@@ -1327,6 +1327,9 @@ def build_apk():
 
     shutil.copyfile(signed_apk_path, os.path.join(ROOT_DIR, 'Paper-Flow.apk'))
     shutil.copyfile(signed_apk_path, os.path.join(ROOT_DIR, 'public', 'Paper-Flow.apk'))
+    download_dir = os.path.join(ROOT_DIR, 'download')
+    os.makedirs(download_dir, exist_ok=True)
+    shutil.copyfile(signed_apk_path, os.path.join(download_dir, 'Paper-Flow.apk'))
     size = os.path.getsize(os.path.join(ROOT_DIR, 'Paper-Flow.apk'))
     print(f"Paper-Flow.apk successfully built, aligned, signed (v1+v2+v3), and verified: {size} bytes")
 

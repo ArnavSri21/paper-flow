@@ -1583,10 +1583,60 @@
     padding: 1.15rem;
     margin-bottom: 1.1rem;
     position: relative;
-    transition: transform 0.16s ease, box-shadow 0.16s ease;
-    animation: fadeSlideIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease;
+    backface-visibility: hidden;
   }
-  .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
+  .card.card-enter-anim {
+    animation: fadeSlideIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate3d(-1px, -1px, 0); }
+
+  /* ── DIRECTIONAL SCREEN SWIPE ANIMATIONS (BOARD ↔ NEWS ↔ MESSAGES) ── */
+  @keyframes screenSwipeFromRight {
+    0% {
+      opacity: 0.12;
+      transform: translate3d(38px, 0, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  @keyframes screenSwipeFromLeft {
+    0% {
+      opacity: 0.12;
+      transform: translate3d(-38px, 0, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  @keyframes pmChatThreadSwipeIn {
+    0% {
+      opacity: 0.2;
+      transform: translate3d(32px, 0, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  .screen-swipe-from-right {
+    animation: screenSwipeFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .screen-swipe-from-left {
+    animation: screenSwipeFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .paper-messages-shell.active {
+    animation: screenSwipeFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .paper-messages-shell.mobile-chat-open .pm-main {
+    animation: pmChatThreadSwipeIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
   .card.card-developer {
     border-color: #6d28d9;
     box-shadow: 3px 3px 0 #2e1065;
@@ -5813,7 +5863,39 @@
     }
   });
 
-  // ── VIEW MODE NAVIGATION (BOARD / MY FLOWS / STARRED / REPLIES / PAPER MESSAGES / REPORTS) ──
+  // ── VIEW MODE NAVIGATION & DIRECTIONAL SCREEN SWIPE ANIMATIONS ────────────
+  let shouldAnimateFeedCards = true;
+  let screenSwipeCleanupTimer = null;
+
+  function getScreenSlotIndex(mode, filter) {
+    if (mode === 'board') {
+      return filter === 'news' ? 1 : 0;
+    }
+    if (mode === 'my-flows') return 2;
+    if (mode === 'starred') return 2.5;
+    if (mode === 'replies') return 3;
+    if (mode === 'messages') return 4;
+    if (mode === 'reports') return 5;
+    return 0;
+  }
+
+  function triggerScreenSwipeAnimation(direction = 'right', isMessagesTarget = false) {
+    const targetEl = isMessagesTarget
+      ? document.getElementById('paperMessagesShell')
+      : document.getElementById('feed');
+    if (!targetEl) return;
+
+    const animClass = direction === 'left' ? 'screen-swipe-from-left' : 'screen-swipe-from-right';
+    targetEl.classList.remove('screen-swipe-from-right', 'screen-swipe-from-left');
+    void targetEl.offsetWidth;
+    targetEl.classList.add(animClass);
+
+    clearTimeout(screenSwipeCleanupTimer);
+    screenSwipeCleanupTimer = setTimeout(() => {
+      targetEl.classList.remove('screen-swipe-from-right', 'screen-swipe-from-left');
+    }, 320);
+  }
+
   window.switchViewMode = function (mode, filterOverride) {
     if ((mode === 'my-flows' || mode === 'replies' || mode === 'messages') && !currentUser) {
       toggleSidePanel(false);
@@ -5828,30 +5910,55 @@
       showToast('Only @Marvelist (Developer) can access the Reports section.');
       return;
     }
-    activeViewMode = mode;
+
+    const prevSlot = getScreenSlotIndex(activeViewMode, activeFilter);
+    let nextFilter = activeFilter;
     if (filterOverride) {
-      activeFilter = filterOverride;
+      nextFilter = filterOverride;
     } else if (mode === 'board' && activeFilter === 'news') {
-      activeFilter = 'all';
+      nextFilter = 'all';
     }
+    const nextSlot = getScreenSlotIndex(mode, nextFilter);
+    const swipeDir = nextSlot >= prevSlot ? 'right' : 'left';
+    const isSwitchingScreen = (activeViewMode !== mode) || (activeFilter !== nextFilter);
+
+    activeViewMode = mode;
+    activeFilter = nextFilter;
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
+    shouldAnimateFeedCards = true;
     document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
     toggleSidePanel(false);
     renderAll();
+
+    if (isSwitchingScreen) {
+      triggerScreenSwipeAnimation(swipeDir, mode === 'messages');
+    }
     if (mode !== 'messages') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   window.openNewsColumn = function () {
+    const prevSlot = getScreenSlotIndex(activeViewMode, activeFilter);
+    const nextSlot = getScreenSlotIndex('board', 'news');
+    const swipeDir = nextSlot >= prevSlot ? 'right' : 'left';
+    const isSwitchingToNews = !(activeViewMode === 'board' && activeFilter === 'news');
+
     activeViewMode = 'board';
     activeFilter = 'news';
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
+    shouldAnimateFeedCards = true;
+    if (typeof window.resetLockedNewsScores === 'function') {
+      window.resetLockedNewsScores();
+    }
     document.body.classList.remove('pm-fullscreen-open');
     toggleSidePanel(false);
     renderAll();
+    if (isSwitchingToNews) {
+      triggerScreenSwipeAnimation(swipeDir, false);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     fetchAndSyncAiTechNews(false);
     analyzeUserNewsTasteWithAi(false).catch(() => {});
@@ -5886,11 +5993,54 @@
     shell?.classList.add('mobile-chat-open');
     toggleSidePanel(false);
     renderAll();
+    triggerScreenSwipeAnimation('right', true);
     setTimeout(() => {
       const area = document.getElementById('pmMessagesScrollArea');
       if (area) area.scrollTop = area.scrollHeight;
     }, 50);
   };
+
+  // Horizontal Touch-Swipe Gesture on Main Feed (Board ↔ Tech & AI News ↔ Paper Messages)
+  (function initHorizontalColumnSwipeGestures() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let ignoreSwipe = false;
+
+    document.addEventListener('touchstart', (e) => {
+      if (!e.touches || e.touches.length !== 1) return;
+      const target = e.target;
+      if (
+        !target ||
+        target.closest('input, textarea, select, button, a, .compose-modal-overlay.open, .auth-modal-overlay.open, .profile-modal-overlay.open, .side-panel.open, .lightbox.open, .paper-messages-shell')
+      ) {
+        ignoreSwipe = true;
+        return;
+      }
+      ignoreSwipe = false;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (ignoreSwipe || !e.changedTouches || e.changedTouches.length !== 1) return;
+      if (activeViewMode !== 'board') return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      const elapsed = Date.now() - touchStartTime;
+      // Require intentional horizontal swipe: >78px horizontal, <48px vertical drift, <480ms
+      if (elapsed < 480 && Math.abs(dx) > 78 && Math.abs(dy) < 48 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+        if (dx < 0 && activeFilter !== 'news') {
+          // Swipe Left on Board -> Open Tech & AI News
+          window.openNewsColumn();
+        } else if (dx > 0 && activeFilter === 'news') {
+          // Swipe Right on Tech & AI News -> Return to The Board
+          window.switchViewMode('board', 'all');
+        }
+      }
+    }, { passive: true });
+  })();
 
   window.jumpToFlowFromReply = function (postId) {
     if (!postId) return;
@@ -7361,8 +7511,17 @@
     return tags;
   }
 
+  // Session-locked news score cache so liking/starring a card never re-orders the feed mid-read
+  let lockedNewsScoresMap = {};
+  window.resetLockedNewsScores = function () {
+    lockedNewsScoresMap = {};
+  };
+
   function scoreNewsItemForCurrentUser(item) {
     if (!item) return { score: 0, matchReason: '', topics: [] };
+    if (item.id && lockedNewsScoresMap[item.id]) {
+      return lockedNewsScoresMap[item.id];
+    }
     const topics = Array.isArray(item.topicTags) && item.topicTags.length > 0
       ? item.topicTags
       : detectClientTopicTags(item.title || '', item.body || '');
@@ -7410,7 +7569,11 @@
       }
     }
 
-    return { score, matchReason, topics };
+    const result = { score, matchReason, topics };
+    if (item.id) {
+      lockedNewsScoresMap[item.id] = result;
+    }
+    return result;
   }
 
   window.analyzeUserNewsTasteWithAi = async function (force = false) {
@@ -7441,7 +7604,11 @@
           }
           userNewsDb.updatedAt = Date.now();
           saveUserNewsDb();
-          renderFeed();
+          // Only re-render feed if explicitly requested (never on background Like/Star analysis to prevent jitter)
+          if (force) {
+            window.resetLockedNewsScores();
+            renderFeed();
+          }
           return prof;
         }
       }
@@ -7450,6 +7617,7 @@
   };
 
   let analyzeUserDbTimeout = null;
+  let syncUserDbFirestoreTimeout = null;
   async function recordUserNewsInteraction(post, action = 'read') {
     if (!post || !post.id) return;
     const isNewsOrTech = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news' || post.tag === 'news');
@@ -7520,26 +7688,29 @@
 
     saveUserNewsDb();
 
-    // Persist per-user database to Firestore (__userdb__<userKey>)
-    const userKey = currentUser ? currentUser.usernameLower : guestToken;
-    const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-    setDoc(doc(db, "posts", dbDocId), {
-      title: null,
-      body: 'user_news_db',
-      tag: 'other',
-      alias: (currentUser?.username || 'Reader').slice(0, 30),
-      ts: serverTimestamp(),
-      docType: 'user_news_db',
-      usernameLower: userKey,
-      dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
-      updatedAt: userNewsDb.updatedAt
-    }).catch(() => {});
+    // Debounce per-user database Firestore sync & AI taste analysis so liking/starring never causes immediate snapshot jitter
+    clearTimeout(syncUserDbFirestoreTimeout);
+    syncUserDbFirestoreTimeout = setTimeout(() => {
+      const userKey = currentUser ? currentUser.usernameLower : guestToken;
+      const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+      setDoc(doc(db, "posts", dbDocId), {
+        title: null,
+        body: 'user_news_db',
+        tag: 'other',
+        alias: (currentUser?.username || 'Reader').slice(0, 30),
+        ts: serverTimestamp(),
+        docType: 'user_news_db',
+        usernameLower: userKey,
+        dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
+        updatedAt: userNewsDb.updatedAt
+      }).catch(() => {});
+    }, 3500);
 
-    // Trigger AI analysis on backend (debounced)
+    // Trigger AI analysis silently in the background (debounced)
     clearTimeout(analyzeUserDbTimeout);
     analyzeUserDbTimeout = setTimeout(() => {
       window.analyzeUserNewsTasteWithAi(false);
-    }, 600);
+    }, 1800);
   }
 
   // ── DELETE FLOW ─────────────────────────────────────────────────────────────
@@ -9007,17 +9178,25 @@
 
   window.toggleNewsDateSort = function () {
     newsDateSortOrder = newsDateSortOrder === 'newest' ? 'oldest' : 'newest';
+    shouldAnimateFeedCards = true;
     renderFeed();
+    triggerScreenSwipeAnimation('right', false);
   };
 
   window.setNewsSortMode = function(mode) {
     if (mode === 'personalized' || mode === 'date') {
+      const prevMode = newsSortMode;
       newsSortMode = mode;
       localStorage.setItem('pf_news_sort_mode', mode);
+      shouldAnimateFeedCards = true;
+      window.resetLockedNewsScores();
       if (mode === 'personalized') {
         analyzeUserNewsTasteWithAi(false).catch(() => {});
       }
       renderFeed();
+      if (prevMode !== mode) {
+        triggerScreenSwipeAnimation(mode === 'date' ? 'right' : 'left', false);
+      }
     }
   };
 
@@ -9194,6 +9373,9 @@
   let activeNewsRefreshSeq = 0;
   window.fetchAndSyncAiTechNews = async function (forceRefresh = false) {
     if (isRefreshingAiNews && !forceRefresh) return;
+    if (forceRefresh && typeof window.resetLockedNewsScores === 'function') {
+      window.resetLockedNewsScores();
+    }
     const mySeq = ++activeNewsRefreshSeq;
     const shouldShowGlow = Boolean(forceRefresh || aiTechNewsItems.length === 0);
     isRefreshingAiNews = true;
@@ -9403,8 +9585,17 @@
     const fg = document.getElementById('filterGroup');
     const labelEl = document.getElementById('filterDropdownLabel');
     if (labelEl) {
-      labelEl.innerHTML = `<span class="filter-color-dot dot-${esc(activeFilter)}"></span><span>${TAG_LABELS[activeFilter] || 'All Flows'}</span>`;
+      const nextLabelHTML = `<span class="filter-color-dot dot-${esc(activeFilter)}"></span><span>${TAG_LABELS[activeFilter] || 'All Flows'}</span>`;
+      if (labelEl.innerHTML !== nextLabelHTML) {
+        labelEl.innerHTML = nextLabelHTML;
+      }
     }
+    if (!fg) return;
+    const filterSig = `${activeFilter}|` + categories.map(cat => `${cat}:${cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0)}`).join(',');
+    if (fg.dataset.filterSig === filterSig && fg.children.length === categories.length) {
+      return;
+    }
+    fg.dataset.filterSig = filterSig;
     fg.innerHTML = '';
     categories.forEach(cat => {
       const count = cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0);
@@ -9418,12 +9609,16 @@
         <span class="filter-count">${count}</span>
       `;
       btn.onclick = () => {
+        const prevSlot = getScreenSlotIndex(activeViewMode, activeFilter);
+        const nextSlot = getScreenSlotIndex(activeViewMode, cat);
         activeFilter = cat;
+        shouldAnimateFeedCards = true;
         fg.classList.remove('open');
         if (cat === 'news') {
           fetchAndSyncAiTechNews(false);
         }
         renderAll();
+        triggerScreenSwipeAnimation(nextSlot >= prevSlot ? 'right' : 'left', false);
       };
       fg.appendChild(btn);
     });
@@ -9702,11 +9897,10 @@
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
 
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
-    const aiProfileSig = userNewsDb.aiProfile ? (userNewsDb.aiProfile.analyzedAt || '') : Object.keys(userNewsDb.topicWeights || {}).join('+');
-    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${aiProfileSig}|${pendingDeleteConfirmId || ''}|` +
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
 
-    // Seamless in-place update when only likes, stars, or comments changed
+    // Seamless in-place update when only likes, stars, comments, or background taste metadata changed — ZERO DOM reload or screen jitter
     if (
       feed.dataset.feedSignature === nextFeedSignature &&
       feed.querySelectorAll('.card').length === filtered.length &&
@@ -9737,8 +9931,12 @@
       emptyEl.className = 'empty-state';
       emptyEl.innerHTML = `<span class="empty-icon">${activeFilter === 'news' ? '📰' : (activeViewMode === 'starred' ? '⭐' : '📋')}</span><p>${emptyMsg}</p>`;
       feed.appendChild(emptyEl);
+      shouldAnimateFeedCards = false;
       return;
     }
+
+    const animateThisRender = shouldAnimateFeedCards;
+    shouldAnimateFeedCards = false;
 
     const fragment = document.createDocumentFragment();
     let lastDateGroupLabel = null;
@@ -9757,7 +9955,7 @@
           fragment.appendChild(dateDivider);
         }
       }
-      const card = makeCard(post, i);
+      const card = makeCard(post, i, animateThisRender);
       fragment.appendChild(card);
     });
     feed.appendChild(fragment);
@@ -9878,7 +10076,7 @@
     return { intro: clean, hasMore: false, full: clean };
   }
 
-  function makeCard(post, i) {
+  function makeCard(post, i, animateCard = false) {
     const isAiNewsCard = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
     const postAuthorIsDev = !isAiNewsCard && isDeveloperUser(post.authorUsername || post.alias);
     const effectiveCategory = getEffectivePostCategory(post);
@@ -9891,13 +10089,12 @@
     const div = document.createElement('div');
     div.id = `card-${post.id}`;
     div.className = 'card'
+      + (animateCard && i < 6 ? ' card-enter-anim' : '')
       + (postAuthorIsDev ? ' card-developer' : '')
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
-    if (i < 6) {
-      div.style.animationDelay = `${i * 0.025}s`;
-    } else {
-      div.style.animation = 'none';
+    if (animateCard && i < 6) {
+      div.style.animationDelay = `${i * 0.022}s`;
     }
 
     const displayBody = post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));

@@ -188,10 +188,22 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* ULTRA-SMOOTH HARDWARE-ACCELERATED INTERACTION SYSTEM (60FPS, NO LAYOUT THRASH) */
+  /* ULTRA-SMOOTH FRAMER MOTION SPRING PHYSICS & INTERACTION SYSTEM (60/120FPS, GPU-ACCELERATED) */
   :root {
     --bubble-spring: cubic-bezier(0.22, 1, 0.36, 1);
     --bubble-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    --fm-spring-card: linear(
+      0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077,
+      1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%,
+      1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%,
+      0.997 69.8%, 1.003 76.9%, 1
+    );
+    --fm-spring-modal: linear(
+      0, 0.012, 0.049 2%, 0.196 4.4%, 0.563 9.2%, 0.858 13.5%, 1.019 17.2%,
+      1.089 20.1%, 1.114 22.8%, 1.106 26.2%, 1.031 35.6%, 0.997 42.4%,
+      0.988 48.2%, 0.996 60.5%, 1.001 74%, 1
+    );
+    --fm-ease-exit: cubic-bezier(0.32, 0, 0.67, 0);
   }
 
   button,
@@ -807,30 +819,46 @@
   .sidebar-box-body { padding: 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--ink-muted); }
   .sidebar-box-body strong { color: var(--ink); }
 
-  /* ABOUT PAPERFLOW MODAL WINDOW */
+  /* ABOUT PAPERFLOW MODAL WINDOW (FRAMER MOTION SPRING ENTER & EXIT) */
   .about-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(15, 11, 7, 0.72);
+    background: rgba(15, 11, 7, 0.66);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 550;
     padding: 1.25rem;
+    will-change: opacity;
   }
-  .about-backdrop.open { display: flex; }
+  .about-backdrop.open {
+    display: flex;
+    animation: fmBackdropFadeIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .about-backdrop.closing {
+    display: flex;
+    pointer-events: none;
+    animation: fmBackdropFadeOut 0.2s var(--fm-ease-exit) forwards;
+  }
   .about-window {
     background: #121110;
     color: #f3efe6;
     border: 1.5px solid #3d362d;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    box-shadow: 0 24px 58px rgba(0, 0, 0, 0.68);
     width: 100%;
     max-width: 640px;
     max-height: 88vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: fadeSlideIn 0.22s ease both;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    animation: fmModalSpringEnter 0.44s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .about-backdrop.closing .about-window {
+    animation: fmModalSpringExit 0.19s var(--fm-ease-exit) forwards;
   }
   .about-window-header {
     background: #1b1814;
@@ -1366,16 +1394,21 @@
     }
   }
 
-  /* COMPOSE POPUP MODAL */
+  /* COMPOSE POPUP MODAL (FRAMER MOTION SPRING ENTER & EXIT) */
   .compose-modal-window {
     background: var(--card-bg);
     border: 2px solid var(--ink);
-    box-shadow: 6px 6px 0 var(--ink);
+    box-shadow: 7px 8px 0 var(--ink), 0 22px 48px rgba(0, 0, 0, 0.28);
     width: 100%;
     max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
-    animation: fadeSlideIn 0.2s ease both;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    animation: fmModalSpringEnter 0.44s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .modal-backdrop.closing .compose-modal-window {
+    animation: fmModalSpringExit 0.19s var(--fm-ease-exit) forwards;
   }
   .compose-header {
     background: #1a1209;
@@ -1575,7 +1608,7 @@
   .btn-post:active { transform: scale(0.97); }
   .btn-post:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* CARDS */
+  /* CARDS (FRAMER MOTION SPRING ENTRANCE, HOVER LIFT, SCROLL REVEAL & EXIT) */
   .card {
     background: var(--card-bg);
     border: 1.5px solid var(--card-border);
@@ -1583,13 +1616,33 @@
     padding: 1.15rem;
     margin-bottom: 1.1rem;
     position: relative;
-    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease;
+    transform-origin: center top;
+    transition:
+      transform 0.38s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)),
+      box-shadow 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.2s ease,
+      opacity 0.26s ease;
     backface-visibility: hidden;
+    will-change: transform, opacity;
   }
   .card.card-enter-anim {
-    animation: fadeSlideIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fmCardSpringEnter 0.48s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
   }
-  .card:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate3d(-1px, -1px, 0); }
+  .card.fm-card-scroll-init {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0) scale(0.975);
+  }
+  .card.fm-card-scroll-reveal {
+    animation: fmCardSpringEnter 0.48s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .card.fm-card-exiting {
+    pointer-events: none;
+    animation: fmCardSpringExit 0.24s var(--fm-ease-exit) forwards;
+  }
+  .card:hover {
+    box-shadow: 4px 4px 0 var(--ink);
+    transform: translate3d(-2px, -2.5px, 0);
+  }
 
   /* ── DIRECTIONAL SCREEN SWIPE ANIMATIONS (BOARD ↔ NEWS ↔ MESSAGES) ── */
   @keyframes screenSwipeFromRight {
@@ -2570,7 +2623,14 @@
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
-    animation: fadeSlideIn 0.25s ease both;
+    transition:
+      transform 0.36s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)),
+      box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: fmCardSpringEnter 0.46s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .reply-page-card:hover {
+    box-shadow: 3px 3px 0 var(--ink);
+    transform: translate3d(-1.5px, -2px, 0);
   }
   .reply-page-context {
     display: flex;
@@ -2587,26 +2647,42 @@
     color: var(--ink);
   }
 
-  /* MODALS (AUTH & COMPOSE POPUP) */
+  /* MODALS (AUTH, PROFILE, COMPOSE & SHARE POPUP — FRAMER MOTION ANIMATEPRESENCE) */
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(15, 11, 7, 0.68);
+    background: rgba(15, 11, 7, 0.64);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 500;
     padding: 1rem;
+    will-change: opacity;
   }
-  .modal-backdrop.open { display: flex; }
+  .modal-backdrop.open {
+    display: flex;
+    animation: fmBackdropFadeIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .modal-backdrop.closing {
+    display: flex;
+    pointer-events: none;
+    animation: fmBackdropFadeOut 0.19s var(--fm-ease-exit) forwards;
+  }
   .modal-window {
     background: var(--card-bg);
     border: 2px solid var(--ink);
-    box-shadow: 6px 6px 0 var(--ink);
+    box-shadow: 7px 8px 0 var(--ink), 0 22px 48px rgba(0, 0, 0, 0.28);
     width: 100%;
     max-width: 440px;
     overflow: hidden;
-    animation: fadeSlideIn 0.2s ease both;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    animation: fmModalSpringEnter 0.44s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .modal-backdrop.closing .modal-window {
+    animation: fmModalSpringExit 0.19s var(--fm-ease-exit) forwards;
   }
   .modal-header {
     background: #1a1209;
@@ -2823,25 +2899,41 @@
   .btn-modal-submit:hover { background: var(--accent-hover); }
   .btn-modal-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* IMAGE LIGHTBOX */
+  /* IMAGE LIGHTBOX (FRAMER MOTION SPRING ZOOM & EXIT) */
   .lightbox-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(12, 9, 5, 0.88);
+    background: rgba(12, 9, 5, 0.86);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 600;
     padding: 1.5rem;
     cursor: zoom-out;
+    will-change: opacity;
   }
-  .lightbox-backdrop.open { display: flex; }
+  .lightbox-backdrop.open {
+    display: flex;
+    animation: fmBackdropFadeIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .lightbox-backdrop.closing {
+    display: flex;
+    pointer-events: none;
+    animation: fmBackdropFadeOut 0.19s var(--fm-ease-exit) forwards;
+  }
   .lightbox-backdrop img {
     max-width: 92vw;
     max-height: 88vh;
     object-fit: contain;
     border: 2px solid var(--card-bg);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.65);
+    will-change: transform, opacity;
+    animation: fmModalSpringEnter 0.42s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .lightbox-backdrop.closing img {
+    animation: fmModalSpringExit 0.18s var(--fm-ease-exit) forwards;
   }
 
   /* LOADING SKELETON */
@@ -2855,7 +2947,12 @@
   .status-dot.error { background: var(--accent); }
 
   /* EMPTY STATE */
-  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--ink-muted); }
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--ink-muted);
+    animation: fmCardSpringEnter 0.42s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
   .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.3; }
   .empty-state p { font-family: var(--serif); font-style: italic; font-size: 1.1rem; }
 
@@ -2864,7 +2961,7 @@
     position: fixed;
     bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
     left: 50%;
-    transform: translateX(-50%) translateY(14px) scale(0.95);
+    transform: translateX(-50%) translateY(18px) scale(0.92);
     opacity: 0;
     visibility: hidden;
     background: #1a1209;
@@ -2878,9 +2975,9 @@
     max-width: calc(100vw - 2rem);
     overflow: hidden;
     text-overflow: ellipsis;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
     transition:
-      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.38s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)),
       opacity 0.22s ease,
       visibility 0.22s ease;
     z-index: 999;
@@ -2898,7 +2995,71 @@
     visibility: visible;
   }
 
-  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
+    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+  @keyframes fmCardSpringEnter {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 22px, 0) scale(0.972);
+    }
+    65% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+  @keyframes fmCardSpringExit {
+    0% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, -12px, 0) scale(0.95);
+    }
+  }
+  @keyframes fmModalSpringEnter {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 26px, 0) scale(0.925);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+  @keyframes fmModalSpringExit {
+    0% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, 16px, 0) scale(0.94);
+    }
+  }
+  @keyframes fmBackdropFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes fmBackdropFadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card.card-enter-anim, .card.fm-card-scroll-reveal,
+    .modal-window, .compose-modal-window, .share-modal-window, .about-window {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 
   /* ── PAPER MESSAGES (ENCRYPTED WHATSAPP-STYLE IN-APP MESSENGER — CONSTANT FULL PAGE) ── */
   body.pm-fullscreen-open {
@@ -4275,7 +4436,7 @@
     padding: 2px 6px;
   }
 
-  /* ── SHARE SNAPSHOT POPUP PANEL ── */
+  /* ── SHARE SNAPSHOT POPUP PANEL (FRAMER MOTION SPRING ENTER & EXIT) ── */
   .share-modal-window {
     background: var(--card-bg);
     border: 2px solid var(--ink);
@@ -4285,7 +4446,13 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 8px 10px 0 var(--shadow);
+    box-shadow: 8px 10px 0 var(--shadow), 0 22px 48px rgba(0, 0, 0, 0.28);
+    transform-origin: center center;
+    will-change: transform, opacity;
+    animation: fmModalSpringEnter 0.44s var(--fm-spring-modal, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  .modal-backdrop.closing .share-modal-window {
+    animation: fmModalSpringExit 0.19s var(--fm-ease-exit) forwards;
   }
   .share-modal-body {
     padding: 1rem;
@@ -4499,7 +4666,7 @@
           <section class="paperflow-apk-section" id="paperflowApkSection" style="margin: 0;">
             <div class="paperflow-apk-header">
               <span>📱 Paper Flow Android</span>
-              <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.4 · LIVE SYNC</span>
+              <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.5 · LIVE SYNC</span>
             </div>
             <div class="paperflow-apk-body">
               <div class="paperflow-apk-top">
@@ -4512,7 +4679,7 @@
                   <div class="paperflow-apk-sub">Includes Native Snapshot Image Share Sheet, AI-Customized News, Offline Phone Storage for Starred Flows, and Background Notifications.</div>
                 </div>
               </div>
-              <a href="/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Download APK ↓</a>
+              <a href="/Paper-Flow.apk?v=1.0.5" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Download APK ↓</a>
             </div>
           </section>
 
@@ -4532,12 +4699,12 @@
     <section class="paperflow-update-section" id="paperflowUpdateSection" style="display: none;">
       <div class="paperflow-update-header">
         <span>⚡ App Update Available</span>
-        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.4</span>
+        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.5</span>
       </div>
       <div class="paperflow-update-body">
         <div class="paperflow-update-title" id="updateTitle">A new version of Paper Flow is ready!</div>
         <div class="paperflow-update-notes" id="updateNotes">Updated with Native Snapshot Share Sheet, AI-Customized News &amp; Per-User Taste DB, Phone Storage for Starred Flows, and Background Notifications.</div>
-        <a href="/Paper-Flow.apk?v=1.0.4" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
+        <a href="/Paper-Flow.apk?v=1.0.5" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
       </div>
     </section>
 
@@ -6062,6 +6229,147 @@
     }, 60);
   };
 
+  // ── FRAMER MOTION EQUIVALENT SPRING PHYSICS & ANIMATEPRESENCE ENGINE ────────
+  const modalCloseTimers = new Map();
+
+  function generateSpringFrames(fromVal, toVal, stiffness = 380, damping = 28, mass = 0.85, steps = 36) {
+    const frames = [];
+    let pos = fromVal;
+    let vel = 0;
+    const dt = 1 / 60;
+    for (let i = 0; i <= steps; i++) {
+      frames.push(pos);
+      const force = -stiffness * (pos - toVal) - damping * vel;
+      const accel = force / mass;
+      vel += accel * dt;
+      pos += vel * dt;
+    }
+    frames[frames.length - 1] = toVal;
+    return frames;
+  }
+
+  const MODAL_ENTER_SPRING_SCALES = generateSpringFrames(0.925, 1, 410, 27, 0.82, 28);
+  const MODAL_ENTER_SPRING_YS = generateSpringFrames(24, 0, 410, 27, 0.82, 28);
+  const CARD_ENTER_SPRING_SCALES = generateSpringFrames(0.972, 1, 350, 26, 0.88, 26);
+  const CARD_ENTER_SPRING_YS = generateSpringFrames(20, 0, 350, 26, 0.88, 26);
+
+  function openModalWithMotion(backdropId) {
+    const backdrop = document.getElementById(backdropId);
+    if (!backdrop) return;
+    if (modalCloseTimers.has(backdropId)) {
+      clearTimeout(modalCloseTimers.get(backdropId));
+      modalCloseTimers.delete(backdropId);
+    }
+    backdrop.classList.remove('closing');
+    backdrop.classList.add('open');
+
+    const win = backdrop.querySelector('.modal-window, .compose-modal-window, .share-modal-window, .about-window, #lightboxImg');
+    if (win && typeof win.animate === 'function') {
+      try {
+        win.getAnimations().forEach(a => a.cancel());
+        const keyframes = MODAL_ENTER_SPRING_SCALES.map((sc, idx) => {
+          const y = MODAL_ENTER_SPRING_YS[idx];
+          const op = Math.min(1, idx / 8);
+          return {
+            opacity: op,
+            transform: `translate3d(0, ${y.toFixed(2)}px, 0) scale(${sc.toFixed(4)})`
+          };
+        });
+        win.animate(keyframes, {
+          duration: 380,
+          easing: 'linear',
+          fill: 'both'
+        });
+      } catch (e) {}
+    }
+
+    // Stagger inner interactive children for a tactile Framer Motion feel
+    if (win && win.id !== 'lightboxImg') {
+      const innerItems = win.querySelectorAll('.form-field, .compose-body > *, .share-modal-body > *, .about-window-body > *, .profile-view-header-card, .profile-about-box, .profile-stats-strip');
+      innerItems.forEach((el, idx) => {
+        if (idx > 8 || typeof el.animate !== 'function') return;
+        try {
+          el.animate(
+            [
+              { opacity: 0, transform: 'translate3d(0, 10px, 0)' },
+              { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+            ],
+            {
+              duration: 260,
+              delay: 35 + idx * 24,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              fill: 'both'
+            }
+          );
+        } catch (e) {}
+      });
+    }
+  }
+
+  function closeModalWithMotion(backdropId, onAfterClose) {
+    const backdrop = document.getElementById(backdropId);
+    if (!backdrop || (!backdrop.classList.contains('open') && !backdrop.classList.contains('closing'))) {
+      if (typeof onAfterClose === 'function') onAfterClose();
+      return;
+    }
+    if (modalCloseTimers.has(backdropId)) {
+      clearTimeout(modalCloseTimers.get(backdropId));
+    }
+    backdrop.classList.add('closing');
+
+    const win = backdrop.querySelector('.modal-window, .compose-modal-window, .share-modal-window, .about-window, #lightboxImg');
+    if (win && typeof win.animate === 'function') {
+      try {
+        win.getAnimations().forEach(a => a.cancel());
+        win.animate(
+          [
+            { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' },
+            { opacity: 0, transform: 'translate3d(0, 14px, 0) scale(0.945)' }
+          ],
+          {
+            duration: 185,
+            easing: 'cubic-bezier(0.32, 0, 0.67, 0)',
+            fill: 'forwards'
+          }
+        );
+      } catch (e) {}
+    }
+
+    const timer = setTimeout(() => {
+      backdrop.classList.remove('open', 'closing');
+      modalCloseTimers.delete(backdropId);
+      if (win && typeof win.getAnimations === 'function') {
+        try { win.getAnimations().forEach(a => a.cancel()); } catch (e) {}
+      }
+      if (typeof onAfterClose === 'function') onAfterClose();
+    }, 190);
+    modalCloseTimers.set(backdropId, timer);
+  }
+
+  // IntersectionObserver for Framer Motion whileInView scroll-reveal on feed cards
+  let feedCardScrollObserver = null;
+  if ('IntersectionObserver' in window) {
+    feedCardScrollObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          obs.unobserve(el);
+          el.classList.remove('fm-card-scroll-init');
+          el.classList.add('fm-card-scroll-reveal');
+          if (typeof el.animate === 'function') {
+            try {
+              const keyframes = CARD_ENTER_SPRING_SCALES.map((sc, idx) => ({
+                opacity: Math.min(1, idx / 7),
+                transform: `translate3d(0, ${CARD_ENTER_SPRING_YS[idx].toFixed(2)}px, 0) scale(${sc.toFixed(4)})`
+              }));
+              el.animate(keyframes, { duration: 380, easing: 'linear' });
+            } catch (e) {}
+          }
+        }
+      });
+    }, { rootMargin: '0px 0px -24px 0px', threshold: 0.06 });
+  }
+
   // ── SIDE PANEL, ABOUT MODAL, FILTER DROPDOWN & COMPOSE POPUP HANDLERS ──────
   window.toggleSidePanel = function (open) {
     const panel = document.getElementById('sidePanel');
@@ -6073,11 +6381,11 @@
 
   window.openAboutModal = function () {
     toggleSidePanel(false);
-    document.getElementById('aboutModalBackdrop').classList.add('open');
+    openModalWithMotion('aboutModalBackdrop');
   };
 
   window.closeAboutModal = function () {
-    document.getElementById('aboutModalBackdrop').classList.remove('open');
+    closeModalWithMotion('aboutModalBackdrop');
   };
 
   window.handleAboutBackdropClick = function (e) {
@@ -6141,7 +6449,7 @@
     const submitBtn = document.getElementById('submitBtn');
     if (headerTitle) headerTitle.textContent = 'Post a Flow';
     if (submitBtn) submitBtn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
-    document.getElementById('composeModalBackdrop').classList.add('open');
+    openModalWithMotion('composeModalBackdrop');
     document.getElementById('fabPostBtn')?.classList.add('modal-open');
     if (currentUser && 'Notification' in window && Notification.permission === 'default') {
       requestBrowserNotificationPermission(true);
@@ -6191,7 +6499,7 @@
       clearLinkAttachment();
     }
 
-    document.getElementById('composeModalBackdrop').classList.add('open');
+    openModalWithMotion('composeModalBackdrop');
     document.getElementById('fabPostBtn')?.classList.add('modal-open');
   };
 
@@ -6201,7 +6509,7 @@
     const submitBtn = document.getElementById('submitBtn');
     if (headerTitle) headerTitle.textContent = 'Post a Flow';
     if (submitBtn) submitBtn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
-    document.getElementById('composeModalBackdrop').classList.remove('open');
+    closeModalWithMotion('composeModalBackdrop');
     document.getElementById('fabPostBtn')?.classList.remove('modal-open');
   };
 
@@ -6816,11 +7124,11 @@
       switchAuthTab(mode === 'register' ? 'register' : 'login');
     }
 
-    backdrop.classList.add('open');
+    openModalWithMotion('authModalBackdrop');
   };
 
   window.closeAuthModal = function () {
-    document.getElementById('authModalBackdrop').classList.remove('open');
+    closeModalWithMotion('authModalBackdrop');
   };
 
   window.handleBackdropClick = function (e) {
@@ -6856,6 +7164,19 @@
       document.getElementById('authAvatarUrl').value = '';
       updateAuthAvatarPreview(document.getElementById('authUsername').value || 'U', '');
       submitBtn.textContent = 'Create Account →';
+      [avatarWrap, bioWrap].forEach((el, idx) => {
+        if (el && typeof el.animate === 'function') {
+          try {
+            el.animate(
+              [
+                { opacity: 0, transform: 'translate3d(0, 10px, 0) scale(0.98)' },
+                { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' }
+              ],
+              { duration: 240, delay: idx * 35, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' }
+            );
+          } catch (e) {}
+        }
+      });
     }
   };
 
@@ -7157,11 +7478,11 @@
       </div>
     `;
 
-    backdrop.classList.add('open');
+    openModalWithMotion('userProfileModalBackdrop');
   };
 
   window.closeUserProfileModal = function () {
-    document.getElementById('userProfileModalBackdrop')?.classList.remove('open');
+    closeModalWithMotion('userProfileModalBackdrop');
   };
 
   window.handleUserProfileBackdropClick = function (e) {
@@ -7734,6 +8055,11 @@
     }
 
     pendingDeleteConfirmId = null;
+    const cardEl = document.getElementById(`card-${id}`);
+    if (cardEl) {
+      cardEl.classList.add('fm-card-exiting');
+      await new Promise(r => setTimeout(r, 210));
+    }
     try {
       await deleteDoc(doc(db, "posts", id));
       const relatedLikes = likesByPost[id] || [];
@@ -7746,6 +8072,7 @@
       ]);
       showToast('Flow deleted.');
     } catch (e) {
+      if (cardEl) cardEl.classList.remove('fm-card-exiting');
       showToast('Could not delete — permission denied.');
     }
   };
@@ -8027,12 +8354,14 @@
   window.openLightbox = function (src) {
     if (!src) return;
     document.getElementById('lightboxImg').src = src;
-    document.getElementById('lightboxBackdrop').classList.add('open');
+    openModalWithMotion('lightboxBackdrop');
   };
 
   window.closeLightbox = function () {
-    document.getElementById('lightboxBackdrop').classList.remove('open');
-    document.getElementById('lightboxImg').src = '';
+    closeModalWithMotion('lightboxBackdrop', () => {
+      const img = document.getElementById('lightboxImg');
+      if (img) img.src = '';
+    });
   };
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
@@ -10088,13 +10417,17 @@
 
     const div = document.createElement('div');
     div.id = `card-${post.id}`;
+    const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
     div.className = 'card'
-      + (animateCard && i < 6 ? ' card-enter-anim' : '')
+      + (animateCard && i < 8 ? ' card-enter-anim' : '')
+      + (useScrollReveal ? ' fm-card-scroll-init' : '')
       + (postAuthorIsDev ? ' card-developer' : '')
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
-    if (animateCard && i < 6) {
-      div.style.animationDelay = `${i * 0.022}s`;
+    if (animateCard && i < 8) {
+      div.style.animationDelay = `${i * 0.032}s`;
+    } else if (useScrollReveal) {
+      feedCardScrollObserver.observe(div);
     }
 
     const displayBody = post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
@@ -10582,8 +10915,7 @@
 
   window.closeShareFlowModal = function (event) {
     if (event && event.target && event.target.id && event.target.id !== 'shareFlowModalBackdrop') return;
-    const backdrop = document.getElementById('shareFlowModalBackdrop');
-    if (backdrop) backdrop.classList.remove('open');
+    closeModalWithMotion('shareFlowModalBackdrop');
   };
 
   window.downloadCurrentShareSnapshot = function () {
@@ -10742,12 +11074,11 @@
       };
 
       // 2. Populate & Open the Share Flow Snapshot Modal immediately so the share panel always pops up with snapshot preview
-      const previewImg = document.getElementById('shareModalSnapshotImg');
+      const previewImg = document.getElementById('shareSnapshotPreviewImg') || document.getElementById('shareModalSnapshotImg');
       const linkInput = document.getElementById('shareModalLinkInput');
-      const modalBackdrop = document.getElementById('shareFlowModalBackdrop');
       if (previewImg) previewImg.src = dataUrl;
       if (linkInput) linkInput.value = shareUrl;
-      if (modalBackdrop) modalBackdrop.classList.add('open');
+      openModalWithMotion('shareFlowModalBackdrop');
 
       // 3. Immediately invoke the phone's native share sheet with the actual Flow Snapshot Image!
       if (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.showNotification === 'function' && base64Data) {
@@ -11073,8 +11404,8 @@
 
     // Direct URL that is guaranteed to work without Cloud Run cookie walls
     const directApkUrl = isInsideBundledApk
-      ? `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`
-      : `/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`;
+      ? `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`
+      : `/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`;
 
     if (isWebView || isInsideBundledApk) {
       showToast('Starting Paper-Flow.apk download…');
@@ -11091,11 +11422,11 @@
 
     // Try same-origin paths first (works on both paperflow.hs.vc and AI Studio server), then fallback to LIVE_WEB_ORIGIN
     const candidateUrls = [
-      `/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
-      `/download/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
-      `/api/download-apk?v=1.0.4&t=${Date.now()}`,
-      `/public/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`,
-      `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.4&t=${Date.now()}`
+      `/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
+      `/download/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
+      `/api/download-apk?v=1.0.5&t=${Date.now()}`,
+      `/public/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
+      `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`
     ];
 
     try {
@@ -11142,7 +11473,7 @@
         }, 60000);
 
         if (btnEl) btnEl.textContent = '✓ APK Downloaded!';
-        showToast('Updated Paper-Flow.apk (v1.0.4) downloaded! Tap the file to install.');
+        showToast('Updated Paper-Flow.apk (v1.0.5) downloaded! Tap the file to install.');
         setTimeout(() => {
           if (btnEl) btnEl.textContent = origText;
         }, 3500);

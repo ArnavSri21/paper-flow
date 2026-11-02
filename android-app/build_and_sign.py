@@ -416,7 +416,192 @@ def verify_apk(apk_path: str):
     v3_digest_val, _ = get_lp_slice(v3_digest_entry, 4)
     assert v3_digest_val == expected_top_digest, "V3 top digest mismatch"
 
-    print("ALL VERIFICATION CHECKS PASSED: 4-byte aligned, V1 JAR + V2 + V3 signatures verified OK!")
+    with zipfile.ZipFile(apk_path, 'r') as zf:
+        dex_bytes = zf.read('classes.dex')
+    verify_dex(dex_bytes)
+
+    print("ALL VERIFICATION CHECKS PASSED: 4-byte aligned, V1 JAR + V2 + V3 signatures + ART DexFileVerifier verified OK!")
+
+
+def verify_dex(dex: bytes):
+    """
+    Simulates Android ART libdexfile DexFileVerifier::Verify() (CheckHeader, CheckMap,
+    CheckIntraSection, CheckInterSection) to guarantee classes.dex loads cleanly on all Android versions.
+    """
+    assert dex[:8] == b'dex\n035\x00', "Invalid DEX magic"
+    expected_adler = zlib.adler32(dex[12:]) & 0xffffffff
+    actual_adler = struct.unpack_from('<I', dex, 8)[0]
+    assert expected_adler == actual_adler, f"DEX Adler32 mismatch: {hex(actual_adler)} != {hex(expected_adler)}"
+    expected_sha1 = hashlib.sha1(dex[32:]).digest()
+    actual_sha1 = dex[12:32]
+    assert expected_sha1 == actual_sha1, "DEX SHA-1 signature mismatch"
+
+    (file_size, header_size, endian_tag, link_size, link_off, map_off,
+     s_ids_size, s_ids_off, t_ids_size, t_ids_off, p_ids_size, p_ids_off,
+     f_ids_size, f_ids_off, m_ids_size, m_ids_off, c_defs_size, c_defs_off,
+     data_size, data_off) = struct.unpack_from('<20I', dex, 32)
+    assert file_size == len(dex), f"DEX file_size mismatch: {file_size} != {len(dex)}"
+    assert header_size == 112 and endian_tag == 0x12345678
+    assert data_off + data_size == file_size
+
+    map_size = struct.unpack_from('<I', dex, map_off)[0]
+    map_items = []
+    for i in range(map_size):
+        t, unused, sz, off = struct.unpack_from('<HHII', dex, map_off + 4 + i * 12)
+        assert unused == 0
+        map_items.append((t, sz, off))
+
+    type_for_offset = {}
+    ptr = 0
+    for idx, (m_type, m_count, m_off) in enumerate(map_items):
+        if m_type in (0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x2001, 0x1001, 0x1003, 0x2006, 0x1000):
+            while ptr % 4 != 0:
+                assert dex[ptr] == 0, f"Non-zero alignment padding at {ptr}"
+                ptr += 1
+        assert ptr == m_off, f"DEX CheckIntraSection failed at Map[{idx}] type={hex(m_type)}: expected ptr={ptr}, got m_off={m_off}"
+
+        if m_type == 0x0000:
+            ptr += 112
+        elif m_type in (0x0001, 0x0002):
+            ptr += m_count * 4
+        elif m_type == 0x0003:
+            ptr += m_count * 12
+        elif m_type in (0x0004, 0x0005):
+            ptr += m_count * 8
+        elif m_type == 0x0006:
+            ptr += m_count * 32
+        elif m_type == 0x2001:  # TYPE_CODE_ITEM
+            for k in range(m_count):
+                if k > 0:
+                    while ptr % 4 != 0:
+                        assert dex[ptr] == 0
+                        ptr += 1
+                type_for_offset[ptr] = 0x2001
+                regs, ins, outs, tries, dbg_off, insns_sz = struct.unpack_from('<HHHHII', dex, ptr)
+                assert dbg_off == 0
+                assert ins <= regs
+                ptr += 16 + insns_sz * 2
+                if tries > 0:
+                    if insns_sz % 2 == 1:
+                        ptr += 2
+                    ptr += tries * 8
+                    handlers_sz, ptr = read_uleb128(dex, ptr)
+                    for _ in range(handlers_sz):
+                        eh_cnt, ptr = read_sleb128_verify(dex, ptr)
+                        for _ in range(abs(eh_cnt)):
+                            _, ptr = read_uleb128(dex, ptr)
+                            _, ptr = read_uleb128(dex, ptr)
+                        if eh_cnt <= 0:
+                            _, ptr = read_uleb128(dex, ptr)
+        elif m_type == 0x1001:  # TYPE_TYPE_LIST
+            for k in range(m_count):
+                if k > 0:
+                    while ptr % 4 != 0:
+                        assert dex[ptr] == 0
+                        ptr += 1
+                type_for_offset[ptr] = 0x1001
+                tl_sz = struct.unpack_from('<I', dex, ptr)[0]
+                ptr += 4 + tl_sz * 2
+        elif m_type == 0x2002:  # TYPE_STRING_DATA_ITEM
+            for _ in range(m_count):
+                type_for_offset[ptr] = 0x2002
+                _, ptr = read_uleb128(dex, ptr)
+                while dex[ptr] != 0:
+                    ptr += 1
+                ptr += 1
+        elif m_type == 0x2004:  # TYPE_ANNOTATION_ITEM
+            for _ in range(m_count):
+                type_for_offset[ptr] = 0x2004
+                vis = dex[ptr]
+                assert vis in (0, 1, 2)
+                ptr += 1
+                t_idx, ptr = read_uleb128(dex, ptr)
+                assert t_idx < t_ids_size
+                num_el, ptr = read_uleb128(dex, ptr)
+                assert num_el == 0
+        elif m_type == 0x2000:  # TYPE_CLASS_DATA_ITEM
+            for _ in range(m_count):
+                type_for_offset[ptr] = 0x2000
+                sf, ptr = read_uleb128(dex, ptr)
+                inf, ptr = read_uleb128(dex, ptr)
+                dm, ptr = read_uleb128(dex, ptr)
+                vm, ptr = read_uleb128(dex, ptr)
+                for _ in range(sf + inf):
+                    _, ptr = read_uleb128(dex, ptr)
+                    _, ptr = read_uleb128(dex, ptr)
+                for _ in range(dm + vm):
+                    _, ptr = read_uleb128(dex, ptr)
+                    _, ptr = read_uleb128(dex, ptr)
+                    c_off, ptr = read_uleb128(dex, ptr)
+                    if c_off != 0:
+                        assert type_for_offset.get(c_off) == 0x2001, f"Method code_off {c_off} not in TYPE_CODE_ITEM"
+        elif m_type == 0x2005:  # TYPE_ENCODED_ARRAY_ITEM
+            for _ in range(m_count):
+                type_for_offset[ptr] = 0x2005
+                arr_sz, ptr = read_uleb128(dex, ptr)
+                for _ in range(arr_sz):
+                    hdr = dex[ptr]
+                    ptr += 1
+                    vtype = hdr & 0x1f
+                    varg = (hdr >> 5) & 0x7
+                    assert vtype in (0x00, 0x02, 0x03, 0x04, 0x06, 0x10, 0x11, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1e, 0x1f)
+                    if vtype not in (0x1e, 0x1f):
+                        ptr += varg + 1
+        elif m_type == 0x1003:  # TYPE_ANNOTATION_SET_ITEM
+            for k in range(m_count):
+                if k > 0:
+                    while ptr % 4 != 0:
+                        assert dex[ptr] == 0
+                        ptr += 1
+                type_for_offset[ptr] = 0x1003
+                aset_sz = struct.unpack_from('<I', dex, ptr)[0]
+                ptr += 4
+                for _ in range(aset_sz):
+                    a_off = struct.unpack_from('<I', dex, ptr)[0]
+                    assert type_for_offset.get(a_off) == 0x2004, f"Annotation offset {a_off} not in TYPE_ANNOTATION_ITEM"
+                    ptr += 4
+        elif m_type == 0x2006:  # TYPE_ANNOTATIONS_DIRECTORY_ITEM
+            for k in range(m_count):
+                if k > 0:
+                    while ptr % 4 != 0:
+                        assert dex[ptr] == 0
+                        ptr += 1
+                type_for_offset[ptr] = 0x2006
+                cls_a, f_sz, m_sz, p_sz = struct.unpack_from('<IIII', dex, ptr)
+                ptr += 16 + (f_sz + m_sz + p_sz) * 8
+        elif m_type == 0x1000:  # TYPE_MAP_LIST
+            ml_sz = struct.unpack_from('<I', dex, ptr)[0]
+            ptr += 4 + ml_sz * 12
+        else:
+            raise AssertionError(f"Unexpected DEX map item type {hex(m_type)}")
+
+    assert ptr == len(dex), f"DEX end pointer {ptr} != file_size {len(dex)}"
+
+    for i in range(c_defs_size):
+        c_idx, acc, sup_idx, if_off, src_idx, ann_off, cd_off, sv_off = struct.unpack_from('<8I', dex, c_defs_off + i * 32)
+        if if_off != 0:
+            assert type_for_offset.get(if_off) == 0x1001, f"Class {i} interfaces_off {if_off} invalid"
+        if ann_off != 0:
+            assert type_for_offset.get(ann_off) == 0x2006, f"Class {i} annotations_off {ann_off} not TYPE_ANNOTATIONS_DIRECTORY_ITEM (0x2006)"
+        if cd_off != 0:
+            assert type_for_offset.get(cd_off) == 0x2000, f"Class {i} class_data_off {cd_off} invalid"
+        if sv_off != 0:
+            assert type_for_offset.get(sv_off) == 0x2005, f"Class {i} static_values_off {sv_off} not TYPE_ENCODED_ARRAY_ITEM (0x2005)"
+
+
+def read_sleb128_verify(buf: bytes, pos: int):
+    val = 0
+    shift = 0
+    while True:
+        b = buf[pos]
+        pos += 1
+        val |= (b & 0x7f) << shift
+        shift += 7
+        if (b & 0x80) == 0:
+            if b & 0x40:
+                val -= (1 << shift)
+            break
+    return val, pos
 
 
 def read_uleb128(buf: bytes, pos: int):
@@ -1094,12 +1279,34 @@ def patch_classes_dex(dex_path: str):
             out.extend(write_uleb128(c_off))
             prev = idx
 
-    # 6. TYPE_ANNOTATION_SET_ITEM (0x2006)
+    # 5b. TYPE_ENCODED_ARRAY_ITEM (0x2005)
+    def encode_dex_string_val(s_idx: int) -> bytes:
+        if s_idx <= 0xff:
+            return bytes([0x17, s_idx])
+        return bytes([0x37, s_idx & 0xff, (s_idx >> 8) & 0xff])
+
+    encoded_array_sec_off = len(out)
+    static_val_offsets = {}
+    static_val_offsets["Lcom/arnavsri/paperflow/MainActivity;"] = len(out)
+    out.extend(write_uleb128(5))
+    out.extend(encode_dex_string_val(str_map["paperflow_alerts"]))
+    out.extend(b'\x24\xe9\x03')  # 1001
+    out.extend(b'\x24\xea\x03')  # 1002
+    out.extend(encode_dex_string_val(str_map["https://appassets.androidplatform.net/index.html"]))
+    out.extend(encode_dex_string_val(str_map["appassets.androidplatform.net"]))
+    static_val_offsets["Lcom/arnavsri/paperflow/R$drawable;"] = len(out)
+    out.extend(b'\x01\x64\x00\x00\x01\x7f')
+    static_val_offsets["Lcom/arnavsri/paperflow/R$mipmap;"] = len(out)
+    out.extend(b'\x01\x64\x00\x00\x02\x7f')
+    static_val_offsets["Lcom/arnavsri/paperflow/R$string;"] = len(out)
+    out.extend(b'\x01\x64\x00\x00\x03\x7f')
+
+    # 6. TYPE_ANNOTATION_SET_ITEM (0x1003)
     align4(out)
     annot_set_sec_off = len(out)
     out.extend(struct.pack('<II', 1, annot_item_sec_off))
 
-    # 7. TYPE_ANNOTATIONS_DIRECTORY_ITEM (0x1003) for MainActivity$AndroidBridge
+    # 7. TYPE_ANNOTATIONS_DIRECTORY_ITEM (0x2006) for MainActivity$AndroidBridge
     align4(out)
     annot_dir_sec_off = len(out)
     bridge_cls = next(c for c in parsed_classes if c['class_type'] == "Lcom/arnavsri/paperflow/MainActivity$AndroidBridge;")
@@ -1112,6 +1319,7 @@ def patch_classes_dex(dex_path: str):
     for i, cls in enumerate(parsed_classes):
         if_off = type_list_offsets.get(cls['ifaces'], 0) if cls['ifaces'] else 0
         a_off = annot_dir_sec_off if cls['class_type'] == "Lcom/arnavsri/paperflow/MainActivity$AndroidBridge;" else 0
+        sv_off = static_val_offsets.get(cls['class_type'], 0)
         struct.pack_into(
             '<IIIIIIII',
             out,
@@ -1123,7 +1331,7 @@ def patch_classes_dex(dex_path: str):
             str_map[cls['src_file']],
             a_off,
             cls['class_data_off'],
-            0
+            sv_off
         )
 
     # 8. TYPE_MAP_LIST (0x1000)
@@ -1142,8 +1350,9 @@ def patch_classes_dex(dex_path: str):
         (0x2002, len(new_strings), str_data_sec_off),
         (0x2004, 1, annot_item_sec_off),
         (0x2000, class_data_count, class_data_sec_off),
-        (0x2006, 1, annot_set_sec_off),
-        (0x1003, 1, annot_dir_sec_off),
+        (0x2005, len(static_val_offsets), encoded_array_sec_off),
+        (0x1003, 1, annot_set_sec_off),
+        (0x2006, 1, annot_dir_sec_off),
         (0x1000, 1, map_off),
     ]
     out.extend(struct.pack('<I', len(map_entries)))

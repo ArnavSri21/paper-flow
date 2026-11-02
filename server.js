@@ -1088,7 +1088,7 @@ function serveApkFile(req, res) {
     headers: {
       'Content-Type': 'application/vnd.android.package-archive',
       'Content-Disposition': 'attachment; filename="Paper-Flow.apk"',
-      'Cache-Control': 'public, max-age=60, must-revalidate',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
       'X-Content-Type-Options': 'nosniff',
       'Access-Control-Allow-Origin': '*'
     }
@@ -1103,10 +1103,10 @@ app.get('/api/download-apk', serveApkFile);
 app.get('/api/app-version', (req, res) => {
   res.json({
     latestVersionCode: 4,
-    latestVersionName: '1.0.4',
+    latestVersionName: '1.0.5',
     tag: 'Updated',
-    apkUrl: 'https://paperflow.hs.vc/Paper-Flow.apk?v=1.0.4',
-    title: 'Paper Flow v1.0.4 (Updated)',
+    apkUrl: 'https://paperflow.hs.vc/Paper-Flow.apk?v=1.0.5',
+    title: 'Paper Flow v1.0.5 (Updated)',
     releaseNotes: 'Updated with Native Snapshot Share Sheet, AI-Personalized News Feed & Per-User Taste Database, Offline Phone Storage for Starred Flows, Natural AI News Summaries, and Background Notifications when the app is closed.'
   });
 });

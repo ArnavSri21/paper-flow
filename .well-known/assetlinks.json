@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.arnavsri.paperflow",
+      "sha256_cert_fingerprints": [
+        "B2:41:99:A3:15:66:E9:D8:0E:83:D5:4F:F4:E9:95:FE:52:D3:51:9D:6D:1D:46:51:78:77:EE:EF:39:AC:CB:83"
+      ]
+    }
+  }
+]

@@ -35,7 +35,9 @@
 <meta name="theme-color" content="#1a1209" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-<meta name="googlebot" content="index, follow" />
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+<meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+<meta name="google-site-verification" content="google-site-verification-paperflow" />
 <link rel="manifest" href="/manifest.json" />
 <link rel="canonical" id="seoCanonicalLink" href="https://paperflow.hs.vc/" />
 
@@ -54,6 +56,9 @@
 <meta property="og:description" content="Share anonymous confessions, stories, opinions, and questions in real time, and chat privately with end-to-end encrypted Paper Messages on Paper Flow." />
 <meta property="og:url" id="seoOgUrl" content="https://paperflow.hs.vc/" />
 <meta property="og:image" id="seoOgImage" content="https://paperflow.hs.vc/pwa-512x512.png" />
+<meta property="og:image:width" content="512" />
+<meta property="og:image:height" content="512" />
+<meta property="og:image:type" content="image/png" />
 <meta property="og:image:alt" content="Paper Flow — Anonymous & Open real-time community memo board and encrypted Paper Messages" />
 
 <!-- Twitter / X Large Summary Card -->
@@ -63,13 +68,14 @@
 <meta name="twitter:image" id="seoTwitterImage" content="https://paperflow.hs.vc/pwa-512x512.png" />
 <meta name="twitter:image:alt" content="Paper Flow — Anonymous & Open real-time community memo board" />
 
-<!-- Schema.org Structured Data (JSON-LD) -->
+<!-- Schema.org Structured Data (JSON-LD) for Google Search Rich Snippets & Sitelinks -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebApplication",
+      "@id": "https://paperflow.hs.vc/#webapp",
       "name": "Paper Flow — Anonymous & Open",
       "alternateName": "Paper Flow By Arnav Srivastava",
       "url": "https://paperflow.hs.vc/",
@@ -83,12 +89,16 @@
         "Zero-verification handle registration with customizable profile and bio",
         "End-to-end AES-256-GCM encrypted Paper Messages with request-gated chats",
         "Instant desktop and mobile reply notifications",
-        "Community moderation and reporting tools"
+        "AI-Customized News column with Google search grounding",
+        "Offline phone storage for starred flows",
+        "Native Android APK with instant snapshot share sheet"
       ],
       "author": {
         "@type": "Person",
-        "name": "Arnav Srivastava"
+        "name": "Arnav Srivastava",
+        "url": "https://github.com/ArnavSri21"
       },
+      "downloadUrl": "https://paperflow.hs.vc/Paper-Flow.apk",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -97,6 +107,7 @@
     },
     {
       "@type": "WebSite",
+      "@id": "https://paperflow.hs.vc/#website",
       "name": "Paper Flow",
       "alternateName": "Paper Flow — Anonymous & Open",
       "url": "https://paperflow.hs.vc/",
@@ -104,6 +115,50 @@
       "publisher": {
         "@type": "Person",
         "name": "Arnav Srivastava"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://paperflow.hs.vc/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://paperflow.hs.vc/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "The Flow Board",
+          "item": "https://paperflow.hs.vc/?view=board"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AI Tech News",
+          "item": "https://paperflow.hs.vc/?view=news"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "name": "Paper Flow",
+      "url": "https://paperflow.hs.vc/",
+      "logo": "https://paperflow.hs.vc/pwa-512x512.png",
+      "founder": {
+        "@type": "Person",
+        "name": "Arnav Srivastava",
+        "sameAs": [
+          "https://github.com/ArnavSri21"
+        ]
       }
     },
     {
@@ -123,6 +178,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Yes. Paper Messages and short request notes are end-to-end encrypted in the browser using AES-256-GCM, and users must accept a short request message before full chat is unlocked."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I install the Paper Flow app on Android?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can download the Paper Flow Android APK directly from the website at https://paperflow.hs.vc/Paper-Flow.apk, featuring native image snapshot sharing, background notifications, and offline flow storage."
           }
         }
       ]

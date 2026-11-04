@@ -1,0 +1,28 @@
+{
+  "marvelist": {
+    "topTopics": [
+      "Science & Deep Tech",
+      "LLMs & Foundation Models"
+    ],
+    "preferredKeywords": [
+      "three",
+      "discoveries",
+      "mathematics",
+      "computer",
+      "science",
+      "physics",
+      "openai",
+      "exponential",
+      "time",
+      "hypothesis"
+    ],
+    "topicWeights": {
+      "Science & Deep Tech": 17,
+      "LLMs & Foundation Models": 7.5
+    },
+    "personaSummary": "Curated for your interest in Science & Deep Tech & LLMs & Foundation Models (three, discoveries, mathematics, computer).",
+    "updatedAt": 1793802970074,
+    "userKey": "marvelist",
+    "interactionCount": 9
+  }
+}

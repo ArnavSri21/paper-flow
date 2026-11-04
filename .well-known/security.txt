@@ -1,0 +1,5 @@
+Contact: mailto:arnavsri210@gmail.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://paperflow.hs.vc/.well-known/security.txt
+Policy: https://paperflow.hs.vc/

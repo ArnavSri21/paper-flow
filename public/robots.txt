@@ -1,0 +1,20 @@
+# Paper Flow — Robots.txt for Google Search & Web Crawlers
+User-agent: *
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot
+Allow: /
+Allow: /sitemap.xml
+Allow: /icon.svg
+Allow: /pwa-192x192.png
+Allow: /pwa-512x512.png
+Allow: /manifest.json
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://paperflow.hs.vc/sitemap.xml

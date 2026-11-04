@@ -1045,11 +1045,178 @@ app.post('/api/ai-tech-news/refresh', async (req, res) => {
   }
 });
 
+// ── ROBOTS.TXT, SITEMAP.XML & GOOGLE SEARCH INDEXING ENGINE ─────────────────
+let cachedSitemapXml = '';
+let sitemapLastGenerated = 0;
+const SITEMAP_CACHE_TTL = 15 * 60 * 1000; // Cache sitemap for 15 minutes
+
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+async function buildDynamicSitemap(baseUrl) {
+  const today = new Date().toISOString().split('T')[0];
+  const urls = [];
+
+  // 1. Root & Primary Views
+  urls.push({
+    loc: `${baseUrl}/`,
+    lastmod: today,
+    changefreq: 'hourly',
+    priority: '1.0',
+    img: `${baseUrl}/pwa-512x512.png`,
+    title: 'Paper Flow — Anonymous & Open Community Board'
+  });
+
+  urls.push({
+    loc: `${baseUrl}/?view=board`,
+    lastmod: today,
+    changefreq: 'hourly',
+    priority: '0.9'
+  });
+
+  urls.push({
+    loc: `${baseUrl}/?view=news`,
+    lastmod: today,
+    changefreq: 'hourly',
+    priority: '0.9'
+  });
+
+  // 2. Category Board Views
+  const categories = [
+    { cat: 'confessions', label: 'Confessions & Secrets' },
+    { cat: 'stories', label: 'Stories & Experiences' },
+    { cat: 'opinions', label: 'Opinions & Perspectives' },
+    { cat: 'news', label: 'Tech & AI News' },
+    { cat: 'questions', label: 'Community Questions' },
+    { cat: 'updates', label: 'Changelog & Updates' }
+  ];
+
+  for (const c of categories) {
+    urls.push({
+      loc: `${baseUrl}/?category=${c.cat}`,
+      lastmod: today,
+      changefreq: 'daily',
+      priority: '0.85'
+    });
+  }
+
+  // 3. Android APK & Obsidian Sudoku Downloads
+  urls.push({
+    loc: `${baseUrl}/Paper-Flow.apk`,
+    lastmod: today,
+    changefreq: 'weekly',
+    priority: '0.75'
+  });
+
+  urls.push({
+    loc: `${baseUrl}/Obsidian-Sudoku.apk`,
+    lastmod: today,
+    changefreq: 'weekly',
+    priority: '0.75'
+  });
+
+  // 4. Dynamic Firestore Posts (Up to 100 most recent public flows)
+  try {
+    const fsRes = await fetch(
+      'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts?pageSize=100',
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (fsRes.ok) {
+      const fsData = await fsRes.json();
+      if (fsData && Array.isArray(fsData.documents)) {
+        for (const doc of fsData.documents) {
+          const docId = (doc.name || '').split('/').pop();
+          if (!docId) continue;
+          const fields = doc.fields || {};
+          const author = fields.authorUsername?.stringValue || fields.alias?.stringValue || 'Anonymous';
+          const rawBody = (fields.body?.stringValue || '').slice(0, 70).replace(/\s+/g, ' ').trim();
+          const imageUrl = fields.imageUrl?.stringValue || fields.photoUrl?.stringValue || null;
+          const updateTime = doc.updateTime ? doc.updateTime.split('T')[0] : today;
+
+          urls.push({
+            loc: `${baseUrl}/?post=${encodeURIComponent(docId)}`,
+            lastmod: updateTime,
+            changefreq: 'daily',
+            priority: '0.7',
+            img: imageUrl,
+            title: rawBody || `Flow by ${author}`
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching Firestore documents for sitemap:', err);
+  }
+
+  // 5. AI-Summarized Tech & AI News Items
+  if (aiTechNewsState && Array.isArray(aiTechNewsState.items)) {
+    for (const item of aiTechNewsState.items) {
+      if (item && item.id) {
+        urls.push({
+          loc: `${baseUrl}/?post=${encodeURIComponent(item.id)}`,
+          lastmod: today,
+          changefreq: 'weekly',
+          priority: '0.65',
+          img: item.imageUrl || null,
+          title: item.title || 'AI News'
+        });
+      }
+    }
+  }
+
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
+  xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
+
+  for (const u of urls) {
+    xml += '  <url>\n';
+    xml += `    <loc>${escapeXml(u.loc)}</loc>\n`;
+    xml += `    <lastmod>${u.lastmod}</lastmod>\n`;
+    xml += `    <changefreq>${u.changefreq}</changefreq>\n`;
+    xml += `    <priority>${u.priority}</priority>\n`;
+    if (u.img) {
+      xml += '    <image:image>\n';
+      xml += `      <image:loc>${escapeXml(u.img)}</image:loc>\n`;
+      if (u.title) {
+        xml += `      <image:title>${escapeXml(u.title)}</image:title>\n`;
+      }
+      xml += '    </image:image>\n';
+    }
+    xml += '  </url>\n';
+  }
+
+  xml += '</urlset>\n';
+  return xml;
+}
+
 app.get('/robots.txt', (req, res) => {
   const baseUrl = getBaseUrl(req);
   res.type('text/plain').send(
     [
+      '# Paper Flow — Robots.txt for Google Search & Web Crawlers',
       'User-agent: *',
+      'Allow: /',
+      'Disallow: /api/',
+      '',
+      'User-agent: Googlebot',
+      'Allow: /',
+      'Allow: /sitemap.xml',
+      'Allow: /icon.svg',
+      'Allow: /pwa-192x192.png',
+      'Allow: /pwa-512x512.png',
+      'Allow: /manifest.json',
+      '',
+      'User-agent: Googlebot-Image',
+      'Allow: /',
+      '',
+      'User-agent: Bingbot',
       'Allow: /',
       '',
       `Sitemap: ${baseUrl}/sitemap.xml`,
@@ -1057,18 +1224,55 @@ app.get('/robots.txt', (req, res) => {
   );
 });
 
-app.get('/sitemap.xml', (req, res) => {
+app.get(['/sitemap.xml', '/sitemap_index.xml', '/sitemap'], async (req, res) => {
   const baseUrl = getBaseUrl(req);
-  const lastMod = new Date().toISOString().split('T')[0];
-  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${baseUrl}/</loc>
-    <lastmod>${lastMod}</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>1.0</priority>
-  </url>
-</urlset>`);
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('X-Robots-Tag', 'all');
+
+  const now = Date.now();
+  if (cachedSitemapXml && now - sitemapLastGenerated < SITEMAP_CACHE_TTL) {
+    res.send(cachedSitemapXml);
+    return;
+  }
+
+  try {
+    const freshXml = await buildDynamicSitemap(baseUrl);
+    cachedSitemapXml = freshXml;
+    sitemapLastGenerated = now;
+    res.send(freshXml);
+  } catch (err) {
+    if (cachedSitemapXml) {
+      res.send(cachedSitemapXml);
+    } else {
+      res.status(500).type('text/plain').send('Error generating sitemap');
+    }
+  }
+});
+
+// Google Search Console Site Verification HTML Route (e.g., /google1234567890abcdef.html)
+app.get('/google:code([a-zA-Z0-9_-]+).html', (req, res) => {
+  const code = req.params.code;
+  res.type('text/html').send(`google-site-verification: google${code}.html`);
+});
+
+// Digital Asset Links for Android App Google Search Indexing
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  const filePath = path.join(__dirname, '.well-known', 'assetlinks.json');
+  if (fs.existsSync(filePath)) {
+    res.type('application/json').sendFile(filePath);
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
+// Security.txt for Web Crawlers & Security Audits
+app.get('/.well-known/security.txt', (req, res) => {
+  const filePath = path.join(__dirname, '.well-known', 'security.txt');
+  if (fs.existsSync(filePath)) {
+    res.type('text/plain').sendFile(filePath);
+  } else {
+    res.status(404).send('Not found');
+  }
 });
 
 function serveApkFile(req, res) {
@@ -1481,11 +1685,102 @@ app.get('/api/background-notifications', (req, res) => {
   });
 });
 
-app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'public')));
+async function serveAppWithSeo(req, res) {
+  const baseUrl = getBaseUrl(req);
+  const postId = req.query.post || (req.path.startsWith('/flow/') ? req.path.replace(/^\/flow\//, '') : null);
+  const indexPath = path.join(__dirname, 'index.html');
+
+  if (!fs.existsSync(indexPath)) {
+    res.status(404).send('Not found');
+    return;
+  }
+
+  let html = fs.readFileSync(indexPath, 'utf-8');
+
+  // Sync canonical and og:url with dynamic baseUrl
+  if (baseUrl) {
+    html = html.replace(/https:\/\/paperflow\.hs\.vc\//g, `${baseUrl}/`);
+  }
+
+  if (postId) {
+    try {
+      let author = 'Anonymous';
+      let bodyText = '';
+      let imageUrl = null;
+      let category = 'other';
+
+      if (postId.startsWith('__ainews__')) {
+        const item = (aiTechNewsState.items || []).find((i) => i.id === postId);
+        if (item) {
+          author = item.source || 'Paper Flow AI News';
+          bodyText = item.title ? `${item.title}: ${item.snippet || ''}` : item.snippet || '';
+          category = 'news';
+          imageUrl = item.imageUrl || null;
+        }
+      }
+
+      if (!bodyText) {
+        const docRes = await fetch(
+          `https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts/${encodeURIComponent(postId)}`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        if (docRes.ok) {
+          const docData = await docRes.json();
+          if (docData && docData.fields) {
+            const f = docData.fields;
+            author = f.authorUsername?.stringValue || f.alias?.stringValue || 'Anonymous';
+            bodyText = f.body?.stringValue || '';
+            imageUrl = f.imageUrl?.stringValue || f.photoUrl?.stringValue || null;
+            category = f.category?.stringValue || f.tag?.stringValue || 'other';
+          }
+        }
+      }
+
+      if (bodyText) {
+        const cleanSnippet = bodyText.replace(/\s+/g, ' ').trim();
+        const shortTitle = cleanSnippet.length > 60 ? (cleanSnippet.slice(0, 57) + '…') : cleanSnippet;
+        const pageTitle = `${shortTitle} — Paper Flow`;
+        const pageDesc = `Read this ${category} flow by ${author} on Paper Flow: ${cleanSnippet.slice(0, 150)}${cleanSnippet.length > 150 ? '…' : ''}`;
+        const postUrl = `${baseUrl}/?post=${encodeURIComponent(postId)}`;
+        const shareImg = imageUrl || `${baseUrl}/pwa-512x512.png`;
+
+        html = html
+          .replace(/<title>.*?<\/title>/i, `<title>${escapeXml(pageTitle)}</title>`)
+          .replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/i, `<meta name="description" content="${escapeXml(pageDesc)}" />`)
+          .replace(/<link\s+rel="canonical"\s+id="seoCanonicalLink"\s+href=".*?"\s*\/?>/i, `<link rel="canonical" id="seoCanonicalLink" href="${escapeXml(postUrl)}" />`)
+          .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/i, `<meta property="og:title" content="${escapeXml(pageTitle)}" />`)
+          .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/i, `<meta property="og:description" content="${escapeXml(pageDesc)}" />`)
+          .replace(/<meta\s+property="og:url"\s+id="seoOgUrl"\s+content=".*?"\s*\/?>/i, `<meta property="og:url" id="seoOgUrl" content="${escapeXml(postUrl)}" />`)
+          .replace(/<meta\s+property="og:image"\s+id="seoOgImage"\s+content=".*?"\s*\/?>/i, `<meta property="og:image" id="seoOgImage" content="${escapeXml(shareImg)}" />`)
+          .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:title" content="${escapeXml(pageTitle)}" />`)
+          .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:description" content="${escapeXml(pageDesc)}" />`)
+          .replace(/<meta\s+name="twitter:image"\s+id="seoTwitterImage"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:image" id="seoTwitterImage" content="${escapeXml(shareImg)}" />`);
+      }
+    } catch (e) {
+      console.error('Error in post SEO rendering:', e);
+    }
+  }
+
+  res.type('text/html').send(html);
+}
+
+app.get('/', (req, res) => {
+  serveAppWithSeo(req, res);
+});
+
+app.get('/index.html', (req, res) => {
+  serveAppWithSeo(req, res);
+});
+
+app.get('/flow/:id', (req, res) => {
+  serveAppWithSeo(req, res);
+});
+
+app.use(express.static(__dirname, { index: false }));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  serveAppWithSeo(req, res);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

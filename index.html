@@ -1275,18 +1275,21 @@
   .fab-news-refresh {
     position: fixed;
     right: 2rem;
-    bottom: calc(4.8rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
     width: 54px;
     height: 54px;
     border-radius: 50%;
-    background: rgba(255, 250, 242, 0.78);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    /* True Floating Liquid Glassmorphism matching the taskbar dock */
+    background: linear-gradient(135deg, rgba(255, 253, 248, 0.82) 0%, rgba(248, 242, 230, 0.68) 50%, rgba(255, 255, 255, 0.86) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.88);
+    -webkit-backdrop-filter: blur(24px) saturate(220%) contrast(105%);
+    backdrop-filter: blur(24px) saturate(220%) contrast(105%);
     color: var(--ink);
-    border: 1.8px solid var(--ink);
     box-shadow:
-      3px 3px 0 var(--ink),
-      inset 0 1px 1px rgba(255, 255, 255, 0.65);
+      0 16px 36px -8px rgba(6, 182, 212, 0.28),
+      0 6px 16px -4px rgba(26, 18, 9, 0.14),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px 0 rgba(6, 182, 212, 0.18);
     display: none;
     align-items: center;
     justify-content: center;
@@ -1295,18 +1298,20 @@
     padding: 0;
     isolation: isolate;
     transition:
-      transform 0.42s var(--bubble-spring),
-      box-shadow 0.32s var(--bubble-smooth),
+      transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.3),
+      box-shadow 0.32s ease,
       border-color 0.28s ease,
-      background-color 0.28s ease;
+      background 0.28s ease;
   }
   body.dark-mode .fab-news-refresh {
-    background: rgba(34, 26, 18, 0.78);
-    border-color: rgba(255, 255, 255, 0.28);
+    background: linear-gradient(135deg, rgba(30, 24, 42, 0.82) 0%, rgba(18, 14, 26, 0.76) 50%, rgba(36, 28, 52, 0.86) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.24);
     color: #f5f0e8;
     box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.48),
-      inset 0 1px 1px rgba(255, 255, 255, 0.18);
+      0 18px 40px -8px rgba(0, 0, 0, 0.7),
+      0 6px 16px -4px rgba(0, 0, 0, 0.5),
+      inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.32),
+      inset 0 -1.5px 2px 0 rgba(6, 182, 212, 0.25);
   }
   .fab-news-refresh.visible {
     display: inline-flex;
@@ -1321,21 +1326,26 @@
     fill: none;
     position: relative;
     z-index: 2;
-    transition: transform 0.5s var(--bubble-spring);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.3);
   }
   .fab-news-refresh:hover:not(.is-refreshing) {
-    transform: translateY(-2px) scale(1.06);
+    transform: translateY(-3px) scale(1.08);
     box-shadow:
-      4px 4px 0 var(--ink),
-      inset 0 1px 1px rgba(255, 255, 255, 0.7);
+      0 20px 44px -6px rgba(6, 182, 212, 0.38),
+      0 8px 18px -4px rgba(26, 18, 9, 0.16),
+      inset 0 2px 3px 0 rgba(255, 255, 255, 1);
   }
   body.dark-mode .fab-news-refresh:hover:not(.is-refreshing) {
     box-shadow:
-      0 10px 26px rgba(0, 0, 0, 0.55),
-      inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      0 22px 48px -6px rgba(6, 182, 212, 0.45),
+      0 8px 20px -4px rgba(0, 0, 0, 0.6),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 0.45);
   }
   .fab-news-refresh:active:not(.is-refreshing) {
     transform: scale(0.92);
+    box-shadow:
+      0 6px 16px -4px rgba(6, 182, 212, 0.22),
+      inset 0 1px 2px rgba(26, 18, 9, 0.18);
   }
   /* Siri-like liquid glass multi-color & orange-amber aura ONLY when refreshing */
   .fab-news-refresh::before,
@@ -1718,40 +1728,54 @@
       transform: translate3d(0, 0, 0);
     }
   }
-  @keyframes screenSwipeFromLeft {
+  /* ── CONTROLLED LIQUID SCREEN SLIDE ANIMATIONS (BOARD ↔ NEWS ↔ REPLIES ↔ MESSAGES) ── */
+  @keyframes liquidSwipeFromRight {
     0% {
-      opacity: 0.12;
-      transform: translate3d(-38px, 0, 0);
+      opacity: 0.35;
+      transform: translate3d(24px, 0, 0);
     }
     100% {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
   }
+
+  @keyframes liquidSwipeFromLeft {
+    0% {
+      opacity: 0.35;
+      transform: translate3d(-24px, 0, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
   @keyframes pmChatThreadSwipeIn {
     0% {
-      opacity: 0.2;
-      transform: translate3d(32px, 0, 0);
+      opacity: 0.35;
+      transform: translate3d(28px, 0, 0);
     }
     100% {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
   }
+
   .screen-swipe-from-right {
-    animation: screenSwipeFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: liquidSwipeFromRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
     will-change: transform, opacity;
   }
   .screen-swipe-from-left {
-    animation: screenSwipeFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: liquidSwipeFromLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
     will-change: transform, opacity;
   }
   .paper-messages-shell.active {
-    animation: screenSwipeFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: liquidSwipeFromRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
     will-change: transform, opacity;
   }
   .paper-messages-shell.mobile-chat-open .pm-main {
-    animation: pmChatThreadSwipeIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: pmChatThreadSwipeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .card.card-developer {
     border-color: #6d28d9;
@@ -2035,26 +2059,73 @@
   }
   /* 1-CLICK QUICK ACCESS SWITCHER BAR (ALL FLOWS vs TECH & AI NEWS) */
   .quick-column-switcher {
-    display: flex;
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.35rem;
     margin-bottom: 1rem;
-    padding: 0.35rem;
+    padding: 4px;
     background: var(--surface-subtle);
     border: 1.5px solid var(--card-border);
     border-radius: 999px;
     width: fit-content;
     max-width: 100%;
-    overflow-x: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    isolation: isolate;
   }
+
+  /* GPU-Accelerated Hardware-Animated Slider Pill */
+  .quick-switch-slider-pill {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 110px;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 1;
+    will-change: transform, width;
+    transform: translate3d(var(--top-pill-x, 4px), 0, 0);
+    transition:
+      transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+      width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: var(--ink);
+    box-shadow: 0 4px 14px rgba(26, 18, 9, 0.18);
+  }
+
+  .quick-switch-slider-pill.pill-all {
+    background: var(--ink);
+    border-color: var(--ink);
+    box-shadow: 0 4px 14px rgba(26, 18, 9, 0.18);
+  }
+
+  .quick-switch-slider-pill.pill-news {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
+    border-color: rgba(6, 182, 212, 0.85);
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
+  }
+
+  body.dark-mode .quick-switch-slider-pill.pill-all {
+    background: #f3ede2;
+    border-color: #f3ede2;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  }
+
   .quick-switch-btn {
+    position: relative;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     padding: 0.44rem 0.95rem;
     border-radius: 999px;
-    border: 1.5px solid transparent;
-    background: transparent;
+    border: none;
+    background: transparent !important;
+    box-shadow: none !important;
     color: var(--ink-muted);
     font-family: var(--mono);
     font-size: 0.72rem;
@@ -2062,23 +2133,20 @@
     letter-spacing: 0.04em;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.22s ease;
+    transition: color 0.18s ease;
+    outline: none;
   }
   .quick-switch-btn:hover {
     color: var(--ink);
-    background: var(--surface-hover);
   }
   .quick-switch-btn.active {
-    background: var(--ink);
     color: var(--bg);
-    border-color: var(--ink);
-    box-shadow: 0 2px 8px rgba(26, 18, 9, 0.18);
   }
   .quick-switch-btn.news-switch.active {
-    background: linear-gradient(135deg, #0f5132 0%, #198754 100%);
     color: #ffffff;
-    border-color: #198754;
-    box-shadow: 0 2px 10px rgba(25, 135, 84, 0.32);
+  }
+  body.dark-mode .quick-switch-btn.active:not(.news-switch) {
+    color: #0f0d0b;
   }
   .quick-switch-count {
     display: inline-flex;
@@ -2089,14 +2157,13 @@
     border-radius: 999px;
     background: rgba(128, 128, 128, 0.18);
     color: inherit;
+    transition: background 0.18s ease;
   }
   .quick-switch-btn.active .quick-switch-count {
-    background: rgba(255, 255, 255, 0.22);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.28);
   }
   body.dark-mode .quick-switch-btn.active:not(.news-switch) .quick-switch-count {
-    background: rgba(0, 0, 0, 0.25);
-    color: var(--bg);
+    background: rgba(0, 0, 0, 0.2);
   }
   .banner-news-shortcut {
     display: inline-flex;
@@ -2687,9 +2754,8 @@
     flex-direction: column;
     gap: 0.7rem;
     transition:
-      transform 0.36s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)),
-      box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-    animation: fmCardSpringEnter 0.46s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
   .reply-page-card:hover {
     box-shadow: 3px 3px 0 var(--ink);
@@ -3999,37 +4065,258 @@
     display: flex;
   }
 
-  /* Native App Bottom Navigation Bar */
+  /* ── FLOATING LIQUID GLASS TASKBAR DOCK ── */
   .app-bottom-nav {
     position: fixed;
+    left: 50%;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    transform: translate3d(-50%, 0, 0);
+    width: calc(100% - 28px);
+    max-width: 440px;
+    height: 64px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    z-index: 280;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* True Liquid Glassmorphism */
+    background: linear-gradient(135deg, rgba(255, 253, 248, 0.78) 0%, rgba(248, 242, 230, 0.68) 50%, rgba(255, 255, 255, 0.82) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(28px) saturate(220%) contrast(105%);
+    backdrop-filter: blur(28px) saturate(220%) contrast(105%);
+    box-shadow:
+      0 20px 48px -12px rgba(26, 18, 9, 0.22),
+      0 8px 20px -6px rgba(26, 18, 9, 0.12),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -1.5px 2px 0 rgba(26, 18, 9, 0.06);
+
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+  }
+
+  body.dark-mode .app-bottom-nav {
+    background: linear-gradient(135deg, rgba(30, 24, 42, 0.78) 0%, rgba(18, 14, 26, 0.74) 50%, rgba(36, 28, 52, 0.82) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 24px 58px -10px rgba(0, 0, 0, 0.7),
+      0 8px 24px -6px rgba(0, 0, 0, 0.5),
+      inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.25),
+      inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  /* Liquid Glass Caustic Light Shimmer */
+  .liquid-glass-caustic {
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    height: calc(60px + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: var(--card-bg);
-    border-top: 2px solid var(--ink);
-    display: flex;
-    align-items: stretch;
-    justify-content: space-around;
-    z-index: 220;
-    box-shadow: 0 -4px 18px rgba(26, 18, 9, 0.08);
+    border-radius: 999px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
   }
-  body.dark-mode .app-bottom-nav {
-    border-top-color: var(--card-border);
-    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.45);
+  .liquid-glass-caustic::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    transform: rotate(25deg);
+    animation: liquidCausticSweep 6s infinite ease-in-out;
   }
-  body.pm-fullscreen-open .app-bottom-nav {
-    display: none !important;
+  @keyframes liquidCausticSweep {
+    0%, 20% { transform: translate3d(-100%, 0, 0) rotate(25deg); opacity: 0; }
+    35% { opacity: 1; }
+    50%, 100% { transform: translate3d(360%, 0, 0) rotate(25deg); opacity: 0; }
   }
+
+  /* ── THE SLIDABLE LIQUID GLASS INDICATOR PILL ── */
+  .liquid-glass-pill {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 68px;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 1;
+    transform: translate3d(6px, 0, 0);
+    will-change: transform, width;
+    transition:
+      transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+      width 0.36s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background 0.35s ease,
+      box-shadow 0.35s ease;
+
+    -webkit-backdrop-filter: blur(12px) brightness(1.15);
+    backdrop-filter: blur(12px) brightness(1.15);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
+    /* Default (Board): Liquid Amber */
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.14) 100%);
+    box-shadow:
+      0 6px 18px rgba(245, 158, 11, 0.3),
+      inset 0 1px 1.5px rgba(255, 255, 255, 0.8),
+      inset 0 -1px 1.5px rgba(217, 119, 6, 0.25);
+  }
+
+  .liquid-glass-pill.tab-board {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(217, 119, 6, 0.16) 100%);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+
+  .liquid-glass-pill.tab-news {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.34) 0%, rgba(14, 165, 233, 0.16) 100%);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(6, 182, 212, 0.5);
+  }
+
+  .liquid-glass-pill.tab-replies {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.32) 0%, rgba(139, 92, 246, 0.16) 100%);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(168, 85, 247, 0.5);
+  }
+
+  .liquid-glass-pill.tab-messages {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.32) 0%, rgba(5, 150, 105, 0.16) 100%);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+
+  /* Stretching physics while sliding */
+  .liquid-glass-pill.sliding-right {
+    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.14) scaleY(0.92);
+  }
+  .liquid-glass-pill.sliding-left {
+    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.14) scaleY(0.92);
+  }
+
+  /* ── TASKBAR ELASTIC SPRING PHYSICS FOR BOUNDARY / STACK END ── */
+  @keyframes taskbarElasticSpringStart {
+    0% {
+      transform: translate3d(-50%, 0, 0) scale(1, 1);
+    }
+    18% {
+      transform: translate3d(calc(-50% - 18px), 0, 0) scale(1.12, 0.88);
+    }
+    38% {
+      transform: translate3d(calc(-50% + 11px), 0, 0) scale(0.92, 1.08);
+    }
+    58% {
+      transform: translate3d(calc(-50% - 6px), 0, 0) scale(1.04, 0.96);
+    }
+    78% {
+      transform: translate3d(calc(-50% + 2.5px), 0, 0) scale(0.98, 1.02);
+    }
+    92% {
+      transform: translate3d(calc(-50% - 1px), 0, 0) scale(1.01, 0.99);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0) scale(1, 1);
+    }
+  }
+
+  @keyframes taskbarElasticSpringEnd {
+    0% {
+      transform: translate3d(-50%, 0, 0) scale(1, 1);
+    }
+    18% {
+      transform: translate3d(calc(-50% + 18px), 0, 0) scale(1.12, 0.88);
+    }
+    38% {
+      transform: translate3d(calc(-50% - 11px), 0, 0) scale(0.92, 1.08);
+    }
+    58% {
+      transform: translate3d(calc(-50% + 6px), 0, 0) scale(1.04, 0.96);
+    }
+    78% {
+      transform: translate3d(calc(-50% - 2.5px), 0, 0) scale(0.98, 1.02);
+    }
+    92% {
+      transform: translate3d(calc(-50% + 1px), 0, 0) scale(1.01, 0.99);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0) scale(1, 1);
+    }
+  }
+
+  .app-bottom-nav.taskbar-spring-edge-start {
+    animation: taskbarElasticSpringStart 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.25) both !important;
+  }
+  .app-bottom-nav.taskbar-spring-edge-end {
+    animation: taskbarElasticSpringEnd 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.25) both !important;
+  }
+
+  @keyframes pillElasticEdgeSquishStart {
+    0% {
+      transform: translate3d(var(--pill-x, 0px), 0, 0) scale(1, 1);
+    }
+    22% {
+      transform: translate3d(calc(var(--pill-x, 0px) - 12px), 0, 0) scale(1.28, 0.74);
+    }
+    45% {
+      transform: translate3d(calc(var(--pill-x, 0px) + 7px), 0, 0) scale(0.85, 1.16);
+    }
+    68% {
+      transform: translate3d(calc(var(--pill-x, 0px) - 3px), 0, 0) scale(1.08, 0.94);
+    }
+    86% {
+      transform: translate3d(calc(var(--pill-x, 0px) + 1px), 0, 0) scale(0.98, 1.02);
+    }
+    100% {
+      transform: translate3d(var(--pill-x, 0px), 0, 0) scale(1, 1);
+    }
+  }
+
+  @keyframes pillElasticEdgeSquishEnd {
+    0% {
+      transform: translate3d(var(--pill-x, 0px), 0, 0) scale(1, 1);
+    }
+    22% {
+      transform: translate3d(calc(var(--pill-x, 0px) + 12px), 0, 0) scale(1.28, 0.74);
+    }
+    45% {
+      transform: translate3d(calc(var(--pill-x, 0px) - 7px), 0, 0) scale(0.85, 1.16);
+    }
+    68% {
+      transform: translate3d(calc(var(--pill-x, 0px) + 3px), 0, 0) scale(1.08, 0.94);
+    }
+    86% {
+      transform: translate3d(calc(var(--pill-x, 0px) - 1px), 0, 0) scale(0.98, 1.02);
+    }
+    100% {
+      transform: translate3d(var(--pill-x, 0px), 0, 0) scale(1, 1);
+    }
+  }
+
+  .liquid-glass-pill.pill-spring-edge-start {
+    animation: pillElasticEdgeSquishStart 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.25) both !important;
+  }
+  .liquid-glass-pill.pill-spring-edge-end {
+    animation: pillElasticEdgeSquishEnd 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.25) both !important;
+  }
+
+  /* Nav Item Elements */
   .app-nav-item {
     flex: 1;
+    position: relative;
+    z-index: 2;
     background: transparent;
     border: none;
     color: var(--ink-muted);
     font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.04em;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
     display: flex;
     flex-direction: column;
@@ -4037,63 +4324,170 @@
     justify-content: center;
     gap: 3px;
     cursor: pointer;
-    position: relative;
-    padding: 0.3rem 0.2rem;
-    border-radius: 0;
+    padding: 6px 4px;
+    height: 52px;
+    border-radius: 999px;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  .app-nav-item:active {
+    transform: scale(0.88);
+  }
+
   .app-nav-item:hover {
     color: var(--ink);
-    background: var(--surface-hover);
-    transform: none !important;
   }
+
   .app-nav-item.active {
-    color: var(--accent);
-    font-weight: 600;
-    background: var(--surface-subtle);
-    box-shadow: inset 0 3px 0 var(--accent);
+    font-weight: 700;
   }
+
+  /* Liquid color identity per tab */
+  #appNavBoard.active { color: #d97706; }
+  body.dark-mode #appNavBoard.active { color: #fbbf24; }
+  #appNavBoard.active .app-nav-icon {
+    filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.5));
+    transform: scale(1.12);
+  }
+
+  #appNavNews.active { color: #0284c7; }
+  body.dark-mode #appNavNews.active { color: #38bdf8; }
+  #appNavNews.active .app-nav-icon {
+    filter: drop-shadow(0 2px 8px rgba(6, 182, 212, 0.5));
+    transform: scale(1.12);
+  }
+
+  #appNavReplies.active { color: #7c3aed; }
+  body.dark-mode #appNavReplies.active { color: #c084fc; }
+  #appNavReplies.active .app-nav-icon {
+    filter: drop-shadow(0 2px 8px rgba(168, 85, 247, 0.5));
+    transform: scale(1.12);
+  }
+
+  #appNavMessages.active { color: #059669; }
+  body.dark-mode #appNavMessages.active { color: #34d399; }
+  #appNavMessages.active .app-nav-icon {
+    filter: drop-shadow(0 2px 8px rgba(16, 185, 129, 0.5));
+    transform: scale(1.12);
+  }
+
   .app-nav-icon {
-    font-size: 1.08rem;
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+  }
+  .app-nav-label {
+    font-size: 0.58rem;
     line-height: 1;
   }
+
+  /* Center Floating Compose Orb */
+  .app-nav-post-wrap {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 3;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .app-nav-post-btn {
-    align-self: center;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    border: 2px solid var(--ink);
-    box-shadow: 2px 2px 0 var(--ink);
-    font-size: 1.45rem;
-    font-weight: 600;
+    background: linear-gradient(135deg, #ff6b4a 0%, #e04822 55%, #b92b0e 100%);
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    box-shadow:
+      0 10px 24px rgba(224, 72, 34, 0.45),
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      inset 0 2px 2px rgba(255, 255, 255, 0.65),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin: 0 0.35rem;
-    flex-shrink: 0;
+    position: relative;
+    transform: translate3d(0, -3px, 0);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, filter 0.28s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .app-nav-post-btn:hover {
-    background: var(--accent-hover);
-    box-shadow: 3px 3px 0 var(--ink);
+    transform: translate3d(0, -5px, 0) scale(1.06);
+    box-shadow:
+      0 14px 30px rgba(224, 72, 34, 0.55),
+      0 0 16px rgba(255, 107, 74, 0.45),
+      inset 0 2px 2px rgba(255, 255, 255, 0.85);
   }
+  .app-nav-post-btn:active {
+    transform: translate3d(0, -1px, 0) scale(0.9);
+    transition-duration: 0.1s;
+  }
+  .app-nav-post-icon {
+    display: block;
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+  }
+  .app-nav-post-liquid-ring {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 107, 74, 0.35);
+    opacity: 0.6;
+    animation: liquidRingPulse 3s infinite ease-out;
+    pointer-events: none;
+  }
+  @keyframes liquidRingPulse {
+    0% { transform: scale(0.96); opacity: 0.7; }
+    50% { transform: scale(1.08); opacity: 0.2; }
+    100% { transform: scale(0.96); opacity: 0.7; }
+  }
+
+  /* Badge with Liquid Glow */
   .app-nav-badge {
     position: absolute;
-    top: 5px;
-    right: calc(50% - 22px);
-    background: var(--accent);
+    top: 4px;
+    right: calc(50% - 20px);
+    background: #ef4444;
     color: #fff;
     font-family: var(--mono);
-    font-size: 0.52rem;
-    font-weight: 600;
-    padding: 1px 5px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 1px 5.5px;
+    min-width: 15px;
+    text-align: center;
     border-radius: 999px;
-    border: 1px solid var(--card-bg);
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
     display: none;
+    line-height: 1.3;
+    pointer-events: none;
+  }
+  #appNavReplies .app-nav-badge {
+    background: #8b5cf6;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.5);
+  }
+  #appNavMessages .app-nav-badge {
+    background: #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
   }
   .app-nav-badge.show {
     display: inline-block;
+  }
+
+  /* Mobile Chat view hides taskbar so full keyboard and composer are visible */
+  body.pm-fullscreen-open .paper-messages-shell.mobile-chat-open ~ .app-bottom-nav,
+  body.pm-chat-focused .app-bottom-nav {
+    transform: translate3d(-50%, calc(100% + 40px), 0) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
   }
 
   .container {
@@ -4850,6 +5244,7 @@
 
   <!-- 1-CLICK QUICK COLUMN SWITCHER: ALL FLOWS vs TECH & AI NEWS -->
   <div class="quick-column-switcher" id="quickColumnSwitcher" role="tablist" aria-label="Switch between All Flows and Tech & AI News">
+    <div class="quick-switch-slider-pill" id="quickSwitchPill" aria-hidden="true"></div>
     <button
       type="button"
       class="quick-switch-btn active"
@@ -5145,25 +5540,32 @@
   <img id="lightboxImg" src="" alt="Full size attachment" />
 </div>
 
-<!-- NATIVE APP BOTTOM NAVIGATION DOCK -->
+<!-- NATIVE APP FLOATING LIQUID GLASS TASKBAR DOCK -->
 <nav class="app-bottom-nav" id="appBottomNav" aria-label="App Navigation">
-  <button type="button" class="app-nav-item active" id="appNavBoard" onclick="switchViewMode('board', 'all')">
+  <div class="liquid-glass-caustic" aria-hidden="true"></div>
+  <div class="liquid-glass-pill" id="liquidNavPill" aria-hidden="true"></div>
+  <button type="button" class="app-nav-item active" id="appNavBoard" data-nav="board" data-color="#f59e0b" onclick="switchViewMode('board', 'all')">
     <span class="app-nav-icon">📋</span>
-    <span>Board</span>
+    <span class="app-nav-label">Board</span>
   </button>
-  <button type="button" class="app-nav-item" id="appNavNews" onclick="openNewsColumn()">
+  <button type="button" class="app-nav-item" id="appNavNews" data-nav="news" data-color="#06b6d4" onclick="openNewsColumn()">
     <span class="app-nav-icon">📰</span>
-    <span>News</span>
+    <span class="app-nav-label">News</span>
   </button>
-  <button type="button" class="app-nav-post-btn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">+</button>
-  <button type="button" class="app-nav-item" id="appNavReplies" onclick="switchViewMode('replies')">
+  <div class="app-nav-post-wrap">
+    <button type="button" class="app-nav-post-btn" id="appNavPostBtn" onclick="openComposeModal()" title="Post a Flow" aria-label="Post a Flow">
+      <span class="app-nav-post-icon">+</span>
+      <span class="app-nav-post-liquid-ring" aria-hidden="true"></span>
+    </button>
+  </div>
+  <button type="button" class="app-nav-item" id="appNavReplies" data-nav="replies" data-color="#a855f7" onclick="switchViewMode('replies')">
     <span class="app-nav-icon">💬</span>
-    <span>Replies</span>
+    <span class="app-nav-label">Replies</span>
     <span class="app-nav-badge" id="appNavCountReplies">0</span>
   </button>
-  <button type="button" class="app-nav-item" id="appNavMessages" onclick="switchViewMode('messages')">
+  <button type="button" class="app-nav-item" id="appNavMessages" data-nav="messages" data-color="#10b981" onclick="switchViewMode('messages')">
     <span class="app-nav-icon">🔒</span>
-    <span>Messages</span>
+    <span class="app-nav-label">Messages</span>
     <span class="app-nav-badge" id="appNavCountMessages">0</span>
   </button>
 </nav>
@@ -6156,11 +6558,35 @@
     const swipeDir = nextSlot >= prevSlot ? 'right' : 'left';
     const isSwitchingScreen = (activeViewMode !== mode) || (activeFilter !== nextFilter);
 
+    if (!isSwitchingScreen) {
+      // Reached the end of the navigation stack! Tapping the current tab fires high-intensity elastic bounce
+      if (mode === 'board' && (nextFilter === 'all' || !nextFilter)) {
+        if (typeof window.triggerLiquidTaskbarEdgeBounce === 'function') {
+          window.triggerLiquidTaskbarEdgeBounce('start');
+        }
+      } else if (mode === 'messages') {
+        if (typeof window.triggerLiquidTaskbarEdgeBounce === 'function') {
+          window.triggerLiquidTaskbarEdgeBounce('end');
+        }
+      }
+      return;
+    }
+
+    if (typeof window.triggerHapticFeedback === 'function') {
+      window.triggerHapticFeedback('tab');
+    }
+
     activeViewMode = mode;
     activeFilter = nextFilter;
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
-    shouldAnimateFeedCards = true;
+    shouldAnimateFeedCards = false;
+
+    // Instantly glide top slider pill without waiting for DOM build
+    if (typeof window.syncTopSliderPill === 'function') {
+      window.syncTopSliderPill();
+    }
+
     document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
     toggleSidePanel(false);
     renderAll();
@@ -6168,8 +6594,8 @@
     if (isSwitchingScreen) {
       triggerScreenSwipeAnimation(swipeDir, mode === 'messages');
     }
-    if (mode !== 'messages') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (mode !== 'messages' && window.scrollY > 80) {
+      window.scrollTo(0, 0);
     }
   };
 
@@ -6179,23 +6605,40 @@
     const swipeDir = nextSlot >= prevSlot ? 'right' : 'left';
     const isSwitchingToNews = !(activeViewMode === 'board' && activeFilter === 'news');
 
+    if (!isSwitchingToNews) {
+      // Already on news column
+      return;
+    }
+
+    if (typeof window.triggerHapticFeedback === 'function') {
+      window.triggerHapticFeedback('tab');
+    }
+
     activeViewMode = 'board';
     activeFilter = 'news';
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
-    shouldAnimateFeedCards = true;
-    if (typeof window.resetLockedNewsScores === 'function') {
-      window.resetLockedNewsScores();
+    shouldAnimateFeedCards = false;
+
+    // Instantly glide top slider pill without waiting for DOM build
+    if (typeof window.syncTopSliderPill === 'function') {
+      window.syncTopSliderPill();
     }
+
     document.body.classList.remove('pm-fullscreen-open');
     toggleSidePanel(false);
     renderAll();
-    if (isSwitchingToNews) {
-      triggerScreenSwipeAnimation(swipeDir, false);
+    triggerScreenSwipeAnimation(swipeDir, false);
+
+    if (window.scrollY > 80) {
+      window.scrollTo(0, 0);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchAndSyncAiTechNews(false);
-    analyzeUserNewsTasteWithAi(false).catch(() => {});
+
+    // Defer network and background processing so the screen swipe and top slider glide stay silky smooth
+    setTimeout(() => {
+      fetchAndSyncAiTechNews(false);
+      analyzeUserNewsTasteWithAi(false).catch(() => {});
+    }, 280);
   };
 
   window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
@@ -6234,46 +6677,385 @@
     }, 50);
   };
 
-  // Horizontal Touch-Swipe Gesture on Main Feed (Board ↔ Tech & AI News ↔ Paper Messages)
-  (function initHorizontalColumnSwipeGestures() {
+  // ── HAPTIC FEEDBACK CONTROLLER (WEB VIBRATION API) ───────────────────────
+  window.triggerHapticFeedback = function (type = 'light') {
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        let pattern;
+        switch (type) {
+          case 'boundary':
+          case 'edge-bounce':
+            // Dynamic spring rebound double-buzz for navigation stack ends
+            pattern = [18, 35, 14];
+            break;
+          case 'swipe':
+            // Crisp tactile notch tick for horizontal screen navigation switch
+            pattern = [14];
+            break;
+          case 'tab':
+          case 'light':
+            // Subtle, crisp micro-haptic tick for taskbar dock interactions
+            pattern = [10];
+            break;
+          case 'heavy':
+            pattern = [24];
+            break;
+          default:
+            pattern = Array.isArray(type) ? type : [10];
+        }
+        navigator.vibrate(pattern);
+      }
+    } catch (e) {
+      // Graceful fallback when vibration is disabled or not permitted
+    }
+  };
+
+  // ── LIQUID GLASS DOCK & SLIDABLE PILL CONTROLLER ──────────────────────────
+  let taskbarEdgeBounceTimer = null;
+  window.triggerLiquidTaskbarEdgeBounce = function (edgeDirection = 'start') {
+    if (typeof window.triggerHapticFeedback === 'function') {
+      window.triggerHapticFeedback('boundary');
+    }
+
+    const nav = document.getElementById('appBottomNav');
+    const pill = document.getElementById('liquidNavPill');
+    if (!nav) return;
+
+    // Reset manual dragging inline transform
+    nav.style.transition = '';
+    nav.style.transform = '';
+
+    const dirClass = edgeDirection === 'start' ? 'taskbar-spring-edge-start' : 'taskbar-spring-edge-end';
+    const pillClass = edgeDirection === 'start' ? 'pill-spring-edge-start' : 'pill-spring-edge-end';
+
+    nav.classList.remove('taskbar-spring-edge-start', 'taskbar-spring-edge-end');
+    if (pill) {
+      const activeBtn = nav.querySelector('.app-nav-item.active') || document.getElementById('appNavBoard');
+      if (activeBtn) {
+        pill.style.setProperty('--pill-x', `${activeBtn.offsetLeft}px`);
+      }
+      pill.classList.remove('pill-spring-edge-start', 'pill-spring-edge-end');
+    }
+
+    void nav.offsetWidth;
+    nav.classList.add(dirClass);
+    if (pill) {
+      pill.classList.add(pillClass);
+    }
+
+    clearTimeout(taskbarEdgeBounceTimer);
+    taskbarEdgeBounceTimer = setTimeout(() => {
+      nav.classList.remove('taskbar-spring-edge-start', 'taskbar-spring-edge-end');
+      if (pill) {
+        pill.classList.remove('pill-spring-edge-start', 'pill-spring-edge-end');
+        if (typeof window.syncLiquidGlassNavPill === 'function') {
+          window.syncLiquidGlassNavPill(0, false);
+        }
+      }
+    }, 680);
+  };
+
+  window.syncLiquidGlassNavPill = function (offsetFraction = 0, isDragging = false) {
+    const nav = document.getElementById('appBottomNav');
+    const pill = document.getElementById('liquidNavPill');
+    if (!nav || !pill) return;
+
+    // Find active nav item
+    const activeBtn = nav.querySelector('.app-nav-item.active') || document.getElementById('appNavBoard');
+    if (!activeBtn) {
+      pill.style.opacity = '0';
+      return;
+    }
+
+    const tabType = activeBtn.getAttribute('data-nav') || activeBtn.getAttribute('data-tab') || 'board';
+    pill.className = `liquid-glass-pill tab-${tabType}${isDragging ? ' dragging' : ''}`;
+
+    const btnLeft = activeBtn.offsetLeft;
+    const btnWidth = activeBtn.offsetWidth;
+
+    if (btnWidth === 0) {
+      // Elements not yet rendered / laid out
+      return;
+    }
+
+    if (isDragging && offsetFraction !== 0) {
+      // Fluid elongation and real-time finger tracking
+      const shiftPx = offsetFraction * btnWidth * 0.9;
+      const stretch = 1 + Math.min(0.24, Math.abs(offsetFraction) * 0.35);
+      const squish = 1 - Math.min(0.12, Math.abs(offsetFraction) * 0.18);
+      pill.style.transition = 'none';
+      pill.style.width = `${btnWidth}px`;
+      pill.style.transform = `translate3d(${btnLeft + shiftPx}px, 0, 0) scaleX(${stretch}) scaleY(${squish})`;
+    } else {
+      // Fluid spring bounce into position
+      pill.style.transition = 'transform 0.44s cubic-bezier(0.175, 0.885, 0.32, 1.3), width 0.36s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.22s ease';
+      pill.style.width = `${btnWidth}px`;
+      pill.style.transform = `translate3d(${btnLeft}px, 0, 0) scale(1, 1)`;
+    }
+    pill.style.opacity = '1';
+  };
+
+  // ── TOP QUICK COLUMN SWITCHER HARDWARE-ACCELERATED SLIDER PILL ───────────
+  window.syncTopSliderPill = function () {
+    const switcher = document.getElementById('quickColumnSwitcher');
+    const pill = document.getElementById('quickSwitchPill');
+    if (!switcher || !pill) return;
+
+    const isNews = (activeViewMode === 'board' && activeFilter === 'news');
+    const activeBtn = isNews
+      ? document.getElementById('quickSwitchNews')
+      : document.getElementById('quickSwitchAll');
+
+    if (!activeBtn) return;
+
+    const btnLeft = activeBtn.offsetLeft;
+    const btnWidth = activeBtn.offsetWidth;
+    if (btnWidth === 0) return;
+
+    pill.className = `quick-switch-slider-pill ${isNews ? 'pill-news' : 'pill-all'}`;
+    pill.style.transform = `translate3d(${btnLeft}px, 0, 0)`;
+    pill.style.width = `${btnWidth}px`;
+    pill.style.opacity = '1';
+  };
+
+  // Re-sync pills on viewport resize or orientation change
+  window.addEventListener('resize', () => {
+    if (typeof window.syncLiquidGlassNavPill === 'function') {
+      window.syncLiquidGlassNavPill();
+    }
+    if (typeof window.syncTopSliderPill === 'function') {
+      window.syncTopSliderPill();
+    }
+  }, { passive: true });
+
+  // ── LIQUID SMOOTH SWIPE GESTURES WITH BOUNCE & 1:1 FINGER TRACKING ────────
+  (function initLiquidTouchSwipeGestures() {
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartTime = 0;
-    let ignoreSwipe = false;
+    let isHorizontalDrag = false;
+    let isGestureLocked = false;
+    let dragTargetEl = null;
+
+    function getActiveScreenSlot() {
+      if (activeViewMode === 'board') {
+        return activeFilter === 'news' ? 1 : 0;
+      }
+      if (activeViewMode === 'replies') return 2;
+      if (activeViewMode === 'messages') return 3;
+      return 0;
+    }
+
+    function getScreenTargetEl() {
+      return activeViewMode === 'messages'
+        ? document.getElementById('paperMessagesShell')
+        : document.getElementById('feed');
+    }
 
     document.addEventListener('touchstart', (e) => {
       if (!e.touches || e.touches.length !== 1) return;
       const target = e.target;
       if (
         !target ||
-        target.closest('input, textarea, select, button, a, .compose-modal-overlay.open, .auth-modal-overlay.open, .profile-modal-overlay.open, .side-panel.open, .lightbox.open, .paper-messages-shell')
+        target.closest(
+          'input, textarea, select, button, a, ' +
+          '.compose-modal-overlay.open, .auth-modal-overlay.open, .profile-modal-overlay.open, ' +
+          '.side-panel.open, .lightbox.open, .paper-messages-shell.mobile-chat-open, ' +
+          '.report-reasons-list, .comment-box, .comments-list'
+        )
       ) {
-        ignoreSwipe = true;
+        isGestureLocked = true;
         return;
       }
-      ignoreSwipe = false;
+
+      isGestureLocked = false;
+      isHorizontalDrag = false;
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
       touchStartTime = Date.now();
+      dragTargetEl = getScreenTargetEl();
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (isGestureLocked || !e.touches || e.touches.length !== 1) return;
+      const curX = e.touches[0].clientX;
+      const curY = e.touches[0].clientY;
+      const dx = curX - touchStartX;
+      const dy = curY - touchStartY;
+
+      // Detect if user has initiated a horizontal swipe gesture
+      if (!isHorizontalDrag) {
+        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+          isHorizontalDrag = true;
+        } else if (Math.abs(dy) > 10) {
+          // Primarily vertical scroll; lock out horizontal gestures for this gesture sequence
+          isGestureLocked = true;
+          return;
+        }
+      }
+
+      if (!isHorizontalDrag || !dragTargetEl) return;
+
+      const currentSlot = getActiveScreenSlot();
+      let effectiveDx = dx;
+
+      // Elastic rubber-band displacement at boundaries (Slot 0 going right, Slot 3 going left)
+      if ((currentSlot === 0 && dx > 0) || (currentSlot === 3 && dx < 0)) {
+        effectiveDx = dx * 0.22;
+        // Dynamically flex & stretch the floating liquid glass taskbar itself!
+        const nav = document.getElementById('appBottomNav');
+        if (nav) {
+          const edgeShift = (currentSlot === 0 ? 1 : -1) * Math.min(22, Math.abs(dx) * 0.16);
+          const dockStretch = 1 + Math.min(0.12, Math.abs(dx) * 0.0008);
+          const dockSquish = 1 - Math.min(0.06, Math.abs(dx) * 0.0004);
+          nav.style.transform = `translate3d(calc(-50% + ${edgeShift}px), 0, 0) scale(${dockStretch}, ${dockSquish})`;
+          nav.style.transition = 'none';
+        }
+      }
+
+      // 1:1 Finger tracking with liquid tilt and subtle scale
+      const tilt = (effectiveDx / window.innerWidth) * 3.8;
+      const scale = Math.max(0.975, 1 - Math.abs(effectiveDx) / (window.innerWidth * 3.5));
+      dragTargetEl.style.transition = 'none';
+      dragTargetEl.style.transform = `translate3d(${effectiveDx}px, 0, 0) rotate(${tilt}deg) scale(${scale})`;
+      dragTargetEl.style.willChange = 'transform';
+
+      // Liquid pill interactive tracking
+      const offsetFrac = -effectiveDx / (window.innerWidth * 0.85);
+      window.syncLiquidGlassNavPill(offsetFrac, true);
     }, { passive: true });
 
     document.addEventListener('touchend', (e) => {
-      if (ignoreSwipe || !e.changedTouches || e.changedTouches.length !== 1) return;
-      if (activeViewMode !== 'board') return;
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (isGestureLocked || !dragTargetEl) {
+        isGestureLocked = false;
+        isHorizontalDrag = false;
+        return;
+      }
+
+      const touchEndX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : touchStartX;
+      const touchEndY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+      const dx = touchEndX - touchStartX;
+      const dy = touchEndY - touchStartY;
       const elapsed = Date.now() - touchStartTime;
-      // Require intentional horizontal swipe: >78px horizontal, <48px vertical drift, <480ms
-      if (elapsed < 480 && Math.abs(dx) > 78 && Math.abs(dy) < 48 && Math.abs(dx) > Math.abs(dy) * 1.8) {
-        if (dx < 0 && activeFilter !== 'news') {
-          // Swipe Left on Board -> Open Tech & AI News
-          window.openNewsColumn();
-        } else if (dx > 0 && activeFilter === 'news') {
-          // Swipe Right on Tech & AI News -> Return to The Board
-          window.switchViewMode('board', 'all');
+
+      const target = dragTargetEl;
+      dragTargetEl = null;
+
+      if (!isHorizontalDrag) {
+        isGestureLocked = false;
+        return;
+      }
+
+      isHorizontalDrag = false;
+
+      // Reset drag target transform with elastic spring bounce
+      target.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.25s ease';
+      target.style.transform = '';
+      setTimeout(() => {
+        if (target) {
+          target.style.transition = '';
+          target.style.willChange = '';
+        }
+      }, 400);
+
+      // Liquid threshold evaluation: flick (<340ms, >45px) or deliberate swipe (>75px)
+      const isFlick = elapsed < 340 && Math.abs(dx) > 45;
+      const isDragThrough = Math.abs(dx) > 75;
+      const currentSlot = getActiveScreenSlot();
+
+      // Check if pulling past boundaries at the end of the navigation stack
+      const hitStartEdge = (currentSlot === 0 && dx > 30);
+      const hitEndEdge = (currentSlot === 3 && dx < -30);
+
+      const nav = document.getElementById('appBottomNav');
+      if (nav && (hitStartEdge || hitEndEdge)) {
+        nav.style.transition = 'transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.3)';
+        nav.style.transform = 'translate3d(-50%, 0, 0)';
+      }
+
+      if ((isFlick || isDragThrough) && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        if (dx < 0) {
+          // Swipe Left -> Next Column / Tab
+          if (currentSlot === 0) {
+            if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+            window.openNewsColumn();
+          } else if (currentSlot === 1) {
+            if (currentUser) {
+              if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+              window.switchViewMode('replies');
+            } else {
+              showToast('Please sign in to view replies to your flows!');
+              openAuthModal('login');
+              window.syncLiquidGlassNavPill(0, false);
+            }
+          } else if (currentSlot === 2) {
+            if (currentUser) {
+              if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+              window.switchViewMode('messages');
+            } else {
+              showToast('Please sign in to access Paper Messages!');
+              openAuthModal('login');
+              window.syncLiquidGlassNavPill(0, false);
+            }
+          } else {
+            // Reached the end of the navigation stack! Amplify bounce intensity
+            window.triggerLiquidTaskbarEdgeBounce('end');
+          }
+        } else {
+          // Swipe Right -> Previous Column / Tab
+          if (currentSlot === 3) {
+            if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+            window.switchViewMode('replies');
+          } else if (currentSlot === 2) {
+            if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+            window.openNewsColumn();
+          } else if (currentSlot === 1) {
+            if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
+            window.switchViewMode('board', 'all');
+          } else {
+            // Reached the start of the navigation stack! Amplify bounce intensity
+            window.triggerLiquidTaskbarEdgeBounce('start');
+          }
+        }
+      } else {
+        if (hitStartEdge) {
+          window.triggerLiquidTaskbarEdgeBounce('start');
+        } else if (hitEndEdge) {
+          window.triggerLiquidTaskbarEdgeBounce('end');
+        } else {
+          // Canceled or short drag -> bounce pill back to current tab
+          window.syncLiquidGlassNavPill(0, false);
         }
       }
     }, { passive: true });
+
+    document.addEventListener('touchcancel', () => {
+      if (dragTargetEl) {
+        dragTargetEl.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+        dragTargetEl.style.transform = '';
+        dragTargetEl = null;
+      }
+      const nav = document.getElementById('appBottomNav');
+      if (nav) {
+        nav.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+        nav.style.transform = 'translate3d(-50%, 0, 0)';
+      }
+      isHorizontalDrag = false;
+      isGestureLocked = false;
+      window.syncLiquidGlassNavPill(0, false);
+    }, { passive: true });
+
+    // Delegated direct tactile click/touchstart haptics on floating liquid glass taskbar items
+    const bottomNavEl = document.getElementById('appBottomNav');
+    if (bottomNavEl) {
+      bottomNavEl.addEventListener('pointerdown', (e) => {
+        if (e.target && e.target.closest('.app-nav-item, .app-nav-post-btn')) {
+          if (typeof window.triggerHapticFeedback === 'function') {
+            window.triggerHapticFeedback('light');
+          }
+        }
+      }, { passive: true });
+    }
   })();
 
   window.jumpToFlowFromReply = function (postId) {
@@ -6511,6 +7293,9 @@
   }, { passive: true });
 
   window.openComposeModal = function () {
+    if (typeof window.triggerHapticFeedback === 'function') {
+      window.triggerHapticFeedback('tab');
+    }
     editingPostId = null;
     const headerTitle = document.getElementById('composeHeaderTitle');
     const submitBtn = document.getElementById('submitBtn');
@@ -9769,6 +10554,9 @@
   let activeNewsRefreshSeq = 0;
   window.fetchAndSyncAiTechNews = async function (forceRefresh = false) {
     if (isRefreshingAiNews && !forceRefresh) return;
+    if (forceRefresh && typeof window.triggerHapticFeedback === 'function') {
+      window.triggerHapticFeedback('tab');
+    }
     if (forceRefresh && typeof window.resetLockedNewsScores === 'function') {
       window.resetLockedNewsScores();
     }
@@ -9962,6 +10750,13 @@
       const msgBadgeCount = pendingIn > 0 ? pendingIn : totalChats;
       appMsgBadge.textContent = pendingIn > 0 ? `${pendingIn}` : `${totalChats}`;
       appMsgBadge.classList.toggle('show', msgBadgeCount > 0);
+    }
+
+    if (typeof window.syncLiquidGlassNavPill === 'function') {
+      window.syncLiquidGlassNavPill();
+    }
+    if (typeof window.syncTopSliderPill === 'function') {
+      window.syncTopSliderPill();
     }
   }
 
@@ -11797,6 +12592,14 @@
   // Initial render of Auth UI, AI Tech News column sync, automatic AI taste analysis & connectivity state
   renderAuthUI();
   syncOnlineConnectivityUI();
+  setTimeout(() => {
+    if (typeof window.syncLiquidGlassNavPill === 'function') {
+      window.syncLiquidGlassNavPill();
+    }
+    if (typeof window.syncTopSliderPill === 'function') {
+      window.syncTopSliderPill();
+    }
+  }, 100);
   fetchAndSyncAiTechNews(false);
   analyzeUserNewsTasteWithAi(false).catch(() => {});
   pollBackgroundNotificationsClient();

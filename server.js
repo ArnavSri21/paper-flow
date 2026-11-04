@@ -1100,6 +1100,52 @@ app.get('/public/Paper-Flow.apk', serveApkFile);
 app.get('/download/Paper-Flow.apk', serveApkFile);
 app.get('/api/download-apk', serveApkFile);
 
+function serveSudokuApkFile(req, res) {
+  const rootApk = path.join(__dirname, 'Obsidian-Sudoku.apk');
+  const publicApk = path.join(__dirname, 'public', 'Obsidian-Sudoku.apk');
+  const downloadApk = path.join(__dirname, 'download', 'Obsidian-Sudoku.apk');
+  const targetApk = fs.existsSync(rootApk) ? rootApk : (fs.existsSync(downloadApk) ? downloadApk : publicApk);
+
+  if (!fs.existsSync(targetApk)) {
+    res.redirect(302, 'https://github.com/ArnavSri21/SudokuClash/releases/download/v1.0.0/Obsidian-Sudoku.apk');
+    return;
+  }
+
+  res.sendFile(targetApk, {
+    acceptRanges: true,
+    etag: true,
+    lastModified: true,
+    headers: {
+      'Content-Type': 'application/vnd.android.package-archive',
+      'Content-Disposition': 'attachment; filename="Obsidian-Sudoku.apk"',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'X-Content-Type-Options': 'nosniff',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+app.get('/Obsidian-Sudoku.apk', serveSudokuApkFile);
+app.get('/public/Obsidian-Sudoku.apk', serveSudokuApkFile);
+app.get('/download/Obsidian-Sudoku.apk', serveSudokuApkFile);
+app.get('/download/obsidian-sudoku-debug.apk', serveSudokuApkFile);
+app.get('/api/download-sudoku-apk', serveSudokuApkFile);
+
+app.get('/api/sudoku-info', (req, res) => {
+  res.json({
+    appName: 'Obsidian Sudoku',
+    versionName: '1.0.0',
+    buildNumber: 8,
+    tag: 'Updated',
+    updatedAt: '2026-11-04T07:05:45Z',
+    fileSize: 24238267,
+    apkUrl: '/Obsidian-Sudoku.apk?v=1.0.0-b8',
+    githubFallbackUrl: 'https://github.com/ArnavSri21/SudokuClash/releases/download/v1.0.0/Obsidian-Sudoku.apk',
+    directBuildUrl: 'https://github.com/ArnavSri21/SudokuClash/releases/download/debug-build-8-3a5adcd/Obsidian-Sudoku.apk',
+    releaseNotes: 'Updated Obsidian Sudoku build with sleek animations, high-contrast grid lines, instant note-taking, and performance improvements.'
+  });
+});
+
 app.get('/api/app-version', (req, res) => {
   res.json({
     latestVersionCode: 4,

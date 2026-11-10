@@ -301,14 +301,14 @@
     flex-shrink: 0;
   }
 
-  button:hover:not(:disabled),
+  button:hover:not(:disabled):not(.quick-switch-btn):not(.app-nav-item),
   .btn-file-upload:hover,
   .btn-obsidian-download:hover,
   .card-link-attachment:hover {
     transform: translateY(-1px);
   }
 
-  button:active:not(:disabled),
+  button:active:not(:disabled):not(.quick-switch-btn):not(.app-nav-item),
   .btn-file-upload:active,
   .btn-obsidian-download:active,
   .card-link-attachment:active {
@@ -1690,60 +1690,71 @@
     margin-bottom: 1.1rem;
     position: relative;
     transform-origin: center top;
+    contain: layout style;
     transition:
-      transform 0.38s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)),
-      box-shadow 0.26s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.2s ease,
-      opacity 0.26s ease;
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.18s ease;
     backface-visibility: hidden;
-    will-change: transform, opacity;
   }
   .card.card-enter-anim {
-    animation: fmCardSpringEnter 0.48s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    will-change: transform, opacity;
+    animation: fmCardSpringEnter 0.36s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
   }
   .card.fm-card-scroll-init {
     opacity: 0;
-    transform: translate3d(0, 22px, 0) scale(0.975);
+    will-change: transform, opacity;
+    transform: translate3d(0, 18px, 0) scale(0.98);
   }
   .card.fm-card-scroll-reveal {
-    animation: fmCardSpringEnter 0.48s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    will-change: transform, opacity;
+    animation: fmCardSpringEnter 0.36s var(--fm-spring-card, cubic-bezier(0.22, 1, 0.36, 1)) both;
   }
   .card.fm-card-exiting {
     pointer-events: none;
-    animation: fmCardSpringExit 0.24s var(--fm-ease-exit) forwards;
+    will-change: transform, opacity;
+    animation: fmCardSpringExit 0.2s var(--fm-ease-exit) forwards;
   }
   .card:hover {
     box-shadow: 4px 4px 0 var(--ink);
     transform: translate3d(-2px, -2.5px, 0);
   }
 
-  /* ── DIRECTIONAL SCREEN SWIPE ANIMATIONS (BOARD ↔ NEWS ↔ MESSAGES) ── */
-  @keyframes screenSwipeFromRight {
+  /* ── HARDWARE-ACCELERATED SCREEN SLIDE ANIMATIONS (ZERO REFLOW PHASE A/B) ── */
+  @keyframes liquidSwipeFromRightA {
     0% {
-      opacity: 0.12;
-      transform: translate3d(38px, 0, 0);
+      opacity: 0.65;
+      transform: translate3d(18px, 0, 0);
     }
     100% {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
   }
-  /* ── CONTROLLED LIQUID SCREEN SLIDE ANIMATIONS (BOARD ↔ NEWS ↔ REPLIES ↔ MESSAGES) ── */
-  @keyframes liquidSwipeFromRight {
+  @keyframes liquidSwipeFromRightB {
     0% {
-      opacity: 0.35;
-      transform: translate3d(24px, 0, 0);
+      opacity: 0.65;
+      transform: translate3d(18px, 0, 0);
     }
     100% {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
   }
-
-  @keyframes liquidSwipeFromLeft {
+  @keyframes liquidSwipeFromLeftA {
     0% {
-      opacity: 0.35;
-      transform: translate3d(-24px, 0, 0);
+      opacity: 0.65;
+      transform: translate3d(-18px, 0, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  @keyframes liquidSwipeFromLeftB {
+    0% {
+      opacity: 0.65;
+      transform: translate3d(-18px, 0, 0);
     }
     100% {
       opacity: 1;
@@ -1753,8 +1764,8 @@
 
   @keyframes pmChatThreadSwipeIn {
     0% {
-      opacity: 0.35;
-      transform: translate3d(28px, 0, 0);
+      opacity: 0.55;
+      transform: translate3d(20px, 0, 0);
     }
     100% {
       opacity: 1;
@@ -1762,20 +1773,30 @@
     }
   }
 
-  .screen-swipe-from-right {
-    animation: liquidSwipeFromRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  .screen-swipe-from-right,
+  .screen-swipe-from-right-a {
+    animation: liquidSwipeFromRightA 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: transform, opacity;
   }
-  .screen-swipe-from-left {
-    animation: liquidSwipeFromLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  .screen-swipe-from-right-b {
+    animation: liquidSwipeFromRightB 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .screen-swipe-from-left,
+  .screen-swipe-from-left-a {
+    animation: liquidSwipeFromLeftA 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .screen-swipe-from-left-b {
+    animation: liquidSwipeFromLeftB 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: transform, opacity;
   }
   .paper-messages-shell.active {
-    animation: liquidSwipeFromRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: liquidSwipeFromRightA 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: transform, opacity;
   }
   .paper-messages-shell.mobile-chat-open .pm-main {
-    animation: pmChatThreadSwipeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: pmChatThreadSwipeIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .card.card-developer {
     border-color: #6d28d9;
@@ -2073,9 +2094,11 @@
     user-select: none;
     -webkit-user-select: none;
     isolation: isolate;
+    contain: layout style;
+    backface-visibility: hidden;
   }
 
-  /* GPU-Accelerated Hardware-Animated Slider Pill */
+  /* GPU-Accelerated Hardware-Animated Slider Pill (Smooth Frame-0 Color & Transform Interpolation) */
   .quick-switch-slider-pill {
     position: absolute;
     top: 4px;
@@ -2086,33 +2109,40 @@
     pointer-events: none;
     z-index: 1;
     will-change: transform, width;
+    backface-visibility: hidden;
     transform: translate3d(var(--top-pill-x, 4px), 0, 0);
     transition:
-      transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
-      width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      background 0.2s ease,
-      box-shadow 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    background: var(--ink);
-    box-shadow: 0 4px 14px rgba(26, 18, 9, 0.18);
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      width 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.16s ease,
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+    border: 1px solid var(--ink);
+    background-color: var(--ink);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(0, 0, 0, 0.06) 100%);
+    box-shadow: 0 3px 10px rgba(26, 18, 9, 0.16);
+  }
+
+  .quick-switch-slider-pill.dragging {
+    transition: none !important;
   }
 
   .quick-switch-slider-pill.pill-all {
-    background: var(--ink);
+    background-color: var(--ink);
     border-color: var(--ink);
-    box-shadow: 0 4px 14px rgba(26, 18, 9, 0.18);
+    box-shadow: 0 3px 10px rgba(26, 18, 9, 0.16);
   }
 
   .quick-switch-slider-pill.pill-news {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
-    border-color: rgba(6, 182, 212, 0.85);
-    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
+    background-color: #0891b2;
+    border-color: #06b6d4;
+    box-shadow: 0 3px 12px rgba(6, 182, 212, 0.35);
   }
 
   body.dark-mode .quick-switch-slider-pill.pill-all {
-    background: #f3ede2;
+    background-color: #f3ede2;
     border-color: #f3ede2;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
   }
 
   .quick-switch-btn {
@@ -2133,7 +2163,8 @@
     letter-spacing: 0.04em;
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.18s ease;
+    touch-action: manipulation;
+    transition: color 0.14s ease;
     outline: none;
   }
   .quick-switch-btn:hover {
@@ -4082,29 +4113,31 @@
     align-items: center;
     justify-content: space-between;
 
-    /* True Liquid Glassmorphism */
-    background: linear-gradient(135deg, rgba(255, 253, 248, 0.78) 0%, rgba(248, 242, 230, 0.68) 50%, rgba(255, 255, 255, 0.82) 100%);
+    /* True Liquid Glassmorphism (Single-Pass Composited Blur for 60/120fps on All Devices) */
+    background: linear-gradient(135deg, rgba(255, 253, 248, 0.82) 0%, rgba(248, 242, 230, 0.74) 50%, rgba(255, 255, 255, 0.85) 100%);
     border: 1.5px solid rgba(255, 255, 255, 0.82);
-    -webkit-backdrop-filter: blur(28px) saturate(220%) contrast(105%);
-    backdrop-filter: blur(28px) saturate(220%) contrast(105%);
+    -webkit-backdrop-filter: blur(20px) saturate(190%);
+    backdrop-filter: blur(20px) saturate(190%);
     box-shadow:
-      0 20px 48px -12px rgba(26, 18, 9, 0.22),
-      0 8px 20px -6px rgba(26, 18, 9, 0.12),
+      0 18px 42px -12px rgba(26, 18, 9, 0.2),
+      0 6px 16px -6px rgba(26, 18, 9, 0.1),
       inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.9),
       inset 0 -1.5px 2px 0 rgba(26, 18, 9, 0.06);
 
-    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    contain: layout style;
+    backface-visibility: hidden;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
     user-select: none;
     -webkit-user-select: none;
     touch-action: pan-y;
   }
 
   body.dark-mode .app-bottom-nav {
-    background: linear-gradient(135deg, rgba(30, 24, 42, 0.78) 0%, rgba(18, 14, 26, 0.74) 50%, rgba(36, 28, 52, 0.82) 100%);
+    background: linear-gradient(135deg, rgba(30, 24, 42, 0.82) 0%, rgba(18, 14, 26, 0.78) 50%, rgba(36, 28, 52, 0.85) 100%);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
     box-shadow:
-      0 24px 58px -10px rgba(0, 0, 0, 0.7),
-      0 8px 24px -6px rgba(0, 0, 0, 0.5),
+      0 20px 48px -10px rgba(0, 0, 0, 0.65),
+      0 6px 20px -6px rgba(0, 0, 0, 0.45),
       inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.25),
       inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35);
   }
@@ -4138,7 +4171,7 @@
     50%, 100% { transform: translate3d(360%, 0, 0) rotate(25deg); opacity: 0; }
   }
 
-  /* ── THE SLIDABLE LIQUID GLASS INDICATOR PILL ── */
+  /* ── THE SLIDABLE LIQUID GLASS INDICATOR PILL (ZERO NESTED BACKDROP READBACK) ── */
   .liquid-glass-pill {
     position: absolute;
     top: 6px;
@@ -4148,56 +4181,55 @@
     border-radius: 999px;
     pointer-events: none;
     z-index: 1;
+    backface-visibility: hidden;
     transform: translate3d(6px, 0, 0);
     will-change: transform, width;
     transition:
-      transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
-      width 0.36s cubic-bezier(0.34, 1.56, 0.64, 1),
-      background 0.35s ease,
-      box-shadow 0.35s ease;
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      width 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
-    -webkit-backdrop-filter: blur(12px) brightness(1.15);
-    backdrop-filter: blur(12px) brightness(1.15);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-
-    /* Default (Board): Liquid Amber */
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.14) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.52);
+    background-color: rgba(245, 158, 11, 0.26);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.04) 100%);
     box-shadow:
-      0 6px 18px rgba(245, 158, 11, 0.3),
-      inset 0 1px 1.5px rgba(255, 255, 255, 0.8),
-      inset 0 -1px 1.5px rgba(217, 119, 6, 0.25);
+      0 6px 18px rgba(245, 158, 11, 0.28),
+      inset 0 1.5px 2px rgba(255, 255, 255, 0.82),
+      inset 0 -1px 1.5px rgba(217, 119, 6, 0.22);
   }
 
   .liquid-glass-pill.tab-board {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(217, 119, 6, 0.16) 100%);
-    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
-    border-color: rgba(245, 158, 11, 0.5);
+    background-color: rgba(245, 158, 11, 0.28);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.32), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(245, 158, 11, 0.52);
   }
 
   .liquid-glass-pill.tab-news {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.34) 0%, rgba(14, 165, 233, 0.16) 100%);
-    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
-    border-color: rgba(6, 182, 212, 0.5);
+    background-color: rgba(6, 182, 212, 0.28);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.32), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(6, 182, 212, 0.52);
   }
 
   .liquid-glass-pill.tab-replies {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.32) 0%, rgba(139, 92, 246, 0.16) 100%);
-    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
-    border-color: rgba(168, 85, 247, 0.5);
+    background-color: rgba(168, 85, 247, 0.28);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.32), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(168, 85, 247, 0.52);
   }
 
   .liquid-glass-pill.tab-messages {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.32) 0%, rgba(5, 150, 105, 0.16) 100%);
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
-    border-color: rgba(16, 185, 129, 0.5);
+    background-color: rgba(16, 185, 129, 0.28);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.32), inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    border-color: rgba(16, 185, 129, 0.52);
   }
 
   /* Stretching physics while sliding */
   .liquid-glass-pill.sliding-right {
-    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.14) scaleY(0.92);
+    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.1) scaleY(0.94);
   }
   .liquid-glass-pill.sliding-left {
-    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.14) scaleY(0.92);
+    transform: translate3d(var(--pill-x, 0), 0, 0) scaleX(1.1) scaleY(0.94);
   }
 
   /* ── TASKBAR ELASTIC SPRING PHYSICS FOR BOUNDARY / STACK END ── */
@@ -6502,6 +6534,7 @@
   // ── VIEW MODE NAVIGATION & DIRECTIONAL SCREEN SWIPE ANIMATIONS ────────────
   let shouldAnimateFeedCards = true;
   let screenSwipeCleanupTimer = null;
+  let swipeAnimPhase = false;
 
   function getScreenSlotIndex(mode, filter) {
     if (mode === 'board') {
@@ -6521,15 +6554,38 @@
       : document.getElementById('feed');
     if (!targetEl) return;
 
-    const animClass = direction === 'left' ? 'screen-swipe-from-left' : 'screen-swipe-from-right';
-    targetEl.classList.remove('screen-swipe-from-right', 'screen-swipe-from-left');
-    void targetEl.offsetWidth;
+    // Clear any residual inline drag transform/transition so CSS keyframes run uncontested on GPU
+    targetEl.style.transition = '';
+    targetEl.style.transform = '';
+
+    swipeAnimPhase = !swipeAnimPhase;
+    const suffix = swipeAnimPhase ? 'a' : 'b';
+    const animClass = direction === 'left'
+      ? `screen-swipe-from-left-${suffix}`
+      : `screen-swipe-from-right-${suffix}`;
+
+    targetEl.classList.remove(
+      'screen-swipe-from-right',
+      'screen-swipe-from-left',
+      'screen-swipe-from-right-a',
+      'screen-swipe-from-right-b',
+      'screen-swipe-from-left-a',
+      'screen-swipe-from-left-b'
+    );
     targetEl.classList.add(animClass);
 
     clearTimeout(screenSwipeCleanupTimer);
     screenSwipeCleanupTimer = setTimeout(() => {
-      targetEl.classList.remove('screen-swipe-from-right', 'screen-swipe-from-left');
-    }, 320);
+      targetEl.classList.remove(
+        'screen-swipe-from-right',
+        'screen-swipe-from-left',
+        'screen-swipe-from-right-a',
+        'screen-swipe-from-right-b',
+        'screen-swipe-from-left-a',
+        'screen-swipe-from-left-b'
+      );
+      targetEl.style.willChange = '';
+    }, 200);
   }
 
   window.switchViewMode = function (mode, filterOverride) {
@@ -6582,12 +6638,17 @@
     openCardMoreMenuId = null;
     shouldAnimateFeedCards = false;
 
-    // Instantly glide top slider pill without waiting for DOM build
+    document.body.classList.remove('top-banner-hidden');
+    document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
+
+    // Instantly glide top slider pill & bottom liquid glass pill on Frame 0 before DOM update
     if (typeof window.syncTopSliderPill === 'function') {
-      window.syncTopSliderPill();
+      window.syncTopSliderPill(0, false);
+    }
+    if (typeof window.syncLiquidGlassNavPill === 'function') {
+      window.syncLiquidGlassNavPill(0, false);
     }
 
-    document.body.classList.toggle('pm-fullscreen-open', mode === 'messages');
     toggleSidePanel(false);
     renderAll();
 
@@ -6620,12 +6681,16 @@
     openCardMoreMenuId = null;
     shouldAnimateFeedCards = false;
 
-    // Instantly glide top slider pill without waiting for DOM build
+    document.body.classList.remove('top-banner-hidden', 'pm-fullscreen-open');
+
+    // Instantly glide top slider pill & bottom liquid glass pill on Frame 0 before DOM update
     if (typeof window.syncTopSliderPill === 'function') {
-      window.syncTopSliderPill();
+      window.syncTopSliderPill(0, false);
+    }
+    if (typeof window.syncLiquidGlassNavPill === 'function') {
+      window.syncLiquidGlassNavPill(0, false);
     }
 
-    document.body.classList.remove('pm-fullscreen-open');
     toggleSidePanel(false);
     renderAll();
     triggerScreenSwipeAnimation(swipeDir, false);
@@ -6638,7 +6703,7 @@
     setTimeout(() => {
       fetchAndSyncAiTechNews(false);
       analyzeUserNewsTasteWithAi(false).catch(() => {});
-    }, 280);
+    }, 240);
   };
 
   window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
@@ -6710,8 +6775,59 @@
     }
   };
 
-  // ── LIQUID GLASS DOCK & SLIDABLE PILL CONTROLLER ──────────────────────────
+  // ── LIQUID GLASS DOCK & SLIDABLE PILL CONTROLLER (CACHED GEOMETRY — ZERO REFLOW) ──
   let taskbarEdgeBounceTimer = null;
+  let bottomNavMetricsCache = null;
+  let topPillMetricsCache = null;
+
+  window.invalidateNavPillMetrics = function () {
+    bottomNavMetricsCache = null;
+    topPillMetricsCache = null;
+  };
+
+  function getBottomNavMetrics(forceMeasure = false) {
+    if (bottomNavMetricsCache && !forceMeasure) return bottomNavMetricsCache;
+    const nav = document.getElementById('appBottomNav');
+    if (!nav) return null;
+    const boardBtn = document.getElementById('appNavBoard');
+    const newsBtn = document.getElementById('appNavNews');
+    const repliesBtn = document.getElementById('appNavReplies');
+    const messagesBtn = document.getElementById('appNavMessages');
+    if (!boardBtn || boardBtn.offsetWidth === 0) return null;
+
+    bottomNavMetricsCache = {
+      board: { left: boardBtn.offsetLeft, width: boardBtn.offsetWidth },
+      news: newsBtn ? { left: newsBtn.offsetLeft, width: newsBtn.offsetWidth } : { left: 0, width: 68 },
+      replies: repliesBtn ? { left: repliesBtn.offsetLeft, width: repliesBtn.offsetWidth } : { left: 0, width: 68 },
+      messages: messagesBtn ? { left: messagesBtn.offsetLeft, width: messagesBtn.offsetWidth } : { left: 0, width: 68 }
+    };
+    return bottomNavMetricsCache;
+  }
+
+  function getTopPillMetrics(forceMeasure = false) {
+    const switcher = document.getElementById('quickColumnSwitcher');
+    if (!switcher || switcher.style.display === 'none') return null;
+    const allBtn = document.getElementById('quickSwitchAll');
+    const newsBtn = document.getElementById('quickSwitchNews');
+    if (!allBtn || !newsBtn) return null;
+
+    const sig = `${allBtn.textContent?.length || 0}:${newsBtn.textContent?.length || 0}`;
+    if (topPillMetricsCache && !forceMeasure && topPillMetricsCache.sig === sig && topPillMetricsCache.all.width > 0) {
+      return topPillMetricsCache;
+    }
+
+    const allW = allBtn.offsetWidth;
+    const newsW = newsBtn.offsetWidth;
+    if (allW === 0 || newsW === 0) return null;
+
+    topPillMetricsCache = {
+      sig,
+      all: { left: allBtn.offsetLeft, width: allW },
+      news: { left: newsBtn.offsetLeft, width: newsW }
+    };
+    return topPillMetricsCache;
+  }
+
   window.triggerLiquidTaskbarEdgeBounce = function (edgeDirection = 'start') {
     if (typeof window.triggerHapticFeedback === 'function') {
       window.triggerHapticFeedback('boundary');
@@ -6730,9 +6846,11 @@
 
     nav.classList.remove('taskbar-spring-edge-start', 'taskbar-spring-edge-end');
     if (pill) {
-      const activeBtn = nav.querySelector('.app-nav-item.active') || document.getElementById('appNavBoard');
-      if (activeBtn) {
-        pill.style.setProperty('--pill-x', `${activeBtn.offsetLeft}px`);
+      const metrics = getBottomNavMetrics(false);
+      const tabKey = activeViewMode === 'messages' ? 'messages' : (activeViewMode === 'replies' ? 'replies' : ((activeViewMode === 'board' && activeFilter === 'news') ? 'news' : 'board'));
+      const m = metrics && metrics[tabKey];
+      if (m) {
+        pill.style.setProperty('--pill-x', `${m.left}px`);
       }
       pill.classList.remove('pill-spring-edge-start', 'pill-spring-edge-end');
     }
@@ -6752,43 +6870,47 @@
           window.syncLiquidGlassNavPill(0, false);
         }
       }
-    }, 680);
+    }, 640);
   };
 
-  window.syncLiquidGlassNavPill = function (offsetFraction = 0, isDragging = false) {
+  window.syncLiquidGlassNavPill = function (offsetFraction = 0, isDragging = false, forceMeasure = false) {
     const nav = document.getElementById('appBottomNav');
     const pill = document.getElementById('liquidNavPill');
     if (!nav || !pill) return;
 
-    // Find active nav item
-    const activeBtn = nav.querySelector('.app-nav-item.active') || document.getElementById('appNavBoard');
-    if (!activeBtn) {
-      pill.style.opacity = '0';
+    const isNewsActive = (activeViewMode === 'board' && activeFilter === 'news');
+    const isBoardActive = (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'my-flows' || activeViewMode === 'starred' || activeViewMode === 'reports';
+    const isRepliesActive = activeViewMode === 'replies';
+    const isMessagesActive = activeViewMode === 'messages';
+
+    // Immediately sync active classes on bottom nav items so Frame 0 reflects the new tab
+    document.getElementById('appNavBoard')?.classList.toggle('active', isBoardActive);
+    document.getElementById('appNavNews')?.classList.toggle('active', isNewsActive);
+    document.getElementById('appNavReplies')?.classList.toggle('active', isRepliesActive);
+    document.getElementById('appNavMessages')?.classList.toggle('active', isMessagesActive);
+
+    const tabType = isMessagesActive ? 'messages' : (isRepliesActive ? 'replies' : (isNewsActive ? 'news' : 'board'));
+    const nextClass = `liquid-glass-pill tab-${tabType}${isDragging ? ' dragging' : ''}`;
+    if (pill.className !== nextClass) {
+      pill.className = nextClass;
+    }
+
+    const metrics = getBottomNavMetrics(forceMeasure);
+    if (!metrics || !metrics[tabType] || metrics[tabType].width === 0) {
       return;
     }
 
-    const tabType = activeBtn.getAttribute('data-nav') || activeBtn.getAttribute('data-tab') || 'board';
-    pill.className = `liquid-glass-pill tab-${tabType}${isDragging ? ' dragging' : ''}`;
-
-    const btnLeft = activeBtn.offsetLeft;
-    const btnWidth = activeBtn.offsetWidth;
-
-    if (btnWidth === 0) {
-      // Elements not yet rendered / laid out
-      return;
-    }
+    const { left: btnLeft, width: btnWidth } = metrics[tabType];
 
     if (isDragging && offsetFraction !== 0) {
-      // Fluid elongation and real-time finger tracking
-      const shiftPx = offsetFraction * btnWidth * 0.9;
-      const stretch = 1 + Math.min(0.24, Math.abs(offsetFraction) * 0.35);
-      const squish = 1 - Math.min(0.12, Math.abs(offsetFraction) * 0.18);
+      const shiftPx = offsetFraction * btnWidth * 0.92;
+      const stretch = 1 + Math.min(0.18, Math.abs(offsetFraction) * 0.28);
+      const squish = 1 - Math.min(0.08, Math.abs(offsetFraction) * 0.14);
       pill.style.transition = 'none';
       pill.style.width = `${btnWidth}px`;
-      pill.style.transform = `translate3d(${btnLeft + shiftPx}px, 0, 0) scaleX(${stretch}) scaleY(${squish})`;
+      pill.style.transform = `translate3d(${(btnLeft + shiftPx).toFixed(1)}px, 0, 0) scaleX(${stretch.toFixed(3)}) scaleY(${squish.toFixed(3)})`;
     } else {
-      // Fluid spring bounce into position
-      pill.style.transition = 'transform 0.44s cubic-bezier(0.175, 0.885, 0.32, 1.3), width 0.36s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.22s ease';
+      pill.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), width 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease';
       pill.style.width = `${btnWidth}px`;
       pill.style.transform = `translate3d(${btnLeft}px, 0, 0) scale(1, 1)`;
     }
@@ -6796,46 +6918,80 @@
   };
 
   // ── TOP QUICK COLUMN SWITCHER HARDWARE-ACCELERATED SLIDER PILL ───────────
-  window.syncTopSliderPill = function () {
+  window.syncTopSliderPill = function (offsetFraction = 0, isDragging = false, forceMeasure = false) {
     const switcher = document.getElementById('quickColumnSwitcher');
     const pill = document.getElementById('quickSwitchPill');
     if (!switcher || !pill) return;
 
+    if (activeViewMode === 'board' && switcher.style.display === 'none') {
+      switcher.style.display = 'flex';
+    }
+
     const isNews = (activeViewMode === 'board' && activeFilter === 'news');
-    const activeBtn = isNews
-      ? document.getElementById('quickSwitchNews')
-      : document.getElementById('quickSwitchAll');
+    const allBtn = document.getElementById('quickSwitchAll');
+    const newsBtn = document.getElementById('quickSwitchNews');
 
-    if (!activeBtn) return;
+    // Immediately sync button active text color on Frame 0 alongside the pill glide!
+    if (allBtn) allBtn.classList.toggle('active', !isNews);
+    if (newsBtn) newsBtn.classList.toggle('active', isNews);
+    document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNews);
 
-    const btnLeft = activeBtn.offsetLeft;
-    const btnWidth = activeBtn.offsetWidth;
-    if (btnWidth === 0) return;
+    const metrics = getTopPillMetrics(forceMeasure);
+    if (!metrics) return;
 
-    pill.className = `quick-switch-slider-pill ${isNews ? 'pill-news' : 'pill-all'}`;
-    pill.style.transform = `translate3d(${btnLeft}px, 0, 0)`;
-    pill.style.width = `${btnWidth}px`;
+    const currentMetric = isNews ? metrics.news : metrics.all;
+    if (!currentMetric || currentMetric.width === 0) return;
+
+    const nextClass = `quick-switch-slider-pill ${isNews ? 'pill-news' : 'pill-all'}${isDragging ? ' dragging' : ''}`;
+    if (pill.className !== nextClass) {
+      pill.className = nextClass;
+    }
+
+    if (isDragging && offsetFraction !== 0 && activeViewMode === 'board') {
+      const targetMetric = isNews ? metrics.all : metrics.news;
+      const clampedFrac = Math.max(-1, Math.min(1, offsetFraction));
+      // Only interpolate toward valid neighbor in the top switcher (All -> News when offsetFraction > 0, News -> All when offsetFraction < 0)
+      if ((!isNews && clampedFrac > 0) || (isNews && clampedFrac < 0)) {
+        const progress = Math.min(1, Math.abs(clampedFrac));
+        const interpLeft = currentMetric.left + (targetMetric.left - currentMetric.left) * progress;
+        const interpWidth = currentMetric.width + (targetMetric.width - currentMetric.width) * progress;
+        pill.style.transform = `translate3d(${interpLeft.toFixed(1)}px, 0, 0)`;
+        pill.style.width = `${interpWidth.toFixed(1)}px`;
+        pill.style.opacity = '1';
+        return;
+      }
+    }
+
+    pill.style.transform = `translate3d(${currentMetric.left}px, 0, 0)`;
+    pill.style.width = `${currentMetric.width}px`;
     pill.style.opacity = '1';
   };
 
   // Re-sync pills on viewport resize or orientation change
   window.addEventListener('resize', () => {
+    window.invalidateNavPillMetrics();
     if (typeof window.syncLiquidGlassNavPill === 'function') {
-      window.syncLiquidGlassNavPill();
+      window.syncLiquidGlassNavPill(0, false, true);
     }
     if (typeof window.syncTopSliderPill === 'function') {
-      window.syncTopSliderPill();
+      window.syncTopSliderPill(0, false, true);
     }
   }, { passive: true });
 
-  // ── LIQUID SMOOTH SWIPE GESTURES WITH BOUNCE & 1:1 FINGER TRACKING ────────
+  // ── LIQUID SMOOTH SWIPE GESTURES (rAF-BATCHED, ZERO REFLOW, 1:1 GPU TRACKING) ──
   (function initLiquidTouchSwipeGestures() {
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartTime = 0;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
     let isHorizontalDrag = false;
     let isGestureLocked = false;
     let dragTargetEl = null;
+    let cachedViewportWidth = 390;
+    let cachedStartSlot = 0;
+    let cachedNavEl = null;
+    let rafMoveId = 0;
 
     function getActiveScreenSlot() {
       if (activeViewMode === 'board') {
@@ -6850,6 +7006,41 @@
       return activeViewMode === 'messages'
         ? document.getElementById('paperMessagesShell')
         : document.getElementById('feed');
+    }
+
+    function flushSwipeDragFrame() {
+      rafMoveId = 0;
+      if (!isHorizontalDrag || !dragTargetEl) return;
+
+      const dx = lastTouchX - touchStartX;
+      const currentSlot = cachedStartSlot;
+      let effectiveDx = dx;
+
+      // Elastic rubber-band displacement at boundaries (Slot 0 going right, Slot 3 going left)
+      if ((currentSlot === 0 && dx > 0) || (currentSlot === 3 && dx < 0)) {
+        effectiveDx = dx * 0.22;
+        if (cachedNavEl) {
+          const edgeShift = (currentSlot === 0 ? 1 : -1) * Math.min(20, Math.abs(dx) * 0.15);
+          const dockStretch = 1 + Math.min(0.1, Math.abs(dx) * 0.0007);
+          const dockSquish = 1 - Math.min(0.05, Math.abs(dx) * 0.00035);
+          cachedNavEl.style.transition = 'none';
+          cachedNavEl.style.transform = `translate3d(calc(-50% + ${edgeShift.toFixed(1)}px), 0, 0) scale(${dockStretch.toFixed(3)}, ${dockSquish.toFixed(3)})`;
+        }
+      } else {
+        // Dampen screen drag slightly so cards glide smoothly without over-pulling
+        effectiveDx = dx * 0.55;
+      }
+
+      // Pure 3D translation on GPU compositor layer — NO 2D rotate() texture re-rasterization
+      dragTargetEl.style.transition = 'none';
+      dragTargetEl.style.transform = `translate3d(${effectiveDx.toFixed(1)}px, 0, 0)`;
+
+      // Sync bottom liquid glass pill & top quick switcher pill using cached geometry
+      const offsetFrac = -dx / (cachedViewportWidth * 0.75);
+      window.syncLiquidGlassNavPill(offsetFrac, true);
+      if (currentSlot === 0 || currentSlot === 1) {
+        window.syncTopSliderPill(offsetFrac, true);
+      }
     }
 
     document.addEventListener('touchstart', (e) => {
@@ -6868,12 +7059,26 @@
         return;
       }
 
+      if (rafMoveId) {
+        cancelAnimationFrame(rafMoveId);
+        rafMoveId = 0;
+      }
+
       isGestureLocked = false;
       isHorizontalDrag = false;
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-      touchStartTime = Date.now();
+      lastTouchX = touchStartX;
+      lastTouchY = touchStartY;
+      touchStartTime = performance.now();
+      cachedViewportWidth = window.innerWidth || 390;
+      cachedStartSlot = getActiveScreenSlot();
+      cachedNavEl = document.getElementById('appBottomNav');
       dragTargetEl = getScreenTargetEl();
+
+      // Pre-warm geometry caches once on touchstart so touchmove is 100% read-free
+      getBottomNavMetrics(false);
+      getTopPillMetrics(false);
     }, { passive: true });
 
     document.addEventListener('touchmove', (e) => {
@@ -6883,12 +7088,13 @@
       const dx = curX - touchStartX;
       const dy = curY - touchStartY;
 
-      // Detect if user has initiated a horizontal swipe gesture
       if (!isHorizontalDrag) {
-        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.25) {
           isHorizontalDrag = true;
-        } else if (Math.abs(dy) > 10) {
-          // Primarily vertical scroll; lock out horizontal gestures for this gesture sequence
+          if (dragTargetEl) {
+            dragTargetEl.style.willChange = 'transform';
+          }
+        } else if (Math.abs(dy) > 9) {
           isGestureLocked = true;
           return;
         }
@@ -6896,47 +7102,30 @@
 
       if (!isHorizontalDrag || !dragTargetEl) return;
 
-      const currentSlot = getActiveScreenSlot();
-      let effectiveDx = dx;
-
-      // Elastic rubber-band displacement at boundaries (Slot 0 going right, Slot 3 going left)
-      if ((currentSlot === 0 && dx > 0) || (currentSlot === 3 && dx < 0)) {
-        effectiveDx = dx * 0.22;
-        // Dynamically flex & stretch the floating liquid glass taskbar itself!
-        const nav = document.getElementById('appBottomNav');
-        if (nav) {
-          const edgeShift = (currentSlot === 0 ? 1 : -1) * Math.min(22, Math.abs(dx) * 0.16);
-          const dockStretch = 1 + Math.min(0.12, Math.abs(dx) * 0.0008);
-          const dockSquish = 1 - Math.min(0.06, Math.abs(dx) * 0.0004);
-          nav.style.transform = `translate3d(calc(-50% + ${edgeShift}px), 0, 0) scale(${dockStretch}, ${dockSquish})`;
-          nav.style.transition = 'none';
-        }
+      lastTouchX = curX;
+      lastTouchY = curY;
+      if (!rafMoveId) {
+        rafMoveId = requestAnimationFrame(flushSwipeDragFrame);
       }
-
-      // 1:1 Finger tracking with liquid tilt and subtle scale
-      const tilt = (effectiveDx / window.innerWidth) * 3.8;
-      const scale = Math.max(0.975, 1 - Math.abs(effectiveDx) / (window.innerWidth * 3.5));
-      dragTargetEl.style.transition = 'none';
-      dragTargetEl.style.transform = `translate3d(${effectiveDx}px, 0, 0) rotate(${tilt}deg) scale(${scale})`;
-      dragTargetEl.style.willChange = 'transform';
-
-      // Liquid pill interactive tracking
-      const offsetFrac = -effectiveDx / (window.innerWidth * 0.85);
-      window.syncLiquidGlassNavPill(offsetFrac, true);
     }, { passive: true });
 
     document.addEventListener('touchend', (e) => {
+      if (rafMoveId) {
+        cancelAnimationFrame(rafMoveId);
+        rafMoveId = 0;
+      }
+
       if (isGestureLocked || !dragTargetEl) {
         isGestureLocked = false;
         isHorizontalDrag = false;
         return;
       }
 
-      const touchEndX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : touchStartX;
-      const touchEndY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+      const touchEndX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : lastTouchX;
+      const touchEndY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : lastTouchY;
       const dx = touchEndX - touchStartX;
       const dy = touchEndY - touchStartY;
-      const elapsed = Date.now() - touchStartTime;
+      const elapsed = performance.now() - touchStartTime;
 
       const target = dragTargetEl;
       dragTargetEl = null;
@@ -6948,32 +7137,46 @@
 
       isHorizontalDrag = false;
 
-      // Reset drag target transform with elastic spring bounce
-      target.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.25s ease';
-      target.style.transform = '';
-      setTimeout(() => {
-        if (target) {
-          target.style.transition = '';
-          target.style.willChange = '';
-        }
-      }, 400);
+      // Fast, responsive swipe thresholds: flick (<380ms, >34px) or deliberate drag (>58px)
+      const isFlick = elapsed < 380 && Math.abs(dx) > 34;
+      const isDragThrough = Math.abs(dx) > 58;
+      const currentSlot = cachedStartSlot;
+      const isValidSwipe = (isFlick || isDragThrough) && Math.abs(dx) > Math.abs(dy) * 1.15;
 
-      // Liquid threshold evaluation: flick (<340ms, >45px) or deliberate swipe (>75px)
-      const isFlick = elapsed < 340 && Math.abs(dx) > 45;
-      const isDragThrough = Math.abs(dx) > 75;
-      const currentSlot = getActiveScreenSlot();
+      const hitStartEdge = (currentSlot === 0 && dx > 28);
+      const hitEndEdge = (currentSlot === 3 && dx < -28);
 
-      // Check if pulling past boundaries at the end of the navigation stack
-      const hitStartEdge = (currentSlot === 0 && dx > 30);
-      const hitEndEdge = (currentSlot === 3 && dx < -30);
-
-      const nav = document.getElementById('appBottomNav');
+      const nav = cachedNavEl || document.getElementById('appBottomNav');
       if (nav && (hitStartEdge || hitEndEdge)) {
-        nav.style.transition = 'transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.3)';
+        nav.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
         nav.style.transform = 'translate3d(-50%, 0, 0)';
       }
 
-      if ((isFlick || isDragThrough) && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      // Check if this gesture will actually switch screens
+      const willNavigate = isValidSwipe && (
+        (dx < 0 && (currentSlot === 0 || (currentSlot === 1 && currentUser) || (currentSlot === 2 && currentUser))) ||
+        (dx > 0 && (currentSlot === 1 || currentSlot === 2 || currentSlot === 3))
+      );
+
+      if (willNavigate) {
+        // Immediately clear inline drag styles BEFORE switching views so CSS keyframe slide has zero conflict!
+        target.style.transition = '';
+        target.style.transform = '';
+        target.style.willChange = '';
+      } else {
+        // Canceled drag or boundary bounce -> smoothly spring current screen back to rest
+        target.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+        target.style.transform = 'translate3d(0, 0, 0)';
+        setTimeout(() => {
+          if (target) {
+            target.style.transition = '';
+            target.style.transform = '';
+            target.style.willChange = '';
+          }
+        }, 230);
+      }
+
+      if (isValidSwipe) {
         if (dx < 0) {
           // Swipe Left -> Next Column / Tab
           if (currentSlot === 0) {
@@ -6987,6 +7190,7 @@
               showToast('Please sign in to view replies to your flows!');
               openAuthModal('login');
               window.syncLiquidGlassNavPill(0, false);
+              window.syncTopSliderPill(0, false);
             }
           } else if (currentSlot === 2) {
             if (currentUser) {
@@ -6996,9 +7200,9 @@
               showToast('Please sign in to access Paper Messages!');
               openAuthModal('login');
               window.syncLiquidGlassNavPill(0, false);
+              window.syncTopSliderPill(0, false);
             }
           } else {
-            // Reached the end of the navigation stack! Amplify bounce intensity
             window.triggerLiquidTaskbarEdgeBounce('end');
           }
         } else {
@@ -7013,7 +7217,6 @@
             if (typeof window.triggerHapticFeedback === 'function') window.triggerHapticFeedback('swipe');
             window.switchViewMode('board', 'all');
           } else {
-            // Reached the start of the navigation stack! Amplify bounce intensity
             window.triggerLiquidTaskbarEdgeBounce('start');
           }
         }
@@ -7023,26 +7226,31 @@
         } else if (hitEndEdge) {
           window.triggerLiquidTaskbarEdgeBounce('end');
         } else {
-          // Canceled or short drag -> bounce pill back to current tab
           window.syncLiquidGlassNavPill(0, false);
+          window.syncTopSliderPill(0, false);
         }
       }
     }, { passive: true });
 
     document.addEventListener('touchcancel', () => {
+      if (rafMoveId) {
+        cancelAnimationFrame(rafMoveId);
+        rafMoveId = 0;
+      }
       if (dragTargetEl) {
-        dragTargetEl.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+        dragTargetEl.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
         dragTargetEl.style.transform = '';
         dragTargetEl = null;
       }
-      const nav = document.getElementById('appBottomNav');
+      const nav = cachedNavEl || document.getElementById('appBottomNav');
       if (nav) {
-        nav.style.transition = 'transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+        nav.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
         nav.style.transform = 'translate3d(-50%, 0, 0)';
       }
       isHorizontalDrag = false;
       isGestureLocked = false;
       window.syncLiquidGlassNavPill(0, false);
+      window.syncTopSliderPill(0, false);
     }, { passive: true });
 
     // Delegated direct tactile click/touchstart haptics on floating liquid glass taskbar items
@@ -7078,29 +7286,8 @@
     }, 60);
   };
 
-  // ── FRAMER MOTION EQUIVALENT SPRING PHYSICS & ANIMATEPRESENCE ENGINE ────────
+  // ── HARDWARE-COMPOSITED MODAL & SCROLL-REVEAL MOTION ENGINE ────────────────
   const modalCloseTimers = new Map();
-
-  function generateSpringFrames(fromVal, toVal, stiffness = 380, damping = 28, mass = 0.85, steps = 36) {
-    const frames = [];
-    let pos = fromVal;
-    let vel = 0;
-    const dt = 1 / 60;
-    for (let i = 0; i <= steps; i++) {
-      frames.push(pos);
-      const force = -stiffness * (pos - toVal) - damping * vel;
-      const accel = force / mass;
-      vel += accel * dt;
-      pos += vel * dt;
-    }
-    frames[frames.length - 1] = toVal;
-    return frames;
-  }
-
-  const MODAL_ENTER_SPRING_SCALES = generateSpringFrames(0.925, 1, 410, 27, 0.82, 28);
-  const MODAL_ENTER_SPRING_YS = generateSpringFrames(24, 0, 410, 27, 0.82, 28);
-  const CARD_ENTER_SPRING_SCALES = generateSpringFrames(0.972, 1, 350, 26, 0.88, 26);
-  const CARD_ENTER_SPRING_YS = generateSpringFrames(20, 0, 350, 26, 0.88, 26);
 
   function openModalWithMotion(backdropId) {
     const backdrop = document.getElementById(backdropId);
@@ -7111,48 +7298,6 @@
     }
     backdrop.classList.remove('closing');
     backdrop.classList.add('open');
-
-    const win = backdrop.querySelector('.modal-window, .compose-modal-window, .share-modal-window, .about-window, #lightboxImg');
-    if (win && typeof win.animate === 'function') {
-      try {
-        win.getAnimations().forEach(a => a.cancel());
-        const keyframes = MODAL_ENTER_SPRING_SCALES.map((sc, idx) => {
-          const y = MODAL_ENTER_SPRING_YS[idx];
-          const op = Math.min(1, idx / 8);
-          return {
-            opacity: op,
-            transform: `translate3d(0, ${y.toFixed(2)}px, 0) scale(${sc.toFixed(4)})`
-          };
-        });
-        win.animate(keyframes, {
-          duration: 380,
-          easing: 'linear',
-          fill: 'both'
-        });
-      } catch (e) {}
-    }
-
-    // Stagger inner interactive children for a tactile Framer Motion feel
-    if (win && win.id !== 'lightboxImg') {
-      const innerItems = win.querySelectorAll('.form-field, .compose-body > *, .share-modal-body > *, .about-window-body > *, .profile-view-header-card, .profile-about-box, .profile-stats-strip');
-      innerItems.forEach((el, idx) => {
-        if (idx > 8 || typeof el.animate !== 'function') return;
-        try {
-          el.animate(
-            [
-              { opacity: 0, transform: 'translate3d(0, 10px, 0)' },
-              { opacity: 1, transform: 'translate3d(0, 0, 0)' }
-            ],
-            {
-              duration: 260,
-              delay: 35 + idx * 24,
-              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-              fill: 'both'
-            }
-          );
-        } catch (e) {}
-      });
-    }
   }
 
   function closeModalWithMotion(backdropId, onAfterClose) {
@@ -7166,36 +7311,15 @@
     }
     backdrop.classList.add('closing');
 
-    const win = backdrop.querySelector('.modal-window, .compose-modal-window, .share-modal-window, .about-window, #lightboxImg');
-    if (win && typeof win.animate === 'function') {
-      try {
-        win.getAnimations().forEach(a => a.cancel());
-        win.animate(
-          [
-            { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' },
-            { opacity: 0, transform: 'translate3d(0, 14px, 0) scale(0.945)' }
-          ],
-          {
-            duration: 185,
-            easing: 'cubic-bezier(0.32, 0, 0.67, 0)',
-            fill: 'forwards'
-          }
-        );
-      } catch (e) {}
-    }
-
     const timer = setTimeout(() => {
       backdrop.classList.remove('open', 'closing');
       modalCloseTimers.delete(backdropId);
-      if (win && typeof win.getAnimations === 'function') {
-        try { win.getAnimations().forEach(a => a.cancel()); } catch (e) {}
-      }
       if (typeof onAfterClose === 'function') onAfterClose();
-    }, 190);
+    }, 185);
     modalCloseTimers.set(backdropId, timer);
   }
 
-  // IntersectionObserver for Framer Motion whileInView scroll-reveal on feed cards
+  // IntersectionObserver for GPU CSS scroll-reveal on feed cards
   let feedCardScrollObserver = null;
   if ('IntersectionObserver' in window) {
     feedCardScrollObserver = new IntersectionObserver((entries, obs) => {
@@ -7205,18 +7329,9 @@
           obs.unobserve(el);
           el.classList.remove('fm-card-scroll-init');
           el.classList.add('fm-card-scroll-reveal');
-          if (typeof el.animate === 'function') {
-            try {
-              const keyframes = CARD_ENTER_SPRING_SCALES.map((sc, idx) => ({
-                opacity: Math.min(1, idx / 7),
-                transform: `translate3d(0, ${CARD_ENTER_SPRING_YS[idx].toFixed(2)}px, 0) scale(${sc.toFixed(4)})`
-              }));
-              el.animate(keyframes, { duration: 380, easing: 'linear' });
-            } catch (e) {}
-          }
         }
       });
-    }, { rootMargin: '0px 0px -24px 0px', threshold: 0.06 });
+    }, { rootMargin: '0px 0px -16px 0px', threshold: 0.05 });
   }
 
   // ── SIDE PANEL, ABOUT MODAL, FILTER DROPDOWN & COMPOSE POPUP HANDLERS ──────
@@ -10405,7 +10520,22 @@
   }
   loadCachedAiTechNews();
 
+  let combinedNewsCacheSig = '';
+  let combinedNewsCacheList = null;
+
   function getCombinedNewsColumnPosts() {
+    const aiLen = aiTechNewsItems ? aiTechNewsItems.length : 0;
+    const fsKeys = firestoreAiNewsMap ? Object.keys(firestoreAiNewsMap) : [];
+    const postsLen = allPosts ? allPosts.length : 0;
+    const firstPostId = postsLen > 0 ? allPosts[0].id : '';
+    const uKey = currentUser ? currentUser.usernameLower : 'guest';
+    const uDbTs = (typeof userNewsDb !== 'undefined' && userNewsDb) ? (userNewsDb.updatedAt || 0) : 0;
+    const cacheSig = `${aiLen}:${aiNewsLastUpdated}:${fsKeys.length}:${postsLen}:${firstPostId}:${newsSortMode}:${newsDateSortOrder}:${uKey}:${uDbTs}`;
+
+    if (combinedNewsCacheList && combinedNewsCacheSig === cacheSig) {
+      return combinedNewsCacheList;
+    }
+
     const mapById = new Map();
     const seenUrls = new Set();
     const minRecentThreshold = Date.now() - 30 * 24 * 60 * 60 * 1000; // last 30 days for AI news
@@ -10475,7 +10605,8 @@
       }
     });
 
-    return Array.from(mapById.values()).sort((a, b) => {
+    combinedNewsCacheSig = cacheSig;
+    combinedNewsCacheList = Array.from(mapById.values()).sort((a, b) => {
       if (newsSortMode === 'personalized') {
         const sDiff = (b.personalizedScore || 0) - (a.personalizedScore || 0);
         if (Math.abs(sDiff) >= 8) return sDiff;
@@ -10484,6 +10615,7 @@
       const bTime = getPostTimestampMs(b);
       return newsDateSortOrder === 'oldest' ? (aTime - bTime) : (bTime - aTime);
     });
+    return combinedNewsCacheList;
   }
 
   async function fetchDirectPublicAiNewsFallback() {
@@ -10684,6 +10816,14 @@
     }
   };
 
+  function setTextIfChanged(el, val) {
+    if (!el) return;
+    const str = String(val);
+    if (el.textContent !== str) {
+      el.textContent = str;
+    }
+  }
+
   function renderSidePanelCounts() {
     const countAllEl = document.getElementById('sideCountAll');
     const countNewsEl = document.getElementById('sideCountNews');
@@ -10705,21 +10845,20 @@
     const isNewsActive = activeViewMode === 'board' && activeFilter === 'news';
     const isBoardAllActive = activeViewMode === 'board' && activeFilter !== 'news';
 
-    if (countAllEl) countAllEl.textContent = nonNewsFlowsCount;
-    if (countNewsEl) countNewsEl.textContent = newsColumnCount;
-    if (quickCountAllEl) quickCountAllEl.textContent = nonNewsFlowsCount;
-    if (quickCountNewsEl) quickCountNewsEl.textContent = newsColumnCount;
-    if (countMyEl) countMyEl.textContent = currentUser ? getMyPosts().length : 0;
-    if (countStarEl) countStarEl.textContent = getStarredPosts().length;
-    if (countRepEl) countRepEl.textContent = repliesCount;
-    if (countMsgEl) {
-      countMsgEl.textContent = pendingIn > 0 ? `${pendingIn} new` : totalChats;
-    }
+    setTextIfChanged(countAllEl, nonNewsFlowsCount);
+    setTextIfChanged(countNewsEl, newsColumnCount);
+    setTextIfChanged(quickCountAllEl, nonNewsFlowsCount);
+    setTextIfChanged(quickCountNewsEl, newsColumnCount);
+    setTextIfChanged(countMyEl, currentUser ? getMyPosts().length : 0);
+    setTextIfChanged(countStarEl, getStarredPosts().length);
+    setTextIfChanged(countRepEl, repliesCount);
+    setTextIfChanged(countMsgEl, pendingIn > 0 ? `${pendingIn} new` : totalChats);
+
     if (sideBtnReports) {
       sideBtnReports.style.display = isDev ? 'flex' : 'none';
     }
-    if (countReportsEl) {
-      countReportsEl.textContent = getReportedPostGroups().length;
+    if (countReportsEl && isDev) {
+      setTextIfChanged(countReportsEl, getReportedPostGroups().length);
     }
 
     document.getElementById('sideBtnBoard')?.classList.toggle('active', isBoardAllActive);
@@ -10734,29 +10873,23 @@
     document.getElementById('sideBtnMessages')?.classList.toggle('active', activeViewMode === 'messages');
     sideBtnReports?.classList.toggle('active', activeViewMode === 'reports');
 
-    // Sync Native App Bottom Navigation Dock
-    document.getElementById('appNavBoard')?.classList.toggle('active', (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'my-flows' || activeViewMode === 'starred' || activeViewMode === 'reports');
-    document.getElementById('appNavNews')?.classList.toggle('active', isNewsActive);
-    document.getElementById('appNavReplies')?.classList.toggle('active', activeViewMode === 'replies');
-    document.getElementById('appNavMessages')?.classList.toggle('active', activeViewMode === 'messages');
-
     const appRepBadge = document.getElementById('appNavCountReplies');
     if (appRepBadge) {
-      appRepBadge.textContent = repliesCount;
+      setTextIfChanged(appRepBadge, repliesCount);
       appRepBadge.classList.toggle('show', repliesCount > 0);
     }
     const appMsgBadge = document.getElementById('appNavCountMessages');
     if (appMsgBadge) {
       const msgBadgeCount = pendingIn > 0 ? pendingIn : totalChats;
-      appMsgBadge.textContent = pendingIn > 0 ? `${pendingIn}` : `${totalChats}`;
+      setTextIfChanged(appMsgBadge, pendingIn > 0 ? `${pendingIn}` : `${totalChats}`);
       appMsgBadge.classList.toggle('show', msgBadgeCount > 0);
     }
 
     if (typeof window.syncLiquidGlassNavPill === 'function') {
-      window.syncLiquidGlassNavPill();
+      window.syncLiquidGlassNavPill(0, false);
     }
     if (typeof window.syncTopSliderPill === 'function') {
-      window.syncTopSliderPill();
+      window.syncTopSliderPill(0, false);
     }
   }
 
@@ -11102,10 +11235,11 @@
     }
 
     feed.dataset.feedSignature = nextFeedSignature;
-    feed.innerHTML = '';
+
+    const fragment = document.createDocumentFragment();
 
     if (isNewsActiveView) {
-      feed.appendChild(buildAiPersonalizationBannerElement());
+      fragment.appendChild(buildAiPersonalizationBannerElement());
     }
 
     if (filtered.length === 0) {
@@ -11121,7 +11255,8 @@
       const emptyEl = document.createElement('div');
       emptyEl.className = 'empty-state';
       emptyEl.innerHTML = `<span class="empty-icon">${activeFilter === 'news' ? '📰' : (activeViewMode === 'starred' ? '⭐' : '📋')}</span><p>${emptyMsg}</p>`;
-      feed.appendChild(emptyEl);
+      fragment.appendChild(emptyEl);
+      feed.replaceChildren(fragment);
       shouldAnimateFeedCards = false;
       return;
     }
@@ -11129,7 +11264,6 @@
     const animateThisRender = shouldAnimateFeedCards;
     shouldAnimateFeedCards = false;
 
-    const fragment = document.createDocumentFragment();
     let lastDateGroupLabel = null;
     filtered.forEach((post, i) => {
       if (activeFilter === 'news' && activeViewMode === 'board' && newsSortMode === 'date') {
@@ -11149,7 +11283,10 @@
       const card = makeCard(post, i, animateThisRender);
       fragment.appendChild(card);
     });
-    feed.appendChild(fragment);
+    feed.replaceChildren(fragment);
+
+    // Pre-warm the opposite column's DOM cards during idle time so switching Board <-> News is <1ms
+    scheduleIdleCardPrewarm();
   }
 
   function formatHostname(url) {
@@ -11267,6 +11404,40 @@
     return { intro: clean, hasMore: false, full: clean };
   }
 
+  const cardDomCache = new Map();
+  let idlePrewarmTimer = null;
+
+  function scheduleIdleCardPrewarm() {
+    if (idlePrewarmTimer) return;
+    idlePrewarmTimer = setTimeout(() => {
+      idlePrewarmTimer = null;
+      const runPrewarm = () => {
+        try {
+          const newsItems = getCombinedNewsColumnPosts();
+          for (let idx = 0; idx < newsItems.length; idx++) {
+            const p = newsItems[idx];
+            if (p && p.id && !cardDomCache.has(p.id)) {
+              makeCard(p, idx, false);
+            }
+          }
+          if (allPosts && allPosts.length > 0) {
+            for (let idx = 0; idx < allPosts.length; idx++) {
+              const p = allPosts[idx];
+              if (p && p.id && !cardDomCache.has(p.id)) {
+                makeCard(p, idx, false);
+              }
+            }
+          }
+        } catch (e) {}
+      };
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(runPrewarm, { timeout: 500 });
+      } else {
+        runPrewarm();
+      }
+    }, 140);
+  }
+
   function makeCard(post, i, animateCard = false) {
     const isAiNewsCard = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
     const postAuthorIsDev = !isAiNewsCard && isDeveloperUser(post.authorUsername || post.alias);
@@ -11277,17 +11448,45 @@
     const pinned = isPostPinned(post.id);
     const viewerIsDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
 
-    const div = document.createElement('div');
-    div.id = `card-${post.id}`;
-    const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
-    div.className = 'card'
-      + (animateCard && i < 8 ? ' card-enter-anim' : '')
-      + (useScrollReveal ? ' fm-card-scroll-init' : '')
+    const likes = getPostLikesList(post);
+    const isLiked = likes.includes(getCurrentActorKey());
+    const isStarred = isPostStarredByCurrentUser(post.id);
+    const comments = getPostCommentsList(post);
+    const isCommentsOpen = openCommentsSet.has(post.id);
+    const isExpanded = expandedFlowsSet.has(post.id);
+    const isConfirmingDelete = pendingDeleteConfirmId === post.id;
+    const reportCount = (reportsByPost[post.id] || []).length;
+    const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
+
+    const baseCardClass = 'card'
       + (postAuthorIsDev ? ' card-developer' : '')
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
+
+    const cardSig = `${post.id}|${post.editedAt || ''}|${(post.body || '').length}|${(post.title || '').length}|${pinned ? 1 : 0}|${viewerIsDev ? 1 : 0}|${currentUser ? currentUser.usernameLower : 'guest'}|${isLiked ? 1 : 0}:${likes.length}|${isStarred ? 1 : 0}|${comments.length}|${isCommentsOpen ? 1 : 0}|${isExpanded ? 1 : 0}|${isConfirmingDelete ? 1 : 0}|${reportCount}|${liveAvatar.length}|${activeViewMode === 'starred' ? 1 : 0}`;
+
+    const cached = cardDomCache.get(post.id);
+    if (cached && cached.sig === cardSig && cached.el && (!cached.el.parentElement || cached.el.parentElement.id === 'feed')) {
+      const reusedDiv = cached.el;
+      const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
+      reusedDiv.className = baseCardClass
+        + (animateCard && i < 8 ? ' card-enter-anim' : '')
+        + (useScrollReveal ? ' fm-card-scroll-init' : '');
+      reusedDiv.style.animationDelay = (animateCard && i < 8) ? `${i * 0.028}s` : '';
+      if (useScrollReveal) {
+        feedCardScrollObserver.observe(reusedDiv);
+      }
+      return reusedDiv;
+    }
+
+    const div = document.createElement('div');
+    div.id = `card-${post.id}`;
+    const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
+    div.className = baseCardClass
+      + (animateCard && i < 8 ? ' card-enter-anim' : '')
+      + (useScrollReveal ? ' fm-card-scroll-init' : '');
     if (animateCard && i < 8) {
-      div.style.animationDelay = `${i * 0.032}s`;
+      div.style.animationDelay = `${i * 0.028}s`;
     } else if (useScrollReveal) {
       feedCardScrollObserver.observe(div);
     }
@@ -11299,7 +11498,6 @@
     const hasLink = Boolean(post.linkUrl);
     const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
     const hasExpandable = (!isAiNewsCard && isLong) || hasImage;
-    const isExpanded = expandedFlowsSet.has(post.id);
     const postMs = getPostTimestampMs(post);
     const rawTs = postMs ? new Date(postMs) : null;
     const timeAgo = rawTs ? formatTime(rawTs) : 'just now';
@@ -11309,26 +11507,19 @@
     const authorName = isAiNewsCard
       ? ((rawAlias && rawAlias !== 'Paper Flow AI Desk') ? rawAlias : 'Paper Flow AI News')
       : (rawAlias || 'Anonymous');
-    const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
     const avatarHTML = isAiNewsCard
       ? `<div class="avatar" style="padding:0; overflow:hidden; border-color: #c84b2f; background: #1a1209;"><img src="/pwa-192x192.png" alt="Paper Flow AI News" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;this.src='/icon.svg';" /></div>`
       : renderAvatarHTML(authorName, liveAvatar, '', postAuthorIsDev);
 
-    const likes = getPostLikesList(post);
-    const isLiked = likes.includes(getCurrentActorKey());
-    const isStarred = isPostStarredByCurrentUser(post.id);
-    const comments = getPostCommentsList(post);
-    const isCommentsOpen = openCommentsSet.has(post.id);
     const canEdit = !isAiNewsCard && canCurrentUserEditPost(post);
     const canDelete = !isAiNewsCard && canCurrentUserDeletePost(post);
-    const isConfirmingDelete = pendingDeleteConfirmId === post.id;
 
     let mediaHTML = '';
     if (hasImage) {
       const safeSrc = esc(post.imageUrl);
       mediaHTML = `
         <div class="card-media ${isExpanded ? '' : 'collapsed'}" id="media-${post.id}">
-          <img src="${safeSrc}" alt="Flow attachment" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
+          <img src="${safeSrc}" alt="Flow attachment" loading="lazy" decoding="async" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
         </div>`;
     }
 
@@ -11409,7 +11600,7 @@
               aria-label="More options"
             >⋮</button>
             <div class="card-more-dropdown" id="card-more-menu-${post.id}" onclick="event.stopPropagation()">
-              <div class="card-more-header">Report Flow (${(reportsByPost[post.id] || []).length}/3)</div>
+              <div class="card-more-header">Report Flow (${reportCount}/3)</div>
               <button type="button" class="card-more-item report-opt" onclick="submitFlowReport('${post.id}', 'Spam or misleading')">
                 <span>🚩 Spam or misleading</span>
               </button>
@@ -11470,6 +11661,7 @@
         </div>
       </div>
     `;
+    cardDomCache.set(post.id, { sig: cardSig, el: div });
     return div;
   }
 
@@ -11480,6 +11672,7 @@
     } else {
       expandedFlowsSet.delete(id);
     }
+    cardDomCache.delete(id);
 
     const bodyEl = document.getElementById('body-' + id);
     const mediaEl = document.getElementById('media-' + id);
@@ -11991,7 +12184,10 @@
     }
   };
 
+  let lastStatsSig = '';
   function renderStats() {
+    const statsBox = document.getElementById('statsBox');
+    if (!statsBox) return;
     const total = allPosts.length;
     const tags = {};
     let totalLikes = 0;
@@ -12004,7 +12200,10 @@
       totalComments += getPostCommentsList(p).length;
     });
     const topTag = Object.entries(tags).sort((a,b) => b[1]-a[1])[0];
-    document.getElementById('statsBox').innerHTML = `
+    const statsSig = `${total}:${pinnedCount}:${totalLikes}:${totalComments}:${topTag ? topTag[0] : ''}`;
+    if (lastStatsSig === statsSig) return;
+    lastStatsSig = statsSig;
+    statsBox.innerHTML = `
       <div>📌 Total Flows: <strong>${total}</strong></div>
       <div>📍 Pinned Flows: <strong>${pinnedCount}</strong></div>
       <div>♥ Total Likes: <strong>${totalLikes}</strong></div>

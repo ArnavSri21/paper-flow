@@ -1203,20 +1203,43 @@
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    width: 215px;
+    width: 268px;
+    max-height: min(74vh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--card-bg);
     border: 1.5px solid var(--ink);
-    border-radius: 12px;
+    border-radius: 18px;
     box-shadow: 4px 4px 0 var(--ink);
     z-index: 150;
     display: none;
     flex-direction: column;
-    padding: 0.35rem;
-    gap: 0.22rem;
+    padding: 0.45rem;
+    gap: 0.18rem;
     animation: fadeSlideIn 0.22s var(--bubble-spring) both;
   }
   .filter-dropdown-menu.open {
     display: flex;
+  }
+  .filter-section-header {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    padding: 0.38rem 0.65rem 0.18rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0.85;
+    user-select: none;
+  }
+  .filter-section-divider {
+    height: 1px;
+    background: var(--card-border);
+    margin: 0.26rem 0.45rem;
+    opacity: 0.75;
   }
   .filter-btn {
     background: transparent;
@@ -1226,18 +1249,28 @@
     text-align: left;
     cursor: pointer;
     font-family: var(--mono);
-    font-size: 0.65rem;
+    font-size: 0.64rem;
     color: var(--ink-muted);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.4rem;
+  }
+  .filter-btn.filter-sub-btn {
+    padding: 0.34rem 0.7rem 0.34rem 1.55rem;
+    font-size: 0.6rem;
+    opacity: 0.92;
   }
   .filter-btn-left {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .filter-color-dot {
     width: 8px;
@@ -1264,12 +1297,31 @@
   .filter-color-dot.dot-other      { background: #e8e0ce; border-color: #5a4f3e; box-shadow: inset 0 0 0 2px #8c7d65; }
   .filter-color-dot.dot-updates    { background: #a855f7; border-color: #f5d0fe; }
 
+  /* News sector dot colours ranging across Cinema (Hollywood & Bollywood), Marvel, Facts, Science, Games, Hotties, AI & Tech */
+  .filter-color-dot.dot-sector-all_news  { background: #dcfce7; border-color: #15803d; box-shadow: inset 0 0 0 2px #16a34a; }
+  .filter-color-dot.dot-sector-cinema    { background: #fef3c7; border-color: #b45309; box-shadow: inset 0 0 0 2px #f59e0b; }
+  .filter-color-dot.dot-sector-hollywood { background: #ffedd5; border-color: #c2410c; box-shadow: inset 0 0 0 2px #ea580c; }
+  .filter-color-dot.dot-sector-bollywood { background: #fae8ff; border-color: #a21caf; box-shadow: inset 0 0 0 2px #d946ef; }
+  .filter-color-dot.dot-sector-marvel    { background: #fee2e2; border-color: #991b1b; box-shadow: inset 0 0 0 2px #dc2626; }
+  .filter-color-dot.dot-sector-facts     { background: #ccfbf1; border-color: #0f766e; box-shadow: inset 0 0 0 2px #0d9488; }
+  .filter-color-dot.dot-sector-science   { background: #e0f2fe; border-color: #0369a1; box-shadow: inset 0 0 0 2px #0284c7; }
+  .filter-color-dot.dot-sector-games     { background: #ede9fe; border-color: #5b21b6; box-shadow: inset 0 0 0 2px #7c3aed; }
+  .filter-color-dot.dot-sector-hotties   { background: #ffe4e6; border-color: #be123c; box-shadow: inset 0 0 0 2px #e11d48; }
+  .filter-color-dot.dot-sector-ai        { background: #cffafe; border-color: #0e7490; box-shadow: inset 0 0 0 2px #0891b2; }
+  .filter-color-dot.dot-sector-tech      { background: #e0e7ff; border-color: #3730a3; box-shadow: inset 0 0 0 2px #4f46e5; }
+  .filter-color-dot.dot-sector-hardware  { background: #fef3c7; border-color: #b45309; box-shadow: inset 0 0 0 2px #d97706; }
+  .filter-color-dot.dot-sector-security  { background: #ffe4e6; border-color: #be123c; box-shadow: inset 0 0 0 2px #e11d48; }
+  .filter-color-dot.dot-sector-space     { background: #ede9fe; border-color: #5b21b6; box-shadow: inset 0 0 0 2px #7c3aed; }
+  .filter-color-dot.dot-sector-business  { background: #d1fae5; border-color: #047857; box-shadow: inset 0 0 0 2px #059669; }
+  .filter-color-dot.dot-sector-software  { background: #e0e7ff; border-color: #3730a3; box-shadow: inset 0 0 0 2px #4f46e5; }
+  .filter-color-dot.dot-sector-consumer  { background: #fce7f3; border-color: #9d174d; box-shadow: inset 0 0 0 2px #db2777; }
+
   .filter-btn:hover, .filter-btn.active {
     background: var(--ink);
     color: var(--bg);
     border-color: var(--ink);
   }
-  .filter-count { opacity: 0.65; font-size: 0.6rem; }
+  .filter-count { opacity: 0.65; font-size: 0.6rem; flex-shrink: 0; }
 
   /* FLOATING CIRCULAR REFRESH BUTTON (NEWS COLUMN) WITH SIRI-LIKE GLOW */
   .fab-news-refresh {
@@ -5019,11 +5071,11 @@
     border-color: var(--accent);
   }
 
-  /* ── NESTED COMMENTS TREE & VISUAL LEVEL INDICATORS ── */
+  /* ── NESTED COMMENTS TREE & VISUAL LEVEL INDICATORS (ADAPTIVE LIGHT & DARK MODE) ── */
   .comments-list {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.6rem;
   }
   .comment-thread-node {
     display: flex;
@@ -5032,105 +5084,214 @@
   }
   .comment-children {
     margin-left: 1.15rem;
-    padding-left: 0.85rem;
-    border-left: 2px solid rgba(200, 75, 47, 0.38);
+    padding-left: 0.9rem;
+    border-left: 2.5px solid rgba(200, 75, 47, 0.45);
     display: flex;
     flex-direction: column;
-    gap: 0.48rem;
-    margin-top: 0.45rem;
+    gap: 0.52rem;
+    margin-top: 0.48rem;
     position: relative;
   }
   .comment-children.depth-2 {
-    border-left-color: rgba(59, 130, 246, 0.42);
+    border-left-color: rgba(37, 99, 235, 0.5);
   }
   .comment-children.depth-3 {
-    border-left-color: rgba(16, 185, 129, 0.42);
+    border-left-color: rgba(5, 150, 105, 0.5);
   }
   .comment-children.depth-4 {
     margin-left: 0.65rem;
-    padding-left: 0.6rem;
-    border-left-color: rgba(168, 85, 247, 0.42);
+    padding-left: 0.65rem;
+    border-left-color: rgba(147, 51, 234, 0.5);
   }
   .comment-item {
     position: relative;
-    transition: background-color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+    background: #f4ede1;
+    color: #1a1209;
+    border: 1.5px solid #d5c9b4;
+    border-radius: 20px;
+    padding: 0.62rem 0.78rem;
+    transition: background-color 0.14s ease, border-color 0.14s ease;
     user-select: text;
   }
+  .comment-item .comment-author {
+    color: #1a1209;
+    font-weight: 700;
+  }
+  .comment-item .comment-text {
+    color: #1f160c;
+    font-weight: 450;
+    line-height: 1.52;
+  }
+  .comment-item .comment-time {
+    color: #655b4d;
+  }
   .comment-item.is-nested-reply {
-    background: var(--surface-subtle);
-    border-radius: 8px;
-    padding: 0.52rem 0.68rem;
-    border: 1px solid var(--border-subtle);
+    background: #ebe1cf;
+    color: #1a1209;
+    border-radius: 20px;
+    padding: 0.58rem 0.75rem;
+    border: 1.5px solid #c8baa2;
+    box-shadow: 0 2px 6px rgba(26, 18, 9, 0.05);
+  }
+  .comment-item.is-nested-reply .comment-author {
+    color: #140d06;
+  }
+  .comment-item.is-nested-reply .comment-text {
+    color: #1a1209;
+  }
+  .comment-item.is-nested-reply .comment-time {
+    color: #5c5245;
+  }
+  body.dark-mode .comment-item {
+    background: #221d17;
+    color: #f5f0e8;
+    border-color: #3a3228;
+  }
+  body.dark-mode .comment-item .comment-author {
+    color: #f8f4ec;
+  }
+  body.dark-mode .comment-item .comment-text {
+    color: #ede6da;
+  }
+  body.dark-mode .comment-item .comment-time {
+    color: #a69b8d;
+  }
+  body.dark-mode .comment-item.is-nested-reply {
+    background: #1a1612;
+    color: #f5f0e8;
+    border-color: #463c30;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  }
+  body.dark-mode .comment-item.is-nested-reply .comment-author {
+    color: #ffffff;
+  }
+  body.dark-mode .comment-item.is-nested-reply .comment-text {
+    color: #f3ede2;
+  }
+  body.dark-mode .comment-item.is-nested-reply .comment-time {
+    color: #b0a596;
+  }
+  /* Preserve Developer comment high-contrast styling at both root & nested levels in light and dark modes */
+  .comment-item.comment-developer,
+  .comment-item.comment-developer.is-nested-reply,
+  body.dark-mode .comment-item.comment-developer,
+  body.dark-mode .comment-item.comment-developer.is-nested-reply {
+    background: linear-gradient(135deg, #161026 0%, #24173e 100%) !important;
+    border: 1.5px solid #8b5cf6 !important;
+    color: #f5f3ff !important;
+  }
+  .comment-item.comment-developer .comment-author,
+  .comment-item.comment-developer.is-nested-reply .comment-author,
+  body.dark-mode .comment-item.comment-developer .comment-author,
+  body.dark-mode .comment-item.comment-developer.is-nested-reply .comment-author {
+    color: #ddd6fe !important;
+  }
+  .comment-item.comment-developer .comment-text,
+  .comment-item.comment-developer.is-nested-reply .comment-text,
+  body.dark-mode .comment-item.comment-developer .comment-text,
+  body.dark-mode .comment-item.comment-developer.is-nested-reply .comment-text {
+    color: #f5f3ff !important;
+  }
+  .comment-item.comment-developer .comment-time,
+  .comment-item.comment-developer.is-nested-reply .comment-time {
+    color: #c4b5fd !important;
   }
   .comment-item.is-nested-reply::before {
     content: '';
     position: absolute;
-    left: -0.88rem;
-    top: 1.05rem;
-    width: 0.72rem;
-    height: 2px;
-    background: rgba(200, 75, 47, 0.42);
-    border-radius: 2px;
+    left: -0.92rem;
+    top: 1.08rem;
+    width: 0.76rem;
+    height: 2.5px;
+    background: rgba(200, 75, 47, 0.5);
+    border-radius: 4px;
   }
   .comment-children.depth-2 > .comment-thread-node > .comment-item.is-nested-reply::before {
-    background: rgba(59, 130, 246, 0.45);
+    background: rgba(37, 99, 235, 0.55);
   }
   .comment-children.depth-3 > .comment-thread-node > .comment-item.is-nested-reply::before {
-    background: rgba(16, 185, 129, 0.45);
+    background: rgba(5, 150, 105, 0.55);
   }
   .comment-reply-to-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.22rem;
     font-family: var(--mono);
-    font-size: 0.58rem;
+    font-size: 0.59rem;
     font-weight: 700;
-    color: var(--accent);
-    background: rgba(200, 75, 47, 0.1);
-    border: 1px solid rgba(200, 75, 47, 0.28);
-    padding: 1px 6px;
-    border-radius: 999px;
+    color: #b83b20;
+    background: rgba(200, 75, 47, 0.14);
+    border: 1px solid rgba(200, 75, 47, 0.35);
+    padding: 2px 8px;
+    border-radius: 10px;
     margin-left: 0.3rem;
+  }
+  body.dark-mode .comment-reply-to-badge {
+    color: #ff8b70;
+    background: rgba(232, 93, 63, 0.2);
+    border-color: rgba(232, 93, 63, 0.42);
   }
   .comment-depth-pill {
     font-family: var(--mono);
-    font-size: 0.54rem;
+    font-size: 0.55rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    color: var(--ink-muted);
-    background: var(--surface-alt);
-    border: 1px solid var(--border-subtle);
-    padding: 0px 5px;
-    border-radius: 4px;
+    color: #4a4035;
+    background: rgba(26, 18, 9, 0.09);
+    border: 1px solid rgba(26, 18, 9, 0.2);
+    padding: 1px 6px;
+    border-radius: 8px;
     margin-left: 0.25rem;
+  }
+  body.dark-mode .comment-depth-pill {
+    color: #dfd7ca;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .comment-item.comment-developer .comment-depth-pill {
+    color: #ede9fe;
+    background: rgba(139, 92, 246, 0.28);
+    border-color: rgba(167, 139, 250, 0.45);
   }
   .comment-actions-row {
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    margin-top: 0.34rem;
+    margin-top: 0.38rem;
   }
   .btn-comment-action {
-    background: transparent;
-    border: none;
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: rgba(26, 18, 9, 0.06);
+    border: 1px solid rgba(26, 18, 9, 0.14);
+    padding: 3px 9px;
+    border-radius: 10px;
     font-family: var(--mono);
     font-size: 0.62rem;
     font-weight: 600;
-    color: var(--ink-muted);
+    color: #3d3429;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+    transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  }
+  body.dark-mode .btn-comment-action {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #d8cfc2;
+  }
+  .comment-item.comment-developer .btn-comment-action {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(196, 181, 253, 0.3);
+    color: #ede9fe;
   }
   .btn-comment-action:hover {
     color: var(--accent);
-    background: rgba(200, 75, 47, 0.08);
+    border-color: var(--accent);
+    background: rgba(200, 75, 47, 0.12);
   }
   .btn-comment-action.liked {
     color: var(--accent);
+    border-color: rgba(200, 75, 47, 0.4);
     font-weight: 700;
   }
   .replying-to-banner {
@@ -5138,13 +5299,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    background: rgba(200, 75, 47, 0.11);
-    border: 1px solid rgba(200, 75, 47, 0.38);
-    border-radius: 6px;
-    padding: 0.34rem 0.65rem;
-    margin-bottom: 0.45rem;
+    background: rgba(200, 75, 47, 0.12);
+    border: 1.5px solid rgba(200, 75, 47, 0.4);
+    border-radius: 16px;
+    padding: 0.4rem 0.75rem;
+    margin-bottom: 0.5rem;
     font-family: var(--mono);
-    font-size: 0.65rem;
+    font-size: 0.66rem;
     color: var(--ink);
   }
   .replying-to-banner.active {
@@ -5155,7 +5316,7 @@
     border: none;
     color: var(--ink-muted);
     font-family: var(--mono);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
     cursor: pointer;
     padding: 0 4px;
@@ -5174,7 +5335,7 @@
     color: #e11d48;
     text-shadow: 0 6px 20px rgba(225, 29, 72, 0.45), 2px 2px 0 #1a1209;
     transform: translate(-50%, -50%) scale(0.3);
-    animation: dblTapHeartPop 0.72s cubic-bezier(0.18, 1.35, 0.4, 1) forwards;
+    animation: dblTapHeartPop 0.55s cubic-bezier(0.18, 1.35, 0.4, 1) forwards;
   }
   @keyframes dblTapHeartPop {
     0% {
@@ -5215,18 +5376,19 @@
   .news-hero-banner-wrap {
     position: relative;
     width: 100%;
-    height: 205px;
-    border-radius: 8px;
+    height: 210px;
+    border-radius: 24px;
     overflow: hidden;
-    margin: 0.55rem 0 0.85rem;
+    margin: 0.6rem 0 0.9rem;
     border: 1.5px solid var(--ink);
     background: linear-gradient(135deg, #1a1209 0%, #2d1b12 50%, #0f172a 100%);
-    box-shadow: 3px 3px 0 var(--shadow);
+    box-shadow: 0 8px 20px rgba(26, 18, 9, 0.12);
     cursor: pointer;
   }
   @media (max-width: 600px) {
     .news-hero-banner-wrap {
-      height: 175px;
+      height: 180px;
+      border-radius: 20px;
     }
   }
   .news-hero-banner-img {
@@ -5234,22 +5396,22 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .news-hero-banner-wrap:hover .news-hero-banner-img {
-    transform: scale(1.035);
+    transform: scale(1.025);
   }
   .news-hero-gradient-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.05) 45%, rgba(15, 23, 42, 0.84) 100%);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.14) 0%, rgba(15, 23, 42, 0.04) 45%, rgba(15, 23, 42, 0.82) 100%);
     pointer-events: none;
   }
   .news-hero-badges-top {
     position: absolute;
-    top: 0.55rem;
-    left: 0.6rem;
-    right: 0.6rem;
+    top: 0.65rem;
+    left: 0.75rem;
+    right: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -5257,7 +5419,7 @@
     pointer-events: none;
   }
   .news-hero-topic-pill {
-    background: rgba(15, 23, 42, 0.82);
+    background: rgba(15, 23, 42, 0.84);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: #f8fafc;
@@ -5267,35 +5429,368 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 3px 8px;
-    border-radius: 999px;
+    padding: 4px 10px;
+    border-radius: 12px;
   }
   .news-spicy-pill {
-    background: linear-gradient(135deg, #e11d48 0%, #ea580c 100%);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(15, 23, 42, 0.82);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.24);
     font-family: var(--mono);
     font-size: 0.56rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 2px 7px;
-    border-radius: 999px;
-    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.4);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 12px;
   }
   .news-hero-caption-bottom {
     position: absolute;
-    bottom: 0.5rem;
-    left: 0.65rem;
-    right: 0.65rem;
+    bottom: 0.55rem;
+    left: 0.75rem;
+    right: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
     font-family: var(--mono);
     font-size: 0.6rem;
-    color: rgba(248, 250, 252, 0.92);
+    color: rgba(248, 250, 252, 0.94);
     pointer-events: none;
+  }
+
+  /* ── NEWS PARAGRAPH SPACING FOR HUMAN-READABLE IN-DEPTH STORIES ── */
+  .news-story-paragraph {
+    margin: 0 0 0.82rem 0;
+    line-height: 1.68;
+  }
+  .news-story-paragraph:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── ULTRA-FAST GLITCH-FREE SWITCHING & GPU COMPOSITING OVERRIDES ── */
+  .card {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 320px;
+    transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.14s ease, border-color 0.14s ease !important;
+  }
+  .fm-card-scroll-init {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .fm-card-scroll-reveal,
+  .card.card-enter-anim {
+    animation: fastCardAppear 0.14s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  }
+  @keyframes fastCardAppear {
+    from {
+      opacity: 0.75;
+      transform: translate3d(0, 6px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  .screen-swipe-from-right,
+  .screen-swipe-from-right-a,
+  .screen-swipe-from-right-b {
+    animation: fastSwipeRight 0.11s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  }
+  .screen-swipe-from-left,
+  .screen-swipe-from-left-a,
+  .screen-swipe-from-left-b {
+    animation: fastSwipeLeft 0.11s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  }
+  @keyframes fastSwipeRight {
+    from {
+      opacity: 0.82;
+      transform: translate3d(10px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  @keyframes fastSwipeLeft {
+    from {
+      opacity: 0.82;
+      transform: translate3d(-10px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* ── UNIFIED UI GEOMETRY: SQUIRCLE CONTAINERS + CIRCULAR AVATARS, PILLS & BORDERLESS STAR ── */
+  .card,
+  .card.card-developer,
+  .card.card-pinned,
+  .card.card-ai-news,
+  .reply-page-card,
+  .report-moderation-card,
+  .empty-state {
+    border-radius: 28px !important;
+    corner-shape: squircle;
+    overflow: hidden;
+  }
+  .card::before {
+    border-radius: 28px 0 0 28px !important;
+    width: 6px !important;
+  }
+  .modal-window,
+  .compose-modal-window,
+  .auth-window,
+  .profile-window,
+  .about-window,
+  .share-modal-window {
+    border-radius: 30px !important;
+    corner-shape: squircle;
+    overflow: hidden;
+  }
+  .side-panel {
+    border-radius: 0 30px 30px 0 !important;
+    corner-shape: squircle;
+    overflow-x: hidden;
+  }
+  .sidebar-box,
+  .paperflow-apk-section,
+  .games-section,
+  .game-launch-card,
+  .view-mode-banner,
+  .notif-permission-banner,
+  .os-notification-card,
+  .profile-about-box,
+  .pm-request-approval-box,
+  .pm-e2ee-banner,
+  .report-reasons-list,
+  .avatar-picker-box,
+  .modal-note {
+    border-radius: 22px !important;
+    corner-shape: squircle;
+  }
+  .news-hero-banner-wrap,
+  .card-media,
+  .card-media img,
+  .card-link-attachment,
+  .ai-summary-box,
+  .share-snapshot-preview-wrap,
+  .share-snapshot-preview-img,
+  .compose-img-preview-wrap,
+  .compose-img-preview-wrap img,
+  .attachment-panel,
+  .card-more-dropdown,
+  .pm-chat-dropdown,
+  .filter-dropdown-menu {
+    border-radius: 20px !important;
+    corner-shape: squircle;
+  }
+  .comment-item,
+  .comment-item.is-nested-reply,
+  .pm-bubble,
+  .profile-stat-pill,
+  .news-sort-options-bar,
+  .btn-side-option,
+  .btn-share-primary-sheet,
+  .btn-share-target,
+  .btn-paperflow-apk,
+  .btn-obsidian-download,
+  .btn-paperflow-update,
+  .btn-modal-submit,
+  .form-field input[type="text"],
+  .form-field input[type="password"],
+  .form-field input[type="url"],
+  .form-field textarea {
+    border-radius: 18px !important;
+    corner-shape: squircle;
+  }
+
+  /* ── CIRCULAR PILL / CAPSULE INTERACTIVE BUTTONS (PROFILE, LIKE, REPLY, SHARE, TAGS) ── */
+  .user-pill-btn,
+  .clickable-profile,
+  .btn-login-trigger,
+  .btn-small,
+  .btn-like,
+  .btn-share-flow,
+  .btn-pin-dev,
+  .btn-edit-own,
+  .btn-delete-own,
+  .btn-comment-action,
+  .btn-comment-submit,
+  .comment-input,
+  .pm-compose-input,
+  .pm-search-input,
+  .replying-to-banner,
+  .btn-post,
+  .btn-attach-toggle,
+  .btn-file-upload,
+  .btn-ai-readmore,
+  .btn-ai-sort-mode,
+  .btn-filter-dropdown,
+  .filter-btn,
+  .floating-search-bubble,
+  .floating-search-bubble.expanded,
+  .btn-search-clear,
+  .btn-back-board,
+  .btn-notif-bell,
+  .btn-notif-allow,
+  .btn-pm-accept,
+  .btn-pm-decline,
+  .quick-column-switcher,
+  .quick-switch-btn,
+  .quick-switch-slider-pill,
+  .app-bottom-nav,
+  .liquid-glass-caustic,
+  .liquid-glass-pill,
+  .app-nav-item,
+  .toast,
+  .card-tag,
+  .dev-badge,
+  .ai-summary-badge,
+  .verified-user-dot,
+  .phone-saved-pill,
+  .pinned-ribbon,
+  .attachment-corner-badge,
+  .news-date-group-pill,
+  .news-card-date-pill,
+  .news-hero-topic-pill,
+  .news-spicy-pill,
+  .comment-reply-to-badge,
+  .comment-depth-pill,
+  .pm-status-tag,
+  .report-count-pill,
+  .side-option-badge,
+  .theme-switch-pill,
+  .quick-switch-count,
+  .filter-count,
+  .app-nav-badge {
+    border-radius: 999px !important;
+    corner-shape: round !important;
+  }
+
+  /* Consistent circular/capsule feel on Like, Reply & Share buttons */
+  .card-interactions .btn-small,
+  .card-actions .btn-small:not(.btn-expand) {
+    border-radius: 999px !important;
+    corner-shape: round !important;
+    padding: 5px 12px;
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+  .btn-comment-action {
+    border-radius: 999px !important;
+    corner-shape: round !important;
+    padding: 3px 11px;
+  }
+
+  /* ── TRUE CIRCLES: PROFILE ICONS / AVATARS, '+' COMPOSE BUTTON, & ICON BUTTONS ── */
+  .avatar,
+  .avatar-sm,
+  .avatar-lg,
+  .avatar img,
+  .app-nav-post-btn,
+  .app-nav-post-liquid-ring,
+  .fab-post-btn,
+  .fab-news-refresh,
+  .fab-news-refresh::before,
+  .fab-news-refresh::after,
+  .btn-hamburger,
+  .btn-card-more,
+  .modal-close,
+  .btn-pm-send,
+  .btn-pm-more,
+  .pm-mobile-back,
+  .pm-exit-back-btn,
+  .floating-search-trigger,
+  .os-notif-icon,
+  .os-notif-close,
+  .btn-cancel-reply-target {
+    border-radius: 50% !important;
+    corner-shape: round !important;
+  }
+  .avatar,
+  .avatar-sm,
+  .avatar-lg,
+  .app-nav-post-btn,
+  .fab-news-refresh,
+  .btn-hamburger,
+  .btn-card-more,
+  .btn-pm-send,
+  .btn-pm-more,
+  .pm-mobile-back,
+  .pm-exit-back-btn,
+  .floating-search-trigger,
+  .os-notif-icon {
+    aspect-ratio: 1 / 1;
+  }
+  .modal-close {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .modal-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  /* ── BORDERLESS STAR BUTTON (PURE STAR WITH NO SQUARE OR CIRCULAR BORDER) ── */
+  .btn-star-flow,
+  .btn-star-flow:hover,
+  .btn-star-flow:focus,
+  .btn-star-flow:active,
+  .btn-star-flow.starred,
+  body.dark-mode .btn-star-flow,
+  body.dark-mode .btn-star-flow:hover,
+  body.dark-mode .btn-star-flow.starred {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 2px 4px !important;
+    font-size: 1.26rem !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-star-flow {
+    color: var(--ink-muted);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.16s ease, text-shadow 0.16s ease !important;
+  }
+  .btn-star-flow:hover {
+    color: #f59e0b !important;
+    transform: scale(1.22) rotate(8deg) !important;
+    text-shadow: 0 2px 10px rgba(245, 158, 11, 0.38) !important;
+  }
+  body.dark-mode .btn-star-flow:hover {
+    color: #fbbf24 !important;
+    text-shadow: 0 2px 12px rgba(251, 191, 36, 0.45) !important;
+  }
+  .btn-star-flow.starred {
+    color: #f59e0b !important;
+    text-shadow: 0 2px 10px rgba(245, 158, 11, 0.48) !important;
+  }
+  body.dark-mode .btn-star-flow.starred {
+    color: #fbbf24 !important;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.52) !important;
+  }
+  @media (max-width: 600px) {
+    .btn-star-flow,
+    .btn-star-flow:hover,
+    .btn-star-flow.starred {
+      font-size: 1.15rem !important;
+      padding: 1px 3px !important;
+    }
   }
 </style>
 </head>
@@ -6159,6 +6654,49 @@
   const LIVE_WEB_ORIGIN = 'https://paperflow.hs.vc';
   const CLOUD_API_ORIGIN = 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app';
 
+  // Hoisted module-wide state & caches so renderAll() / onSnapshot() never hit Temporal Dead Zone (TDZ)
+  var siriGlowTimer = null;
+  var swRegistration = null;
+  var hasInitialSnapshotLoaded = false;
+  var TAG_LABELS = {
+    all: 'All Flows',
+    other: 'General',
+    confession: 'Confession',
+    story: 'Story',
+    opinion: 'Opinion',
+    news: 'News',
+    question: 'Question',
+    updates: '⚡ Updates'
+  };
+  var shouldAnimateFeedCards = true;
+  var screenSwipeCleanupTimer = null;
+  var swipeAnimPhase = false;
+  var taskbarEdgeBounceTimer = null;
+  var bottomNavMetricsCache = null;
+  var topPillMetricsCache = null;
+  var modalCloseTimers = new Map();
+  var feedCardScrollObserver = null;
+  var lockedNewsScoresMap = {};
+  var analyzeUserDbTimeout = null;
+  var syncUserDbFirestoreTimeout = null;
+  var activeReplyTargetByPost = {};
+  var pairCryptoKeyCache = new Map();
+  var NEWS_TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+  var combinedNewsCacheSig = '';
+  var combinedNewsCacheList = null;
+  var activeNewsSector = 'all_news';
+  var NEWS_SECTOR_DEFINITIONS = [];
+  var CLIENT_NEWS_TOPIC_BANNERS = [];
+  var DEFAULT_CLIENT_NEWS_BANNERS = [];
+  var GUARANTEED_SVG_NEWS_BANNER = '';
+  var activeNewsRefreshSeq = 0;
+  var cardDomCache = new Map();
+  var activeShareSnapshotState = null;
+  var lastStatsSig = '';
+  var clientVerifiedTopicImageCache = new Map();
+  var assignedCardBannerByPostId = new Map();
+  var usedFallbackBannerUrls = new Set();
+
   function getApiBaseOrigin() {
     const host = String(window.location.hostname || '').toLowerCase();
     if (
@@ -6292,7 +6830,7 @@
     } catch (e) {}
   }
 
-  let siriGlowTimer = null;
+  siriGlowTimer = null;
   function triggerSiriThemeGlow() {
     const overlay = document.getElementById('siriThemeGlowOverlay');
     if (!overlay) return;
@@ -6321,8 +6859,8 @@
   // ── MOBILE & LAPTOP REPLY NOTIFICATIONS SYSTEM ──────────────────────────────
   const NOTIF_ENABLED_KEY = 'paperflow_reply_notif_enabled_v1';
   const SEEN_REPLIES_PREFIX = 'paperflow_seen_replies_v1_';
-  let swRegistration = null;
-  let hasInitialSnapshotLoaded = false;
+  swRegistration = null;
+  hasInitialSnapshotLoaded = false;
 
   function urlB64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -6733,7 +7271,7 @@
 
   syncNotificationUI();
 
-  const TAG_LABELS = {
+  TAG_LABELS = {
     all: 'All Flows',
     other: 'General',
     confession: 'Confession',
@@ -6811,9 +7349,9 @@
   });
 
   // ── VIEW MODE NAVIGATION & DIRECTIONAL SCREEN SWIPE ANIMATIONS ────────────
-  let shouldAnimateFeedCards = true;
-  let screenSwipeCleanupTimer = null;
-  let swipeAnimPhase = false;
+  shouldAnimateFeedCards = true;
+  screenSwipeCleanupTimer = null;
+  swipeAnimPhase = false;
 
   function getScreenSlotIndex(mode, filter) {
     if (mode === 'board') {
@@ -6864,7 +7402,7 @@
         'screen-swipe-from-left-b'
       );
       targetEl.style.willChange = '';
-    }, 200);
+    }, 115);
   }
 
   window.switchViewMode = function (mode, filterOverride) {
@@ -6978,11 +7516,12 @@
       window.scrollTo(0, 0);
     }
 
-    // Defer network and background processing so the screen swipe and top slider glide stay silky smooth
-    setTimeout(() => {
-      fetchAndSyncAiTechNews(false);
-      analyzeUserNewsTasteWithAi(false).catch(() => {});
-    }, 240);
+    // Only fetch in background if news list is empty or older than 12 minutes so switching is instant and zero-jitter
+    if (!aiTechNewsItems || aiTechNewsItems.length === 0 || (Date.now() - aiNewsLastUpdated > 12 * 60 * 1000)) {
+      setTimeout(() => {
+        fetchAndSyncAiTechNews(false);
+      }, 180);
+    }
   };
 
   window.openPaperMessagesWithUser = function (targetUsernameLower, targetDisplayName) {
@@ -7055,9 +7594,9 @@
   };
 
   // ── LIQUID GLASS DOCK & SLIDABLE PILL CONTROLLER (CACHED GEOMETRY — ZERO REFLOW) ──
-  let taskbarEdgeBounceTimer = null;
-  let bottomNavMetricsCache = null;
-  let topPillMetricsCache = null;
+  taskbarEdgeBounceTimer = null;
+  bottomNavMetricsCache = null;
+  topPillMetricsCache = null;
 
   window.invalidateNavPillMetrics = function () {
     bottomNavMetricsCache = null;
@@ -7566,7 +8105,7 @@
   };
 
   // ── HARDWARE-COMPOSITED MODAL & SCROLL-REVEAL MOTION ENGINE ────────────────
-  const modalCloseTimers = new Map();
+  var modalCloseTimersRef = modalCloseTimers;
 
   function openModalWithMotion(backdropId) {
     const backdrop = document.getElementById(backdropId);
@@ -7599,7 +8138,6 @@
   }
 
   // IntersectionObserver for GPU CSS scroll-reveal on feed cards
-  let feedCardScrollObserver = null;
   if ('IntersectionObserver' in window) {
     feedCardScrollObserver = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
@@ -8070,8 +8608,15 @@
         }
 
         // 9. AI-Summarized Tech & AI News Record (Shown ONLY in the News Column, NEVER in All Flows)
+        // Enforces 10-day retention window unless starred & saved in memory by the user
         if (id.startsWith('__ainews__') || data.docType === 'ai_news' || data.isAiNews) {
           const pubMs = Number(data.publishedAt || data.createdAt) || (data.ts?.toDate ? data.ts.toDate().getTime() : Date.now());
+          const tenDaysCutoff = Date.now() - (10 * 24 * 60 * 60 * 1000);
+          const starredByUser = isPostStarredByCurrentUser(id) || Boolean(starredPostsArchiveMap && starredPostsArchiveMap[id]);
+          if (pubMs < tenDaysCutoff && !starredByUser) {
+            deleteDoc(doc(db, "posts", id)).catch(() => {});
+            return;
+          }
           nextAiNews[id] = {
             id,
             ...data,
@@ -9081,7 +9626,6 @@
   }
 
   // Session-locked news score cache so liking/starring a card never re-orders the feed mid-read
-  let lockedNewsScoresMap = {};
   window.resetLockedNewsScores = function () {
     lockedNewsScoresMap = {};
   };
@@ -9185,8 +9729,8 @@
     return userNewsDb?.aiProfile || null;
   };
 
-  let analyzeUserDbTimeout = null;
-  let syncUserDbFirestoreTimeout = null;
+  analyzeUserDbTimeout = null;
+  syncUserDbFirestoreTimeout = null;
   async function recordUserNewsInteraction(post, action = 'read') {
     if (!post || !post.id) return;
     const isNewsOrTech = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news' || post.tag === 'news');
@@ -9488,7 +10032,6 @@
   };
 
   // ── COMMENTS / NESTED REPLIES / COMMENT LIKES ───────────────────────────────
-  const activeReplyTargetByPost = {};
 
   function getPostCommentsList(post) {
     const legacy = Array.isArray(post.comments) ? post.comments : [];
@@ -9803,7 +10346,6 @@
   }
 
   // ── PAPER MESSAGES: WEB CRYPTO AES-256-GCM ENCRYPTION & WHATSAPP-STYLE CHAT ──
-  const pairCryptoKeyCache = new Map();
 
   function sanitizeUserKeyPart(u) {
     return String(u || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
@@ -10875,9 +11417,22 @@
     return fullStr;
   }
 
+  NEWS_TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+
+  function isNewsWithin10DaysOrStarred(item) {
+    if (!item) return false;
+    const id = item.id || '';
+    if (id && (isPostStarredByCurrentUser(id) || Boolean(starredPostsArchiveMap && starredPostsArchiveMap[id]))) {
+      return true;
+    }
+    const pubMs = getPostTimestampMs(item) || Number(item.publishedAt || item.createdAt || item.ts) || 0;
+    if (!pubMs) return true;
+    return pubMs >= (Date.now() - NEWS_TEN_DAYS_MS);
+  }
+
   window.toggleNewsDateSort = function () {
     newsDateSortOrder = newsDateSortOrder === 'newest' ? 'oldest' : 'newest';
-    shouldAnimateFeedCards = true;
+    shouldAnimateFeedCards = false;
     renderFeed();
     triggerScreenSwipeAnimation('right', false);
   };
@@ -10887,7 +11442,7 @@
       const prevMode = newsSortMode;
       newsSortMode = mode;
       localStorage.setItem('pf_news_sort_mode', mode);
-      shouldAnimateFeedCards = true;
+      shouldAnimateFeedCards = false;
       window.resetLockedNewsScores();
       if (mode === 'personalized') {
         analyzeUserNewsTasteWithAi(false).catch(() => {});
@@ -10904,6 +11459,8 @@
       .replace(/📌\s*(Executive Briefing|Key Overview)\s*:\s*/gi, '')
       .replace(/🔍\s*(Technical\s*&\s*Industry\s*(Breakdown|Details))\s*:\s*/gi, '')
       .replace(/💡\s*(Why It Matters(\s*&\s*Key Takeaways)?)\s*:\s*/gi, '')
+      .replace(/⚡\s*(The Unfiltered Verdict|Why It Matters Now)\s*:\s*/gi, '')
+      .replace(/(^|\n\s*\n)\s*(?:🔥|⚡|📌|🔍|💡)\s+/g, '$1')
       .trim();
   }
 
@@ -10913,18 +11470,17 @@
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.items)) {
-        aiTechNewsItems = parsed.items.map(it => ({
-          ...it,
-          body: cleanRoboticNewsBodyClient(it.body || '')
-        }));
+        aiTechNewsItems = parsed.items
+          .filter(it => isNewsWithin10DaysOrStarred(it))
+          .map(it => ({
+            ...it,
+            body: cleanRoboticNewsBodyClient(it.body || '')
+          }));
         aiNewsLastUpdated = parsed.updatedAt || 0;
       }
     } catch (e) {}
   }
   loadCachedAiTechNews();
-
-  let combinedNewsCacheSig = '';
-  let combinedNewsCacheList = null;
 
   function getCombinedNewsColumnPosts() {
     const aiLen = aiTechNewsItems ? aiTechNewsItems.length : 0;
@@ -10933,7 +11489,8 @@
     const firstPostId = postsLen > 0 ? allPosts[0].id : '';
     const uKey = currentUser ? currentUser.usernameLower : 'guest';
     const uDbTs = (typeof userNewsDb !== 'undefined' && userNewsDb) ? (userNewsDb.updatedAt || 0) : 0;
-    const cacheSig = `${aiLen}:${aiNewsLastUpdated}:${fsKeys.length}:${postsLen}:${firstPostId}:${newsSortMode}:${newsDateSortOrder}:${uKey}:${uDbTs}`;
+    const starredKeysCount = starredPostsArchiveMap ? Object.keys(starredPostsArchiveMap).length : 0;
+    const cacheSig = `${aiLen}:${aiNewsLastUpdated}:${fsKeys.length}:${postsLen}:${firstPostId}:${newsSortMode}:${newsDateSortOrder}:${uKey}:${uDbTs}:${starredKeysCount}`;
 
     if (combinedNewsCacheList && combinedNewsCacheSig === cacheSig) {
       return combinedNewsCacheList;
@@ -10941,19 +11498,21 @@
 
     const mapById = new Map();
     const seenUrls = new Set();
-    const minRecentThreshold = Date.now() - 30 * 24 * 60 * 60 * 1000; // last 30 days for AI news
 
-    // 1. Live API AI-Summarized Tech & AI News items
+    // 1. Live API AI-Summarized Tech & AI News items ( strictly <= 10 days old OR starred in memory )
     (aiTechNewsItems || []).forEach(item => {
       if (!item || !item.id) return;
+      if (!isNewsWithin10DaysOrStarred(item)) return;
       const pubMs = getPostTimestampMs(item) || Date.now();
       const normUrl = String(item.linkUrl || '').trim().toLowerCase();
       if (normUrl) seenUrls.add(normUrl);
       const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
-      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody });
+      const categoryKey = getRigidNewsCategoryKey(item);
+      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody, categoryKey });
       mapById.set(item.id, {
         ...item,
         body: cleanedBody,
+        categoryKey,
         tag: 'news',
         isAiNews: true,
         summarizedByAi: true,
@@ -10967,19 +11526,21 @@
       });
     });
 
-    // 2. Firestore-synced AI News items (shared across web & Android APK)
+    // 2. Firestore-synced AI News items ( strictly <= 10 days old OR starred in memory )
     Object.values(firestoreAiNewsMap || {}).forEach(item => {
       if (!item || !item.id) return;
+      if (!isNewsWithin10DaysOrStarred(item)) return;
       const pubMs = getPostTimestampMs(item) || Date.now();
-      if (pubMs < minRecentThreshold) return;
       const normUrl = String(item.linkUrl || '').trim().toLowerCase();
       if (mapById.has(item.id) || (normUrl && seenUrls.has(normUrl))) return;
       if (normUrl) seenUrls.add(normUrl);
       const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
-      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody });
+      const categoryKey = getRigidNewsCategoryKey(item);
+      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody, categoryKey });
       mapById.set(item.id, {
         ...item,
         body: cleanedBody,
+        categoryKey,
         tag: 'news',
         isAiNews: true,
         summarizedByAi: true,
@@ -10993,18 +11554,63 @@
       });
     });
 
-    // 3. Community-posted flows in the 'news' category (also shown ONLY in the News column)
+    // 3. Starred News items saved in user's phone memory (even if older than 10 days)
+    Object.values(starredPostsArchiveMap || {}).forEach(item => {
+      if (!item || !item.id) return;
+      const isNewsEntry = Boolean(item.isAiNews || item.docType === 'ai_news' || getEffectivePostCategory(item) === 'news');
+      if (!isNewsEntry || !isPostStarredByCurrentUser(item.id)) return;
+      if (mapById.has(item.id)) return;
+      const pubMs = getPostTimestampMs(item) || Date.now();
+      const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
+      const categoryKey = getRigidNewsCategoryKey(item);
+      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody, categoryKey });
+      mapById.set(item.id, {
+        ...item,
+        body: cleanedBody,
+        categoryKey,
+        tag: 'news',
+        savedOnPhone: true,
+        publishedAt: pubMs,
+        createdAt: pubMs,
+        ts: pubMs,
+        personalizedScore: scored.score,
+        matchReason: scored.matchReason || item.matchReason || '',
+        topics: scored.topics
+      });
+    });
+
+    // 4. Community-posted flows in the 'news' category (also shown in the News column if within 10 days or starred)
     (allPosts || []).forEach(post => {
       if (getEffectivePostCategory(post) === 'news') {
+        if (!isNewsWithin10DaysOrStarred(post)) return;
         if (!mapById.has(post.id)) {
-          const scored = scoreNewsItemForCurrentUser(post);
+          const categoryKey = getRigidNewsCategoryKey(post);
+          const scored = scoreNewsItemForCurrentUser({ ...post, categoryKey });
           mapById.set(post.id, {
             ...post,
+            categoryKey,
             personalizedScore: scored.score,
             matchReason: scored.matchReason || '',
             topics: scored.topics
           });
         }
+      }
+    });
+
+    // 5. Guaranteed Multi-Sector Editorial Stories so Cinema (Hollywood & Bollywood), Marvel, Facts, Science, Games & Hotties are always populated
+    getClientGuaranteedMultiSectorPosts().forEach(seedPost => {
+      const normUrl = String(seedPost.linkUrl || '').trim().toLowerCase();
+      if (!mapById.has(seedPost.id) && (!normUrl || !seenUrls.has(normUrl))) {
+        if (normUrl) seenUrls.add(normUrl);
+        const categoryKey = getRigidNewsCategoryKey(seedPost);
+        const scored = scoreNewsItemForCurrentUser({ ...seedPost, categoryKey });
+        mapById.set(seedPost.id, {
+          ...seedPost,
+          categoryKey,
+          personalizedScore: scored.score,
+          matchReason: scored.matchReason || '',
+          topics: scored.topics
+        });
       }
     });
 
@@ -11021,85 +11627,871 @@
     return combinedNewsCacheList;
   }
 
-  const CLIENT_NEWS_TOPIC_BANNERS = [
+  NEWS_SECTOR_DEFINITIONS = [
     {
-      regex: /\b(llm|gpt|claude|gemini|openai|anthropic|deepseek|llama|mistral|model|chatgpt|ai)\b/i,
-      label: 'AI & Frontier Models',
+      key: 'cinema',
+      label: '🎬 Cinema (All)',
+      shortLabel: 'Cinema',
+      dotClass: 'dot-sector-cinema',
+      urls: [
+        'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1460881680858-30d872d5b530?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'hollywood',
+      label: '↳ Hollywood',
+      shortLabel: 'Hollywood',
+      dotClass: 'dot-sector-hollywood',
+      isSubcategory: true,
+      parentKey: 'cinema',
+      urls: [
+        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'bollywood',
+      label: '↳ Bollywood',
+      shortLabel: 'Bollywood',
+      dotClass: 'dot-sector-bollywood',
+      isSubcategory: true,
+      parentKey: 'cinema',
+      urls: [
+        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'marvel',
+      label: '🦸 Marvel',
+      shortLabel: 'Marvel',
+      dotClass: 'dot-sector-marvel',
+      urls: [
+        'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1608889175123-8ee362201f81?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1588497859490-85d1c17db96d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1559535332-db9971090158?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'facts',
+      label: '🤯 Facts',
+      shortLabel: 'Facts',
+      dotClass: 'dot-sector-facts',
+      urls: [
+        'https://images.unsplash.com/photo-1560275619-4662e36fa65c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'science',
+      label: '🔬 Science',
+      shortLabel: 'Science',
+      dotClass: 'dot-sector-science',
+      urls: [
+        'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'games',
+      label: '🎮 Games',
+      shortLabel: 'Games',
+      dotClass: 'dot-sector-games',
+      urls: [
+        'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1605901309584-818e25960a8f?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'hotties',
+      label: '🔥 Hotties',
+      shortLabel: 'Hotties',
+      dotClass: 'dot-sector-hotties',
+      urls: [
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      key: 'ai',
+      label: '🤖 AI & Frontier Models',
+      shortLabel: 'AI & Models',
+      dotClass: 'dot-sector-ai',
       urls: [
         'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1655720828018-edd2daec9349?auto=format&fit=crop&w=1200&q=80'
+        'https://images.unsplash.com/photo-1655720828018-edd2daec9349?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=1200&q=80'
       ]
     },
     {
-      regex: /\b(gpu|nvidia|amd|intel|chip|semiconductor|tsmc|silicon|hardware|apple|m4)\b/i,
-      label: 'Silicon & Hardware',
+      key: 'tech',
+      label: '💻 Tech, Chips & Cyber',
+      shortLabel: 'Tech & Silicon',
+      dotClass: 'dot-sector-tech',
       urls: [
         'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=1200&q=80'
-      ]
-    },
-    {
-      regex: /\b(robot|robotics|humanoid|autonomous|waymo|tesla|drone|space|spacex)\b/i,
-      label: 'Robotics & Autonomy',
-      urls: [
-        'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=1200&q=80'
-      ]
-    },
-    {
-      regex: /\b(security|hack|breach|zero-day|linux|rust|kernel|cloud|postgres|database|code|developer)\b/i,
-      label: 'Systems & Security',
-      urls: [
+        'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80'
+        'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80'
       ]
     }
   ];
 
-  const DEFAULT_CLIENT_NEWS_BANNERS = [
+  CLIENT_NEWS_TOPIC_BANNERS = NEWS_SECTOR_DEFINITIONS;
+
+  function getClientGuaranteedMultiSectorPosts() {
+    const now = Date.now();
+    const hr = 3600 * 1000;
+    const rawSeeds = [
+      {
+        id: '__ainews__sector_hollywood_1',
+        categoryKey: 'hollywood',
+        title: 'Christopher Nolan’s Next IMAX Epic Locks Principal Cast as Practical Set Construction Begins',
+        body: [
+          'Universal Pictures and Christopher Nolan have officially locked the ensemble cast and custom 65mm IMAX camera rigs for his upcoming theatrical event film, with massive practical sets already rising across three continents. Following the historic billion-dollar triumph of Oppenheimer, studio executives granted Nolan unprecedented creative autonomy and a dedicated theatrical window.',
+          'Cinematographer Hoyte van Hoytema confirmed that the production is debuting newly engineered lighter-weight IMAX film housings capable of capturing intimate handheld dialogue scenes without sacrificing 18K-equivalent analog resolution. Sound designers are simultaneously testing a revised theatrical mix protocol so dialogue remains crystal-clear even during thunderous practical action sequences.',
+          'For Hollywood exhibitors, the production represents the gold standard of event cinema—proving that audiences will pack premium large-format auditoriums months in advance when filmmakers commit to tangible, large-scale spectacle over generic green-screen backlots.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Hollywood Cinema',
+        topicTags: ['Hollywood Cinema', 'Cinema & Film'],
+        sourceName: 'Variety Hollywood',
+        linkUrl: 'https://variety.com/2026/film/news/christopher-nolan-imax-epic-production-update/',
+        publishedAt: now - 2 * hr
+      },
+      {
+        id: '__ainews__sector_hollywood_2',
+        categoryKey: 'hollywood',
+        title: 'Denis Villeneuve Shares Update on Dune Messiah Screenplay and IMAX Desert Filming Schedule',
+        body: [
+          'Director Denis Villeneuve revealed that pre-visualization and costume design for the conclusion of Paul Atreides’ theatrical arc are ahead of schedule, bringing back Timothée Chalamet, Zendaya, Florence Pugh, and Anya Taylor-Joy. Rather than treating the third installment as a simple sequel, Villeneuve described the script as a dramatic philosophical reckoning that subverts traditional blockbuster tropes.',
+          'Production designer Patrice Vermette and composer Hans Zimmer have already begun crafting new sonic motifs and monumental architectural miniatures for Arrakis’ imperial capital. Location scouts have secured previously unfilmed desert canyons in Jordan and Abu Dhabi to give the finale a distinct visual palette.',
+          'Box office analysts project the conclusion to be one of Hollywood’s biggest global releases of the decade, cementing hard sci-fi cinema as a premier theatrical draw.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Hollywood Cinema',
+        topicTags: ['Hollywood Cinema', 'Cinema & Film'],
+        sourceName: 'The Hollywood Reporter',
+        linkUrl: 'https://www.hollywoodreporter.com/movies/movie-news/dune-messiah-filming-update-villeneuve/',
+        publishedAt: now - 9 * hr
+      },
+      {
+        id: '__ainews__sector_bollywood_1',
+        categoryKey: 'bollywood',
+        title: 'Shah Rukh Khan and Sujoy Ghosh’s Action Thriller "King" Mounts Massive International Stunt Schedule',
+        body: [
+          'Red Chillies Entertainment has assembled an international team of stunt coordinators across Europe and Mumbai for Shah Rukh Khan’s gritty new action drama "King", co-starring Suhana Khan and Abhishek Bachchan as a formidable antagonist. Unlike glossy espionage spectacles, the film leans into raw, grounded hand-to-hand choreography and high-speed urban chases.',
+          'Insiders close to the production note that Siddharth Anand is overseeing the large-scale action blocks while director Sujoy Ghosh anchors the taut emotional cat-and-mouse narrative. Custom anamorphic lenses and practical pyrotechnics are being used to give every set-piece a visceral theatrical punch.',
+          'Trade analysts across India and the diaspora already rank "King" as Bollywood’s hottest upcoming theatrical juggernaut, with overseas distribution rights commanding record advances.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Bollywood Cinema',
+        topicTags: ['Bollywood Cinema', 'Cinema & Film'],
+        sourceName: 'Bollywood Hungama',
+        linkUrl: 'https://www.bollywoodhungama.com/news/bollywood/shah-rukh-khan-king-international-action-schedule/',
+        publishedAt: now - 3 * hr
+      },
+      {
+        id: '__ainews__sector_bollywood_2',
+        categoryKey: 'bollywood',
+        title: 'Ranbir Kapoor, Sai Pallavi & Yash’s Magnum Opus "Ramayana" Completes Epic IMAX Battle Sequences',
+        body: [
+          'Director Nitesh Tiwari and Oscar-winning VFX studio DNEG have wrapped a landmark filming block for Part One of the pan-India cinematic adaptation starring Ranbir Kapoor as Lord Rama, Sai Pallavi as Sita, and Yash as Ravana. Filmed specifically for IMAX auditoriums, the production combines sprawling physical palace sets in Mumbai with cutting-edge virtual production volumes.',
+          'In a historic musical collaboration, Academy Award winners Hans Zimmer and A.R. Rahman are co-composing the orchestral and classical Indian score, blending ancient Vedic instrumentation with thunderous cinematic brass.',
+          'Exhibitors across India, North America, and the UK expect the two-part epic to redefine the global scale of Indian cinema.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Bollywood Cinema',
+        topicTags: ['Bollywood Cinema', 'Cinema & Film'],
+        sourceName: 'Indian Express Bollywood',
+        linkUrl: 'https://indianexpress.com/section/entertainment/bollywood/ramayana-ranbir-kapoor-yash-imax-schedule/',
+        publishedAt: now - 11 * hr
+      },
+      {
+        id: '__ainews__sector_marvel_1',
+        categoryKey: 'marvel',
+        title: 'Marvel Studios’ "Avengers: Doomsday" Unveils Practical Latveria Sets as Russo Brothers Tease Robert Downey Jr.’s Doctor Doom',
+        body: [
+          'Joe and Anthony Russo are building massive physical castle interiors and forge environments at Pinewood Studios as Robert Downey Jr. steps into the armor of Victor Von Doom for Marvel Studios’ "Avengers: Doomsday". Kevin Feige confirmed that the Fantastic Four, the X-Men, and Earth’s Mightiest Heroes will collide directly with Doom’s sovereign vision for the multiverse.',
+          'Rather than relying on digital helmets, Marvel’s legacy effects team has fabricated multiple hand-forged titanium-alloy masks and cloaks so Downey’s physical performance carries the same tactile weight that made Infinity War and Endgame cultural landmarks.',
+          'Screenwriter Stephen McFeely structured the screenplay around Victor Von Doom as the central protagonist of the narrative—similar to how Thanos drove Infinity War—setting the stage for "Avengers: Secret Wars".'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Marvel & MCU',
+        topicTags: ['Marvel & MCU'],
+        sourceName: 'Marvel & Collider',
+        linkUrl: 'https://collider.com/avengers-doomsday-doctor-doom-russo-brothers-set-update/',
+        publishedAt: now - 1.5 * hr
+      },
+      {
+        id: '__ainews__sector_marvel_2',
+        categoryKey: 'marvel',
+        title: 'Spider-Man: Brand New Day Locks Street-Level MCU Crossover Before Avengers: Secret Wars',
+        body: [
+          'Tom Holland and director Destin Daniel Cretton are bringing high-velocity practical wirework and rooftop stunt choreography back to the streets of New York for "Spider-Man: Brand New Day". Following the memory-wiping finale of No Way Home, Peter Parker operates entirely on his own with a hand-stitched classic red-and-blue suit.',
+          'Stunt coordinators from Shang-Chi have designed continuous single-take combat sequences that showcase Spider-Man’s agility and spider-sense in tight urban environments alongside key Marvel street-level heroes.',
+          'Fans have praised Marvel Studios’ decision to ground Peter’s emotional journey before he is pulled into the cosmic battlefields of Avengers: Doomsday.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Marvel & MCU',
+        topicTags: ['Marvel & MCU'],
+        sourceName: 'Marvel Insider',
+        linkUrl: 'https://www.hollywoodreporter.com/movies/movie-news/spider-man-4-marvel-brand-new-day-update/',
+        publishedAt: now - 7 * hr
+      },
+      {
+        id: '__ainews__sector_facts_1',
+        categoryKey: 'facts',
+        title: 'Mind-Blowing Fact: Sharks Are Older Than Both Saturn’s Rings and Trees on Planet Earth',
+        body: [
+          'When we picture ancient history, trees and Saturn’s iconic rings feel like permanent fixtures of nature. Yet paleontological fossil scales prove that sharks have been swimming in Earth’s oceans for roughly 450 million years, whereas the earliest true tree species (Archaeopteris) did not evolve until about 350 million years ago—giving sharks a 100-million-year head start.',
+          'Even more astonishing is data from NASA’s Cassini spacecraft, which measured the mass and micrometeoroid darkening of Saturn’s rings. Astrophysicists concluded that Saturn’s bright icy rings formed between 10 million and 100 million years ago when an icy moon was torn apart by gravity—meaning dinosaurs and sharks swam under a sky where Saturn had no rings at all.',
+          'Having survived four of the "Big Five" mass extinction events—including the Permian-Triassic "Great Dying" that wiped out 96% of marine species—sharks remain one of evolution’s most resilient masterpieces.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1560275619-4662e36fa65c?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Mind-Blowing Facts',
+        topicTags: ['Mind-Blowing Facts'],
+        sourceName: 'Smithsonian Facts',
+        linkUrl: 'https://www.smithsonianmag.com/smart-news/sharks-older-than-trees-and-saturns-rings/',
+        publishedAt: now - 4 * hr
+      },
+      {
+        id: '__ainews__sector_facts_2',
+        categoryKey: 'facts',
+        title: 'Bizarre Fact: A Single Teaspoon of Neutron Star Material Weighs More Than Every Car on Earth Combined',
+        body: [
+          'Atoms are 99.9999999% empty space—if the nucleus of a hydrogen atom were the size of a marble on the 50-yard line of a football stadium, its electrons would be buzzing outside the stadium’s upper deck. When a giant star goes supernova and collapses into a neutron star, gravity crushes all of that empty space out of existence.',
+          'The result is a sphere roughly 20 kilometers (12 miles) wide—the size of Manhattan—packing more mass than our entire Sun. A single sugar-cube or teaspoon of neutron star matter weighs approximately 4 billion tons on Earth, heavier than Mount Everest or every automobile ever manufactured by humanity.',
+          'Some neutron stars, known as millisecond pulsars, also spin at up to 716 rotations per second—faster than a kitchen blender blade—while whipping magnetic fields trillions of times stronger than Earth’s.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Mind-Blowing Facts',
+        topicTags: ['Mind-Blowing Facts'],
+        sourceName: 'Cosmic Facts & Trivia',
+        linkUrl: 'https://www.nasa.gov/universe/neutron-stars-extreme-density-facts/',
+        publishedAt: now - 12 * hr
+      },
+      {
+        id: '__ainews__sector_science_1',
+        categoryKey: 'science',
+        title: 'James Webb Space Telescope Detects Carbon-Rich Atmosphere Molecules Around Habitable-Zone Super-Earth',
+        body: [
+          'Astronomers using the James Webb Space Telescope’s Near-Infrared Spectrograph (NIRSpec) have captured the sharpest transmission spectrum yet of a temperate sub-Neptune/super-Earth orbiting within its star’s habitable zone. By analyzing starlight filtered through the planet’s upper atmosphere during transit, researchers confirmed strong absorption bands of methane and carbon dioxide alongside water vapor.',
+          'Crucially, the ratio of carbon molecules to scarce ammonia points toward a deep liquid water ocean beneath a hydrogen-rich atmosphere—a class of worlds astronomers call "Hycean" planets.',
+          'Follow-up transit observations scheduled over the coming months will test for dimethyl sulfide and other disequilibrium gases that on Earth are produced almost exclusively by marine life.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Science & Discovery',
+        topicTags: ['Science & Discovery'],
+        sourceName: 'NASA & ScienceDaily',
+        linkUrl: 'https://www.nasa.gov/missions/webb/jwst-exoplanet-atmosphere-discovery/',
+        publishedAt: now - 2.5 * hr
+      },
+      {
+        id: '__ainews__sector_games_1',
+        categoryKey: 'games',
+        title: 'Grand Theft Auto VI Technical Breakdown: How Rockstar’s RAGE 9 Engine Simulates Living Vice City Crowds & Water Physics',
+        body: [
+          'Rockstar Games’ overhaul of its proprietary RAGE 9 engine for Grand Theft Auto VI represents a generational leap in open-world simulation across Leonida and Vice City. Technical analysis reveals a unified ray-traced global illumination pipeline running alongside a physically based ocean and wake solver that calculates real-time surf, boat displacement, and storm surges.',
+          'Unlike previous open-world titles where pedestrians spawn with simple walk loops, GTA VI pairs procedural animation blending with localized AI behavior trees—allowing hundreds of beachgoers, traffic drivers, and nightlife crowds to react dynamically to weather shifts, music, and player chaos.',
+          'Console hardware architects note that streaming such dense asset variety without loading screens pushes custom SSD decompression hardware to its absolute limits.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Gaming & Esports',
+        topicTags: ['Gaming & Esports'],
+        sourceName: 'Polygon Gaming',
+        linkUrl: 'https://www.polygon.com/gaming/gta-6-rage-9-engine-physics-vice-city-breakdown/',
+        publishedAt: now - 1.8 * hr
+      },
+      {
+        id: '__ainews__sector_games_2',
+        categoryKey: 'games',
+        title: 'Nintendo Switch 2 & Next-Gen Handheld Showdown: Custom NVIDIA DLSS Upscaling Tested in Open-World Titles',
+        body: [
+          'Hands-on technical benchmarks of next-generation portable gaming hardware demonstrate how hardware-accelerated AI upscaling has transformed handheld gaming. By rendering internal frames at 540p or 720p and reconstructing sharp edges via dedicated Tensor cores, demanding third-party engines maintain locked 60fps frame rates at a fraction of traditional wattage.',
+          'Developers porting flagship RPGs and action titles noted that expanded 12GB LPDDR5X memory bandwidth eliminates the texture pop-in that plagued earlier portable consoles.',
+          'With magnetic hall-effect controllers and high-refresh VRR displays becoming standard, portable gaming is rapidly closing the visual gap with living-room consoles.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Gaming & Esports',
+        topicTags: ['Gaming & Esports'],
+        sourceName: 'GameSpot',
+        linkUrl: 'https://www.gamespot.com/articles/next-gen-handheld-dlss-ray-tracing-performance/',
+        publishedAt: now - 8 * hr
+      },
+      {
+        id: '__ainews__sector_hotties_1',
+        categoryKey: 'hotties',
+        title: 'Red Carpet Hotties: Sydney Sweeney, Ana de Armas & Zendaya Turn Heads in Jaw-Dropping Couture at Global Premiere Gala',
+        body: [
+          'Flashbulbs went into overdrive this week as Sydney Sweeney, Ana de Armas, and Zendaya dominated the global premiere red carpet in back-to-back showstopping couture looks that immediately set social media ablaze. Sweeney channeled classic bombshell glamour in a custom liquid-silver corseted gown, while Ana de Armas stunned in a daring velvet high-slit silhouette.',
+          'Stylists behind the scenes revealed that each look took over 400 hours of hand-beading in Paris and Milan ateliers, blending vintage Hollywood siren aesthetics with bold modern tailoring. Within minutes of their arrival, high-resolution portrait reels racked up tens of millions of views across fashion and pop-culture feeds.',
+          'Fashion editors hailed the evening as an instant hall-of-fame red carpet moment, proving once again why this trio reigns supreme as cinema’s ultimate style and glamour icons.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Hotties & Glamour Icons',
+        topicTags: ['Hotties & Glamour Icons'],
+        sourceName: 'Vogue & Page Six Glamour',
+        linkUrl: 'https://pagesix.com/style/red-carpet-glamour-sydney-sweeney-ana-de-armas-zendaya-couture/',
+        publishedAt: now - 1.2 * hr
+      },
+      {
+        id: '__ainews__sector_hotties_2',
+        categoryKey: 'hotties',
+        title: 'Bollywood & Global Glamour Icons: Deepika Padukone, Disha Patani & Kiara Advani Set Temperature Soaring in High-Fashion Editorial',
+        body: [
+          'Bollywood’s reigning glamour queens—Deepika Padukone, Disha Patani, and Kiara Advani—have set the internet on fire with a breathtaking new high-fashion editorial and runway showcase. Shot on location with dramatic golden-hour lighting, the feature pairs shimmering sculpted resort wear with bold haute couture.',
+          'Disha Patani’s effortlessly toned athletic aesthetic and Kiara Advani’s sleek backless emerald couture look dominated trending charts within hours, while Deepika Padukone commanded the international spotlight in custom Cartier jewels and structured monochrome tailoring.',
+          'Pop-culture commentators note that the crossover appeal of Indian cinema’s top stars at global fashion weeks and luxury houses has never been hotter.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Hotties & Glamour Icons',
+        topicTags: ['Hotties & Glamour Icons'],
+        sourceName: 'GQ & Vogue Glamour',
+        linkUrl: 'https://www.vogue.com/article/bollywood-glamour-icons-high-fashion-photoshoot/',
+        publishedAt: now - 5.5 * hr
+      },
+      {
+        id: '__ainews__sector_science_2',
+        categoryKey: 'science',
+        title: 'CERN Large Hadron Collider & Tokamak Fusion Reactors Hit Record Magnetic Plasma Confinement Milestone',
+        body: [
+          'Experimental physicists working on next-generation high-temperature superconducting (HTS) magnets have achieved a record continuous plasma confinement duration inside a compact spherical tokamak reactor. By stabilizing edge-localized plasma instabilities with real-time magnetic feedback loops, the team sustained temperatures exceeding 100 million degrees Celsius.',
+          'Simultaneously, particle detectors at CERN recorded ultra-rare heavy quark decays that test the outer boundaries of the Standard Model of particle physics.',
+          'Together, these breakthroughs accelerate the timeline for grid-scale commercial net-positive fusion energy in the 2030s.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Science & Discovery',
+        topicTags: ['Science & Discovery'],
+        sourceName: 'Nature & CERN Science',
+        linkUrl: 'https://www.nature.com/articles/fusion-plasma-confinement-milestone/',
+        publishedAt: now - 6.2 * hr
+      },
+      {
+        id: '__ainews__sector_ai_1',
+        categoryKey: 'ai',
+        title: 'Frontier Multi-Agent Reasoning Models Achieve Autonomous Full-Repository Software Verification & Synthesis',
+        body: [
+          'AI research labs have unveiled a new generation of test-time compute reasoning architectures capable of navigating, refactoring, and formally verifying multi-million-line codebases autonomously. Rather than predicting single tokens in isolation, the system spawns parallel verifier agents that execute unit tests and symbolic proofs before committing any patch.',
+          'Across SWE-bench Verified and live open-source maintainer benchmarks, the multi-agent architecture resolved over 74% of complex multi-file systems bugs without human intervention.',
+          'Enterprise engineering leaders report that shifting from autocomplete assistants to autonomous verification pipelines is cutting production regression rates in half.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+        topic: 'AI & LLMs',
+        topicTags: ['AI & LLMs'],
+        sourceName: 'MIT Tech Review AI',
+        linkUrl: 'https://www.technologyreview.com/artificial-intelligence/frontier-reasoning-agents/',
+        publishedAt: now - 1.4 * hr
+      },
+      {
+        id: '__ainews__sector_ai_2',
+        categoryKey: 'ai',
+        title: 'Open-Weight Multimodal Vision-Language Models Now Run Real-Time Voice & Video Reasoning Locally on NPU Laptops',
+        body: [
+          'A major breakthrough in 4-bit quantization-aware training and sparse mixture-of-experts (MoE) routing has enabled 30-billion-parameter multimodal models to stream real-time voice and video understanding directly on consumer laptop NPUs with zero cloud latency.',
+          'Because only 3 billion active parameters fire per token, memory bandwidth requirements drop by 78% while preserving frontier-class OCR, chart reasoning, and live coding accuracy.',
+          'Privacy-focused developers and hospitals are rapidly adopting local multimodal inference to keep sensitive audio and document streams entirely on-device.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
+        topic: 'AI & LLMs',
+        topicTags: ['AI & LLMs'],
+        sourceName: 'Ars Technica AI',
+        linkUrl: 'https://arstechnica.com/ai/open-weight-multimodal-models-local-npu/',
+        publishedAt: now - 4.8 * hr
+      },
+      {
+        id: '__ainews__sector_tech_1',
+        categoryKey: 'tech',
+        title: 'TSMC 2nm Gate-All-Around Nanosheet Silicon Enters High-Volume Trial Production for Next-Gen Flagship Processors',
+        body: [
+          'Semiconductor fabrication has officially crossed into the Gate-All-Around (GAA) nanosheet era as 2-nanometer wafer lines reach target yield thresholds ahead of mass volume ramp. By wrapping the gate electrode completely around horizontal silicon nanosheets, engineers have virtually eliminated sub-threshold current leakage at sub-1-volt operating states.',
+          'Chip architects report up to a 15% instructions-per-clock speed boost at identical power—or a 30% power reduction at equivalent clock speeds—compared to 3nm FinFET silicon.',
+          'Both mobile flagship SoCs and hyperscale data-center accelerators have locked in initial wafer capacity for upcoming hardware launches.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Tech & Chips',
+        topicTags: ['Tech & Chips'],
+        sourceName: 'AnandTech & The Verge',
+        linkUrl: 'https://www.theverge.com/tech/tsmc-2nm-gaa-nanosheet-silicon-production/',
+        publishedAt: now - 3.2 * hr
+      },
+      {
+        id: '__ainews__sector_tech_2',
+        categoryKey: 'tech',
+        title: 'Solid-State Silicon-Anode Batteries & Tandem OLED Displays Redefine Ultra-Thin Flagship Hardware Engineering',
+        body: [
+          'Hardware manufacturers are pairing high-density silicon-carbon anode batteries with dual-layer tandem OLED panels to pack 6,500mAh+ energy capacity into chassis thinner than 7.5 millimeters. By replacing pure graphite anodes with nanostructured silicon-carbon composites, volumetric energy density jumps by more than 22% without increasing thermal swell.',
+          'Combined with tandem OLED stacks that double luminous efficiency while cutting display power draw by 35%, next-generation phones and ultrabooks are achieving genuine multi-day battery endurance under heavy workloads.',
+          'Teardown engineers call the combination the biggest leap in portable industrial design in over a decade.'
+        ].join('\n\n'),
+        imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+        topic: 'Tech & Chips',
+        topicTags: ['Tech & Chips'],
+        sourceName: 'Wired Hardware',
+        linkUrl: 'https://www.wired.com/story/silicon-carbon-batteries-tandem-oled-hardware/',
+        publishedAt: now - 9.5 * hr
+      }
+    ];
+
+    return rawSeeds.map(item => ({
+      ...item,
+      tag: 'news',
+      alias: 'Paper Flow AI News',
+      authorUsername: 'ai_news_desk',
+      isAiNews: true,
+      summarizedByAi: true,
+      docType: 'ai_news',
+      aiAttribution: 'Summarized by AI',
+      linkTitle: `${item.sourceName}: ${item.title}`.slice(0, 96),
+      createdAt: item.publishedAt,
+      ts: item.publishedAt
+    }));
+  }
+
+  // Rigid 1-to-1 category classifier: classifies each story into ONE primary categoryKey based on explicit categoryKey, source/domain, and headline (never body filler text)
+  function getRigidNewsCategoryKey(post) {
+    if (!post) return 'tech';
+    const headline = String(post.title || '').trim();
+    const src = `${post.sourceName || ''} ${post.linkUrl || ''}`.toLowerCase();
+    const postId = String(post.id || '');
+
+    // 1. Check deterministic sector seed IDs first
+    const idMatch = postId.match(/^__ainews__sector_([a-z]+)_/i);
+    if (idMatch && idMatch[1]) {
+      return idMatch[1].toLowerCase();
+    }
+
+    // 2. Explicit Marvel/MCU headline or source always resolves to 'marvel'
+    if (
+      /\b(marvel|mcu|avengers|spider-man|spiderman|x-men|wolverine|deadpool|doctor doom|fantastic four|daredevil|kevin feige|iron man|captain america|thor|black panther|guardians of the galaxy|secret wars|doomsday|shang-chi|blade|mutants)\b/i.test(
+        headline
+      ) ||
+      /collider\.com\/tag\/marvel|marvel/i.test(src)
+    ) {
+      return 'marvel';
+    }
+
+    // 3. Explicit server-assigned categoryKey
+    const validKeys = new Set([
+      'hollywood',
+      'bollywood',
+      'cinema',
+      'marvel',
+      'facts',
+      'science',
+      'games',
+      'hotties',
+      'ai',
+      'tech'
+    ]);
+    const explicitKey = String(post.categoryKey || '').trim().toLowerCase();
+    if (validKeys.has(explicitKey) && explicitKey !== 'tech') {
+      return explicitKey;
+    }
+
+    // 4. Publisher / Domain strict routing
+    if (/bollywoodhungama|indianexpress\.com\/section\/entertainment\/bollywood|filmfare|pinkvilla/i.test(src)) {
+      return 'bollywood';
+    }
+    if (/pagesix\.com|vogue\.com|gq\.com|elle\.com|harpersbazaar\.com|cosmopolitan\.com/i.test(src)) {
+      return 'hotties';
+    }
+    if (/variety\.com|hollywoodreporter\.com|deadline\.com|indiewire\.com/i.test(src)) {
+      return 'hollywood';
+    }
+    if (/polygon\.com|gamespot\.com|ign\.com|kotaku\.com|eurogamer\.net|pcgamer\.com/i.test(src)) {
+      return 'games';
+    }
+    if (/smithsonianmag\.com|cosmic facts|atlasobscura\.com|mentalfloss\.com/i.test(src)) {
+      return 'facts';
+    }
+    if (/sciencedaily\.com|nasa\.gov|space\.com|nature\.com|newscientist\.com|phys\.org/i.test(src)) {
+      return 'science';
+    }
+
+    // 5. Primary topic tag (first tag only)
+    const firstTag = String((Array.isArray(post.topicTags) && post.topicTags[0]) || post.topic || '').toLowerCase();
+    if (firstTag.includes('marvel')) return 'marvel';
+    if (firstTag.includes('bollywood')) return 'bollywood';
+    if (firstTag.includes('hotties') || firstTag.includes('glamour')) return 'hotties';
+    if (firstTag.includes('hollywood')) return 'hollywood';
+    if (firstTag.includes('gaming') || firstTag.includes('esports')) return 'games';
+    if (firstTag.includes('fact')) return 'facts';
+    if (firstTag.includes('science') || firstTag.includes('discovery')) return 'science';
+
+    // 6. Strict headline-only matching (never full body text)
+    if (
+      /\b(bollywood|shah rukh|srk|salman khan|aamir khan|ranbir kapoor|deepika padukone|alia bhatt|priyanka chopra|hrithik roshan|karan johar|yrf|ramayana|sai pallavi|sujoy ghosh|pathaan|jawan|tollywood)\b/i.test(
+        headline
+      )
+    ) {
+      return 'bollywood';
+    }
+    if (
+      /\b(hotties|red carpet|glamour icon|bombshell|supermodel|vogue|met gala|fashion week|sydney sweeney|ana de armas|disha patani|kiara advani|couture gown|photoshoot)\b/i.test(
+        headline
+      )
+    ) {
+      return 'hotties';
+    }
+    if (
+      /\b(hollywood|oscars|academy award|box office|christopher nolan|denis villeneuve|dune messiah|scorsese|tarantino|warner bros|universal pictures|paramount|a24|imax|cannes|timothée chalamet|zendaya)\b/i.test(
+        headline
+      )
+    ) {
+      return 'hollywood';
+    }
+    if (
+      /\b(gta|grand theft auto|playstation|ps5|ps6|xbox|nintendo switch|steam deck|elden ring|zelda|call of duty|fortnite|valorant|esports|rockstar games|unreal engine|game engine|gaming)\b/i.test(
+        headline
+      )
+    ) {
+      return 'games';
+    }
+    if (
+      /\b(mind-blowing fact|bizarre fact|did you know|weird history|sharks are older|teaspoon of neutron star|guinness record|ancient mystery)\b/i.test(
+        headline
+      )
+    ) {
+      return 'facts';
+    }
+    if (
+      /\b(nasa|james webb|jwst|exoplanet|astrophysics|black hole|supernova|quantum physics|nuclear fusion|crispr|paleontology|archaeology|cern|particle accelerator|space telescope)\b/i.test(
+        headline
+      )
+    ) {
+      return 'science';
+    }
+    if (
+      /\b(ai|llm|gpt|chatgpt|claude|gemini|openai|anthropic|deepseek|llama|mistral|qwen|neural net|machine learning|deepmind|copilot|agentic|diffusion model|transformer|fine-tuning|reasoning model)\b/i.test(
+        headline
+      ) ||
+      firstTag.includes('llm') ||
+      firstTag.includes('ai ')
+    ) {
+      return 'ai';
+    }
+
+    return 'tech';
+  }
+
+  function getNewsItemSectors(post) {
+    const primaryKey = getRigidNewsCategoryKey(post);
+    if (primaryKey === 'hollywood' || primaryKey === 'bollywood') {
+      return [primaryKey, 'cinema'];
+    }
+    return [primaryKey];
+  }
+
+  function doesPostMatchNewsSector(post, sectorKey) {
+    if (!sectorKey || sectorKey === 'all_news') return true;
+    const primaryKey = getRigidNewsCategoryKey(post);
+    if (sectorKey === 'cinema') {
+      return primaryKey === 'cinema' || primaryKey === 'hollywood' || primaryKey === 'bollywood';
+    }
+    return primaryKey === sectorKey;
+  }
+
+  function getNewsSectorMeta(sectorKey) {
+    if (!sectorKey || sectorKey === 'all_news') {
+      return {
+        key: 'all_news',
+        label: 'All News Categories',
+        shortLabel: 'All News',
+        dotClass: 'dot-sector-all_news'
+      };
+    }
+    return NEWS_SECTOR_DEFINITIONS.find(s => s.key === sectorKey) || {
+      key: 'all_news',
+      label: 'All News Categories',
+      shortLabel: 'All News',
+      dotClass: 'dot-sector-all_news'
+    };
+  }
+
+  DEFAULT_CLIENT_NEWS_BANNERS = [
     'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80'
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&w=1200&q=80'
   ];
+
+  GUARANTEED_SVG_NEWS_BANNER = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">' +
+    '<defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">' +
+    '<stop offset="0%" stop-color="#1a1209"/><stop offset="50%" stop-color="#2c1d12"/><stop offset="100%" stop-color="#c84b2f"/>' +
+    '</linearGradient></defs>' +
+    '<rect width="1200" height="630" fill="url(#g)"/>' +
+    '<circle cx="980" cy="140" r="220" fill="rgba(255,255,255,0.05)"/>' +
+    '<circle cx="200" cy="520" r="280" fill="rgba(200,75,47,0.14)"/>' +
+    '<text x="80" y="320" fill="#f5efe6" font-family="Georgia, serif" font-size="54" font-weight="bold">Paper Flow · Editorial Briefing</text>' +
+    '<text x="80" y="385" fill="#d9cbb8" font-family="monospace" font-size="26">VERIFIED COVERAGE ACROSS TECH, CINEMA, SCIENCE &amp; CULTURE</text>' +
+    '</svg>'
+  );
+
+  function isReliableClientImageUrl(urlStr) {
+    if (!urlStr || typeof urlStr !== 'string') return false;
+    const trimmed = urlStr.trim();
+    if (!trimmed.startsWith('https://')) return false;
+    if (/favicon|logo|avatar|icon|pixel|tracker|spacer|1x1|badge|button|banner-ad|feedburner|gravatar|wp-emoji|smilies|sprite|spinner|loading|\.svg(?:$|\?)/i.test(trimmed)) {
+      return false;
+    }
+    try {
+      const parsed = new URL(trimmed);
+      const host = parsed.hostname.toLowerCase();
+      return Boolean(host && host.includes('.'));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function extractClientWikiSearchQuery(title = '') {
+    const clean = String(title || '')
+      .replace(/^(?:Mind-Blowing Fact|Bizarre Fact|Red Carpet Hotties|Bollywood & Global Glamour Icons)\s*:\s*/i, '')
+      .replace(/['"“”‘’]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const priorityMap = [
+      ['christopher nolan', 'Christopher Nolan'],
+      ['dune messiah', 'Timothée Chalamet'],
+      ['denis villeneuve', 'Denis Villeneuve'],
+      ['shah rukh khan', 'Shah Rukh Khan'],
+      ['ramayana', 'Ranbir Kapoor'],
+      ['ranbir kapoor', 'Ranbir Kapoor'],
+      ['avengers: doomsday', 'Robert Downey Jr.'],
+      ['doctor doom', 'Robert Downey Jr.'],
+      ['spider-man', 'Tom Holland'],
+      ['tom holland', 'Tom Holland'],
+      ['sharks are older', 'Great white shark'],
+      ['neutron star', 'Neutron star'],
+      ['james webb space telescope', 'James Webb Space Telescope'],
+      ['jwst', 'James Webb Space Telescope'],
+      ['grand theft auto', 'Grand Theft Auto'],
+      ['nintendo switch', 'Nintendo Switch'],
+      ['sydney sweeney', 'Sydney Sweeney'],
+      ['ana de armas', 'Ana de Armas'],
+      ['zendaya', 'Zendaya'],
+      ['deepika padukone', 'Deepika Padukone'],
+      ['disha patani', 'Disha Patani'],
+      ['kiara advani', 'Kiara Advani']
+    ];
+    const lower = clean.toLowerCase();
+    for (const [needle, q] of priorityMap) {
+      if (lower.includes(needle)) return q;
+    }
+    const stop = new Set([
+      'the', 'and', 'for', 'with', 'from', 'into', 'over', 'after', 'before', 'under', 'about',
+      'amid', 'how', 'why', 'what', 'when', 'where', 'who', 'new', 'next', 'first', 'latest',
+      'update', 'news', 'report', 'reveals', 'unveils', 'shares', 'locks', 'completes', 'tested',
+      'breakdown', 'showdown', 'fact', 'facts', 'bizarre', 'mind-blowing', 'global', 'massive'
+    ]);
+    const words = clean
+      .split(/[^A-Za-z0-9-]+/)
+      .filter(w => w.length >= 3 && !stop.has(w.toLowerCase()));
+    return words.slice(0, 4).join(' ') || clean.slice(0, 42);
+  }
+
+  async function enhanceCardWithVerifiedTopicImage(post, cardEl) {
+    if (!post || !post.title || !cardEl || typeof fetch !== 'function') return;
+    const currentImgUrl = String(post.imageUrl || '').trim();
+    // If the post already has a real non-Unsplash publisher or Wikipedia image, keep it
+    if (isReliableClientImageUrl(currentImgUrl) && !currentImgUrl.includes('images.unsplash.com')) {
+      return;
+    }
+
+    const queryStr = extractClientWikiSearchQuery(post.title);
+    if (!queryStr) return;
+
+    const cacheKey = `${post.id || ''}:${queryStr.toLowerCase()}`;
+    if (clientVerifiedTopicImageCache.has(cacheKey)) {
+      const cachedUrl = clientVerifiedTopicImageCache.get(cacheKey);
+      if (cachedUrl) {
+        applyVerifiedImageToCardDom(post, cardEl, cachedUrl);
+      }
+      return;
+    }
+
+    try {
+      // Multi-search 1: Wikipedia MediaWiki pageimages
+      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(queryStr)}&gsrlimit=4&prop=pageimages&piprop=original|thumbnail&pithumbsize=1200&format=json&origin=*`;
+      const res = await fetch(wikiUrl);
+      let resolvedUrl = '';
+      if (res && res.ok) {
+        const data = await res.json();
+        const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
+        pages.sort((a, b) => (a.index || 99) - (b.index || 99));
+        for (const p of pages) {
+          const candidate = p?.thumbnail?.source || p?.original?.source || '';
+          if (
+            isReliableClientImageUrl(candidate) &&
+            !/\.(?:svg|gif|tif|tiff|pdf)(?:$|\?)/i.test(candidate) &&
+            !usedFallbackBannerUrls.has(candidate)
+          ) {
+            resolvedUrl = candidate;
+            break;
+          }
+        }
+      }
+
+      // Multi-search 2: Wikimedia Commons bitmap search if Wikipedia pageimage was empty
+      if (!resolvedUrl) {
+        const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(queryStr + ' filetype:bitmap')}&gsrnamespace=6&gsrlimit=4&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`;
+        const cRes = await fetch(commonsUrl);
+        if (cRes && cRes.ok) {
+          const cData = await cRes.json();
+          const cPages = cData?.query?.pages ? Object.values(cData.query.pages) : [];
+          for (const p of cPages) {
+            const info = Array.isArray(p?.imageinfo) ? p.imageinfo[0] : null;
+            const candidate = info?.thumburl || info?.url || '';
+            if (
+              isReliableClientImageUrl(candidate) &&
+              !/\.(?:svg|gif|tif|tiff|pdf)(?:$|\?)/i.test(candidate) &&
+              !usedFallbackBannerUrls.has(candidate)
+            ) {
+              resolvedUrl = candidate;
+              break;
+            }
+          }
+        }
+      }
+
+      clientVerifiedTopicImageCache.set(cacheKey, resolvedUrl || '');
+      if (resolvedUrl) {
+        usedFallbackBannerUrls.add(resolvedUrl);
+        applyVerifiedImageToCardDom(post, cardEl, resolvedUrl);
+      }
+    } catch (e) {}
+  }
+
+  function applyVerifiedImageToCardDom(post, cardEl, verifiedUrl) {
+    if (!verifiedUrl) return;
+    post.imageUrl = verifiedUrl;
+    if (post.id) {
+      assignedCardBannerByPostId.set(post.id, verifiedUrl);
+    }
+    const imgEl = cardEl.querySelector('.news-hero-banner-img');
+    const wrapEl = cardEl.querySelector('.news-hero-banner-wrap');
+    if (imgEl && imgEl.src !== verifiedUrl) {
+      imgEl.src = verifiedUrl;
+    }
+    if (wrapEl) {
+      wrapEl.setAttribute('onclick', `openLightbox('${esc(verifiedUrl)}')`);
+    }
+  }
 
   function resolveNewsBannerInfo(post) {
     const title = String(post?.title || '');
-    const body = String(post?.body || '');
-    const combined = `${title} ${body}`;
-    let matchedTopic = (Array.isArray(post?.topicTags) && post.topicTags[0]) || post?.topic || 'Breaking Tech';
-    let pool = DEFAULT_CLIENT_NEWS_BANNERS;
-
-    for (const rule of CLIENT_NEWS_TOPIC_BANNERS) {
-      if (rule.regex.test(combined)) {
-        if (!post?.topicTags?.length) matchedTopic = rule.label;
-        pool = rule.urls;
-        break;
-      }
-    }
+    const postId = String(post?.id || title);
+    const rigidKey = getRigidNewsCategoryKey(post);
+    const primarySector = NEWS_SECTOR_DEFINITIONS.find(s => s.key === rigidKey) || NEWS_SECTOR_DEFINITIONS[NEWS_SECTOR_DEFINITIONS.length - 1];
+    const matchedTopic = primarySector ? primarySector.shortLabel : ((Array.isArray(post?.topicTags) && post.topicTags[0]) || post?.topic || 'News');
+    const pool = (primarySector && Array.isArray(primarySector.urls) && primarySector.urls.length > 0)
+      ? primarySector.urls
+      : DEFAULT_CLIENT_NEWS_BANNERS;
 
     let hash = 0;
-    const seedStr = `${post?.id || ''}|${title}`;
+    const seedStr = `${postId}|${title}`;
     for (let i = 0; i < seedStr.length; i++) {
       hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0;
     }
-    const fallbackUrl = pool[hash % pool.length];
+
+    // Deduplicate fallback images across cards so no two cards share an identical image
+    let fallbackUrl = assignedCardBannerByPostId.get(postId) || '';
+    if (!fallbackUrl) {
+      for (let offset = 0; offset < pool.length; offset++) {
+        const candidate = pool[(hash + offset) % pool.length];
+        if (!usedFallbackBannerUrls.has(candidate)) {
+          fallbackUrl = candidate;
+          usedFallbackBannerUrls.add(candidate);
+          break;
+        }
+      }
+      if (!fallbackUrl) {
+        fallbackUrl = `${pool[hash % pool.length]}&sig=${hash % 997}`;
+        usedFallbackBannerUrls.add(fallbackUrl);
+      }
+      assignedCardBannerByPostId.set(postId, fallbackUrl);
+    }
+
     const directImg = String(post?.imageUrl || '').trim();
-    const bannerUrl = (directImg.startsWith('http') && !/favicon|logo|1x1|pixel|spacer/i.test(directImg))
-      ? directImg
-      : fallbackUrl;
+    const cachedVerified = clientVerifiedTopicImageCache.get(`${post?.id || ''}:${extractClientWikiSearchQuery(title).toLowerCase()}`);
+    let bannerUrl = fallbackUrl;
+    if (cachedVerified && isReliableClientImageUrl(cachedVerified)) {
+      bannerUrl = cachedVerified;
+    } else if (isReliableClientImageUrl(directImg) && !directImg.includes('images.unsplash.com')) {
+      bannerUrl = directImg;
+      assignedCardBannerByPostId.set(postId, directImg);
+    }
 
     return {
       bannerUrl,
       fallbackUrl,
-      topicLabel: matchedTopic
+      svgFallbackUrl: GUARANTEED_SVG_NEWS_BANNER,
+      topicLabel: matchedTopic,
+      sectorKey: rigidKey
     };
   }
 
   async function fetchDirectPublicAiNewsFallback() {
-    const collected = [];
+    const collected = [...getClientGuaranteedMultiSectorPosts()];
+    const tenDaysCutoff = Date.now() - NEWS_TEN_DAYS_MS;
     try {
       const [hnRes, devAiRes, devTechRes] = await Promise.allSettled([
         fetch(`https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=18&t=${Date.now()}`, { cache: 'no-store' }),
@@ -11107,7 +12499,7 @@
         fetch(`https://dev.to/api/articles?tag=programming&top=2&per_page=10&t=${Date.now()}`, { cache: 'no-store' })
       ]);
 
-      const seenUrls = new Set();
+      const seenUrls = new Set(collected.map(it => it.linkUrl));
 
       if (hnRes.status === 'fulfilled' && hnRes.value.ok) {
         const hnData = await hnRes.value.json();
@@ -11116,17 +12508,18 @@
             const url = String(hit.url || '').trim();
             const title = String(hit.title || '').trim();
             if (!url || !title || seenUrls.has(url)) return;
-            seenUrls.add(url);
             const pubMs = hit.created_at_i ? hit.created_at_i * 1000 : Date.now();
+            if (pubMs < tenDaysCutoff) return;
+            seenUrls.add(url);
             const pts = Number(hit.points) || 60;
             const cmts = Number(hit.num_comments) || 24;
             const domain = formatHostname(url);
             const detId = `__ainews__hn_${hit.objectID || Math.random().toString(36).slice(2, 8)}`;
             const bannerInfo = resolveNewsBannerInfo({ id: detId, title });
             const summary = [
-              `🔥 "${title}" is blowing up right now via ${domain}, pulling in ${pts} upvotes and ${cmts} unfiltered comments from engineers and insiders debating its real-world fallout.`,
-              `Under the hood, the report cuts past the usual industry PR to expose the actual architecture, performance trade-offs, and strategic pressure points driving this move.`,
-              `⚡ The Unfiltered Verdict: Builders in the trenches are split on whether this sets a new gold standard or triggers a fierce counter-push across the ecosystem—making it one of the spiciest stories on the board today.`
+              `${title} has become one of the most closely followed engineering discussions via ${domain}, drawing ${pts} points and ${cmts} technical comments from systems builders and researchers examining its real-world impact.`,
+              `At the core of the report are the concrete architectural trade-offs, deployment constraints, and performance characteristics that teams encounter when moving this approach from theory into production environments.`,
+              `Engineers reviewing the release note that its practical implications extend across developer tooling, infrastructure efficiency, and long-term maintainability—giving you the complete context right here on Paper Flow.`
             ].join('\n\n');
             collected.push({
               id: detId,
@@ -11163,11 +12556,12 @@
         const url = String(art.url || art.canonical_url || '').trim();
         const title = String(art.title || '').trim();
         if (!url || !title || title.length < 10 || seenUrls.has(url)) return;
-        seenUrls.add(url);
         const pubMs = Date.parse(art.published_timestamp || art.published_at || '') || Date.now();
+        if (pubMs < tenDaysCutoff) return;
+        seenUrls.add(url);
         const desc = String(art.description || title).trim();
         const tagsList = Array.isArray(art.tag_list) ? art.tag_list.join(', ') : 'AI, Software Engineering';
-        const author = (art.user && art.user.name) ? art.user.name : 'Tech Insider';
+        const author = (art.user && art.user.name) ? art.user.name : 'Tech Author';
         const reactions = Number(art.positive_reactions_count) || 12;
         const coverImg = String(art.cover_image || art.social_image || '').trim();
         const hashSeed = (url + '|' + title).toLowerCase();
@@ -11179,9 +12573,9 @@
         const detId = `__ainews__devto_${(h >>> 0).toString(16)}${String(art.id || '').slice(0, 6)}`;
         const bannerInfo = resolveNewsBannerInfo({ id: detId, title, imageUrl: coverImg });
         const summary = [
-          `🔥 ${title} is sparking heated discussion across the engineering community (${reactions} reactions, reported by ${author}). ${desc.endsWith('.') ? desc : desc + '.'}`,
-          `Diving straight into the technical meat across ${tagsList}, the breakdown exposes real production bottlenecks, benchmark surprises, and why standard playbooks are breaking down.`,
-          `⚡ Why It Matters Now: For builders shipping modern AI and systems software, this cuts straight through the hype and lays out what actually survives contact with production.`
+          `Written by ${author}, "${title}" explores a practical engineering challenge gaining traction across the developer community (${reactions} reactions). ${desc.endsWith('.') ? desc : desc + '.'}`,
+          `Spanning ${tagsList}, the analysis walks through the underlying implementation details, latency and memory considerations, and how modern engineering teams are adapting their workflows around these findings.`,
+          `Rather than relying on surface-level hype, the breakdown highlights what actually works in production and which edge cases developers should watch for when adopting similar patterns.`
         ].join('\n\n');
         collected.push({
           id: detId,
@@ -11206,7 +12600,7 @@
     return collected;
   }
 
-  let activeNewsRefreshSeq = 0;
+  activeNewsRefreshSeq = 0;
   window.fetchAndSyncAiTechNews = async function (forceRefresh = false) {
     if (isRefreshingAiNews && !forceRefresh) return;
     if (forceRefresh && typeof window.triggerHapticFeedback === 'function') {
@@ -11256,14 +12650,24 @@
       }
 
       if (fetchedItems && fetchedItems.length > 0) {
-        aiTechNewsItems = fetchedItems
+        // Preserve any starred items from previous aiTechNewsItems even if older than 10 days
+        const preservedStarredMap = new Map();
+        (aiTechNewsItems || []).forEach(oldItem => {
+          if (oldItem && oldItem.id && isPostStarredByCurrentUser(oldItem.id)) {
+            preservedStarredMap.set(oldItem.id, oldItem);
+          }
+        });
+
+        const nextItems = fetchedItems
+          .filter(item => isNewsWithin10DaysOrStarred(item))
           .map(item => {
             const pubMs = Number(item.publishedAt || item.createdAt || item.ts) || Date.now();
             const bInfo = resolveNewsBannerInfo(item);
+            preservedStarredMap.delete(item.id);
             return {
               ...item,
               body: cleanRoboticNewsBodyClient(item.body || ''),
-              imageUrl: item.imageUrl || bInfo.bannerUrl,
+              imageUrl: bInfo.bannerUrl,
               tag: 'news',
               isAiNews: true,
               summarizedByAi: true,
@@ -11272,10 +12676,14 @@
               createdAt: pubMs,
               ts: pubMs
             };
-          })
-          .sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+          });
 
-        cardDomCache.clear();
+        preservedStarredMap.forEach(starredItem => {
+          nextItems.push(starredItem);
+        });
+
+        aiTechNewsItems = nextItems.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+
         aiNewsLastUpdated = updatedTs;
         try {
           localStorage.setItem(AI_NEWS_CACHE_KEY, JSON.stringify({
@@ -11284,16 +12692,17 @@
           }));
         } catch (e) {}
 
-        // Sync AI news items into Firestore as __ainews__* documents with natural summaries & banner images
-        aiTechNewsItems.slice(0, 18).forEach(item => {
+        // Sync AI news items into Firestore as __ainews__* documents with natural summaries & verified banner images
+        aiTechNewsItems.slice(0, 24).forEach(item => {
           if (!item.id || !String(item.id).startsWith('__ainews__')) return;
+          if (!isNewsWithin10DaysOrStarred(item)) return;
           const pubMs = getPostTimestampMs(item) || Date.now();
           const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
           const existing = firestoreAiNewsMap[item.id];
-          const existingHasRobotic = existing && /📌|🔍|💡/.test(existing.body || '');
+          const existingHasRobotic = existing && /📌|🔍|💡|🔥|⚡/.test(existing.body || '');
           if (!existing || existingHasRobotic || !existing.imageUrl || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
             setDoc(doc(db, "posts", item.id), {
-              title: (item.title || 'Tech & AI Update').slice(0, 118),
+              title: (item.title || 'Paper Flow News').slice(0, 118),
               body: cleanBody,
               imageUrl: (item.imageUrl || '').slice(0, 500),
               tag: 'news',
@@ -11303,7 +12712,7 @@
               isAiNews: true,
               summarizedByAi: true,
               aiAttribution: 'Summarized by AI',
-              sourceName: (item.sourceName || 'Tech Source').slice(0, 60),
+              sourceName: (item.sourceName || 'Editorial Desk').slice(0, 60),
               linkUrl: (item.linkUrl || '').slice(0, 500),
               linkTitle: (item.linkTitle || item.title || 'Original Source').slice(0, 98),
               publishedAt: pubMs,
@@ -11314,21 +12723,21 @@
 
         if (forceRefresh) {
           analyzeUserNewsTasteWithAi(true).catch(() => {});
-          showToast('✨ Curated & updated with natural AI-summarized Tech news!');
+          showToast('✨ Updated with latest stories across Cinema, Marvel, Science, Games, Hotties & Tech!');
         }
         renderAll();
       } else if (forceRefresh) {
         renderAll();
-        showToast('✨ Synced latest AI-curated Tech & AI news!');
+        showToast('✨ Latest news feed is up to date!');
       }
     } catch (err) {
       if (forceRefresh) {
-        showToast('Showing cached AI-curated Tech & AI news.');
+        showToast('Showing cached news stories.');
       }
     } finally {
       if (shouldShowGlow) {
         const elapsed = Date.now() - startTs;
-        const minGlowMs = 680;
+        const minGlowMs = 450;
         if (elapsed < minGlowMs) {
           await new Promise(r => setTimeout(r, minGlowMs - elapsed));
         }
@@ -11430,49 +12839,123 @@
         tagCounts[cat] = (tagCounts[cat] || 0) + 1;
       }
     });
-    tagCounts['news'] = getCombinedNewsColumnPosts().length;
 
-    const categories = ['all','confession','story','opinion','news','question','other'];
+    const combinedNewsPosts = getCombinedNewsColumnPosts();
+    const totalNewsCount = combinedNewsPosts.length;
+    tagCounts['news'] = totalNewsCount;
+
+    const sectorCounts = { all_news: totalNewsCount };
+    NEWS_SECTOR_DEFINITIONS.forEach(sec => {
+      sectorCounts[sec.key] = 0;
+    });
+    combinedNewsPosts.forEach(post => {
+      const matchedSectors = getNewsItemSectors(post);
+      matchedSectors.forEach(secKey => {
+        if (typeof sectorCounts[secKey] === 'number') {
+          sectorCounts[secKey]++;
+        }
+      });
+    });
+
+    const boardCategories = ['all','confession','story','opinion','question','other'];
+    const newsSectorItems = [
+      { key: 'all_news', label: '📰 All News Categories', shortLabel: 'All News', dotClass: 'dot-sector-all_news' },
+      ...NEWS_SECTOR_DEFINITIONS
+    ];
+
     const fg = document.getElementById('filterGroup');
     const labelEl = document.getElementById('filterDropdownLabel');
     if (labelEl) {
-      const nextLabelHTML = `<span class="filter-color-dot dot-${esc(activeFilter)}"></span><span>${TAG_LABELS[activeFilter] || 'All Flows'}</span>`;
+      let nextLabelHTML;
+      if (activeFilter === 'news') {
+        const secMeta = getNewsSectorMeta(activeNewsSector);
+        const displayLabel = activeNewsSector === 'all_news' ? 'All News' : secMeta.shortLabel;
+        nextLabelHTML = `<span class="filter-color-dot ${esc(secMeta.dotClass)}"></span><span>${esc(displayLabel)}</span>`;
+      } else {
+        nextLabelHTML = `<span class="filter-color-dot dot-${esc(activeFilter)}"></span><span>${TAG_LABELS[activeFilter] || 'All Flows'}</span>`;
+      }
       if (labelEl.innerHTML !== nextLabelHTML) {
         labelEl.innerHTML = nextLabelHTML;
       }
     }
     if (!fg) return;
-    const filterSig = `${activeFilter}|` + categories.map(cat => `${cat}:${cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0)}`).join(',');
-    if (fg.dataset.filterSig === filterSig && fg.children.length === categories.length) {
+
+    // STRICT DISTINCTION:
+    // - When in News (activeFilter === 'news'), ONLY show News Categories in #filterGroup.
+    // - When in All Flows / The Board (activeFilter !== 'news'), ONLY show Board Flow Categories in #filterGroup.
+    const isNewsMode = activeFilter === 'news';
+    const filterSig = isNewsMode
+      ? `news_only|${activeNewsSector}|` + newsSectorItems.map(sec => `${sec.key}:${sectorCounts[sec.key] || 0}`).join(',')
+      : `board_only|${activeFilter}|` + boardCategories.map(cat => `${cat}:${cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0)}`).join(',');
+
+    if (fg.dataset.filterSig === filterSig && fg.children.length > 0) {
       return;
     }
     fg.dataset.filterSig = filterSig;
     fg.innerHTML = '';
-    categories.forEach(cat => {
-      const count = cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0);
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn' + (activeFilter === cat ? ' active' : '');
-      btn.innerHTML = `
-        <span class="filter-btn-left">
-          <span class="filter-color-dot dot-${cat}"></span>
-          <span>${TAG_LABELS[cat]}</span>
-        </span>
-        <span class="filter-count">${count}</span>
-      `;
-      btn.onclick = () => {
-        const prevSlot = getScreenSlotIndex(activeViewMode, activeFilter);
-        const nextSlot = getScreenSlotIndex(activeViewMode, cat);
-        activeFilter = cat;
-        shouldAnimateFeedCards = true;
-        fg.classList.remove('open');
-        if (cat === 'news') {
-          fetchAndSyncAiTechNews(false);
-        }
-        renderAll();
-        triggerScreenSwipeAnimation(nextSlot >= prevSlot ? 'right' : 'left', false);
-      };
-      fg.appendChild(btn);
-    });
+
+    if (isNewsMode) {
+      const header = document.createElement('div');
+      header.className = 'filter-section-header';
+      header.innerHTML = `<span>📰 News Categories</span><span>${totalNewsCount}</span>`;
+      fg.appendChild(header);
+
+      newsSectorItems.forEach(sec => {
+        const count = sectorCounts[sec.key] || 0;
+        const isActive = activeNewsSector === sec.key;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'filter-btn' + (sec.isSubcategory ? ' filter-sub-btn' : '') + (isActive ? ' active' : '');
+        btn.innerHTML = `
+          <span class="filter-btn-left">
+            <span class="filter-color-dot ${esc(sec.dotClass)}"></span>
+            <span>${esc(sec.label)}</span>
+          </span>
+          <span class="filter-count">${count}</span>
+        `;
+        btn.onclick = () => {
+          activeFilter = 'news';
+          activeNewsSector = sec.key;
+          shouldAnimateFeedCards = false;
+          fg.classList.remove('open');
+          if (!aiTechNewsItems || aiTechNewsItems.length === 0) {
+            fetchAndSyncAiTechNews(false);
+          }
+          renderAll();
+        };
+        fg.appendChild(btn);
+      });
+    } else {
+      const header = document.createElement('div');
+      header.className = 'filter-section-header';
+      header.innerHTML = `<span>📋 Flow Categories</span><span>${nonNewsAllCount}</span>`;
+      fg.appendChild(header);
+
+      boardCategories.forEach(cat => {
+        const count = cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0);
+        const isActive = activeFilter === cat;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'filter-btn' + (isActive ? ' active' : '');
+        btn.innerHTML = `
+          <span class="filter-btn-left">
+            <span class="filter-color-dot dot-${cat}"></span>
+            <span>${TAG_LABELS[cat]}</span>
+          </span>
+          <span class="filter-count">${count}</span>
+        `;
+        btn.onclick = () => {
+          const prevSlot = getScreenSlotIndex(activeViewMode, activeFilter);
+          const nextSlot = getScreenSlotIndex(activeViewMode, cat);
+          activeFilter = cat;
+          shouldAnimateFeedCards = false;
+          fg.classList.remove('open');
+          renderAll();
+          triggerScreenSwipeAnimation(nextSlot >= prevSlot ? 'right' : 'left', false);
+        };
+        fg.appendChild(btn);
+      });
+    }
   }
 
   function matchesSearchQuery(post, qLower) {
@@ -11680,7 +13163,12 @@
       }
       baseList = getStarredPosts();
     } else if (activeFilter === 'news') {
-      if (sectionTitle) sectionTitle.textContent = 'Tech & AI News';
+      const secMeta = getNewsSectorMeta(activeNewsSector);
+      if (sectionTitle) {
+        sectionTitle.textContent = activeNewsSector === 'all_news'
+          ? 'Tech & AI News'
+          : `News · ${secMeta.shortLabel}`;
+      }
       if (viewBanner) viewBanner.classList.remove('show');
       baseList = getCombinedNewsColumnPosts();
     } else {
@@ -11697,10 +13185,16 @@
       filtered = activeFilter === 'all'
         ? [...baseList]
         : baseList.filter(p => getEffectivePostCategory(p) === activeFilter || (activeFilter === 'news' && p.isAiNews));
+      if (activeFilter === 'news' && activeNewsSector !== 'all_news') {
+        filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
+      }
     } else if (activeFilter === 'news') {
       filtered = activeViewMode === 'board'
         ? [...baseList]
         : baseList.filter(p => getEffectivePostCategory(p) === 'news' || p.isAiNews);
+      if (activeNewsSector !== 'all_news') {
+        filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
+      }
     } else if (activeFilter === 'all') {
       filtered = baseList.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news');
     } else {
@@ -11748,7 +13242,7 @@
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
 
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
-    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${activeNewsSector}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
 
     // Seamless in-place update when only likes, stars, comments, or background taste metadata changed — ZERO DOM reload or screen jitter
@@ -11956,26 +13450,22 @@
     const clean = cleanRoboticNewsBodyClient(bodyText);
     if (!clean) return { intro: '', hasMore: false, full: '' };
     const paragraphs = clean.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
-    if (paragraphs.length > 1) {
+    if (paragraphs.length > 2) {
       return {
-        intro: paragraphs[0],
+        intro: paragraphs.slice(0, 2).join('\n\n'),
         hasMore: true,
         full: clean
       };
     }
-    const sentences = clean.match(/[^.!?]+[.!?]+(\s|$)/g);
-    if (sentences && sentences.length > 2) {
-      const hook = sentences.slice(0, 2).join('').trim();
-      if (hook.length < clean.length - 30) {
-        return {
-          intro: hook,
-          hasMore: true,
-          full: clean
-        };
-      }
+    if (paragraphs.length === 2) {
+      return {
+        intro: clean,
+        hasMore: false,
+        full: clean
+      };
     }
-    if (clean.length > 220) {
-      const cut = clean.slice(0, 200).replace(/\s+\S*$/, '') + '…';
+    if (clean.length > 520) {
+      const cut = clean.slice(0, 480).replace(/\s+\S*$/, '') + '…';
       return {
         intro: cut,
         hasMore: true,
@@ -11985,38 +13475,8 @@
     return { intro: clean, hasMore: false, full: clean };
   }
 
-  const cardDomCache = new Map();
-  let idlePrewarmTimer = null;
-
   function scheduleIdleCardPrewarm() {
-    if (idlePrewarmTimer) return;
-    idlePrewarmTimer = setTimeout(() => {
-      idlePrewarmTimer = null;
-      const runPrewarm = () => {
-        try {
-          const newsItems = getCombinedNewsColumnPosts();
-          for (let idx = 0; idx < newsItems.length; idx++) {
-            const p = newsItems[idx];
-            if (p && p.id && !cardDomCache.has(p.id)) {
-              makeCard(p, idx, false);
-            }
-          }
-          if (allPosts && allPosts.length > 0) {
-            for (let idx = 0; idx < allPosts.length; idx++) {
-              const p = allPosts[idx];
-              if (p && p.id && !cardDomCache.has(p.id)) {
-                makeCard(p, idx, false);
-              }
-            }
-          }
-        } catch (e) {}
-      };
-      if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(runPrewarm, { timeout: 500 });
-      } else {
-        runPrewarm();
-      }
-    }, 140);
+    // Intentionally lightweight no-op so main thread stays 100% free during tab/view switches
   }
 
   function makeCard(post, i, animateCard = false) {
@@ -12050,28 +13510,17 @@
     const cached = cardDomCache.get(post.id);
     if (cached && cached.sig === cardSig && cached.el && (!cached.el.parentElement || cached.el.parentElement.id === 'feed')) {
       const reusedDiv = cached.el;
-      const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
-      reusedDiv.className = baseCardClass
-        + (animateCard && i < 8 ? ' card-enter-anim' : '')
-        + (useScrollReveal ? ' fm-card-scroll-init' : '');
-      reusedDiv.style.animationDelay = (animateCard && i < 8) ? `${i * 0.028}s` : '';
-      if (useScrollReveal) {
-        feedCardScrollObserver.observe(reusedDiv);
-      }
+      reusedDiv.className = baseCardClass + (animateCard && i < 5 ? ' card-enter-anim' : '');
+      reusedDiv.style.animationDelay = (animateCard && i < 5) ? `${i * 0.018}s` : '';
       return reusedDiv;
     }
 
     const div = document.createElement('div');
     div.id = `card-${post.id}`;
     div.setAttribute('data-post-id', post.id);
-    const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
-    div.className = baseCardClass
-      + (animateCard && i < 8 ? ' card-enter-anim' : '')
-      + (useScrollReveal ? ' fm-card-scroll-init' : '');
-    if (animateCard && i < 8) {
-      div.style.animationDelay = `${i * 0.028}s`;
-    } else if (useScrollReveal) {
-      feedCardScrollObserver.observe(div);
+    div.className = baseCardClass + (animateCard && i < 5 ? ' card-enter-anim' : '');
+    if (animateCard && i < 5) {
+      div.style.animationDelay = `${i * 0.018}s`;
     }
 
     const displayBody = post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
@@ -12102,15 +13551,16 @@
       const bInfo = resolveNewsBannerInfo(post);
       const safeBanner = esc(bInfo.bannerUrl);
       const safeFallback = esc(bInfo.fallbackUrl);
+      const safeSvgFallback = esc(bInfo.svgFallbackUrl);
       const safeTopic = esc(bInfo.topicLabel);
       const safeSource = esc(post.sourceName || (post.linkUrl ? formatHostname(post.linkUrl) : 'Verified Source'));
       newsHeroBannerHTML = `
         <div class="news-hero-banner-wrap" onclick="openLightbox('${safeBanner}')" title="Tap to view full banner image">
-          <img class="news-hero-banner-img" src="${safeBanner}" alt="${esc(post.title || 'Tech & AI News Banner')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(this.src!=='${safeFallback}'){this.src='${safeFallback}';}else{this.parentElement.style.display='none';}" />
+          <img class="news-hero-banner-img" src="${safeBanner}" alt="${esc(post.title || 'Tech & AI News Banner')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src='${safeFallback}';}else{this.onerror=null;this.src='${safeSvgFallback}';}" />
           <div class="news-hero-gradient-overlay"></div>
           <div class="news-hero-badges-top">
-            <span class="news-hero-topic-pill">⚡ ${safeTopic}</span>
-            <span class="news-spicy-pill">🔥 Unfiltered · Authentic</span>
+            <span class="news-hero-topic-pill">✦ ${safeTopic}</span>
+            <span class="news-spicy-pill">📖 Full Briefing · Verified</span>
           </div>
           <div class="news-hero-caption-bottom">
             <span>📰 ${safeSource}</span>
@@ -12133,7 +13583,7 @@
     if (hasLink) {
       const safeUrl = esc(post.linkUrl);
       const sourceLabel = post.sourceName ? `${post.sourceName} — ` : '';
-      const displayTitle = esc(isAiNewsCard ? `Original Source: ${sourceLabel}${post.linkTitle || post.title || post.linkUrl}` : (post.linkTitle || post.linkUrl));
+      const displayTitle = esc(isAiNewsCard ? `Reference Link: ${sourceLabel}${post.linkTitle || post.title || post.linkUrl}` : (post.linkTitle || post.linkUrl));
       const domain = esc(formatHostname(post.linkUrl));
       linkHTML = `
         <a class="card-link-attachment" href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="recordUserNewsInteraction(findPostAnywhere('${esc(post.id)}'), 'read')">
@@ -12141,7 +13591,7 @@
             <span class="card-link-title">🔗 ${displayTitle}</span>
             <span class="card-link-domain">${domain}</span>
           </div>
-          <span class="card-link-arrow">${isAiNewsCard ? 'Source ↗' : 'Open ↗'}</span>
+          <span class="card-link-arrow">${isAiNewsCard ? 'Ref ↗' : 'Open ↗'}</span>
         </a>`;
     }
 
@@ -12166,8 +13616,8 @@
     const bodySectionHTML = displayBody
       ? (isAiNewsCard
           ? `<div class="ai-summary-box">
-               <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.65;">${esc(isExpanded ? aiSplit.full : aiSplit.intro)}</div>
-               ${aiSplit.hasMore ? `<button type="button" class="btn-ai-readmore" id="ai-readmore-btn-${post.id}" onclick="toggleExpand('${post.id}', this)"><span>${isExpanded ? 'Show less ↑' : 'Read full story ↓'}</span></button>` : ''}
+               <div class="card-body" id="body-${post.id}" style="margin-bottom:0; line-height:1.72; white-space:pre-line;">${esc(isExpanded ? aiSplit.full : aiSplit.intro)}</div>
+               ${aiSplit.hasMore ? `<button type="button" class="btn-ai-readmore" id="ai-readmore-btn-${post.id}" onclick="toggleExpand('${post.id}', this)"><span>${isExpanded ? 'Show concise view ↑' : 'Read complete analysis ↓'}</span></button>` : ''}
              </div>`
           : `<div class="card-body ${(isLong && !isExpanded) ? 'collapsed' : ''}" id="body-${post.id}">${esc(displayBody)}</div>`)
       : '';
@@ -12181,7 +13631,7 @@
             <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}">
               <span>${(!isAiNewsCard && post.authorUsername) ? '@' : ''}${esc(authorName)}</span>
               ${isAiNewsCard
-                ? `<span class="ai-summary-badge">✨ Summarized by AI</span>`
+                ? `<span class="ai-summary-badge">✨ Editorial Summary</span>`
                 : (postAuthorIsDev
                     ? `<span class="dev-badge">⚡ Developer</span>`
                     : (post.authorUsername ? `<span class="verified-user-dot">USER</span>` : ''))}
@@ -12405,7 +13855,7 @@
       const aiSplit = splitAiNewsIntroAndFull(displayBody);
       bodyEl.textContent = isNowExpanded ? aiSplit.full : aiSplit.intro;
       if (aiReadMoreBtn) {
-        aiReadMoreBtn.innerHTML = `<span>${isNowExpanded ? 'Show less ↑' : 'Read full story ↓'}</span>`;
+        aiReadMoreBtn.innerHTML = `<span>${isNowExpanded ? 'Show concise view ↑' : 'Read complete analysis ↓'}</span>`;
       }
       return;
     }
@@ -12514,12 +13964,12 @@
     ctx.fillStyle = bgOuter;
     ctx.fillRect(0, 0, width, height);
 
-    // Inner card
+    // Inner card with Squircle radius
     const cardX = pad;
     const cardY = pad;
     const cardW = width - pad * 2;
     const cardH = height - pad * 2;
-    const r = 24;
+    const r = 36;
 
     ctx.save();
     ctx.shadowColor = isDark ? 'rgba(0,0,0,0.5)' : 'rgba(26,18,9,0.14)';
@@ -12680,7 +14130,7 @@
     });
   }
 
-  let activeShareSnapshotState = null;
+  activeShareSnapshotState = null;
 
   window.closeShareFlowModal = function (event) {
     if (event && event.target && event.target.id && event.target.id !== 'shareFlowModalBackdrop') return;
@@ -12898,7 +14348,7 @@
     }
   };
 
-  let lastStatsSig = '';
+  lastStatsSig = '';
   function renderStats() {
     const statsBox = document.getElementById('statsBox');
     if (!statsBox) return;

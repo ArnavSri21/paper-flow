@@ -5018,6 +5018,285 @@
   .btn-share-target:hover {
     border-color: var(--accent);
   }
+
+  /* ── NESTED COMMENTS TREE & VISUAL LEVEL INDICATORS ── */
+  .comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .comment-thread-node {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .comment-children {
+    margin-left: 1.15rem;
+    padding-left: 0.85rem;
+    border-left: 2px solid rgba(200, 75, 47, 0.38);
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
+    margin-top: 0.45rem;
+    position: relative;
+  }
+  .comment-children.depth-2 {
+    border-left-color: rgba(59, 130, 246, 0.42);
+  }
+  .comment-children.depth-3 {
+    border-left-color: rgba(16, 185, 129, 0.42);
+  }
+  .comment-children.depth-4 {
+    margin-left: 0.65rem;
+    padding-left: 0.6rem;
+    border-left-color: rgba(168, 85, 247, 0.42);
+  }
+  .comment-item {
+    position: relative;
+    transition: background-color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+    user-select: text;
+  }
+  .comment-item.is-nested-reply {
+    background: var(--surface-subtle);
+    border-radius: 8px;
+    padding: 0.52rem 0.68rem;
+    border: 1px solid var(--border-subtle);
+  }
+  .comment-item.is-nested-reply::before {
+    content: '';
+    position: absolute;
+    left: -0.88rem;
+    top: 1.05rem;
+    width: 0.72rem;
+    height: 2px;
+    background: rgba(200, 75, 47, 0.42);
+    border-radius: 2px;
+  }
+  .comment-children.depth-2 > .comment-thread-node > .comment-item.is-nested-reply::before {
+    background: rgba(59, 130, 246, 0.45);
+  }
+  .comment-children.depth-3 > .comment-thread-node > .comment-item.is-nested-reply::before {
+    background: rgba(16, 185, 129, 0.45);
+  }
+  .comment-reply-to-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(200, 75, 47, 0.1);
+    border: 1px solid rgba(200, 75, 47, 0.28);
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-left: 0.3rem;
+  }
+  .comment-depth-pill {
+    font-family: var(--mono);
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-subtle);
+    padding: 0px 5px;
+    border-radius: 4px;
+    margin-left: 0.25rem;
+  }
+  .comment-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.34rem;
+  }
+  .btn-comment-action {
+    background: transparent;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+  }
+  .btn-comment-action:hover {
+    color: var(--accent);
+    background: rgba(200, 75, 47, 0.08);
+  }
+  .btn-comment-action.liked {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .replying-to-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: rgba(200, 75, 47, 0.11);
+    border: 1px solid rgba(200, 75, 47, 0.38);
+    border-radius: 6px;
+    padding: 0.34rem 0.65rem;
+    margin-bottom: 0.45rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--ink);
+  }
+  .replying-to-banner.active {
+    display: flex;
+  }
+  .btn-cancel-reply-target {
+    background: transparent;
+    border: none;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .btn-cancel-reply-target:hover {
+    color: var(--accent);
+  }
+
+  /* ── DOUBLE-TAP HEART BURST & MULTI-TAP GESTURE HINT ── */
+  .dbltap-heart-burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: #e11d48;
+    text-shadow: 0 6px 20px rgba(225, 29, 72, 0.45), 2px 2px 0 #1a1209;
+    transform: translate(-50%, -50%) scale(0.3);
+    animation: dblTapHeartPop 0.72s cubic-bezier(0.18, 1.35, 0.4, 1) forwards;
+  }
+  @keyframes dblTapHeartPop {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.25) rotate(-12deg);
+    }
+    35% {
+      opacity: 1;
+      transform: translate(-50%, -62%) scale(1.25) rotate(6deg);
+    }
+    70% {
+      opacity: 0.95;
+      transform: translate(-50%, -78%) scale(1.05) rotate(-3deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -105%) scale(0.85) rotate(0deg);
+    }
+  }
+  .gesture-tap-hint {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    color: var(--ink-muted);
+    opacity: 0.78;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+  }
+  @media (max-width: 640px) {
+    .gesture-tap-hint {
+      font-size: 0.52rem;
+    }
+  }
+
+  /* ── NEWS HERO BANNERS & RELATED IMAGES ── */
+  .news-hero-banner-wrap {
+    position: relative;
+    width: 100%;
+    height: 205px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0.55rem 0 0.85rem;
+    border: 1.5px solid var(--ink);
+    background: linear-gradient(135deg, #1a1209 0%, #2d1b12 50%, #0f172a 100%);
+    box-shadow: 3px 3px 0 var(--shadow);
+    cursor: pointer;
+  }
+  @media (max-width: 600px) {
+    .news-hero-banner-wrap {
+      height: 175px;
+    }
+  }
+  .news-hero-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .news-hero-banner-wrap:hover .news-hero-banner-img {
+    transform: scale(1.035);
+  }
+  .news-hero-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.05) 45%, rgba(15, 23, 42, 0.84) 100%);
+    pointer-events: none;
+  }
+  .news-hero-badges-top {
+    position: absolute;
+    top: 0.55rem;
+    left: 0.6rem;
+    right: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    pointer-events: none;
+  }
+  .news-hero-topic-pill {
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .news-spicy-pill {
+    background: linear-gradient(135deg, #e11d48 0%, #ea580c 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.4);
+  }
+  .news-hero-caption-bottom {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: rgba(248, 250, 252, 0.92);
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -7707,6 +7986,8 @@
               docId: id,
               id: id,
               postId: pId,
+              parentCommentId: data.parentCommentId || null,
+              replyToAuthor: data.replyToAuthor || null,
               author: data.author || data.alias || 'Anonymous',
               authorUsername: data.authorUsername || null,
               authorAvatar: data.authorAvatar || '',
@@ -9206,12 +9487,127 @@
     }
   };
 
-  // ── COMMENTS / REPLIES ──────────────────────────────────────────────────────
+  // ── COMMENTS / NESTED REPLIES / COMMENT LIKES ───────────────────────────────
+  const activeReplyTargetByPost = {};
+
   function getPostCommentsList(post) {
     const legacy = Array.isArray(post.comments) ? post.comments : [];
     const live = commentsByPost[post.id] || [];
     return [...legacy, ...live];
   }
+
+  function getCommentLikesList(commentDocId) {
+    if (!commentDocId) return [];
+    return (likesByPost[commentDocId] || []).map(l => l.actorKey);
+  }
+
+  window.toggleCommentLike = async function (commentDocId, postId) {
+    if (!commentDocId) return;
+    if (!currentUser) {
+      showToast('Please sign in to like replies!');
+      openAuthModal('login');
+      return;
+    }
+
+    const actorKey = getCurrentActorKey();
+    const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const likeDocId = `__like__${commentDocId}__${safeActorId}`;
+    const existingList = likesByPost[commentDocId] ? [...likesByPost[commentDocId]] : [];
+    const existingLikeDoc = existingList.find(
+      l => l.actorKey === actorKey || l.docId === likeDocId
+    );
+    const willBeLiked = !existingLikeDoc;
+
+    if (willBeLiked) {
+      likesByPost[commentDocId] = [
+        ...existingList,
+        { docId: likeDocId, actorKey, alias: currentUser.username.slice(0, 30) }
+      ];
+    } else {
+      likesByPost[commentDocId] = existingList.filter(
+        l => l.actorKey !== actorKey && l.docId !== likeDocId
+      );
+    }
+
+    cardDomCache.delete(postId);
+    const cLikeBtn = document.getElementById(`clike-btn-${commentDocId}`);
+    if (cLikeBtn) {
+      const count = getCommentLikesList(commentDocId).length;
+      cLikeBtn.classList.toggle('liked', willBeLiked);
+      cLikeBtn.innerHTML = `<span>${willBeLiked ? '♥' : '♡'}</span><span>${count > 0 ? count : 'Like'}</span>`;
+    }
+
+    try {
+      if (existingLikeDoc) {
+        await deleteDoc(doc(db, "posts", existingLikeDoc.docId));
+      } else {
+        await setDoc(doc(db, "posts", likeDocId), {
+          title: null,
+          body: 'like',
+          tag: 'other',
+          alias: currentUser.username.slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'like',
+          postId: commentDocId,
+          actorKey
+        });
+      }
+    } catch (e) {
+      likesByPost[commentDocId] = existingList;
+      const post = findPostAnywhere(postId);
+      if (post) updateCardInteractionsInPlace(post);
+    }
+  };
+
+  window.startReplyToComment = function (postId, commentDocId, commentAuthor) {
+    if (!postId) return;
+    openCommentsSet.add(postId);
+    const sec = document.getElementById(`comments-sec-${postId}`);
+    if (sec) {
+      sec.classList.add('open');
+    } else {
+      renderFeed();
+    }
+
+    if (commentDocId && commentAuthor) {
+      activeReplyTargetByPost[postId] = {
+        commentId: commentDocId,
+        author: commentAuthor
+      };
+    } else {
+      delete activeReplyTargetByPost[postId];
+    }
+
+    const banner = document.getElementById(`replying-banner-${postId}`);
+    const bannerText = document.getElementById(`replying-banner-text-${postId}`);
+    const inp = document.getElementById(`comment-input-${postId}`);
+    if (banner && bannerText) {
+      if (activeReplyTargetByPost[postId]) {
+        bannerText.textContent = `↩ Replying to @${activeReplyTargetByPost[postId].author}`;
+        banner.classList.add('active');
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+    if (inp) {
+      inp.placeholder = activeReplyTargetByPost[postId]
+        ? `Reply to @${activeReplyTargetByPost[postId].author}…`
+        : (currentUser ? `Reply as @${currentUser.username}…` : 'Sign in to write a reply…');
+      setTimeout(() => inp.focus(), 60);
+    }
+  };
+
+  window.clearReplyToComment = function (postId) {
+    delete activeReplyTargetByPost[postId];
+    const banner = document.getElementById(`replying-banner-${postId}`);
+    const inp = document.getElementById(`comment-input-${postId}`);
+    if (banner) banner.classList.remove('active');
+    if (inp) {
+      inp.placeholder = currentUser
+        ? `Reply as @${currentUser.username}…`
+        : 'Sign in to write a reply…';
+    }
+  };
 
   window.toggleCommentsSection = function (postId) {
     const isNowOpen = !openCommentsSet.has(postId);
@@ -9219,7 +9615,9 @@
       openCommentsSet.add(postId);
     } else {
       openCommentsSet.delete(postId);
+      delete activeReplyTargetByPost[postId];
     }
+    cardDomCache.delete(postId);
     const sec = document.getElementById(`comments-sec-${postId}`);
     if (sec) {
       sec.classList.toggle('open', isNowOpen);
@@ -9227,7 +9625,7 @@
         setTimeout(() => {
           const inp = document.getElementById(`comment-input-${postId}`);
           if (inp) inp.focus();
-        }, 180);
+        }, 120);
       }
     } else {
       renderFeed();
@@ -9252,6 +9650,7 @@
     const post = findPostAnywhere(postId);
     if (!post) return;
 
+    const replyTarget = activeReplyTargetByPost[postId] || null;
     inp.disabled = true;
     const commentDocId = `__comment__${postId}__${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 
@@ -9264,6 +9663,8 @@
         ts: serverTimestamp(),
         docType: 'comment',
         postId,
+        parentCommentId: replyTarget ? replyTarget.commentId : null,
+        replyToAuthor: replyTarget ? replyTarget.author : null,
         author: currentUser.username,
         authorUsername: currentUser.usernameLower,
         authorAvatar: currentUser.avatar || '',
@@ -9289,6 +9690,8 @@
 
       openCommentsSet.add(postId);
       inp.value = '';
+      window.clearReplyToComment(postId);
+      cardDomCache.delete(postId);
     } catch (e) {
       console.error(e);
       showToast('Could not post reply.');
@@ -10618,13 +11021,135 @@
     return combinedNewsCacheList;
   }
 
+  const CLIENT_NEWS_TOPIC_BANNERS = [
+    {
+      regex: /\b(llm|gpt|claude|gemini|openai|anthropic|deepseek|llama|mistral|model|chatgpt|ai)\b/i,
+      label: 'AI & Frontier Models',
+      urls: [
+        'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1655720828018-edd2daec9349?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      regex: /\b(gpu|nvidia|amd|intel|chip|semiconductor|tsmc|silicon|hardware|apple|m4)\b/i,
+      label: 'Silicon & Hardware',
+      urls: [
+        'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      regex: /\b(robot|robotics|humanoid|autonomous|waymo|tesla|drone|space|spacex)\b/i,
+      label: 'Robotics & Autonomy',
+      urls: [
+        'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=1200&q=80'
+      ]
+    },
+    {
+      regex: /\b(security|hack|breach|zero-day|linux|rust|kernel|cloud|postgres|database|code|developer)\b/i,
+      label: 'Systems & Security',
+      urls: [
+        'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80'
+      ]
+    }
+  ];
+
+  const DEFAULT_CLIENT_NEWS_BANNERS = [
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80'
+  ];
+
+  function resolveNewsBannerInfo(post) {
+    const title = String(post?.title || '');
+    const body = String(post?.body || '');
+    const combined = `${title} ${body}`;
+    let matchedTopic = (Array.isArray(post?.topicTags) && post.topicTags[0]) || post?.topic || 'Breaking Tech';
+    let pool = DEFAULT_CLIENT_NEWS_BANNERS;
+
+    for (const rule of CLIENT_NEWS_TOPIC_BANNERS) {
+      if (rule.regex.test(combined)) {
+        if (!post?.topicTags?.length) matchedTopic = rule.label;
+        pool = rule.urls;
+        break;
+      }
+    }
+
+    let hash = 0;
+    const seedStr = `${post?.id || ''}|${title}`;
+    for (let i = 0; i < seedStr.length; i++) {
+      hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0;
+    }
+    const fallbackUrl = pool[hash % pool.length];
+    const directImg = String(post?.imageUrl || '').trim();
+    const bannerUrl = (directImg.startsWith('http') && !/favicon|logo|1x1|pixel|spacer/i.test(directImg))
+      ? directImg
+      : fallbackUrl;
+
+    return {
+      bannerUrl,
+      fallbackUrl,
+      topicLabel: matchedTopic
+    };
+  }
+
   async function fetchDirectPublicAiNewsFallback() {
     const collected = [];
     try {
-      const [devAiRes, devTechRes] = await Promise.allSettled([
-        fetch(`https://dev.to/api/articles?tag=ai&top=3&per_page=14&t=${Date.now()}`, { cache: 'no-store' }),
-        fetch(`https://dev.to/api/articles?tag=programming&top=3&per_page=10&t=${Date.now()}`, { cache: 'no-store' })
+      const [hnRes, devAiRes, devTechRes] = await Promise.allSettled([
+        fetch(`https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=18&t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`https://dev.to/api/articles?tag=ai&top=2&per_page=12&t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`https://dev.to/api/articles?tag=programming&top=2&per_page=10&t=${Date.now()}`, { cache: 'no-store' })
       ]);
+
+      const seenUrls = new Set();
+
+      if (hnRes.status === 'fulfilled' && hnRes.value.ok) {
+        const hnData = await hnRes.value.json();
+        if (hnData && Array.isArray(hnData.hits)) {
+          hnData.hits.forEach(hit => {
+            const url = String(hit.url || '').trim();
+            const title = String(hit.title || '').trim();
+            if (!url || !title || seenUrls.has(url)) return;
+            seenUrls.add(url);
+            const pubMs = hit.created_at_i ? hit.created_at_i * 1000 : Date.now();
+            const pts = Number(hit.points) || 60;
+            const cmts = Number(hit.num_comments) || 24;
+            const domain = formatHostname(url);
+            const detId = `__ainews__hn_${hit.objectID || Math.random().toString(36).slice(2, 8)}`;
+            const bannerInfo = resolveNewsBannerInfo({ id: detId, title });
+            const summary = [
+              `🔥 "${title}" is blowing up right now via ${domain}, pulling in ${pts} upvotes and ${cmts} unfiltered comments from engineers and insiders debating its real-world fallout.`,
+              `Under the hood, the report cuts past the usual industry PR to expose the actual architecture, performance trade-offs, and strategic pressure points driving this move.`,
+              `⚡ The Unfiltered Verdict: Builders in the trenches are split on whether this sets a new gold standard or triggers a fierce counter-push across the ecosystem—making it one of the spiciest stories on the board today.`
+            ].join('\n\n');
+            collected.push({
+              id: detId,
+              title: title.slice(0, 118),
+              body: summary,
+              imageUrl: bannerInfo.bannerUrl,
+              tag: 'news',
+              alias: 'Paper Flow AI News',
+              isAiNews: true,
+              summarizedByAi: true,
+              docType: 'ai_news',
+              aiAttribution: 'Summarized by AI',
+              sourceName: domain,
+              linkUrl: url,
+              linkTitle: title.slice(0, 96),
+              publishedAt: pubMs,
+              createdAt: pubMs,
+              ts: pubMs
+            });
+          });
+        }
+      }
+
       const rawArticles = [];
       if (devAiRes.status === 'fulfilled' && devAiRes.value.ok) {
         const arr = await devAiRes.value.json();
@@ -10634,51 +11159,49 @@
         const arr = await devTechRes.value.json();
         if (Array.isArray(arr)) rawArticles.push(...arr);
       }
-      const seenUrls = new Set();
-      rawArticles
-        .filter(art => (Number(art.positive_reactions_count) || 0) >= 4)
-        .forEach(art => {
-          const url = String(art.url || art.canonical_url || '').trim();
-          const title = String(art.title || '').trim();
-          if (!url || !title || title.length < 18 || seenUrls.has(url)) return;
-          if (/^(hire|hiring|sponsored|daily thread|open thread)/i.test(title)) return;
-          seenUrls.add(url);
-          const pubMs = Date.parse(art.published_timestamp || art.published_at || '') || Date.now();
-          const desc = String(art.description || title).trim();
-          const tagsList = Array.isArray(art.tag_list) ? art.tag_list.join(', ') : 'AI, Software Engineering, Cloud';
-          const author = (art.user && art.user.name) ? art.user.name : 'Tech Contributor';
-          const readTime = art.reading_time_minutes || 4;
-          const reactions = Number(art.positive_reactions_count) || 8;
-          const hashSeed = (url + '|' + title).toLowerCase();
-          let h = 2166136261;
-          for (let i = 0; i < hashSeed.length; i++) {
-            h ^= hashSeed.charCodeAt(i);
-            h = Math.imul(h, 16777619);
-          }
-          const detId = `__ainews__devto_${(h >>> 0).toString(16)}${String(art.id || '').slice(0, 6)}`;
-          const summary = [
-            `${title} is drawing strong engineering attention across the developer community (${reactions} reactions, ${readTime} min read by ${author}). ${desc.endsWith('.') ? desc : desc + '.'}`,
-            `Under the hood, the write-up explores practical implementation trade-offs across ${tagsList}, walking through real-world architecture decisions, latency and reliability bottlenecks, and how modern engineering teams are integrating these tools into production workflows.`,
-            `For developers and builders following the space, it offers concrete takeaways on what actually works in production versus hype—making it worth a closer look if you're building with modern AI and software infrastructure.`
-          ].join('\n\n');
-          collected.push({
-            id: detId,
-            title: title.slice(0, 118),
-            body: summary,
-            tag: 'news',
-            alias: 'Paper Flow AI News',
-            isAiNews: true,
-            summarizedByAi: true,
-            docType: 'ai_news',
-            aiAttribution: 'Summarized by AI',
-            sourceName: 'Dev.to Tech & AI',
-            linkUrl: url,
-            linkTitle: title.slice(0, 96),
-            publishedAt: pubMs,
-            createdAt: pubMs,
-            ts: pubMs
-          });
+      rawArticles.forEach(art => {
+        const url = String(art.url || art.canonical_url || '').trim();
+        const title = String(art.title || '').trim();
+        if (!url || !title || title.length < 10 || seenUrls.has(url)) return;
+        seenUrls.add(url);
+        const pubMs = Date.parse(art.published_timestamp || art.published_at || '') || Date.now();
+        const desc = String(art.description || title).trim();
+        const tagsList = Array.isArray(art.tag_list) ? art.tag_list.join(', ') : 'AI, Software Engineering';
+        const author = (art.user && art.user.name) ? art.user.name : 'Tech Insider';
+        const reactions = Number(art.positive_reactions_count) || 12;
+        const coverImg = String(art.cover_image || art.social_image || '').trim();
+        const hashSeed = (url + '|' + title).toLowerCase();
+        let h = 2166136261;
+        for (let i = 0; i < hashSeed.length; i++) {
+          h ^= hashSeed.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        const detId = `__ainews__devto_${(h >>> 0).toString(16)}${String(art.id || '').slice(0, 6)}`;
+        const bannerInfo = resolveNewsBannerInfo({ id: detId, title, imageUrl: coverImg });
+        const summary = [
+          `🔥 ${title} is sparking heated discussion across the engineering community (${reactions} reactions, reported by ${author}). ${desc.endsWith('.') ? desc : desc + '.'}`,
+          `Diving straight into the technical meat across ${tagsList}, the breakdown exposes real production bottlenecks, benchmark surprises, and why standard playbooks are breaking down.`,
+          `⚡ Why It Matters Now: For builders shipping modern AI and systems software, this cuts straight through the hype and lays out what actually survives contact with production.`
+        ].join('\n\n');
+        collected.push({
+          id: detId,
+          title: title.slice(0, 118),
+          body: summary,
+          imageUrl: bannerInfo.bannerUrl,
+          tag: 'news',
+          alias: 'Paper Flow AI News',
+          isAiNews: true,
+          summarizedByAi: true,
+          docType: 'ai_news',
+          aiAttribution: 'Summarized by AI',
+          sourceName: 'Dev.to Tech & AI',
+          linkUrl: url,
+          linkTitle: title.slice(0, 96),
+          publishedAt: pubMs,
+          createdAt: pubMs,
+          ts: pubMs
         });
+      });
     } catch (e) {}
     return collected;
   }
@@ -10736,9 +11259,11 @@
         aiTechNewsItems = fetchedItems
           .map(item => {
             const pubMs = Number(item.publishedAt || item.createdAt || item.ts) || Date.now();
+            const bInfo = resolveNewsBannerInfo(item);
             return {
               ...item,
               body: cleanRoboticNewsBodyClient(item.body || ''),
+              imageUrl: item.imageUrl || bInfo.bannerUrl,
               tag: 'news',
               isAiNews: true,
               summarizedByAi: true,
@@ -10750,6 +11275,7 @@
           })
           .sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
 
+        cardDomCache.clear();
         aiNewsLastUpdated = updatedTs;
         try {
           localStorage.setItem(AI_NEWS_CACHE_KEY, JSON.stringify({
@@ -10758,17 +11284,18 @@
           }));
         } catch (e) {}
 
-        // Sync AI news items into Firestore as __ainews__* documents with natural summaries
+        // Sync AI news items into Firestore as __ainews__* documents with natural summaries & banner images
         aiTechNewsItems.slice(0, 18).forEach(item => {
           if (!item.id || !String(item.id).startsWith('__ainews__')) return;
           const pubMs = getPostTimestampMs(item) || Date.now();
           const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
           const existing = firestoreAiNewsMap[item.id];
           const existingHasRobotic = existing && /📌|🔍|💡/.test(existing.body || '');
-          if (!existing || existingHasRobotic || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
+          if (!existing || existingHasRobotic || !existing.imageUrl || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
             setDoc(doc(db, "posts", item.id), {
               title: (item.title || 'Tech & AI Update').slice(0, 118),
               body: cleanBody,
+              imageUrl: (item.imageUrl || '').slice(0, 500),
               tag: 'news',
               alias: (item.alias || 'Paper Flow AI News').slice(0, 30),
               ts: serverTimestamp(),
@@ -11300,39 +11827,93 @@
   function renderCommentsListHTML(post) {
     const comments = getPostCommentsList(post);
     if (comments.length === 0) {
-      return `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Start the conversation below.</div>`;
+      return `<div style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-muted);">No replies yet. Double-tap to like · Triple-tap to reply.</div>`;
     }
-    const itemsHTML = comments.map(c => {
+
+    const byId = new Map();
+    const childrenByParent = new Map();
+    const roots = [];
+
+    comments.forEach((c, idx) => {
+      const cid = c.docId || c.id || `legacy_${post.id}_${idx}`;
+      const norm = { ...c, docId: cid, id: cid };
+      byId.set(cid, norm);
+    });
+
+    byId.forEach(c => {
+      const pId = c.parentCommentId;
+      if (pId && byId.has(pId) && pId !== c.docId) {
+        if (!childrenByParent.has(pId)) childrenByParent.set(pId, []);
+        childrenByParent.get(pId).push(c);
+      } else {
+        roots.push(c);
+      }
+    });
+
+    const actorKey = getCurrentActorKey();
+
+    function renderNodeHTML(c, depth) {
       const commentIsDev = isDeveloperUser(c.authorUsername || c.author);
       const cAvatar = (c.authorUsername && usersDirectory[c.authorUsername]?.avatar) || c.authorAvatar || '';
       const canDelComment = Boolean(c.docId && currentUser && isDeveloperUser(currentUser.usernameLower));
       const cTime = c.createdAt ? formatTime(new Date(c.createdAt)) : '';
+      const parentComment = c.parentCommentId ? byId.get(c.parentCommentId) : null;
+      const replyToName = c.replyToAuthor || (parentComment ? parentComment.author : '');
+      const cLikes = getCommentLikesList(c.docId);
+      const cLikedByMe = cLikes.includes(actorKey);
+      const children = childrenByParent.get(c.docId) || [];
+      const cappedDepth = Math.min(depth, 4);
+
+      const childrenHTML = children.length > 0
+        ? `<div class="comment-children depth-${Math.min(depth + 1, 4)}">
+             ${children.map(child => renderNodeHTML(child, depth + 1)).join('')}
+           </div>`
+        : '';
+
       return `
-        <div class="comment-item ${commentIsDev ? 'comment-developer' : ''}">
-          <span class="clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
-            ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
-          </span>
-          <div class="comment-content">
-            <div class="comment-header">
-              <span class="comment-author clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
-                <span>${c.authorUsername ? '@' : ''}${esc(c.author || 'Anonymous')}</span>
-                ${commentIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
-              </span>
-              <span>
-                <span class="comment-time">${cTime}</span>
-                ${canDelComment ? `<button class="btn-comment-del" onclick="deleteComment('${post.id}', '${esc(c.docId)}')" title="Delete comment">✕</button>` : ''}
-              </span>
+        <div class="comment-thread-node" data-depth="${cappedDepth}">
+          <div class="comment-item ${commentIsDev ? 'comment-developer' : ''} ${depth > 0 ? 'is-nested-reply' : ''}" data-comment-id="${esc(c.docId)}" data-post-id="${esc(post.id)}" data-comment-author="${esc(c.author || 'Anonymous')}">
+            <span class="clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
+              ${renderAvatarHTML(c.author || 'Anonymous', cAvatar, 'avatar-sm', commentIsDev)}
+            </span>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author clickable-profile" onclick="openUserProfileModal('${esc(c.author || 'Anonymous')}', '${esc(c.authorUsername || '')}', event)" title="View @${esc(c.author || 'Anonymous')} profile">
+                  <span>${c.authorUsername ? '@' : ''}${esc(c.author || 'Anonymous')}</span>
+                  ${commentIsDev ? `<span class="dev-badge">⚡ Developer</span>` : ''}
+                  ${depth > 0 && replyToName ? `<span class="comment-reply-to-badge">↳ @${esc(replyToName)}</span>` : ''}
+                  ${depth > 0 ? `<span class="comment-depth-pill">L${depth}</span>` : ''}
+                </span>
+                <span>
+                  <span class="comment-time">${cTime}</span>
+                  ${canDelComment ? `<button class="btn-comment-del" onclick="deleteComment('${post.id}', '${esc(c.docId)}')" title="Delete comment">✕</button>` : ''}
+                </span>
+              </div>
+              <div class="comment-text">${esc(c.text)}</div>
+              <div class="comment-actions-row">
+                <button type="button" class="btn-comment-action ${cLikedByMe ? 'liked' : ''}" id="clike-btn-${esc(c.docId)}" onclick="toggleCommentLike('${esc(c.docId)}', '${esc(post.id)}')" title="Like reply (or double-tap)">
+                  <span>${cLikedByMe ? '♥' : '♡'}</span>
+                  <span>${cLikes.length > 0 ? cLikes.length : 'Like'}</span>
+                </button>
+                <button type="button" class="btn-comment-action" onclick="startReplyToComment('${esc(post.id)}', '${esc(c.docId)}', '${esc(c.author || 'Anonymous')}')" title="Reply to @${esc(c.author || 'Anonymous')} (or triple-tap)">
+                  <span>↩</span>
+                  <span>Reply</span>
+                </button>
+              </div>
             </div>
-            <div class="comment-text">${esc(c.text)}</div>
           </div>
+          ${childrenHTML}
         </div>
       `;
-    }).join('');
+    }
+
+    const itemsHTML = roots.map(r => renderNodeHTML(r, 0)).join('');
     return `<div class="comments-list">${itemsHTML}</div>`;
   }
 
   function updateCardInteractionsInPlace(post) {
     if (!post || !post.id) return;
+    cardDomCache.delete(post.id);
     const likes = getPostLikesList(post);
     const isLiked = likes.includes(getCurrentActorKey());
     const likeBtn = document.getElementById(`like-btn-${post.id}`);
@@ -11452,6 +12033,7 @@
     const isLiked = likes.includes(getCurrentActorKey());
     const isStarred = isPostStarredByCurrentUser(post.id);
     const comments = getPostCommentsList(post);
+    const commentLikesCount = comments.reduce((acc, c) => acc + getCommentLikesList(c.docId || c.id).length, 0);
     const isCommentsOpen = openCommentsSet.has(post.id);
     const isExpanded = expandedFlowsSet.has(post.id);
     const isConfirmingDelete = pendingDeleteConfirmId === post.id;
@@ -11463,7 +12045,7 @@
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
 
-    const cardSig = `${post.id}|${post.editedAt || ''}|${(post.body || '').length}|${(post.title || '').length}|${pinned ? 1 : 0}|${viewerIsDev ? 1 : 0}|${currentUser ? currentUser.usernameLower : 'guest'}|${isLiked ? 1 : 0}:${likes.length}|${isStarred ? 1 : 0}|${comments.length}|${isCommentsOpen ? 1 : 0}|${isExpanded ? 1 : 0}|${isConfirmingDelete ? 1 : 0}|${reportCount}|${liveAvatar.length}|${activeViewMode === 'starred' ? 1 : 0}`;
+    const cardSig = `${post.id}|${post.editedAt || ''}|${(post.body || '').length}|${(post.title || '').length}|${(post.imageUrl || '').length}|${pinned ? 1 : 0}|${viewerIsDev ? 1 : 0}|${currentUser ? currentUser.usernameLower : 'guest'}|${isLiked ? 1 : 0}:${likes.length}|${isStarred ? 1 : 0}|${comments.length}:${commentLikesCount}|${isCommentsOpen ? 1 : 0}|${isExpanded ? 1 : 0}|${isConfirmingDelete ? 1 : 0}|${reportCount}|${liveAvatar.length}|${activeViewMode === 'starred' ? 1 : 0}`;
 
     const cached = cardDomCache.get(post.id);
     if (cached && cached.sig === cardSig && cached.el && (!cached.el.parentElement || cached.el.parentElement.id === 'feed')) {
@@ -11481,6 +12063,7 @@
 
     const div = document.createElement('div');
     div.id = `card-${post.id}`;
+    div.setAttribute('data-post-id', post.id);
     const useScrollReveal = Boolean(animateCard && i >= 8 && typeof feedCardScrollObserver !== 'undefined' && feedCardScrollObserver);
     div.className = baseCardClass
       + (animateCard && i < 8 ? ' card-enter-anim' : '')
@@ -11494,7 +12077,7 @@
     const displayBody = post.hasEmptyBody ? '' : (isAiNewsCard ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
     const aiSplit = isAiNewsCard ? splitAiNewsIntroAndFull(displayBody) : null;
     const isLong = isAiNewsCard ? Boolean(aiSplit && aiSplit.hasMore) : (displayBody.length > 400);
-    const hasImage = Boolean(post.imageUrl);
+    const hasImage = Boolean(!isAiNewsCard && post.imageUrl);
     const hasLink = Boolean(post.linkUrl);
     const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
     const hasExpandable = (!isAiNewsCard && isLong) || hasImage;
@@ -11513,6 +12096,29 @@
 
     const canEdit = !isAiNewsCard && canCurrentUserEditPost(post);
     const canDelete = !isAiNewsCard && canCurrentUserDeletePost(post);
+
+    let newsHeroBannerHTML = '';
+    if (isAiNewsCard || displayCategory === 'news') {
+      const bInfo = resolveNewsBannerInfo(post);
+      const safeBanner = esc(bInfo.bannerUrl);
+      const safeFallback = esc(bInfo.fallbackUrl);
+      const safeTopic = esc(bInfo.topicLabel);
+      const safeSource = esc(post.sourceName || (post.linkUrl ? formatHostname(post.linkUrl) : 'Verified Source'));
+      newsHeroBannerHTML = `
+        <div class="news-hero-banner-wrap" onclick="openLightbox('${safeBanner}')" title="Tap to view full banner image">
+          <img class="news-hero-banner-img" src="${safeBanner}" alt="${esc(post.title || 'Tech & AI News Banner')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(this.src!=='${safeFallback}'){this.src='${safeFallback}';}else{this.parentElement.style.display='none';}" />
+          <div class="news-hero-gradient-overlay"></div>
+          <div class="news-hero-badges-top">
+            <span class="news-hero-topic-pill">⚡ ${safeTopic}</span>
+            <span class="news-spicy-pill">🔥 Unfiltered · Authentic</span>
+          </div>
+          <div class="news-hero-caption-bottom">
+            <span>📰 ${safeSource}</span>
+            <span>Tap to expand ⤢</span>
+          </div>
+        </div>
+      `;
+    }
 
     let mediaHTML = '';
     if (hasImage) {
@@ -11546,9 +12152,12 @@
         </span>
       </div>` : '';
 
-    const commentPlaceholder = currentUser
-      ? `Reply as @${esc(currentUser.username)}…`
-      : 'Sign in to write a reply…';
+    const activeReplyTarget = activeReplyTargetByPost[post.id] || null;
+    const commentPlaceholder = activeReplyTarget
+      ? `Reply to @${esc(activeReplyTarget.author)}…`
+      : (currentUser
+          ? `Reply as @${esc(currentUser.username)}…`
+          : 'Sign in to write a reply…');
 
     const phoneSavedBadgeHTML = (isStarred && (activeViewMode === 'starred' || post.savedOnPhone || post.isSavedInPhoneStorage || starredPostsArchiveMap[post.id]))
       ? `<span class="phone-saved-pill" title="Saved permanently in your phone storage">📱 Saved on Phone</span>`
@@ -11616,17 +12225,18 @@
       </div>
 
       ${post.title ? `<div class="card-title">${esc(post.title)}</div>` : ''}
+      ${newsHeroBannerHTML}
       ${bodySectionHTML}
       ${mediaHTML}
       ${linkHTML}
 
       <div class="card-footer">
         <div class="card-interactions">
-          <button class="btn-small btn-like ${isLiked ? 'liked' : ''}" id="like-btn-${post.id}" onclick="toggleLike('${post.id}')">
+          <button class="btn-small btn-like ${isLiked ? 'liked' : ''}" id="like-btn-${post.id}" onclick="toggleLike('${post.id}')" title="Like (or double-tap card)">
             <span class="like-heart-icon">${isLiked ? '♥' : '♡'}</span>
             <span>${likes.length > 0 ? likes.length : 'Like'}</span>
           </button>
-          <button class="btn-small" id="reply-count-btn-${post.id}" onclick="toggleCommentsSection('${post.id}')">
+          <button class="btn-small" id="reply-count-btn-${post.id}" onclick="toggleCommentsSection('${post.id}')" title="Reply (or triple-tap card)">
             <span>💬</span>
             <span>${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}</span>
           </button>
@@ -11637,6 +12247,7 @@
         </div>
 
         <div class="card-actions">
+          <span class="gesture-tap-hint" title="Double-tap anywhere on a card or reply to Like · Triple-tap to Reply">2×Tap ♥ · 3×Tap 💬</span>
           ${hasExpandable ? `<button class="btn-small btn-expand" id="expand-btn-${post.id}" onclick="toggleExpand('${post.id}', this)">${isExpanded ? 'View less' : 'View more'}</button>` : ''}
           ${viewerIsDev ? `<button class="btn-small btn-pin-dev ${pinned ? 'pinned' : ''}" onclick="togglePinPost('${post.id}')">📌 ${pinned ? 'Unpin' : 'Pin'}</button>` : ''}
           ${canEdit ? `<button class="btn-small btn-edit-own" onclick="openEditFlowModal('${post.id}')">✎ Edit</button>` : ''}
@@ -11648,6 +12259,10 @@
 
       <div class="comments-section ${isCommentsOpen ? 'open' : ''}" id="comments-sec-${post.id}">
         <div id="comments-list-wrap-${post.id}">${renderCommentsListHTML(post)}</div>
+        <div class="replying-to-banner ${activeReplyTarget ? 'active' : ''}" id="replying-banner-${post.id}">
+          <span id="replying-banner-text-${post.id}">${activeReplyTarget ? `↩ Replying to @${esc(activeReplyTarget.author)}` : ''}</span>
+          <button type="button" class="btn-cancel-reply-target" onclick="clearReplyToComment('${post.id}')" title="Cancel nested reply">✕</button>
+        </div>
         <div class="comment-form">
           <input
             type="text"
@@ -11664,6 +12279,105 @@
     cardDomCache.set(post.id, { sig: cardSig, el: div });
     return div;
   }
+
+  // ── UNIFIED DOUBLE-TAP TO LIKE & TRIPLE-TAP TO REPLY GESTURE ENGINE ─────────
+  function spawnTapHeartBurst(clientX, clientY, isReplyBurst = false) {
+    const el = document.createElement('div');
+    el.className = 'dbltap-heart-burst';
+    el.textContent = isReplyBurst ? '💬' : '♥';
+    el.style.left = `${clientX || window.innerWidth / 2}px`;
+    el.style.top = `${clientY || window.innerHeight / 2}px`;
+    document.body.appendChild(el);
+    setTimeout(() => {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }, 760);
+  }
+
+  (function initMultiTapCardAndCommentGestures() {
+    let tapCount = 0;
+    let tapTimer = null;
+    let lastTapTargetKey = '';
+    let lastTapX = 0;
+    let lastTapY = 0;
+
+    document.addEventListener('click', function (e) {
+      const feedEl = document.getElementById('feed');
+      if (!feedEl || !feedEl.contains(e.target)) return;
+
+      // Ignore taps directly on interactive buttons, links, inputs, or profile triggers
+      if (e.target.closest('button, a, input, textarea, select, .clickable-profile, .news-hero-banner-wrap, .card-media')) {
+        return;
+      }
+
+      const commentEl = e.target.closest('.comment-item[data-comment-id]');
+      const cardEl = e.target.closest('.card');
+      if (!commentEl && !cardEl) return;
+
+      const postId = commentEl
+        ? commentEl.getAttribute('data-post-id')
+        : (cardEl.getAttribute('data-post-id') || (cardEl.id || '').replace(/^card-/, ''));
+      if (!postId) return;
+
+      const commentId = commentEl ? commentEl.getAttribute('data-comment-id') : null;
+      const commentAuthor = commentEl ? (commentEl.getAttribute('data-comment-author') || 'Anonymous') : null;
+      const targetKey = commentId ? `comment:${postId}:${commentId}` : `card:${postId}`;
+
+      const nowX = e.clientX || (window.innerWidth / 2);
+      const nowY = e.clientY || (window.innerHeight / 2);
+
+      if (targetKey !== lastTapTargetKey || Math.hypot(nowX - lastTapX, nowY - lastTapY) > 64) {
+        tapCount = 0;
+        if (tapTimer) {
+          clearTimeout(tapTimer);
+          tapTimer = null;
+        }
+      }
+
+      lastTapTargetKey = targetKey;
+      lastTapX = nowX;
+      lastTapY = nowY;
+      tapCount += 1;
+
+      if (tapCount === 1) {
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+          tapTimer = null;
+        }, 280);
+      } else if (tapCount === 2) {
+        if (tapTimer) clearTimeout(tapTimer);
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+          tapTimer = null;
+          if (typeof window.triggerHapticFeedback === 'function') {
+            window.triggerHapticFeedback('like');
+          }
+          spawnTapHeartBurst(lastTapX, lastTapY, false);
+          if (commentId) {
+            window.toggleCommentLike(commentId, postId);
+          } else {
+            window.toggleLike(postId);
+          }
+        }, 245);
+      } else if (tapCount >= 3) {
+        if (tapTimer) {
+          clearTimeout(tapTimer);
+          tapTimer = null;
+        }
+        tapCount = 0;
+        if (typeof window.triggerHapticFeedback === 'function') {
+          window.triggerHapticFeedback('tab');
+        }
+        spawnTapHeartBurst(lastTapX, lastTapY, true);
+        if (commentId) {
+          window.startReplyToComment(postId, commentId, commentAuthor);
+          showToast(`↩ Replying to @${commentAuthor}`);
+        } else {
+          window.startReplyToComment(postId, null, null);
+          showToast('💬 Reply box opened');
+        }
+      }
+    }, { passive: true });
+  })();
 
   window.toggleExpand = function(id, btn) {
     const isNowExpanded = !expandedFlowsSet.has(id);

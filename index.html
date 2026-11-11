@@ -1456,6 +1456,354 @@
     100% { transform: rotate(360deg); }
   }
 
+  /* FLOATING DEVELOPER MANAGE SOURCES BUTTON */
+  .fab-dev-sources {
+    bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.94) 0%, rgba(253, 230, 138, 0.88) 50%, rgba(255, 255, 255, 0.95) 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.7);
+    color: #b45309;
+    box-shadow:
+      0 12px 30px -6px rgba(245, 158, 11, 0.35),
+      0 4px 12px -2px rgba(26, 18, 9, 0.12),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95);
+  }
+  body.dark-mode .fab-dev-sources {
+    background: linear-gradient(135deg, rgba(55, 30, 10, 0.9) 0%, rgba(85, 45, 12, 0.85) 50%, rgba(120, 53, 15, 0.9) 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.55);
+    color: #fef3c7;
+    box-shadow:
+      0 14px 34px -6px rgba(0, 0, 0, 0.7),
+      0 4px 12px -2px rgba(245, 158, 11, 0.25),
+      inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.35);
+  }
+  .fab-dev-sources:hover {
+    transform: translateY(-3px) scale(1.08);
+    box-shadow:
+      0 18px 40px -6px rgba(245, 158, 11, 0.45),
+      0 6px 16px -4px rgba(26, 18, 9, 0.16);
+  }
+  .fab-dev-sources:active {
+    transform: scale(0.92);
+  }
+
+  /* DEVELOPER NEWS SOURCES MODAL STYLING */
+  .dev-sources-modal-window {
+    max-width: 660px;
+    width: 95%;
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .dev-sources-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .dev-source-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #b45309;
+  }
+  body.dark-mode .dev-source-banner-badge {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #fcd34d;
+  }
+  .dev-source-form-card {
+    background: var(--card-bg, #fff);
+    border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.1));
+    border-radius: 14px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  body.dark-mode .dev-source-form-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  .dev-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  @media (max-width: 580px) {
+    .dev-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .dev-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .dev-form-field label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+  .dev-form-field input,
+  .dev-form-field select {
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.15));
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .dev-form-field input:focus,
+  .dev-form-field select:focus {
+    border-color: #f59e0b;
+  }
+  .dev-test-box {
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .dev-test-loading {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    color: #0284c7;
+  }
+  .dev-test-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #059669;
+  }
+  .dev-test-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+  }
+  .dev-sources-list-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .dev-source-item-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  body.dark-mode .dev-source-item-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+  .dev-source-item-card:hover {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.02));
+  }
+  .dev-source-info-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1;
+  }
+  .dev-source-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .dev-source-name-text {
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dev-source-url-text {
+    font-size: 0.72rem;
+    opacity: 0.65;
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+  }
+  .dev-source-tag-pill {
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  /* HOTTIES 18+ AGE VERIFICATION MODAL & GATE */
+  .age-verification-modal-window {
+    max-width: 500px;
+    width: 92%;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1.5px solid rgba(225, 29, 72, 0.35);
+    box-shadow:
+      0 24px 50px -12px rgba(225, 29, 72, 0.28),
+      0 12px 24px -6px rgba(0, 0, 0, 0.18),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.8);
+  }
+  body.dark-mode .age-verification-modal-window {
+    border-color: rgba(225, 29, 72, 0.45);
+    box-shadow:
+      0 28px 60px -12px rgba(0, 0, 0, 0.8),
+      0 12px 28px -6px rgba(225, 29, 72, 0.3),
+      inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.18);
+  }
+  .age-modal-header {
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.85) 0%, rgba(255, 241, 242, 0.95) 100%);
+    border-bottom: 1px solid rgba(225, 29, 72, 0.2);
+    color: #9f1239;
+  }
+  body.dark-mode .age-modal-header {
+    background: linear-gradient(135deg, rgba(76, 5, 25, 0.75) 0%, rgba(30, 2, 9, 0.85) 100%);
+    border-bottom-color: rgba(225, 29, 72, 0.35);
+    color: #fecdd3;
+  }
+  .age-icon-badge {
+    font-size: 1.35rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .age-modal-body {
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    text-align: left;
+  }
+  .age-warning-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: rgba(225, 29, 72, 0.08);
+    border: 1px solid rgba(225, 29, 72, 0.25);
+    border-radius: 14px;
+    color: #be123c;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+  body.dark-mode .age-warning-banner {
+    background: rgba(225, 29, 72, 0.15);
+    border-color: rgba(225, 29, 72, 0.35);
+    color: #fda4af;
+  }
+  .age-warning-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .age-modal-description {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--ink);
+    opacity: 0.92;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .age-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.4rem;
+  }
+  .btn-age-confirm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.9rem 1.4rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 60%, #9f1239 100%);
+    border: none;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -4px rgba(225, 29, 72, 0.42);
+    transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.18s ease;
+  }
+  .btn-age-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -4px rgba(225, 29, 72, 0.55);
+  }
+  .btn-age-confirm:active {
+    transform: scale(0.97);
+  }
+  .btn-age-decline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1.2rem;
+    border-radius: 12px;
+    background: transparent;
+    border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.15));
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-age-decline:hover {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+    border-color: var(--ink);
+  }
+  .age-modal-disclaimer {
+    font-size: 0.72rem;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0.65;
+  }
+
+  /* IN-FEED HOTTIES AGE GATE CARD (FALLBACK & VISUAL PROTECTION) */
+  .hotties-gate-card {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 580px;
+    width: 92%;
+    background: var(--card-bg, #fff);
+    border: 2px dashed rgba(225, 29, 72, 0.45);
+    border-radius: 20px;
+    box-shadow: 0 16px 36px -10px rgba(225, 29, 72, 0.15);
+    gap: 1rem;
+  }
+  body.dark-mode .hotties-gate-card {
+    background: rgba(40, 10, 20, 0.45);
+    border-color: rgba(225, 29, 72, 0.5);
+    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+  }
+
   /* IPHONE SIRI-STYLE ORANGE LIQUID GLASS EDGE GLOW OVERLAY (GPU-ACCELERATED) */
   .siri-theme-glow-overlay {
     position: fixed;
@@ -5901,6 +6249,12 @@
         <span class="side-option-badge" id="sideCountReports">0</span>
       </button>
 
+      <!-- DEVELOPER NEWS SOURCES SECTION (VISIBLE ONLY TO MARVELIST) -->
+      <button type="button" class="btn-side-option" id="sideBtnDevSources" onclick="openDeveloperSourcesModal()" style="display: none;">
+        <span>📡 Manage News Sources</span>
+        <span class="side-option-badge" id="sideCountDevSources">0</span>
+      </button>
+
       <!-- ABOUT OPTION -->
       <button type="button" class="btn-side-option" onclick="openAboutModal()">
         <span>📖 About</span>
@@ -6160,6 +6514,11 @@
   </svg>
 </button>
 
+<!-- FLOATING DEVELOPER MANAGE SOURCES BUTTON (VISIBLE IN NEWS ONLY FOR MARVELIST) -->
+<button type="button" class="fab-news-refresh fab-dev-sources" id="btnDevSources" onclick="openDeveloperSourcesModal()" title="Manage News Sources (@marvelist)" aria-label="Manage News Sources (@marvelist)" style="display: none;">
+  <span style="font-size: 1.15rem; line-height: 1;" aria-hidden="true">📡</span>
+</button>
+
 <!-- IPHONE SIRI-STYLE ORANGE GLASS GLOW OVERLAY WHEN TOGGLING DARK MODE -->
 <div id="siriThemeGlowOverlay" class="siri-theme-glow-overlay" aria-hidden="true"></div>
 
@@ -6338,6 +6697,61 @@
           <span>✈️</span>
           <span>Telegram</span>
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEVELOPER MANAGE NEWS SOURCES MODAL (@marvelist ONLY) -->
+<div class="modal-backdrop" id="developerSourcesModalBackdrop" onclick="handleDeveloperSourcesBackdropClick(event)">
+  <div class="modal-window dev-sources-modal-window" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+        <span style="font-weight:700;">📡 Manage News Sources</span>
+        <span class="dev-source-banner-badge">⚡ @marvelist</span>
+      </div>
+      <button class="modal-close" onclick="closeDeveloperSourcesModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="dev-sources-body" id="devSourcesModalBody">
+      <!-- Populated dynamically via renderDeveloperSourcesUI -->
+    </div>
+  </div>
+</div>
+
+<!-- HOTTIES 18+ MANDATORY AGE VERIFICATION MODAL -->
+<div class="modal-backdrop" id="hottiesAgeVerificationModalBackdrop" onclick="handleHottiesAgeBackdropClick(event)">
+  <div class="modal-window age-verification-modal-window" onclick="event.stopPropagation()">
+    <div class="modal-header age-modal-header">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <span class="age-icon-badge">🔞</span>
+        <span style="font-weight:700; font-size:1.05rem;">Age Verification Required</span>
+      </div>
+      <button class="modal-close" onclick="declineHottiesAgeVerification()" aria-label="Exit category" title="Exit to All News">✕</button>
+    </div>
+    <div class="age-modal-body">
+      <div class="age-warning-banner">
+        <div class="age-warning-icon">⚠️</div>
+        <div class="age-warning-text">
+          <strong>18+ Restricted Section:</strong> You are requesting access to the <strong>Hotties &amp; Glamour</strong> category.
+        </div>
+      </div>
+
+      <div class="age-modal-description">
+        <p>This category contains unmoderated celebrity glamour, adult entertainment coverage, mature culture, and lifestyle imagery intended solely for consenting adults.</p>
+        <p>You must confirm you are at least <strong>18 years of age</strong> (or the age of legal majority in your jurisdiction) before any content in this section can be displayed.</p>
+      </div>
+
+      <div class="age-modal-actions">
+        <button type="button" class="btn-age-confirm" id="btnConfirmAge18" onclick="confirmHottiesAgeVerification()">
+          <span>🔞 I am 18+ · Enter Category</span>
+        </button>
+        <button type="button" class="btn-age-decline" onclick="declineHottiesAgeVerification()">
+          <span>← Exit to All News</span>
+        </button>
+      </div>
+      
+      <div class="age-modal-disclaimer">
+        Your confirmation will be saved for this device. Content will remain hidden until verified.
       </div>
     </div>
   </div>
@@ -8344,6 +8758,420 @@
     if (e.target.id === 'aboutModalBackdrop') {
       closeAboutModal();
     }
+  };
+
+  // ── DEVELOPER NEWS SOURCES MANAGER (@marvelist ONLY) ───────────────────────
+  let cachedDeveloperSources = null;
+
+  async function fetchDeveloperSourcesList(force = false) {
+    if (cachedDeveloperSources && !force) return cachedDeveloperSources;
+    try {
+      const res = await fetch('/api/developer/news-sources?user=' + encodeURIComponent(currentUser?.usernameLower || 'marvelist'));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data && data.ok) {
+        cachedDeveloperSources = data;
+        const countBadge = document.getElementById('sideCountDevSources');
+        if (countBadge) {
+          countBadge.textContent = String(data.customSources?.length || 0);
+        }
+        return data;
+      }
+    } catch (err) {
+      console.warn('[DevSources] Error loading news sources:', err);
+    }
+    return cachedDeveloperSources || { defaultSources: [], customSources: [] };
+  }
+
+  function renderDeveloperSourcesUI(loading = false, data = null) {
+    const body = document.getElementById('devSourcesModalBody');
+    if (!body) return;
+
+    if (loading && !data) {
+      body.innerHTML = `
+        <div style="text-align: center; padding: 2.5rem 1rem;">
+          <div class="skeleton" style="height: 120px; border-radius: 14px; margin-bottom: 1rem;"></div>
+          <div class="skeleton" style="height: 80px; border-radius: 12px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton" style="height: 80px; border-radius: 12px;"></div>
+        </div>
+      `;
+      return;
+    }
+
+    const customList = data?.customSources || [];
+    const defaultList = data?.defaultSources || [];
+
+    const categoryOptions = [
+      { key: 'cinema', label: '🎬 Cinema (Hollywood & Global)' },
+      { key: 'hollywood', label: '🎥 Hollywood Cinema' },
+      { key: 'bollywood', label: '🍿 Bollywood Cinema' },
+      { key: 'marvel', label: '⚡ Marvel & MCU' },
+      { key: 'facts', label: '💡 Mind-Blowing Facts' },
+      { key: 'science', label: '🔬 Science & Discovery' },
+      { key: 'games', label: '🎮 Gaming & Esports' },
+      { key: 'hotties', label: '🔥 Hotties & Glamour Icons' },
+      { key: 'tech', label: '💻 Tech & AI' },
+    ];
+
+    const categoryColorMap = {
+      cinema: '#ef4444',
+      hollywood: '#f97316',
+      bollywood: '#ec4899',
+      marvel: '#dc2626',
+      facts: '#eab308',
+      science: '#10b981',
+      games: '#8b5cf6',
+      hotties: '#f43f5e',
+      tech: '#06b6d4',
+    };
+
+    let customSourcesHTML = '';
+    if (customList.length === 0) {
+      customSourcesHTML = `
+        <div style="text-align:center; padding: 1.5rem 1rem; border: 1.5px dashed var(--border-color, rgba(0,0,0,0.12)); border-radius: 12px; opacity: 0.8; font-size: 0.85rem;">
+          📡 No custom news feeds added yet. Use the form above to add your first feed!
+        </div>
+      `;
+    } else {
+      customSourcesHTML = customList.map(src => {
+        const catKey = src.categoryKey || 'tech';
+        const catColor = categoryColorMap[catKey] || '#06b6d4';
+        const formattedDate = src.addedAt ? new Date(src.addedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+        return `
+          <div class="dev-source-item-card">
+            <div class="dev-source-info-left">
+              <div class="dev-source-title-row">
+                <span class="dev-source-name-text">${esc(src.name)}</span>
+                <span class="dev-source-tag-pill" style="background: ${catColor}18; color: ${catColor}; border: 1px solid ${catColor}40;">
+                  ${esc(catKey)}
+                </span>
+                ${src.defaultTopic ? `<span style="font-size: 0.7rem; opacity: 0.7;">• ${esc(src.defaultTopic)}</span>` : ''}
+              </div>
+              <div class="dev-source-url-text" title="${esc(src.url)}">${esc(src.url)}</div>
+              <div style="font-size: 0.68rem; opacity: 0.6;">Added ${esc(formattedDate)} by @${esc(src.addedBy || 'marvelist')}</div>
+            </div>
+            <button type="button" class="btn-small" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); flex-shrink: 0;" onclick="deleteDeveloperSource('${esc(src.id)}', '${esc(src.name)}')">
+              Remove
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const defaultSourcesHTML = defaultList.map(src => {
+      const catKey = src.categoryKey || 'tech';
+      const catColor = categoryColorMap[catKey] || '#06b6d4';
+      return `
+        <div class="dev-source-item-card" style="opacity: 0.85; padding: 0.6rem 0.85rem;">
+          <div class="dev-source-info-left">
+            <div class="dev-source-title-row">
+              <span class="dev-source-name-text" style="font-size: 0.8rem;">${esc(src.name)}</span>
+              <span class="dev-source-tag-pill" style="background: ${catColor}14; color: ${catColor}; font-size: 0.65rem;">
+                ${esc(catKey || 'Tech & AI')}
+              </span>
+            </div>
+            <div class="dev-source-url-text" style="font-size: 0.68rem;">${esc(src.url)}</div>
+          </div>
+          <span style="font-size: 0.68rem; opacity: 0.6; padding: 0.2rem 0.5rem; background: var(--bg); border-radius: 6px;">Built-in</span>
+        </div>
+      `;
+    }).join('');
+
+    body.innerHTML = `
+      <div style="font-size: 0.85rem; line-height: 1.45; opacity: 0.9; background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; padding: 0.65rem 0.85rem; border-radius: 0 8px 8px 0;">
+        ⚡ <strong>Developer Control Panel:</strong> Add live RSS/Atom feeds or websites to any category. All active feeds are automatically polled and indexed every 15 minutes, with stories seamlessly fed into Paper Flow's news reader.
+      </div>
+
+      <!-- ADD NEW SOURCE FORM -->
+      <form class="dev-source-form-card" onsubmit="submitNewDeveloperSource(event)">
+        <div style="font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+          <span>➕ Add News Source</span>
+        </div>
+
+        <div class="dev-form-grid">
+          <div class="dev-form-field">
+            <label for="devSourceName">Source Name *</label>
+            <input type="text" id="devSourceName" placeholder="e.g. Marvel Studios News, IGN, SpaceNews" maxlength="80" required />
+          </div>
+          <div class="dev-form-field">
+            <label for="devSourceCategory">News Category *</label>
+            <select id="devSourceCategory">
+              ${categoryOptions.map(opt => `<option value="${opt.key}">${opt.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="dev-form-field">
+          <label for="devSourceUrl">RSS / Atom Feed URL *</label>
+          <input type="url" id="devSourceUrl" placeholder="https://example.com/rss.xml or /feed/" required />
+        </div>
+
+        <div class="dev-form-field">
+          <label for="devSourceTopic">Default Topic / Tag (Optional)</label>
+          <input type="text" id="devSourceTopic" placeholder="e.g. Marvel Cinematic Universe, Indie Games, Deep Space" maxlength="60" />
+        </div>
+
+        <div id="devSourceTestFeedback" style="display: none;"></div>
+
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.65rem; margin-top: 0.25rem; flex-wrap: wrap;">
+          <button type="button" class="btn-small" style="padding: 0.55rem 0.95rem; font-size: 0.78rem;" onclick="testDeveloperNewsSource()">
+            🧪 Test Feed
+          </button>
+          <button type="submit" class="btn-post" id="btnDevSubmitSource" style="padding: 0.55rem 1.15rem; font-size: 0.8rem; background: #d97706; border-color: #b45309; color: #fff;">
+            + Add Source &amp; Sync Now
+          </button>
+        </div>
+      </form>
+
+      <!-- ACTIVE CUSTOM SOURCES SECTION -->
+      <div class="dev-sources-list-wrap">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+          <span style="font-weight: 700; font-size: 0.88rem;">📡 Active Custom Feeds (${customList.length})</span>
+          <button type="button" class="btn-small" style="font-size: 0.68rem; padding: 0.2rem 0.5rem;" onclick="openDeveloperSourcesModal()">↻ Refresh</button>
+        </div>
+        ${customSourcesHTML}
+      </div>
+
+      <!-- DEFAULT SYSTEM FEEDS SECTION -->
+      <details style="margin-top: 0.5rem; font-size: 0.82rem; cursor: pointer;">
+        <summary style="font-weight: 700; opacity: 0.8; padding: 0.4rem 0;">
+          📋 View Built-in Multi-Sector Feeds (${defaultList.length})
+        </summary>
+        <div class="dev-sources-list-wrap" style="margin-top: 0.6rem;">
+          ${defaultSourcesHTML}
+        </div>
+      </details>
+    `;
+  }
+
+  window.openDeveloperSourcesModal = async function () {
+    if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) {
+      showToast('Developer access required (@marvelist).');
+      return;
+    }
+    toggleSidePanel(false);
+    renderDeveloperSourcesUI(true);
+    openModalWithMotion('developerSourcesModalBackdrop');
+    const data = await fetchDeveloperSourcesList(true);
+    renderDeveloperSourcesUI(false, data);
+  };
+
+  window.closeDeveloperSourcesModal = function () {
+    closeModalWithMotion('developerSourcesModalBackdrop');
+  };
+
+  window.handleDeveloperSourcesBackdropClick = function (e) {
+    if (e.target.id === 'developerSourcesModalBackdrop') {
+      closeDeveloperSourcesModal();
+    }
+  };
+
+  window.testDeveloperNewsSource = async function () {
+    const url = (document.getElementById('devSourceUrl')?.value || '').trim();
+    const name = (document.getElementById('devSourceName')?.value || '').trim();
+    const categoryKey = (document.getElementById('devSourceCategory')?.value || 'tech').trim();
+    const topic = (document.getElementById('devSourceTopic')?.value || '').trim();
+    const feedbackEl = document.getElementById('devSourceTestFeedback');
+    if (!feedbackEl) return;
+
+    if (!url || !url.startsWith('http')) {
+      feedbackEl.style.display = 'block';
+      feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Please enter a valid HTTP or HTTPS feed URL.</div>`;
+      return;
+    }
+
+    feedbackEl.style.display = 'block';
+    feedbackEl.innerHTML = `<div class="dev-test-box dev-test-loading">⏳ Fetching and testing feed…</div>`;
+
+    try {
+      const res = await fetch('/api/developer/news-sources/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usernameLower: currentUser?.usernameLower || 'marvelist',
+          url,
+          name: name || 'Test Source',
+          categoryKey,
+          defaultTopic: topic,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Feed test failed');
+      }
+      const sampleTitles = (data.sampleItems || []).map(it => `• "${esc(it.title)}"`).join('<br>');
+      feedbackEl.innerHTML = `
+        <div class="dev-test-box dev-test-success">
+          <strong>✅ Feed Active &amp; Valid!</strong> Found <strong>${data.count}</strong> recent stories.<br>
+          <span style="font-size:0.75rem; opacity:0.85;">Preview stories:</span><br>
+          <div style="margin-top:0.35rem; font-size:0.75rem; line-height:1.4;">${sampleTitles}</div>
+        </div>
+      `;
+    } catch (err) {
+      feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">❌ Error testing feed: ${esc(err.message)}</div>`;
+    }
+  };
+
+  window.submitNewDeveloperSource = async function (e) {
+    if (e) e.preventDefault();
+    const nameInput = document.getElementById('devSourceName');
+    const urlInput = document.getElementById('devSourceUrl');
+    const categorySelect = document.getElementById('devSourceCategory');
+    const topicInput = document.getElementById('devSourceTopic');
+    const feedbackEl = document.getElementById('devSourceTestFeedback');
+    const submitBtn = document.getElementById('btnDevSubmitSource');
+
+    const name = (nameInput?.value || '').trim();
+    const url = (urlInput?.value || '').trim();
+    const categoryKey = (categorySelect?.value || 'tech').trim();
+    const defaultTopic = (topicInput?.value || '').trim();
+
+    if (!name) {
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Source name is required.</div>`;
+      }
+      nameInput?.focus();
+      return;
+    }
+    if (!url || !url.startsWith('http')) {
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Valid feed URL is required.</div>`;
+      }
+      urlInput?.focus();
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Adding & Syncing…';
+    }
+
+    try {
+      const res = await fetch('/api/developer/news-sources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usernameLower: currentUser?.usernameLower || 'marvelist',
+          name,
+          url,
+          categoryKey,
+          defaultTopic,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Failed to add source');
+      }
+
+      showToast(`✅ Source "${name}" added! Polling started.`);
+      if (nameInput) nameInput.value = '';
+      if (urlInput) urlInput.value = '';
+      if (topicInput) topicInput.value = '';
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-success">✅ Added "${esc(name)}" to <strong>${esc(categoryKey)}</strong>! Polling and background sync triggered.</div>`;
+      }
+
+      const fresh = await fetchDeveloperSourcesList(true);
+      renderDeveloperSourcesUI(false, fresh);
+
+      if (typeof window.fetchAndSyncAiTechNews === 'function') {
+        window.fetchAndSyncAiTechNews(true);
+      }
+    } catch (err) {
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">❌ Failed to add source: ${esc(err.message)}</div>`;
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '+ Add Source & Sync Now';
+      }
+    }
+  };
+
+  window.deleteDeveloperSource = async function (sourceId, sourceName) {
+    if (!confirm(`Are you sure you want to remove the source "${sourceName}"?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/developer/news-sources/' + encodeURIComponent(sourceId), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usernameLower: currentUser?.usernameLower || 'marvelist',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Failed to delete source');
+      }
+
+      showToast(`Removed source "${sourceName}".`);
+      const fresh = await fetchDeveloperSourcesList(true);
+      renderDeveloperSourcesUI(false, fresh);
+    } catch (err) {
+      showToast(`❌ Error: ${err.message}`);
+    }
+  };
+
+  // ── HOTTIES 18+ MANDATORY AGE VERIFICATION GATE ────────────────────────────
+  const HOTTIES_AGE_STORAGE_KEY = 'paperflow_hotties_age_verified_18';
+
+  function isHottiesAgeVerified() {
+    try {
+      return localStorage.getItem(HOTTIES_AGE_STORAGE_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  window.isHottiesAgeVerified = isHottiesAgeVerified;
+
+  window.openHottiesAgeVerificationModal = function () {
+    openModalWithMotion('hottiesAgeVerificationModalBackdrop');
+  };
+
+  window.closeHottiesAgeVerificationModal = function () {
+    closeModalWithMotion('hottiesAgeVerificationModalBackdrop');
+  };
+
+  window.handleHottiesAgeBackdropClick = function (e) {
+    if (e.target.id === 'hottiesAgeVerificationModalBackdrop') {
+      declineHottiesAgeVerification();
+    }
+  };
+
+  window.confirmHottiesAgeVerification = function () {
+    try {
+      localStorage.setItem(HOTTIES_AGE_STORAGE_KEY, 'true');
+    } catch (e) {}
+    closeHottiesAgeVerificationModal();
+    activeFilter = 'news';
+    activeNewsSector = 'hotties';
+    shouldAnimateFeedCards = false;
+    const fg = document.getElementById('filterGroup');
+    if (fg) fg.classList.remove('open');
+    if (!aiTechNewsItems || aiTechNewsItems.length === 0) {
+      fetchAndSyncAiTechNews(false);
+    }
+    renderAll();
+    showToast('🔞 18+ verified. You now have access to Hotties.');
+  };
+
+  window.declineHottiesAgeVerification = function () {
+    closeHottiesAgeVerificationModal();
+    activeFilter = 'news';
+    activeNewsSector = 'all_news';
+    shouldAnimateFeedCards = false;
+    const fg = document.getElementById('filterGroup');
+    if (fg) fg.classList.remove('open');
+    renderAll();
+    showToast('Age verification declined. Showing All News.');
   };
 
   // ── HIDE TOP BANNER ON SCROLL DOWN (HYSTERESIS + RAF TO PREVENT JITTER) ─────
@@ -11975,8 +12803,8 @@
     },
     {
       key: 'hotties',
-      label: '🔥 Hotties',
-      shortLabel: 'Hotties',
+      label: '🔞 Hotties (18+)',
+      shortLabel: 'Hotties (18+)',
       dotClass: 'dot-sector-hotties',
       urls: [
         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80',
@@ -13032,6 +13860,21 @@
       setTextIfChanged(countReportsEl, getReportedPostGroups().length);
     }
 
+    const sideBtnDevSources = document.getElementById('sideBtnDevSources');
+    const btnDevSources = document.getElementById('btnDevSources');
+    if (sideBtnDevSources) {
+      sideBtnDevSources.style.display = isDev ? 'flex' : 'none';
+      if (isDev && cachedDeveloperSources) {
+        setTextIfChanged(document.getElementById('sideCountDevSources'), cachedDeveloperSources.customSources?.length || 0);
+      } else if (isDev && !cachedDeveloperSources) {
+        fetchDeveloperSourcesList();
+      }
+    }
+    if (btnDevSources) {
+      btnDevSources.classList.toggle('visible', isDev && isNewsActive);
+      btnDevSources.style.display = (isDev && isNewsActive) ? 'inline-flex' : 'none';
+    }
+
     document.getElementById('sideBtnBoard')?.classList.toggle('active', isBoardAllActive);
     document.getElementById('sideBtnNews')?.classList.toggle('active', isNewsActive);
     document.getElementById('quickSwitchAll')?.classList.toggle('active', isBoardAllActive);
@@ -13118,9 +13961,10 @@
     // STRICT DISTINCTION:
     // - When in News (activeFilter === 'news'), ONLY show News Categories in #filterGroup.
     // - When in All Flows / The Board (activeFilter !== 'news'), ONLY show Board Flow Categories in #filterGroup.
+    const isDev = Boolean(currentUser && isDeveloperUser(currentUser.usernameLower));
     const isNewsMode = activeFilter === 'news';
     const filterSig = isNewsMode
-      ? `news_only|${activeNewsSector}|` + newsSectorItems.map(sec => `${sec.key}:${sectorCounts[sec.key] || 0}`).join(',')
+      ? `news_only|${isDev ? 'dev' : 'nodev'}|${activeNewsSector}|` + newsSectorItems.map(sec => `${sec.key}:${sectorCounts[sec.key] || 0}`).join(',')
       : `board_only|${activeFilter}|` + boardCategories.map(cat => `${cat}:${cat === 'all' ? nonNewsAllCount : (tagCounts[cat] || 0)}`).join(',');
 
     if (fg.dataset.filterSig === filterSig && fg.children.length > 0) {
@@ -13134,6 +13978,26 @@
       header.className = 'filter-section-header';
       header.innerHTML = `<span>📰 News Categories</span><span>${totalNewsCount}</span>`;
       fg.appendChild(header);
+
+      if (isDev) {
+        const devBtn = document.createElement('button');
+        devBtn.type = 'button';
+        devBtn.className = 'filter-btn filter-dev-btn';
+        devBtn.style.cssText = 'background: rgba(245, 158, 11, 0.12); border: 1px dashed rgba(245, 158, 11, 0.45); margin-bottom: 0.35rem;';
+        devBtn.innerHTML = `
+          <span class="filter-btn-left">
+            <span>📡</span>
+            <span style="font-weight: 700; color: #b45309;">+ Manage / Add Sources (@marvelist)</span>
+          </span>
+          <span class="filter-count">⚡</span>
+        `;
+        devBtn.onclick = (e) => {
+          e.stopPropagation();
+          fg.classList.remove('open');
+          openDeveloperSourcesModal();
+        };
+        fg.appendChild(devBtn);
+      }
 
       newsSectorItems.forEach(sec => {
         const count = sectorCounts[sec.key] || 0;
@@ -13149,6 +14013,11 @@
           <span class="filter-count">${count}</span>
         `;
         btn.onclick = () => {
+          if (sec.key === 'hotties' && !isHottiesAgeVerified()) {
+            fg.classList.remove('open');
+            openHottiesAgeVerificationModal();
+            return;
+          }
           activeFilter = 'news';
           activeNewsSector = sec.key;
           shouldAnimateFeedCards = false;
@@ -13424,6 +14293,27 @@
         filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
       }
     } else if (activeFilter === 'news') {
+      if (activeNewsSector === 'hotties' && !isHottiesAgeVerified()) {
+        openHottiesAgeVerificationModal();
+        feed.innerHTML = `
+          <div class="hotties-gate-card">
+            <div style="font-size: 3.2rem; line-height: 1;">🔞</div>
+            <div style="font-weight: 800; font-size: 1.25rem; color: #be123c;">Age Verification Required (18+)</div>
+            <p style="max-width: 440px; opacity: 0.9; line-height: 1.55; font-size: 0.88rem;">
+              The Hotties section contains glamour icons, mature editorial coverage, and adult lifestyle imagery intended exclusively for consenting adults (18+).
+            </p>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 0.5rem; width: 100%; max-width: 380px;">
+              <button type="button" class="btn-age-confirm" onclick="openHottiesAgeVerificationModal()">
+                🔞 Confirm 18+ to View
+              </button>
+              <button type="button" class="btn-age-decline" onclick="declineHottiesAgeVerification()">
+                ← Return to All News
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
       filtered = activeViewMode === 'board'
         ? [...baseList]
         : baseList.filter(p => getEffectivePostCategory(p) === 'news' || p.isAiNews);
@@ -13477,7 +14367,7 @@
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
 
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
-    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${activeNewsSector}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${activeNewsSector}|${isHottiesAgeVerified() ? 'hotties18ok' : 'hotties18lock'}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
 
     // Seamless in-place update when only likes, stars, comments, or background taste metadata changed — ZERO DOM reload or screen jitter

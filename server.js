@@ -17,8 +17,8 @@ app.use(express.json());
 // Enable CORS for API endpoints so the Android APK WebView and web client can access them
 app.use('/api', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Developer-User');
   if (req.method === 'OPTIONS') {
     res.status(204).end();
     return;
@@ -1208,6 +1208,50 @@ function getGuaranteedMultiSectorSeedArticles() {
   ];
 }
 
+const DEFAULT_RELIABLE_RSS_FEEDS = [
+  { id: 'def_verge', name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
+  { id: 'def_arstechnica', name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/technology-lab', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
+  { id: 'def_techcrunch', name: 'TechCrunch AI & Tech', url: 'https://techcrunch.com/feed/', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
+  { id: 'def_variety', name: 'Variety Hollywood', url: 'https://variety.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood', isDefault: true },
+  { id: 'def_thr', name: 'The Hollywood Reporter', url: 'https://www.hollywoodreporter.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood', isDefault: true },
+  { id: 'def_bollywoodhungama', name: 'Bollywood Hungama', url: 'https://www.bollywoodhungama.com/rss/news.xml', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood', isDefault: true },
+  { id: 'def_indianexpress', name: 'Indian Express Bollywood', url: 'https://indianexpress.com/section/entertainment/bollywood/feed/', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood', isDefault: true },
+  { id: 'def_collidermarvel', name: 'Collider Marvel', url: 'https://collider.com/tag/marvel/feed/', defaultTopic: 'Marvel & MCU', categoryKey: 'marvel', isDefault: true },
+  { id: 'def_smithsonian', name: 'Smithsonian Smart News & Facts', url: 'https://www.smithsonianmag.com/rss/smart-news/', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts', isDefault: true },
+  { id: 'def_sciencedaily', name: 'ScienceDaily Discovery', url: 'https://www.sciencedaily.com/rss/top/science.xml', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
+  { id: 'def_nasa', name: 'NASA Breaking Science', url: 'https://www.nasa.gov/news-release/feed/', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
+  { id: 'def_polygon', name: 'Polygon Gaming', url: 'https://www.polygon.com/rss/index.xml', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  { id: 'def_gamespot', name: 'GameSpot News', url: 'https://www.gamespot.com/feeds/news/', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  { id: 'def_pagesix', name: 'Page Six Celebrity & Glamour', url: 'https://pagesix.com/feed/', defaultTopic: 'Hotties & Glamour Icons', categoryKey: 'hotties', isDefault: true },
+];
+
+const CUSTOM_NEWS_SOURCES_FILE = path.join(__dirname, 'custom_news_sources.json');
+
+function loadCustomNewsSources() {
+  try {
+    if (fs.existsSync(CUSTOM_NEWS_SOURCES_FILE)) {
+      const raw = fs.readFileSync(CUSTOM_NEWS_SOURCES_FILE, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[NewsSources] Error loading custom sources:', err.message);
+  }
+  return [];
+}
+
+function saveCustomNewsSources(sources) {
+  try {
+    fs.writeFileSync(CUSTOM_NEWS_SOURCES_FILE, JSON.stringify(sources, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error('[NewsSources] Error saving custom sources:', err.message);
+    return false;
+  }
+}
+
 async function fetchLiveTechArticlesSeed() {
   const candidates = [];
   const seenUrls = new Set();
@@ -1239,23 +1283,9 @@ async function fetchLiveTechArticlesSeed() {
     candidates.push(gItem);
   }
 
-  // 1. Direct Authentic & Reliable Top-Tier Multi-Sector Editorial Feeds (Zero Moderation)
-  const reliableRssFeeds = [
-    { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', defaultTopic: '', categoryKey: '' },
-    { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/technology-lab', defaultTopic: '', categoryKey: '' },
-    { name: 'TechCrunch AI & Tech', url: 'https://techcrunch.com/feed/', defaultTopic: '', categoryKey: '' },
-    { name: 'Variety Hollywood', url: 'https://variety.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood' },
-    { name: 'The Hollywood Reporter', url: 'https://www.hollywoodreporter.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood' },
-    { name: 'Bollywood Hungama', url: 'https://www.bollywoodhungama.com/rss/news.xml', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood' },
-    { name: 'Indian Express Bollywood', url: 'https://indianexpress.com/section/entertainment/bollywood/feed/', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood' },
-    { name: 'Collider Marvel', url: 'https://collider.com/tag/marvel/feed/', defaultTopic: 'Marvel & MCU', categoryKey: 'marvel' },
-    { name: 'Smithsonian Smart News & Facts', url: 'https://www.smithsonianmag.com/rss/smart-news/', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts' },
-    { name: 'ScienceDaily Discovery', url: 'https://www.sciencedaily.com/rss/top/science.xml', defaultTopic: 'Science & Discovery', categoryKey: 'science' },
-    { name: 'NASA Breaking Science', url: 'https://www.nasa.gov/news-release/feed/', defaultTopic: 'Science & Discovery', categoryKey: 'science' },
-    { name: 'Polygon Gaming', url: 'https://www.polygon.com/rss/index.xml', defaultTopic: 'Gaming & Esports', categoryKey: 'games' },
-    { name: 'GameSpot News', url: 'https://www.gamespot.com/feeds/news/', defaultTopic: 'Gaming & Esports', categoryKey: 'games' },
-    { name: 'Page Six Celebrity & Glamour', url: 'https://pagesix.com/feed/', defaultTopic: 'Hotties & Glamour Icons', categoryKey: 'hotties' },
-  ];
+  // 1. Direct Authentic & Reliable Top-Tier Multi-Sector Editorial Feeds (Default + Custom Developer Feeds)
+  const customFeeds = loadCustomNewsSources();
+  const allEditorialFeeds = [...DEFAULT_RELIABLE_RSS_FEEDS, ...customFeeds];
 
   // 2. High-velocity Hacker News Front Page & Breaking AI/Tech queries within the last 10 days
   const tenDaysAgoUnix = Math.floor((Date.now() - NEWS_MAX_AGE_MS) / 1000);
@@ -1267,7 +1297,7 @@ async function fetchLiveTechArticlesSeed() {
   ];
 
   await Promise.allSettled([
-    ...reliableRssFeeds.map(async (feed) => {
+    ...allEditorialFeeds.map(async (feed) => {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 4200);
@@ -1282,12 +1312,12 @@ async function fetchLiveTechArticlesSeed() {
         if (!res.ok) return;
         const xml = await res.text();
         const parsedItems = parseRssOrAtomItems(xml, feed.name, feed.defaultTopic, feed.categoryKey);
-        for (const item of parsedItems.slice(0, 5)) {
+        for (const item of parsedItems.slice(0, 8)) {
           if (!item.url || seenUrls.has(item.url)) continue;
           if (!isWithinTenDaysWindow(item.publishedAt)) continue;
           if (!isInterestingTechStory(item.title, item.url)) continue;
           seenUrls.add(item.url);
-          item.categoryKey = item.categoryKey || detectRigidCategoryKey(item.title, feed.name, feed.categoryKey, item.url);
+          item.categoryKey = feed.categoryKey || item.categoryKey || detectRigidCategoryKey(item.title, feed.name, feed.categoryKey, item.url);
           item.topicTags = getRigidTopicTagsForCategoryKey(item.categoryKey, item.title);
           item.imageUrl = getCuratedNewsBannerImage(item.title, item.topicTags, item.extractedImage, item.categoryKey, usedSeedImages);
           item.interestScore = computeStoryInterestScore(item);
@@ -2118,6 +2148,182 @@ app.post('/api/ai-tech-news/refresh', async (req, res) => {
       items: (aiTechNewsState.items || []).filter((it) =>
         isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts)
       ),
+    });
+  }
+});
+
+// ── DEVELOPER NEWS SOURCES MANAGEMENT (@marvelist) ───────────────────────────
+function isAuthorizedDeveloper(req) {
+  const username = String(
+    req.body?.usernameLower ||
+    req.body?.username ||
+    req.query?.user ||
+    req.query?.username ||
+    req.headers['x-developer-user'] ||
+    ''
+  ).trim().toLowerCase();
+  return username === 'marvelist';
+}
+
+app.get('/api/developer/news-sources', (req, res) => {
+  try {
+    const customSources = loadCustomNewsSources();
+    res.json({
+      ok: true,
+      defaultSources: DEFAULT_RELIABLE_RSS_FEEDS,
+      customSources,
+      totalCount: DEFAULT_RELIABLE_RSS_FEEDS.length + customSources.length,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.post('/api/developer/news-sources', async (req, res) => {
+  try {
+    if (!isAuthorizedDeveloper(req)) {
+      return res.status(403).json({
+        ok: false,
+        error: 'Unauthorized: news source addition is restricted exclusively to the developer (@marvelist).',
+      });
+    }
+
+    const { name, url, categoryKey, defaultTopic } = req.body || {};
+    const cleanName = String(name || '').trim();
+    const cleanUrl = String(url || '').trim();
+    const cleanCategoryKey = String(categoryKey || '').trim().toLowerCase();
+    const cleanDefaultTopic = String(defaultTopic || '').trim();
+
+    if (!cleanName) {
+      return res.status(400).json({ ok: false, error: 'Source name is required.' });
+    }
+    if (!cleanUrl || !/^https?:\/\/.+/i.test(cleanUrl)) {
+      return res.status(400).json({ ok: false, error: 'A valid HTTP/HTTPS RSS or Atom feed URL is required.' });
+    }
+
+    const validCategoryKeys = ['cinema', 'hollywood', 'bollywood', 'marvel', 'facts', 'science', 'games', 'hotties', 'tech'];
+    const resolvedCategoryKey = validCategoryKeys.includes(cleanCategoryKey) ? cleanCategoryKey : 'tech';
+
+    const currentSources = loadCustomNewsSources();
+    const existingIndex = currentSources.findIndex(s => s.url.toLowerCase() === cleanUrl.toLowerCase());
+    
+    const newSource = {
+      id: existingIndex >= 0 ? currentSources[existingIndex].id : `src_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name: cleanName,
+      url: cleanUrl,
+      categoryKey: resolvedCategoryKey,
+      defaultTopic: cleanDefaultTopic || '',
+      addedBy: 'marvelist',
+      addedAt: new Date().toISOString(),
+    };
+
+    if (existingIndex >= 0) {
+      currentSources[existingIndex] = newSource;
+    } else {
+      currentSources.push(newSource);
+    }
+
+    saveCustomNewsSources(currentSources);
+
+    // Trigger instant background refresh so new sources populate immediately
+    refreshAiTechNews(true).catch(err => {
+      console.warn('[NewsSources] Background refresh after adding source had an issue:', err.message);
+    });
+
+    res.json({
+      ok: true,
+      message: `Source "${cleanName}" added successfully. Stories are now being polled and synced.`,
+      addedSource: newSource,
+      customSources: currentSources,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.delete('/api/developer/news-sources/:id', (req, res) => {
+  try {
+    if (!isAuthorizedDeveloper(req)) {
+      return res.status(403).json({
+        ok: false,
+        error: 'Unauthorized: news source removal is restricted exclusively to the developer (@marvelist).',
+      });
+    }
+
+    const sourceId = String(req.params.id || '').trim();
+    if (!sourceId) {
+      return res.status(400).json({ ok: false, error: 'Source ID is required.' });
+    }
+
+    const currentSources = loadCustomNewsSources();
+    const filtered = currentSources.filter(s => s.id !== sourceId);
+    if (filtered.length === currentSources.length) {
+      return res.status(404).json({ ok: false, error: 'Custom source not found.' });
+    }
+
+    saveCustomNewsSources(filtered);
+
+    res.json({
+      ok: true,
+      message: 'Source deleted successfully.',
+      customSources: filtered,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.post('/api/developer/news-sources/test', async (req, res) => {
+  try {
+    if (!isAuthorizedDeveloper(req)) {
+      return res.status(403).json({
+        ok: false,
+        error: 'Unauthorized: developer access required (@marvelist).',
+      });
+    }
+
+    const { url, name, categoryKey, defaultTopic } = req.body || {};
+    const cleanUrl = String(url || '').trim();
+    if (!cleanUrl || !/^https?:\/\/.+/i.test(cleanUrl)) {
+      return res.status(400).json({ ok: false, error: 'Please enter a valid HTTP/HTTPS URL.' });
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const fetchRes = await fetch(cleanUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; PaperFlowNewsReader/1.0)',
+        Accept: 'application/rss+xml, application/xml, text/xml, */*',
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!fetchRes.ok) {
+      return res.status(400).json({
+        ok: false,
+        error: `Feed responded with HTTP status ${fetchRes.status} (${fetchRes.statusText})`,
+      });
+    }
+
+    const xml = await fetchRes.text();
+    const parsed = parseRssOrAtomItems(xml, name || 'Test Source', defaultTopic || '', categoryKey || '');
+
+    res.json({
+      ok: true,
+      count: parsed.length,
+      sampleItems: parsed.slice(0, 3).map(item => ({
+        title: item.title,
+        url: item.url,
+        publishedAt: item.publishedAt,
+        categoryKey: item.categoryKey,
+        hasImage: Boolean(item.extractedImage),
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      error: `Could not fetch or parse feed: ${err.message}`,
     });
   }
 });

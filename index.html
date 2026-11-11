@@ -8079,6 +8079,9 @@
 
     activeViewMode = 'board';
     activeFilter = 'news';
+    if (!activeNewsSector || activeNewsSector === 'hotties' || !isHottiesAgeVerified()) {
+      activeNewsSector = 'all_news';
+    }
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
     shouldAnimateFeedCards = false;
@@ -13302,8 +13305,12 @@
   }
 
   function doesPostMatchNewsSector(post, sectorKey) {
-    if (!sectorKey || sectorKey === 'all_news') return true;
     const primaryKey = getRigidNewsCategoryKey(post);
+    // Hotties (18+) content MUST NEVER leak into the general news feed or other sectors whatsoever!
+    if (primaryKey === 'hotties') {
+      return sectorKey === 'hotties';
+    }
+    if (!sectorKey || sectorKey === 'all_news') return true;
     if (sectorKey === 'cinema') {
       return primaryKey === 'cinema' || primaryKey === 'hollywood' || primaryKey === 'bollywood';
     }
@@ -13839,17 +13846,17 @@
     const repliesCount = currentUser ? getRepliesToMyPosts().length : 0;
     const pendingIn = getIncomingPendingRequestsForMe().length;
     const totalChats = getMyConversationPeers().length;
-    const nonNewsFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
-    const newsColumnCount = getCombinedNewsColumnPosts().length;
+    const nonNewsFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news' && getRigidNewsCategoryKey(p) !== 'hotties').length;
+    const generalNewsColumnCount = getCombinedNewsColumnPosts().filter(p => getRigidNewsCategoryKey(p) !== 'hotties').length;
     const isNewsActive = activeViewMode === 'board' && activeFilter === 'news';
     const isBoardAllActive = activeViewMode === 'board' && activeFilter !== 'news';
 
     setTextIfChanged(countAllEl, nonNewsFlowsCount);
-    setTextIfChanged(countNewsEl, newsColumnCount);
+    setTextIfChanged(countNewsEl, generalNewsColumnCount);
     setTextIfChanged(quickCountAllEl, nonNewsFlowsCount);
-    setTextIfChanged(quickCountNewsEl, newsColumnCount);
+    setTextIfChanged(quickCountNewsEl, generalNewsColumnCount);
     setTextIfChanged(countMyEl, currentUser ? getMyPosts().length : 0);
-    setTextIfChanged(countStarEl, getStarredPosts().length);
+    setTextIfChanged(countStarEl, getStarredPosts().filter(p => isHottiesAgeVerified() || getRigidNewsCategoryKey(p) !== 'hotties').length);
     setTextIfChanged(countRepEl, repliesCount);
     setTextIfChanged(countMsgEl, pendingIn > 0 ? `${pendingIn} new` : totalChats);
 
@@ -13912,14 +13919,15 @@
     let nonNewsAllCount = 0;
     allPosts.forEach(p => {
       const cat = getEffectivePostCategory(p);
-      if (cat !== 'news' && !p.isAiNews && p.docType !== 'ai_news') {
+      if (cat !== 'news' && !p.isAiNews && p.docType !== 'ai_news' && getRigidNewsCategoryKey(p) !== 'hotties') {
         nonNewsAllCount++;
         tagCounts[cat] = (tagCounts[cat] || 0) + 1;
       }
     });
 
     const combinedNewsPosts = getCombinedNewsColumnPosts();
-    const totalNewsCount = combinedNewsPosts.length;
+    const generalNewsPosts = combinedNewsPosts.filter(p => getRigidNewsCategoryKey(p) !== 'hotties');
+    const totalNewsCount = generalNewsPosts.length;
     tagCounts['news'] = totalNewsCount;
 
     const sectorCounts = { all_news: totalNewsCount };
@@ -14286,10 +14294,11 @@
     // and NEVER in the All Flows board (activeFilter === 'all').
     let filtered;
     if (activeViewMode === 'starred') {
+      const allowHotties = activeNewsSector === 'hotties' && isHottiesAgeVerified();
       filtered = activeFilter === 'all'
-        ? [...baseList]
-        : baseList.filter(p => getEffectivePostCategory(p) === activeFilter || (activeFilter === 'news' && p.isAiNews));
-      if (activeFilter === 'news' && activeNewsSector !== 'all_news') {
+        ? baseList.filter(p => (allowHotties ? getRigidNewsCategoryKey(p) === 'hotties' : getRigidNewsCategoryKey(p) !== 'hotties'))
+        : baseList.filter(p => (getEffectivePostCategory(p) === activeFilter || (activeFilter === 'news' && p.isAiNews)) && (allowHotties ? getRigidNewsCategoryKey(p) === 'hotties' : getRigidNewsCategoryKey(p) !== 'hotties'));
+      if (activeFilter === 'news') {
         filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
       }
     } else if (activeFilter === 'news') {
@@ -14317,18 +14326,22 @@
       filtered = activeViewMode === 'board'
         ? [...baseList]
         : baseList.filter(p => getEffectivePostCategory(p) === 'news' || p.isAiNews);
-      if (activeNewsSector !== 'all_news') {
-        filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
-      }
+
+      // STRICT ISOLATION: doesPostMatchNewsSector strictly rejects Hotties items when in all_news or other categories
+      filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
     } else if (activeFilter === 'all') {
-      filtered = baseList.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news');
+      filtered = baseList.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news' && getRigidNewsCategoryKey(p) !== 'hotties');
     } else {
-      filtered = baseList.filter(p => getEffectivePostCategory(p) === activeFilter && !p.isAiNews);
+      filtered = baseList.filter(p => getEffectivePostCategory(p) === activeFilter && !p.isAiNews && getRigidNewsCategoryKey(p) !== 'hotties');
     }
 
     // Filter by search bar (title, body, or username)
     if (qLower) {
-      filtered = filtered.filter(p => matchesSearchQuery(p, qLower));
+      filtered = filtered.filter(p => {
+        // Prevent hotties from leaking into search results unless user is explicitly in the hotties sector
+        if (activeNewsSector !== 'hotties' && getRigidNewsCategoryKey(p) === 'hotties') return false;
+        return matchesSearchQuery(p, qLower);
+      });
     }
 
     // Sort items:

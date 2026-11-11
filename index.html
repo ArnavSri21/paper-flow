@@ -6401,7 +6401,8 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+  // Connect to default Firestore database where all existing user flows and profiles reside
+  const db  = getFirestore(app);
   // Enable local IndexedDB persistence so accounts, flows & encrypted Paper Messages stay synced offline in the app
   enableIndexedDbPersistence(db).catch(() => {});
   const postsCol = collection(db, "posts");
@@ -6429,54 +6430,147 @@
   const CACHED_BOARD_POSTS_KEY = 'pf_cached_board_posts';
   let isFirestoreQuotaExhausted = false;
 
-  const DEFAULT_SEED_POSTS = [
+  // Authentic previous flows created by Marvelist (Arnav Srivastava), Arshpreet, and the community
+  const HISTORICAL_BOARD_POSTS = [
     {
-      id: 'flow_welcome_001',
-      title: 'Welcome to Paper Flow',
-      body: 'Welcome to Paper Flow! An open, anonymous space to share your confessions, unfiltered thoughts, stories, and opinions with the world. You can also chat privately with end-to-end encrypted Paper Messages.',
-      tag: 'updates',
-      customCategory: 'updates',
-      alias: 'Marvelist',
-      authorUsername: 'marvelist',
-      authorAvatar: '',
-      docType: 'post',
+      id: "TZf0vk3WRATqyASdAaSK",
+      title: "Computer Science",
+      body: "A really interesting video I found on yt.",
+      tag: "opinion",
+      alias: "Marvelist",
+      authorUsername: "marvelist",
+      authorAvatar: "",
+      authorBio: "I am Arnav Srivastava, the developer of this website and obsidian Sudoku.",
+      ownerToken: "user:marvelist",
+      linkUrl: "https://youtu.be/nXnG7sJz-Uk?si=UifJXdAZ9Sz_8WWd",
+      linkTitle: "check this out",
+      imageUrl: null,
+      customCategory: null,
+      docType: "post",
       isAiNews: false,
-      ts: Date.now() - 3600000 * 2,
-      createdAt: Date.now() - 3600000 * 2
+      ts: 1793709151093,
+      createdAt: 1793709151093
     },
     {
-      id: 'flow_opinion_002',
-      title: 'Late Night Musings',
-      body: 'Sometimes the best code and deepest conversations happen at 2 AM when the entire world is quiet and still.',
-      tag: 'opinion',
-      alias: 'NightOwl',
-      docType: 'post',
+      id: "ebGzSIMmwWbwKJqAHnkm",
+      title: "UPDATE",
+      body: "News related to tech and AI now available on PaperFlow. The short news summarized using AI and updates regularly, to keep you connected to what's happening in the world around you.",
+      tag: "other",
+      customCategory: "updates",
+      alias: "Marvelist",
+      authorUsername: "marvelist",
+      authorAvatar: "",
+      authorBio: "I am Arnav Srivastava, the developer of this website and obsidian Sudoku.",
+      ownerToken: "user:marvelist",
+      imageUrl: null,
+      linkUrl: null,
+      linkTitle: null,
+      docType: "post",
       isAiNews: false,
-      ts: Date.now() - 3600000 * 5,
-      createdAt: Date.now() - 3600000 * 5
+      ts: 1793337819185,
+      createdAt: 1793337819185
     },
     {
-      id: 'flow_story_003',
-      title: 'Coffee Shop Serendipity',
-      body: 'Ran into an old friend at an artisan cafe today after 7 years. We picked up right where we left off as if not a single day had passed.',
-      tag: 'story',
-      alias: 'Wanderer',
-      docType: 'post',
+      id: "lW1R6g7A1FHW1073Ja9j",
+      title: "Website Redesign",
+      body: "~Added a sign-in system with anonymous usernames(No email or phone no. required)\n~A brand new task bar\n~An all new side panel.\n~An ability to add images and links.\n~A star button to keep your favourite flows in one place.(In the side panel.)\n~A like button to know what other people love.\n~A reply button to give your opinion to other fellow flowers.\n~A pop-up post button to declutter the design.\n~A search button to easily find your flow.\n~An about section for every User.\n~An about section about the website.(In the side panel)\n~A dark mode(Toggle in the side panel.)\n~The Game corner moved to the side panel.\n~A seamless filter by category option.\n~Notication alerts. \n~ A messaging feature\n\nThese are the all new features added. Please give us your suggestions below in the reply section of this flow.\nThank you.",
+      tag: "other",
+      customCategory: "updates",
+      alias: "Marvelist",
+      authorUsername: "marvelist",
+      authorAvatar: "",
+      authorBio: "I am Arnav Srivastava, the developer of this website and obsidian Sudoku.",
+      ownerToken: "user:marvelist",
+      imageUrl: null,
+      linkUrl: null,
+      linkTitle: null,
+      editedAt: 1792649942494,
+      docType: "post",
       isAiNews: false,
-      ts: Date.now() - 3600000 * 8,
-      createdAt: Date.now() - 3600000 * 8
+      ts: 1792649942772,
+      createdAt: 1792649942772
+    },
+    {
+      id: "vV8QynL8hTYt6GnWBU0x",
+      title: "Obsidian Sudoku 🌋",
+      body: "The new Sudoku game is live. Try it out and leave your review below⬇️.",
+      tag: "other",
+      alias: "Arnav Srivastava",
+      authorUsername: "marvelist",
+      authorAvatar: "",
+      authorBio: "I am Arnav Srivastava, the developer of this website and obsidian Sudoku.",
+      docType: "post",
+      isAiNews: false,
+      ts: 1792494974407,
+      createdAt: 1792494974407
+    },
+    {
+      id: "6RTeQC2vXmGyHxqtZF9u",
+      title: null,
+      body: "Obsidian Sudoku⭐️⭐️⭐️⭐️⭐️",
+      tag: "other",
+      alias: "Anonymous",
+      docType: "post",
+      isAiNews: false,
+      ts: 1792498690569,
+      createdAt: 1792498690569
+    },
+    {
+      id: "EZuMmpbJAWEEBH4vyXvU",
+      title: "Happy baisakhi",
+      body: "Good morning everyone, respected Sisters, teachers and my dear friends.\n\nBaisakhi is a festival that holds profound cultural and historical significance across India, particularly in the vibrant state of Punjab. Falling on the first day of the month of Vaisakh, it marks the beginning of the solar New Year and the arrival of the spring harvest.\n\nFor the farming community, Baisakhi is a day of immense gratitude. After months of hard labor, the golden fields of wheat are ready for harvest. It is a time of joy and fulfillment, celebrated with traditional folk dances like Bhangra and Gidda, symbolizing the rhythm of life and the bounty of nature.\n\nBeyond the agricultural celebrations, Baisakhi carries a deep spiritual legacy. In 1699, on this very day, the tenth Sikh Guru, Shri Guru Gobind Singh Ji, established the Khalsa Panth. He transformed the community into a fellowship of \"Saint-Soldiers,\" dedicated to the principles of equality, justice, and unwavering courage. This historical event brought a powerful shift in society, teaching us that true strength lies in standing up for the oppressed and living with integrity.\n\nBaisakhi is not just about the festivities; it is about a fresh start and the spirit of selfless service. Whether it is in our studies or our personal lives, let us strive to harvest the best versions of ourselves.\n\nWishing you all a very happy and a prosperous Baisakhi.",
+      tag: "other",
+      alias: "Arshpreet",
+      docType: "post",
+      isAiNews: false,
+      ts: 1781201230520,
+      createdAt: 1781201230520
+    },
+    {
+      id: "o0Xf1BIukHV2gAraA1QP",
+      title: "Welcome to Paper Flow",
+      body: "Post anything without any JudgementGo ahead and post whatever you want, no judgment here!",
+      tag: "other",
+      customCategory: "updates",
+      alias: "Arnav Srivastava (Developer)",
+      authorUsername: "marvelist",
+      authorAvatar: "",
+      docType: "post",
+      isAiNews: false,
+      ts: 1781200720388,
+      createdAt: 1781200720388
     }
   ];
 
   function loadInitialCachedBoardPosts() {
+    const postMap = new Map();
+    // 1. Seed with the 7 authentic historical flows first
+    HISTORICAL_BOARD_POSTS.forEach(p => postMap.set(p.id, p));
+
+    // 2. Overlay any cached posts from localStorage
     try {
       const raw = localStorage.getItem(CACHED_BOARD_POSTS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          parsed.forEach(p => {
+            if (p && p.id && !p.isAiNews) postMap.set(p.id, p);
+          });
+        }
       }
     } catch (e) {}
-    return DEFAULT_SEED_POSTS;
+
+    // 3. Overlay any starred flows archived in localStorage or Phone Storage
+    try {
+      const starredMap = loadStarredPostsArchiveMap();
+      if (starredMap && typeof starredMap === 'object') {
+        Object.values(starredMap).forEach(p => {
+          if (p && p.id && !p.isAiNews) postMap.set(p.id, p);
+        });
+      }
+    } catch (e) {}
+
+    return Array.from(postMap.values());
   }
 
   function saveCachedBoardPosts(posts) {
@@ -8470,7 +8564,7 @@
   }
 
   // ── REAL-TIME LISTENER ──────────────────────────────────────────────────────
-  const q = query(postsCol, orderBy("ts", "desc"), limit(100));
+  const q = query(postsCol, orderBy("ts", "desc"));
 
   onSnapshot(q,
     (snapshot) => {
@@ -8866,7 +8960,11 @@
         }
       });
 
-      allPosts = survivingPosts;
+      // Merge live Firestore snapshot with all historical board posts so they are permanently preserved
+      const livePostsMap = new Map();
+      HISTORICAL_BOARD_POSTS.forEach(p => livePostsMap.set(p.id, p));
+      survivingPosts.forEach(p => livePostsMap.set(p.id, p));
+      allPosts = Array.from(livePostsMap.values());
       saveCachedBoardPosts(allPosts);
       isFirestoreQuotaExhausted = false;
       firestoreAiNewsMap = nextAiNews;
@@ -15506,9 +15604,10 @@
     } catch (e) {}
   })();
 
-  // Initial render of Auth UI, AI Tech News column sync, automatic AI taste analysis & connectivity state
+  // Initial render of Auth UI, board flows, AI Tech News column sync, automatic AI taste analysis & connectivity state
   renderAuthUI();
   syncOnlineConnectivityUI();
+  renderAll();
   setTimeout(() => {
     if (typeof window.syncLiquidGlassNavPill === 'function') {
       window.syncLiquidGlassNavPill();
@@ -15520,11 +15619,16 @@
   fetchAndSyncAiTechNews(false);
   analyzeUserNewsTasteWithAi(false).catch(() => {});
   pollBackgroundNotificationsClient();
-  // Regularly poll for the latest AI-summarized Tech & AI news every 5 minutes
+  // ── AUTOMATIC ADDITION OF NEWS IN DIFFERENT CATEGORIES DAILY EVERY 15 MINS ──
+  const NEWS_AUTO_ADD_INTERVAL_MS = 15 * 60 * 1000;
   setInterval(() => {
-    fetchAndSyncAiTechNews(false);
+    fetchAndSyncAiTechNews(true).then(() => {
+      if (activeFilter === 'news') {
+        showToast('✨ Fresh news added across Cinema, Marvel, Science, Games & Tech');
+      }
+    }).catch(() => {});
     analyzeUserNewsTasteWithAi(false).catch(() => {});
-  }, 5 * 60 * 1000);
+  }, NEWS_AUTO_ADD_INTERVAL_MS);
 </script>
 </body>
 </html>

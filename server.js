@@ -1994,6 +1994,55 @@ app.get('/api/share-snapshot/:snapFile', (req, res) => {
   res.send(entry.buffer);
 });
 
+const proxiedImageCache = new Map();
+app.get('/api/image-proxy', async (req, res) => {
+  try {
+    const rawUrl = String(req.query.url || '').trim();
+    if (!rawUrl || !/^https?:\/\//i.test(rawUrl)) {
+      res.status(400).send('Invalid image url');
+      return;
+    }
+    const cached = proxiedImageCache.get(rawUrl);
+    if (cached && cached.buffer && (Date.now() - cached.createdAt < 3600 * 1000)) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Content-Type', cached.contentType || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(cached.buffer);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6500);
+    const upstream = await fetch(rawUrl, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+      }
+    });
+    clearTimeout(timer);
+    if (!upstream.ok) {
+      res.status(upstream.status).send('Upstream image error');
+      return;
+    }
+    const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+    const arrBuf = await upstream.arrayBuffer();
+    const buffer = Buffer.from(arrBuf);
+    if (buffer.length > 0 && buffer.length < 8 * 1024 * 1024) {
+      proxiedImageCache.set(rawUrl, { buffer, contentType, createdAt: Date.now() });
+      if (proxiedImageCache.size > 60) {
+        const firstKey = proxiedImageCache.keys().next().value;
+        if (firstKey) proxiedImageCache.delete(firstKey);
+      }
+    }
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(buffer);
+  } catch (err) {
+    res.status(502).send('Failed to proxy image');
+  }
+});
+
 app.get('/api/ai-tech-news', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.refresh === 'true';

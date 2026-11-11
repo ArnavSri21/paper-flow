@@ -5005,22 +5005,23 @@
   .share-snapshot-preview-wrap {
     background: var(--surface-alt);
     border: 1.5px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 0.5rem;
+    border-radius: 20px;
+    padding: 0.6rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-height: 280px;
+    max-height: 390px;
     overflow: hidden;
   }
   .share-snapshot-preview-img {
     max-width: 100%;
-    max-height: 260px;
+    max-height: 368px;
     width: auto;
     height: auto;
-    border-radius: 6px;
+    border-radius: 16px;
     object-fit: contain;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+    cursor: zoom-in;
   }
   .btn-share-primary-sheet {
     width: 100%;
@@ -6313,7 +6314,7 @@
     </div>
     <div class="share-modal-body">
       <div class="share-snapshot-preview-wrap">
-        <img id="shareSnapshotPreviewImg" class="share-snapshot-preview-img" src="" alt="Flow Snapshot Preview" />
+        <img id="shareSnapshotPreviewImg" class="share-snapshot-preview-img" src="" alt="Flow Snapshot Preview" onclick="if(this.src) openLightbox(this.src)" title="Tap to view full-resolution snapshot" />
       </div>
       <button type="button" class="btn-share-primary-sheet" id="btnShareNativeSheet" onclick="triggerNativeShareFromModal()">
         <span>📲</span>
@@ -13912,44 +13913,212 @@
     return lines;
   }
 
+  function loadSingleCanvasImage(src, timeoutMs = 4500) {
+    return new Promise((resolve) => {
+      if (!src || typeof Image === 'undefined') {
+        resolve(null);
+        return;
+      }
+      const img = new Image();
+      let settled = false;
+      const finish = (result) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(result);
+      };
+      const timer = setTimeout(() => finish(null), timeoutMs);
+      if (!src.startsWith('data:')) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.onload = () => {
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+          try {
+            const testC = document.createElement('canvas');
+            testC.width = 2;
+            testC.height = 2;
+            const testCtx = testC.getContext('2d');
+            testCtx.drawImage(img, 0, 0, 2, 2);
+            testC.toDataURL('image/png');
+            finish(img);
+          } catch (taintErr) {
+            finish(null);
+          }
+        } else {
+          finish(null);
+        }
+      };
+      img.onerror = () => finish(null);
+      img.src = src;
+    });
+  }
+
+  async function loadCanvasSafeImage(candidateUrls) {
+    const apiOrigin = typeof getApiBaseOrigin === 'function' ? getApiBaseOrigin() : '';
+    const expandedUrls = [];
+    for (const raw of candidateUrls) {
+      const u = String(raw || '').trim();
+      if (!u) continue;
+      if (u.startsWith('data:') || u.startsWith('/') || (typeof location !== 'undefined' && u.startsWith(location.origin))) {
+        expandedUrls.push(u);
+      } else if (/^https?:\/\//i.test(u)) {
+        expandedUrls.push(`${apiOrigin}/api/image-proxy?url=${encodeURIComponent(u)}`);
+        expandedUrls.push(u);
+      }
+    }
+    for (const candidate of expandedUrls) {
+      const loaded = await loadSingleCanvasImage(candidate, 4200);
+      if (loaded) return loaded;
+    }
+    return null;
+  }
+
+  function drawCanvasImageCover(ctx, img, x, y, w, h) {
+    if (!img || !img.naturalWidth || !img.naturalHeight) return;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const boxRatio = w / h;
+    let sx = 0;
+    let sy = 0;
+    let sw = img.naturalWidth;
+    let sh = img.naturalHeight;
+    if (imgRatio > boxRatio) {
+      sw = img.naturalHeight * boxRatio;
+      sx = (img.naturalWidth - sw) * 0.5;
+    } else {
+      sh = img.naturalWidth / boxRatio;
+      sy = (img.naturalHeight - sh) * 0.35;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  function wrapCanvasParagraphs(ctx, text, maxWidth, maxLines = 14) {
+    const rawParas = String(text || '')
+      .split(/\n\s*\n/)
+      .map((p) => p.replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    const items = [];
+    let totalLines = 0;
+    for (let pIdx = 0; pIdx < rawParas.length; pIdx++) {
+      const pLines = wrapCanvasText(ctx, rawParas[pIdx], maxWidth);
+      for (let lIdx = 0; lIdx < pLines.length; lIdx++) {
+        if (totalLines >= maxLines) {
+          if (items.length > 0) {
+            const last = items[items.length - 1];
+            if (!last.text.endsWith('…')) {
+              last.text = last.text.replace(/[.,;:\s]+$/, '') + '…';
+            }
+          }
+          return items;
+        }
+        items.push({
+          text: pLines[lIdx],
+          isParagraphEnd: lIdx === pLines.length - 1 && pIdx < rawParas.length - 1
+        });
+        totalLines++;
+      }
+    }
+    return items;
+  }
+
+  function truncateCanvasSingleLine(ctx, text, maxWidth) {
+    const str = String(text || '').trim();
+    if (!str) return '';
+    if (ctx.measureText(str).width <= maxWidth) return str;
+    let cut = str;
+    while (cut.length > 4 && ctx.measureText(cut + '…').width > maxWidth) {
+      cut = cut.slice(0, -2);
+    }
+    return cut.trimEnd() + '…';
+  }
+
   async function generateFlowSnapshotCanvas(post, shareUrl) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const width = 1200;
 
-    const pad = 64;
-    const innerW = width - pad * 2;
+    const pad = 52;
+    const cardW = width - pad * 2;
+    const innerPad = 48;
+    const contentW = cardW - innerPad * 2;
+
     const isDark = document.body.classList.contains('dark-mode');
     const isAiNews = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news');
     const isDev = !isAiNews && isDeveloperUser(post.authorUsername || post.alias);
+    const effectiveCategory = getEffectivePostCategory(post);
+    const displayCategory = isAiNews
+      ? 'news'
+      : ((effectiveCategory === 'updates' && isDev) ? 'updates' : (post.tag || 'other'));
+    const isNewsCard = isAiNews || displayCategory === 'news';
+    const hasRegularImage = Boolean(!isNewsCard && post.imageUrl);
+    const showBannerImage = isNewsCard || hasRegularImage;
 
-    // Pre-calculate line wrapped titles and bodies
-    ctx.font = 'bold 44px "Newsreader", Georgia, serif';
-    const titleLines = post.title ? wrapCanvasText(ctx, post.title, innerW - 88) : [];
-
-    ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    const rawBody = post.hasEmptyBody ? '' : (isAiNews ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
-    const bodyLines = rawBody ? wrapCanvasText(ctx, rawBody.slice(0, 750), innerW - 88).slice(0, 14) : [];
-
-    // Compute dynamic canvas height
-    let contentH = pad;
-    contentH += 56; // Top brand bar
-    contentH += 30; // Divider
-    contentH += 86; // Author row
-    contentH += 24; // Spacing
-    if (titleLines.length > 0) {
-      contentH += titleLines.length * 56 + 18;
+    // Resolve the exact image shown on the card in the website flow
+    let liveDomImgUrl = '';
+    if (typeof document !== 'undefined') {
+      const domCard = document.getElementById(`card-${post.id}`);
+      if (domCard) {
+        const domImg = domCard.querySelector('.news-hero-banner-img, .card-media img');
+        if (domImg) {
+          liveDomImgUrl = domImg.currentSrc || domImg.getAttribute('src') || '';
+        }
+      }
     }
-    if (bodyLines.length > 0) {
-      contentH += bodyLines.length * 44 + 24;
+
+    const bInfo = isNewsCard ? resolveNewsBannerInfo(post) : null;
+    const candidateBannerUrls = isNewsCard
+      ? [liveDomImgUrl, bInfo.bannerUrl, post.imageUrl, bInfo.fallbackUrl, bInfo.svgFallbackUrl]
+      : (hasRegularImage ? [liveDomImgUrl, post.imageUrl] : []);
+
+    const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
+    const avatarCandidateUrls = isAiNews
+      ? ['/pwa-192x192.png', '/icon.svg']
+      : (liveAvatar ? [liveAvatar] : []);
+
+    const [loadedBannerImg, loadedAvatarImg] = await Promise.all([
+      showBannerImage ? loadCanvasSafeImage(candidateBannerUrls) : Promise.resolve(null),
+      avatarCandidateUrls.length > 0 ? loadCanvasSafeImage(avatarCandidateUrls) : Promise.resolve(null)
+    ]);
+
+    // Pre-calculate wrapped title & body paragraphs matching website card typography
+    ctx.font = 'bold 42px "Newsreader", Georgia, serif';
+    const titleLines = post.title ? wrapCanvasText(ctx, post.title, contentW) : [];
+
+    const rawBody = post.hasEmptyBody ? '' : (isAiNews ? cleanRoboticNewsBodyClient(post.body || '') : (post.body || ''));
+    const aiSplit = isAiNews ? splitAiNewsIntroAndFull(rawBody) : null;
+    const bodyTextToRender = isAiNews ? (aiSplit ? aiSplit.full : rawBody) : rawBody;
+    const bodyMaxWidth = isAiNews ? (contentW - 60) : contentW;
+    ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const bodyParaLines = bodyTextToRender ? wrapCanvasParagraphs(ctx, bodyTextToRender, bodyMaxWidth, 13) : [];
+    const extraParaGaps = bodyParaLines.filter((l) => l.isParagraphEnd).length;
+
+    const bannerH = showBannerImage ? 440 : 0;
+    const bodyLineH = 42;
+    const paraGapH = 18;
+    const aiSummaryInnerH = bodyParaLines.length > 0
+      ? (bodyParaLines.length * bodyLineH + extraParaGaps * paraGapH + (isAiNews ? 56 : 0))
+      : 0;
+
+    // Calculate dynamic card & canvas height
+    let contentH = pad;
+    contentH += 44; // Card top padding
+    contentH += 88; // Author top bar
+    if (titleLines.length > 0) {
+      contentH += titleLines.length * 54 + 20;
+    }
+    if (showBannerImage) {
+      contentH += bannerH + 28;
+    }
+    if (bodyParaLines.length > 0) {
+      contentH += aiSummaryInnerH + 28;
     }
     if (post.linkUrl) {
-      contentH += 76;
+      contentH += 94 + 24;
     }
-    contentH += 110; // Footer & URL
+    contentH += 98; // Card footer interactions & watermark
+    contentH += 40; // Card bottom padding
     contentH += pad;
 
-    const height = Math.max(720, contentH);
+    const height = Math.max(760, contentH);
     canvas.width = width;
     canvas.height = height;
 
@@ -13959,169 +14128,418 @@
     const textMuted = isDark ? '#a89e90' : '#6b6357';
     const cardBorder = isDark ? '#38322a' : '#ded6c7';
     const accentColor = '#c84b2f';
+    const aiGreen = isDark ? '#2fb375' : '#198754';
 
-    // Outer background
+    // 1. Outer Paper Flow canvas background
     ctx.fillStyle = bgOuter;
     ctx.fillRect(0, 0, width, height);
 
-    // Inner card with Squircle radius
+    // 2. Main Flow Card with Squircle radius & elevation
     const cardX = pad;
     const cardY = pad;
-    const cardW = width - pad * 2;
     const cardH = height - pad * 2;
     const r = 36;
 
     ctx.save();
-    ctx.shadowColor = isDark ? 'rgba(0,0,0,0.5)' : 'rgba(26,18,9,0.14)';
-    ctx.shadowBlur = 30;
+    ctx.shadowColor = isDark ? 'rgba(0,0,0,0.55)' : 'rgba(26,18,9,0.15)';
+    ctx.shadowBlur = 32;
     ctx.shadowOffsetX = 4;
-    ctx.shadowOffsetY = 8;
+    ctx.shadowOffsetY = 10;
     ctx.fillStyle = bgCard;
     roundRect(ctx, cardX, cardY, cardW, cardH, r);
     ctx.fill();
     ctx.restore();
 
+    // If AI News card, draw the signature emerald left border accent (.card.card-ai-news)
+    if (isAiNews) {
+      ctx.save();
+      roundRect(ctx, cardX, cardY, cardW, cardH, r);
+      ctx.clip();
+      ctx.fillStyle = aiGreen;
+      ctx.fillRect(cardX, cardY, 8, cardH);
+      ctx.restore();
+    }
+
     ctx.strokeStyle = cardBorder;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     roundRect(ctx, cardX, cardY, cardW, cardH, r);
     ctx.stroke();
 
-    let curY = cardY + 52;
+    let curY = cardY + 42;
+    const leftX = cardX + innerPad;
+    const rightX = cardX + cardW - innerPad;
 
-    // Top Brand Bar: PAPER FLOW ✦ REAL-TIME MEMO BOARD
-    ctx.fillStyle = accentColor;
-    ctx.font = 'bold 22px "SF Mono", Menlo, Consolas, monospace';
-    ctx.fillText('PAPER FLOW ✦ REAL-TIME MEMO BOARD', cardX + 44, curY);
-
-    // Category Tag Pill
-    const tagText = (isAiNews ? 'AI TECH NEWS' : (isDev ? 'DEVELOPER UPDATE' : (post.tag || 'GENERAL'))).toUpperCase();
-    ctx.font = 'bold 20px "SF Mono", Menlo, Consolas, monospace';
-    const tagWidth = ctx.measureText(tagText).width + 36;
-    const tagX = cardX + cardW - tagWidth - 44;
-    ctx.fillStyle = isAiNews ? 'rgba(200, 75, 47, 0.15)' : (isDev ? 'rgba(139, 92, 246, 0.18)' : 'rgba(0, 0, 0, 0.08)');
-    roundRect(ctx, tagX, curY - 26, tagWidth, 36, 18);
-    ctx.fill();
-    ctx.fillStyle = isAiNews ? accentColor : (isDev ? '#7c3aed' : textInk);
-    ctx.fillText(tagText, tagX + 18, curY);
-
-    curY += 46;
-
-    // Divider line
-    ctx.strokeStyle = cardBorder;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(cardX + 44, curY);
-    ctx.lineTo(cardX + cardW - 44, curY);
-    ctx.stroke();
-
-    curY += 48;
-
-    // Author Bar
+    // 3. Card Top Bar (.card-top-bar): Circular Avatar + Author + Badges + Category Pill + Star
+    const rawAlias = post.alias || '';
     const authorName = isAiNews
-      ? 'Paper Flow AI News'
-      : (post.alias || (post.authorUsername ? `@${post.authorUsername}` : 'Anonymous'));
+      ? ((rawAlias && rawAlias !== 'Paper Flow AI Desk') ? rawAlias : 'Paper Flow AI News')
+      : ((!isAiNews && post.authorUsername ? `@${post.authorUsername}` : '') || rawAlias || 'Anonymous');
 
-    // Avatar Circle
+    const avRadius = 30;
+    const avCenterX = leftX + avRadius;
+    const avCenterY = curY + avRadius;
+
     ctx.save();
-    ctx.fillStyle = isAiNews ? '#c84b2f' : (isDev ? '#7c3aed' : '#2c251e');
     ctx.beginPath();
-    ctx.arc(cardX + 44 + 28, curY + 28, 28, 0, Math.PI * 2);
+    ctx.arc(avCenterX, avCenterY, avRadius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fillStyle = isAiNews ? '#1a1209' : (isDev ? '#7c3aed' : '#2c251e');
     ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 26px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(authorName.charAt(0).toUpperCase() || 'P', cardX + 44 + 28, curY + 28);
+    if (loadedAvatarImg) {
+      ctx.clip();
+      drawCanvasImageCover(ctx, loadedAvatarImg, avCenterX - avRadius, avCenterY - avRadius, avRadius * 2, avRadius * 2);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const initialChar = String(authorName || 'P').replace(/^@/, '').charAt(0).toUpperCase() || 'P';
+      ctx.fillText(initialChar, avCenterX, avCenterY);
+    }
     ctx.restore();
 
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avCenterX, avCenterY, avRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = isAiNews ? accentColor : (isDev ? '#7c3aed' : cardBorder);
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // Right side of Top Bar: Star icon + Category Tag Pill (.card-tag)
+    const isStarred = typeof isPostStarredByCurrentUser === 'function' && isPostStarredByCurrentUser(post.id);
+    ctx.save();
+    ctx.font = '32px sans-serif';
+    ctx.fillStyle = isStarred ? '#f59e0b' : textMuted;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(isStarred ? '★' : '☆', rightX, curY + 24);
+    ctx.restore();
+
+    const tagLabelText = (TAG_LABELS && TAG_LABELS[displayCategory]) ? TAG_LABELS[displayCategory] : (isNewsCard ? '📰 News' : 'General');
+    ctx.font = 'bold 19px "SF Mono", Menlo, Consolas, monospace';
+    const tagPillW = ctx.measureText(tagLabelText).width + 32;
+    const tagPillH = 38;
+    const tagPillX = rightX - 44 - tagPillW;
+    const tagPillY = curY + 5;
+    ctx.fillStyle = isNewsCard
+      ? (isDark ? 'rgba(13, 110, 253, 0.2)' : '#e7f1ff')
+      : (isDev ? 'rgba(124, 58, 237, 0.16)' : (isDark ? '#2a241d' : '#f3ede2'));
+    roundRect(ctx, tagPillX, tagPillY, tagPillW, tagPillH, 16);
+    ctx.fill();
+    ctx.strokeStyle = isNewsCard ? (isDark ? 'rgba(96, 165, 250, 0.4)' : '#b6d4fe') : cardBorder;
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, tagPillX, tagPillY, tagPillW, tagPillH, 16);
+    ctx.stroke();
+    ctx.fillStyle = isNewsCard ? (isDark ? '#93c5fd' : '#0a58ca') : (isDev ? '#7c3aed' : textInk);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tagLabelText, tagPillX + 16, tagPillY + tagPillH / 2 + 1);
+
+    // Author Name & Badge (.card-author-name)
+    const authorTextX = leftX + avRadius * 2 + 18;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
-    ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.font = 'bold 27px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillStyle = textInk;
-    ctx.fillText(authorName, cardX + 118, curY + 26);
+    const maxAuthorW = Math.max(180, tagPillX - authorTextX - 210);
+    const drawnAuthor = truncateCanvasSingleLine(ctx, authorName, maxAuthorW);
+    ctx.fillText(drawnAuthor, authorTextX, curY + 26);
 
-    if (isDev) {
-      const devBadgeX = cardX + 118 + ctx.measureText(authorName).width + 16;
+    const badgeStartX = authorTextX + ctx.measureText(drawnAuthor).width + 14;
+    if (isAiNews) {
+      const badgeLabel = '✨ Editorial Summary';
+      ctx.font = 'bold 16px "SF Mono", Menlo, Consolas, monospace';
+      const bw = ctx.measureText(badgeLabel).width + 24;
+      ctx.fillStyle = isDark ? '#0a3622' : '#d1f7e0';
+      roundRect(ctx, badgeStartX, curY + 4, bw, 28, 12);
+      ctx.fill();
+      ctx.strokeStyle = aiGreen;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, badgeStartX, curY + 4, bw, 28, 12);
+      ctx.stroke();
+      ctx.fillStyle = isDark ? '#d1f7e0' : '#0f5132';
+      ctx.fillText(badgeLabel, badgeStartX + 12, curY + 23);
+    } else if (isDev) {
+      const badgeLabel = '⚡ Developer';
+      ctx.font = 'bold 16px "SF Mono", Menlo, Consolas, monospace';
+      const bw = ctx.measureText(badgeLabel).width + 24;
       ctx.fillStyle = '#7c3aed';
-      roundRect(ctx, devBadgeX, curY + 4, 142, 28, 14);
+      roundRect(ctx, badgeStartX, curY + 4, bw, 28, 12);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillText('⚡ DEVELOPER', devBadgeX + 14, curY + 24);
-    } else if (isAiNews) {
-      const aiBadgeX = cardX + 118 + ctx.measureText(authorName).width + 16;
-      ctx.fillStyle = accentColor;
-      roundRect(ctx, aiBadgeX, curY + 4, 178, 28, 14);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillText('✨ SUMMARIZED BY AI', aiBadgeX + 14, curY + 24);
+      ctx.fillText(badgeLabel, badgeStartX + 12, curY + 23);
     }
 
+    // Timestamp & Source Line (.card-time)
     const postMs = getPostTimestampMs(post);
-    const dateStr = postMs ? (new Date(postMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + formatTime(new Date(postMs))) : 'Shared recently';
-    ctx.font = '20px "SF Mono", Menlo, Consolas, monospace';
+    const rawTs = postMs ? new Date(postMs) : null;
+    const timeAgo = rawTs ? formatTime(rawTs) : 'just now';
+    const formattedFullDate = postMs ? formatNewsFullDate(postMs) : '';
+    const timeLine = isAiNews && formattedFullDate
+      ? `📅 ${formattedFullDate} (${timeAgo})${post.sourceName ? ` · ${post.sourceName}` : ''}`
+      : `🕐 ${timeAgo}${post.editedAt ? ' · edited' : ''}${post.sourceName ? ` · ${post.sourceName}` : ''}`;
+    ctx.font = '19px "SF Mono", Menlo, Consolas, monospace';
     ctx.fillStyle = textMuted;
-    ctx.fillText(dateStr + (post.sourceName ? ` · Source: ${post.sourceName}` : ''), cardX + 118, curY + 54);
+    ctx.fillText(truncateCanvasSingleLine(ctx, timeLine, contentW - 90), authorTextX, curY + 54);
 
-    curY += 92;
+    curY += 86;
 
-    // Title
+    // 4. Card Title (.card-title) — placed directly above the Hero Banner Image just like on the website
     if (titleLines.length > 0) {
-      ctx.font = 'bold 44px "Newsreader", Georgia, serif';
+      ctx.font = 'bold 42px "Newsreader", Georgia, serif';
       ctx.fillStyle = textInk;
-      titleLines.forEach(line => {
-        ctx.fillText(line, cardX + 44, curY);
-        curY += 56;
+      titleLines.forEach((line) => {
+        curY += 46;
+        ctx.fillText(line, leftX, curY);
+        curY += 8;
       });
-      curY += 14;
+      curY += 18;
     }
 
-    // Body
-    if (bodyLines.length > 0) {
-      ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      ctx.fillStyle = isDark ? '#ded6c7' : '#2b2621';
-      bodyLines.forEach(line => {
-        ctx.fillText(line, cardX + 44, curY);
-        curY += 44;
-      });
-      curY += 20;
-    }
+    // 5. News Hero Banner (.news-hero-banner-wrap) or Flow Attachment Image (.card-media)
+    if (showBannerImage) {
+      const imgX = leftX;
+      const imgY = curY;
+      const imgW = contentW;
+      const imgH = bannerH;
+      const imgRadius = 32;
 
-    // Link Preview Bar (if flow has link)
-    if (post.linkUrl) {
-      ctx.fillStyle = isDark ? '#26221c' : '#f4eee4';
-      roundRect(ctx, cardX + 44, curY, cardW - 88, 56, 12);
-      ctx.fill();
-      ctx.strokeStyle = cardBorder;
-      ctx.lineWidth = 1;
-      roundRect(ctx, cardX + 44, curY, cardW - 88, 56, 12);
+      ctx.save();
+      roundRect(ctx, imgX, imgY, imgW, imgH, imgRadius);
+      ctx.clip();
+
+      // Fallback dark warm gradient canvas background
+      const bgGrad = ctx.createLinearGradient(imgX, imgY, imgX + imgW, imgY + imgH);
+      bgGrad.addColorStop(0, '#1a1209');
+      bgGrad.addColorStop(0.5, '#2d1b12');
+      bgGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(imgX, imgY, imgW, imgH);
+
+      if (loadedBannerImg) {
+        drawCanvasImageCover(ctx, loadedBannerImg, imgX, imgY, imgW, imgH);
+      }
+
+      if (isNewsCard) {
+        // .news-hero-gradient-overlay
+        const overlayGrad = ctx.createLinearGradient(imgX, imgY, imgX, imgY + imgH);
+        overlayGrad.addColorStop(0, 'rgba(15, 23, 42, 0.24)');
+        overlayGrad.addColorStop(0.45, 'rgba(15, 23, 42, 0.06)');
+        overlayGrad.addColorStop(1, 'rgba(15, 23, 42, 0.86)');
+        ctx.fillStyle = overlayGrad;
+        ctx.fillRect(imgX, imgY, imgW, imgH);
+
+        // Top-left .news-hero-topic-pill
+        const topicText = `✦ ${String((bInfo && bInfo.topicLabel) || post.topic || 'Tech & AI').toUpperCase()}`;
+        ctx.font = 'bold 18px "SF Mono", Menlo, Consolas, monospace';
+        const topicPillW = ctx.measureText(topicText).width + 28;
+        const topicPillH = 38;
+        const topicPillX = imgX + 22;
+        const topicPillY = imgY + 20;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.84)';
+        roundRect(ctx, topicPillX, topicPillY, topicPillW, topicPillH, 14);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.26)';
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, topicPillX, topicPillY, topicPillW, topicPillH, 14);
+        ctx.stroke();
+        ctx.fillStyle = '#f8fafc';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(topicText, topicPillX + 14, topicPillY + topicPillH / 2 + 1);
+
+        // Top-right .news-spicy-pill
+        const rightBadgeText = '📖 Full Briefing · Verified';
+        ctx.font = '600 17px "SF Mono", Menlo, Consolas, monospace';
+        const rightBadgeW = ctx.measureText(rightBadgeText).width + 26;
+        const rightBadgeX = imgX + imgW - 22 - rightBadgeW;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+        roundRect(ctx, rightBadgeX, topicPillY, rightBadgeW, topicPillH, 14);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.24)';
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, rightBadgeX, topicPillY, rightBadgeW, topicPillH, 14);
+        ctx.stroke();
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillText(rightBadgeText, rightBadgeX + 13, topicPillY + topicPillH / 2 + 1);
+
+        // Bottom caption (.news-hero-caption-bottom)
+        const sourceLabel = post.sourceName || (post.linkUrl ? formatHostname(post.linkUrl) : 'Verified Source');
+        ctx.font = '19px "SF Mono", Menlo, Consolas, monospace';
+        ctx.fillStyle = 'rgba(248, 250, 252, 0.95)';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(`📰 ${sourceLabel}`, imgX + 24, imgY + imgH - 22);
+
+        ctx.textAlign = 'right';
+        ctx.fillText('Tap to expand ⤢', imgX + imgW - 24, imgY + imgH - 22);
+        ctx.textAlign = 'left';
+      }
+      ctx.restore();
+
+      // Banner border matching .news-hero-banner-wrap
+      ctx.strokeStyle = isDark ? '#4a4238' : '#1a1209';
+      ctx.lineWidth = 2;
+      roundRect(ctx, imgX, imgY, imgW, imgH, imgRadius);
       ctx.stroke();
 
-      ctx.fillStyle = accentColor;
-      ctx.font = '22px "SF Mono", monospace';
-      ctx.fillText('🔗 ' + formatHostname(post.linkUrl) + ' ↗', cardX + 64, curY + 36);
-      curY += 76;
+      curY += imgH + 28;
     }
 
-    // Footer Watermark (Clean Paper Flow branding without server URL text)
-    const footerY = cardY + cardH - 44;
+    // 6. Body / AI Summary Box (.ai-summary-box or .card-body)
+    if (bodyParaLines.length > 0) {
+      if (isAiNews) {
+        const boxX = leftX;
+        const boxY = curY;
+        const boxW = contentW;
+        const boxH = aiSummaryInnerH;
+        const boxR = 22;
+
+        ctx.save();
+        ctx.fillStyle = isDark ? '#231f1b' : '#f8f3ea';
+        roundRect(ctx, boxX, boxY, boxW, boxH, boxR);
+        ctx.fill();
+
+        // Left emerald accent bar inside .ai-summary-box
+        roundRect(ctx, boxX, boxY, boxW, boxH, boxR);
+        ctx.clip();
+        ctx.fillStyle = aiGreen;
+        ctx.fillRect(boxX, boxY, 6, boxH);
+        ctx.restore();
+
+        ctx.save();
+        ctx.setLineDash([7, 5]);
+        ctx.strokeStyle = cardBorder;
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, boxX, boxY, boxW, boxH, boxR);
+        ctx.stroke();
+        ctx.restore();
+
+        let textY = boxY + 42;
+        ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = isDark ? '#e7dfd3' : '#25201b';
+        bodyParaLines.forEach((item) => {
+          ctx.fillText(item.text, boxX + 30, textY);
+          textY += bodyLineH;
+          if (item.isParagraphEnd) {
+            textY += paraGapH;
+          }
+        });
+
+        curY += boxH + 26;
+      } else {
+        ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = isDark ? '#e7dfd3' : '#25201b';
+        bodyParaLines.forEach((item) => {
+          curY += bodyLineH;
+          ctx.fillText(item.text, leftX, curY);
+          if (item.isParagraphEnd) {
+            curY += paraGapH;
+          }
+        });
+        curY += 26;
+      }
+    }
+
+    // 7. Reference Link Attachment Bar (.card-link-attachment)
+    if (post.linkUrl) {
+      const linkBoxX = leftX;
+      const linkBoxY = curY;
+      const linkBoxW = contentW;
+      const linkBoxH = 92;
+
+      ctx.fillStyle = isDark ? '#25211b' : '#f5efe4';
+      roundRect(ctx, linkBoxX, linkBoxY, linkBoxW, linkBoxH, 20);
+      ctx.fill();
+      ctx.strokeStyle = cardBorder;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, linkBoxX, linkBoxY, linkBoxW, linkBoxH, 20);
+      ctx.stroke();
+
+      const sourcePrefix = post.sourceName ? `${post.sourceName} — ` : '';
+      const rawLinkTitle = isAiNews
+        ? `Reference Link: ${sourcePrefix}${post.linkTitle || post.title || post.linkUrl}`
+        : (post.linkTitle || post.linkUrl);
+
+      ctx.font = 'bold 21px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = textInk;
+      const maxLinkTitleW = linkBoxW - 180;
+      ctx.fillText(
+        '🔗 ' + truncateCanvasSingleLine(ctx, rawLinkTitle, maxLinkTitleW),
+        linkBoxX + 24,
+        linkBoxY + 38
+      );
+
+      ctx.font = '18px "SF Mono", Menlo, Consolas, monospace';
+      ctx.fillStyle = textMuted;
+      ctx.fillText(formatHostname(post.linkUrl), linkBoxX + 28, linkBoxY + 68);
+
+      const arrowLabel = isAiNews ? 'Ref ↗' : 'Open ↗';
+      ctx.font = 'bold 20px "SF Mono", Menlo, Consolas, monospace';
+      ctx.fillStyle = accentColor;
+      ctx.textAlign = 'right';
+      ctx.fillText(arrowLabel, linkBoxX + linkBoxW - 24, linkBoxY + 52);
+      ctx.textAlign = 'left';
+
+      curY += linkBoxH + 24;
+    }
+
+    // 8. Card Footer (.card-footer): Circular/Pill Like, Reply, Share buttons + Paper Flow signature
+    const footerDividerY = cardY + cardH - 96;
     ctx.strokeStyle = cardBorder;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(cardX + 44, footerY - 32);
-    ctx.lineTo(cardX + cardW - 44, footerY - 32);
+    ctx.moveTo(leftX, footerDividerY);
+    ctx.lineTo(rightX, footerDividerY);
     ctx.stroke();
 
-    ctx.font = '22px "SF Mono", Menlo, Consolas, monospace';
-    ctx.fillStyle = textMuted;
-    ctx.fillText('Paper Flow — Anonymous & Open', cardX + 44, footerY);
+    const likes = getPostLikesList(post);
+    const comments = getPostCommentsList(post);
+    const isLiked = likes.includes(getCurrentActorKey());
+    const btnY = footerDividerY + 22;
+    const btnH = 48;
+    let btnCursorX = leftX;
 
-    ctx.font = 'bold 22px "SF Mono", Menlo, Consolas, monospace';
+    const footerButtons = [
+      {
+        label: `${isLiked ? '♥' : '♡'} ${likes.length > 0 ? likes.length : 'Like'}`,
+        active: isLiked
+      },
+      {
+        label: `💬 ${comments.length > 0 ? `${comments.length} Repl${comments.length !== 1 ? 'ies' : 'y'}` : 'Reply'}`,
+        active: false
+      },
+      {
+        label: '↗ Share',
+        active: false
+      }
+    ];
+
+    ctx.font = 'bold 20px "SF Mono", Menlo, Consolas, monospace';
+    footerButtons.forEach((btn) => {
+      const bw = ctx.measureText(btn.label).width + 38;
+      ctx.fillStyle = btn.active ? 'rgba(200, 75, 47, 0.14)' : (isDark ? '#26221c' : '#f4eee4');
+      roundRect(ctx, btnCursorX, btnY, bw, btnH, 24);
+      ctx.fill();
+      ctx.strokeStyle = btn.active ? accentColor : cardBorder;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, btnCursorX, btnY, bw, btnH, 24);
+      ctx.stroke();
+      ctx.fillStyle = btn.active ? accentColor : textInk;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(btn.label, btnCursorX + 19, btnY + btnH / 2 + 1);
+      btnCursorX += bw + 14;
+    });
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 21px "SF Mono", Menlo, Consolas, monospace';
     ctx.fillStyle = accentColor;
-    const brandRight = 'paperflow.hs.vc';
-    const urlW = ctx.measureText(brandRight).width;
-    ctx.fillText(brandRight, cardX + cardW - 44 - urlW, footerY);
+    ctx.fillText('PAPER FLOW · paperflow.hs.vc', rightX, btnY + btnH / 2 + 1);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {

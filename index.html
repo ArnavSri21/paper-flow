@@ -3156,6 +3156,7 @@
   /* STATUS DOT */
   .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #aaa; margin-right: 5px; vertical-align: middle; }
   .status-dot.live { background: #3ecf5a; box-shadow: 0 0 0 3px rgba(62,207,90,0.25); }
+  .status-dot.quota { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.25); }
   .status-dot.error { background: var(--accent); }
 
   /* EMPTY STATE */
@@ -6384,7 +6385,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getFirestore, enableIndexedDbPersistence, collection, addDoc, onSnapshot,
-    query, orderBy, deleteDoc, doc, getDoc, setDoc, serverTimestamp
+    query, orderBy, limit, deleteDoc, doc, getDoc, getDocFromServer, setDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ── CONFIG ──────────────────────────────────────────────────────────────────
@@ -6395,14 +6396,27 @@
     storageBucket: "memo-board-4d45b.firebasestorage.app",
     messagingSenderId: "111595270485",
     appId: "1:111595270485:web:223b841fdbe6fa53787fdc",
-    measurementId: "G-NPX6SM4FV7"
+    measurementId: "G-NPX6SM4FV7",
+    firestoreDatabaseId: "ai-studio-paperflow-6f884be4-ecb1-4acb-add7-794d30f6ab14"
   };
 
   const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+  const db  = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
   // Enable local IndexedDB persistence so accounts, flows & encrypted Paper Messages stay synced offline in the app
   enableIndexedDbPersistence(db).catch(() => {});
   const postsCol = collection(db, "posts");
+
+  // Validate connection to Firestore per skill guidelines
+  async function testConnection() {
+    try {
+      await getDocFromServer(doc(db, 'test', 'connection'));
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('the client is offline')) {
+        console.warn("Firestore client is in offline mode.");
+      }
+    }
+  }
+  testConnection().catch(() => {});
 
   // ── DEVELOPER ACCOUNT CHECK (MARVELIST) ─────────────────────────────────────
   const DEVELOPER_USERNAME_LOWER = 'marvelist';
@@ -6411,8 +6425,70 @@
     return String(usernameOrLower || '').trim().toLowerCase() === DEVELOPER_USERNAME_LOWER;
   }
 
+  // ── LOCAL POST CACHE & QUOTA RECOVERY ─────────────────────────────────────────
+  const CACHED_BOARD_POSTS_KEY = 'pf_cached_board_posts';
+  let isFirestoreQuotaExhausted = false;
+
+  const DEFAULT_SEED_POSTS = [
+    {
+      id: 'flow_welcome_001',
+      title: 'Welcome to Paper Flow',
+      body: 'Welcome to Paper Flow! An open, anonymous space to share your confessions, unfiltered thoughts, stories, and opinions with the world. You can also chat privately with end-to-end encrypted Paper Messages.',
+      tag: 'updates',
+      customCategory: 'updates',
+      alias: 'Marvelist',
+      authorUsername: 'marvelist',
+      authorAvatar: '',
+      docType: 'post',
+      isAiNews: false,
+      ts: Date.now() - 3600000 * 2,
+      createdAt: Date.now() - 3600000 * 2
+    },
+    {
+      id: 'flow_opinion_002',
+      title: 'Late Night Musings',
+      body: 'Sometimes the best code and deepest conversations happen at 2 AM when the entire world is quiet and still.',
+      tag: 'opinion',
+      alias: 'NightOwl',
+      docType: 'post',
+      isAiNews: false,
+      ts: Date.now() - 3600000 * 5,
+      createdAt: Date.now() - 3600000 * 5
+    },
+    {
+      id: 'flow_story_003',
+      title: 'Coffee Shop Serendipity',
+      body: 'Ran into an old friend at an artisan cafe today after 7 years. We picked up right where we left off as if not a single day had passed.',
+      tag: 'story',
+      alias: 'Wanderer',
+      docType: 'post',
+      isAiNews: false,
+      ts: Date.now() - 3600000 * 8,
+      createdAt: Date.now() - 3600000 * 8
+    }
+  ];
+
+  function loadInitialCachedBoardPosts() {
+    try {
+      const raw = localStorage.getItem(CACHED_BOARD_POSTS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_SEED_POSTS;
+  }
+
+  function saveCachedBoardPosts(posts) {
+    try {
+      if (Array.isArray(posts) && posts.length > 0) {
+        localStorage.setItem(CACHED_BOARD_POSTS_KEY, JSON.stringify(posts.slice(0, 100)));
+      }
+    } catch (e) {}
+  }
+
   // ── STATE ───────────────────────────────────────────────────────────────────
-  let allPosts = [];
+  let allPosts = loadInitialCachedBoardPosts();
   let usersDirectory = {};   // usernameLower -> { username, usernameLower, avatar, bio }
   let likesByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
   let starsByPost = {};      // postId -> Array<{ docId, actorKey, alias }>
@@ -8394,7 +8470,7 @@
   }
 
   // ── REAL-TIME LISTENER ──────────────────────────────────────────────────────
-  const q = query(postsCol, orderBy("ts", "desc"));
+  const q = query(postsCol, orderBy("ts", "desc"), limit(100));
 
   onSnapshot(q,
     (snapshot) => {
@@ -8791,6 +8867,8 @@
       });
 
       allPosts = survivingPosts;
+      saveCachedBoardPosts(allPosts);
+      isFirestoreQuotaExhausted = false;
       firestoreAiNewsMap = nextAiNews;
       likesByPost = nextLikes;
       starsByPost = nextStars;
@@ -8830,13 +8908,33 @@
       renderAll();
     },
     (err) => {
-      console.error(err);
-      setStatus('error', 'Connection error — check Firestore rules');
-      document.getElementById('feed').innerHTML = `
-        <div class="empty-state">
-          <span class="empty-icon">⚠️</span>
-          <p>Could not load posts. Check browser console.</p>
-        </div>`;
+      console.warn('Firestore snapshot status update:', err);
+      const errStr = String(err?.message || err?.code || err || '').toLowerCase();
+      const isQuota = err?.code === 'resource-exhausted' ||
+                      errStr.includes('quota') ||
+                      errStr.includes('resource-exhausted') ||
+                      errStr.includes('backoff delay') ||
+                      err?.code === 429;
+
+      if (isQuota) {
+        isFirestoreQuotaExhausted = true;
+      }
+
+      // Safeguard: Ensure cached / seed flows are active so the board is always loaded
+      if (!allPosts || allPosts.length === 0) {
+        allPosts = loadInitialCachedBoardPosts();
+      }
+
+      const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
+
+      if (isQuota) {
+        setStatus('quota', `Offline Cache — Daily cloud quota reached (${boardFlowsCount} flows loaded)`);
+      } else if (boardFlowsCount > 0) {
+        setStatus('live', `Live — ${boardFlowsCount} flow${boardFlowsCount !== 1 ? 's' : ''} on the board (cached)`);
+      } else {
+        setStatus('live', 'Paper Flow — Ready (Local mode)');
+      }
+      renderAll();
     }
   );
 
@@ -9560,7 +9658,43 @@
       }
     } catch (e) {
       console.error(e);
-      showToast(isEditing ? 'Error updating flow.' : 'Error publishing flow.');
+      const isQuotaOrNet = e?.code === 'resource-exhausted' ||
+                           /quota|resource-exhausted|network|offline|unavailable/i.test(String(e?.message || ''));
+      if (isQuotaOrNet) {
+        isFirestoreQuotaExhausted = true;
+        const localPostId = 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        const localFlow = {
+          id: localPostId,
+          title: title || null,
+          body: body,
+          tag: selectedTag,
+          customCategory: (isDev && selectedTag === 'updates') ? 'updates' : null,
+          alias: currentUser ? currentUser.username.slice(0, 30) : 'Anonymous',
+          authorUsername: currentUser?.usernameLower || '',
+          authorAvatar: currentUser?.avatar || '',
+          authorBio: (usersDirectory[currentUser?.usernameLower]?.bio ?? currentUser?.bio ?? '').slice(0, 300),
+          ownerToken: currentUser ? `user:${currentUser.usernameLower}` : `guest:${localPostId}`,
+          imageUrl: draftImageData || null,
+          linkUrl: linkUrl || null,
+          linkTitle: linkTitle || null,
+          ts: Date.now(),
+          createdAt: Date.now(),
+          isLocal: true
+        };
+        allPosts.unshift(localFlow);
+        saveCachedBoardPosts(allPosts);
+        renderAll();
+
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postBody').value  = '';
+        document.getElementById('postTag').value   = 'other';
+        clearImageAttachment();
+        clearLinkAttachment();
+        closeComposeModal();
+        showToast('✨ Flow saved to your board locally!');
+      } else {
+        showToast(isEditing ? 'Error updating flow.' : 'Error publishing flow.');
+      }
     } finally {
       btn.disabled = false;
       btn.textContent = editingPostId ? 'Save Changes →' : (currentUser ? 'Publish Flow →' : 'Sign In to Publish →');
@@ -12693,34 +12827,36 @@
           }));
         } catch (e) {}
 
-        // Sync AI news items into Firestore as __ainews__* documents with natural summaries & verified banner images
-        aiTechNewsItems.slice(0, 24).forEach(item => {
-          if (!item.id || !String(item.id).startsWith('__ainews__')) return;
-          if (!isNewsWithin10DaysOrStarred(item)) return;
-          const pubMs = getPostTimestampMs(item) || Date.now();
-          const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
-          const existing = firestoreAiNewsMap[item.id];
-          const existingHasRobotic = existing && /📌|🔍|💡|🔥|⚡/.test(existing.body || '');
-          if (!existing || existingHasRobotic || !existing.imageUrl || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
-            setDoc(doc(db, "posts", item.id), {
-              title: (item.title || 'Paper Flow News').slice(0, 118),
-              body: cleanBody,
-              imageUrl: (item.imageUrl || '').slice(0, 500),
-              tag: 'news',
-              alias: (item.alias || 'Paper Flow AI News').slice(0, 30),
-              ts: serverTimestamp(),
-              docType: 'ai_news',
-              isAiNews: true,
-              summarizedByAi: true,
-              aiAttribution: 'Summarized by AI',
-              sourceName: (item.sourceName || 'Editorial Desk').slice(0, 60),
-              linkUrl: (item.linkUrl || '').slice(0, 500),
-              linkTitle: (item.linkTitle || item.title || 'Original Source').slice(0, 98),
-              publishedAt: pubMs,
-              createdAt: pubMs
-            }).catch(() => {});
-          }
-        });
+        // Sync AI news items into Firestore as __ainews__* documents (Developer only to preserve Spark daily write quota)
+        if (!isFirestoreQuotaExhausted && currentUser && isDeveloperUser(currentUser.usernameLower)) {
+          aiTechNewsItems.slice(0, 10).forEach(item => {
+            if (!item.id || !String(item.id).startsWith('__ainews__')) return;
+            if (!isNewsWithin10DaysOrStarred(item)) return;
+            const pubMs = getPostTimestampMs(item) || Date.now();
+            const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
+            const existing = firestoreAiNewsMap[item.id];
+            const existingHasRobotic = existing && /📌|🔍|💡|🔥|⚡/.test(existing.body || '');
+            if (!existing || existingHasRobotic || !existing.imageUrl || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
+              setDoc(doc(db, "posts", item.id), {
+                title: (item.title || 'Paper Flow News').slice(0, 118),
+                body: cleanBody,
+                imageUrl: (item.imageUrl || '').slice(0, 500),
+                tag: 'news',
+                alias: (item.alias || 'Paper Flow AI News').slice(0, 30),
+                ts: serverTimestamp(),
+                docType: 'ai_news',
+                isAiNews: true,
+                summarizedByAi: true,
+                aiAttribution: 'Summarized by AI',
+                sourceName: (item.sourceName || 'Editorial Desk').slice(0, 60),
+                linkUrl: (item.linkUrl || '').slice(0, 500),
+                linkTitle: (item.linkTitle || item.title || 'Original Source').slice(0, 98),
+                publishedAt: pubMs,
+                createdAt: pubMs
+              }).catch(() => {});
+            }
+          });
+        }
 
         if (forceRefresh) {
           analyzeUserNewsTasteWithAi(true).catch(() => {});

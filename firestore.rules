@@ -26,7 +26,7 @@ service cloud.firestore {
 
     match /posts/{postId} {
       allow get: if isValidId(postId);
-      allow list: if resource.data.body is string && resource.data.body.size() <= 5000;
+      allow list: if true;
       allow create: if isValidId(postId) && isValidPostPayload(request.resource.data);
       allow update: if isValidId(postId) && isValidPostPayload(request.resource.data);
       allow delete: if isValidId(postId);

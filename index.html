@@ -6147,6 +6147,152 @@
       padding: 1px 3px !important;
     }
   }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PAPER FLOW — MOTION & POLISH LAYER (additive, theme-aware)
+     Orbs · scroll progress · title shimmer · card spotlight ·
+     button ripples · live-dot ping · staggered entrances
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --pf-glow: 200, 75, 47;
+    --pf-orb-a: rgba(200, 75, 47, 0.17);
+    --pf-orb-b: rgba(70, 120, 200, 0.14);
+    --pf-orb-c: rgba(90, 160, 100, 0.13);
+  }
+  body.dark-mode {
+    --pf-glow: 224, 90, 60;
+    --pf-orb-a: rgba(224, 90, 60, 0.20);
+    --pf-orb-b: rgba(80, 120, 215, 0.17);
+    --pf-orb-c: rgba(70, 175, 110, 0.13);
+  }
+
+  /* Ambient drifting colour orbs behind the page */
+  .pf-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    transform: translate3d(0, calc(var(--pf-sy, 0) * -1px), 0);
+  }
+  .pf-orb {
+    position: absolute;
+    width: 56vmax;
+    height: 56vmax;
+    border-radius: 50%;
+    will-change: transform;
+  }
+  .pf-orb.a { top: -22vmax; left: -16vmax; background: radial-gradient(circle, var(--pf-orb-a), transparent 65%); animation: pfDriftA 26s ease-in-out infinite alternate; }
+  .pf-orb.b { top: 30vh; right: -24vmax; background: radial-gradient(circle, var(--pf-orb-b), transparent 65%); animation: pfDriftB 32s ease-in-out infinite alternate; }
+  .pf-orb.c { bottom: -26vmax; left: 18vw; background: radial-gradient(circle, var(--pf-orb-c), transparent 65%); animation: pfDriftC 29s ease-in-out infinite alternate; }
+  @keyframes pfDriftA { to { transform: translate3d(14vmax, 10vmax, 0) scale(1.15); } }
+  @keyframes pfDriftB { to { transform: translate3d(-16vmax, -8vmax, 0) scale(0.9); } }
+  @keyframes pfDriftC { to { transform: translate3d(12vmax, -12vmax, 0) scale(1.2); } }
+
+  /* Reading-progress bar */
+  .pf-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 9999;
+    pointer-events: none;
+    transform-origin: 0 50%;
+    transform: scaleX(var(--pf-p, 0));
+    background: linear-gradient(90deg, var(--accent), #f0a030, var(--accent));
+    background-size: 200% 100%;
+    animation: pfProgressFlow 3s linear infinite;
+    box-shadow: 0 0 10px rgba(var(--pf-glow), 0.55);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .pf-progress.on { opacity: 1; }
+  @keyframes pfProgressFlow { to { background-position: -200% 0; } }
+
+  /* Header entrance + masthead shimmer */
+  header { animation: pfDrop 0.7s var(--bubble-spring, cubic-bezier(0.22, 1, 0.36, 1)) backwards; }
+  @keyframes pfDrop { from { opacity: 0; transform: translate3d(0, -14px, 0); } }
+  .masthead-title {
+    background: linear-gradient(100deg, var(--ink) 38%, var(--accent) 50%, var(--ink) 62%);
+    background-size: 260% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: pfShine 7s ease-in-out infinite;
+  }
+  @keyframes pfShine { 0%, 15% { background-position: 100% 0; } 55%, 100% { background-position: 0% 0; } }
+
+  /* Live indicators */
+  .status-dot { position: relative; }
+  .status-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: pfPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @keyframes pfPing { 0% { transform: scale(1); opacity: 0.7; } 80%, 100% { transform: scale(3.2); opacity: 0; } }
+  .banner-label { animation: pfBlink 2.4s ease-in-out infinite; }
+  @keyframes pfBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
+
+  /* Cursor-following spotlight on cards (desktop / hover devices only) */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(280px circle at var(--pf-mx, 50%) var(--pf-my, 50%), rgba(var(--pf-glow), 0.13), transparent 70%);
+  }
+  .card:hover::after { opacity: 1; }
+
+  /* Staggered entrance for the first cards of a feed */
+  .card.card-enter-anim:nth-child(2) { animation-delay: 0.04s; }
+  .card.card-enter-anim:nth-child(3) { animation-delay: 0.08s; }
+  .card.card-enter-anim:nth-child(4) { animation-delay: 0.12s; }
+  .card.card-enter-anim:nth-child(5) { animation-delay: 0.16s; }
+  .card.card-enter-anim:nth-child(n+6) { animation-delay: 0.2s; }
+
+  /* Tag + title micro-interactions */
+  .card-tag { transition: transform 0.2s var(--bubble-spring, ease), filter 0.2s ease; }
+  .card:hover .card-tag { transform: translateY(-1px) scale(1.04); }
+  .feed-title { background: linear-gradient(90deg, var(--ink), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+
+  /* Button ripple */
+  .btn-post, .btn-modal-submit, .about-cta-btn, .btn-comment-submit { position: relative; overflow: hidden; }
+  .pf-ripple {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.45);
+    transform: scale(0);
+    animation: pfRipple 0.6s ease-out forwards;
+  }
+  @keyframes pfRipple { to { transform: scale(1); opacity: 0; } }
+
+  /* Save battery: pause ambient loops when the tab is hidden */
+  html.pf-paused .pf-orb,
+  html.pf-paused .pf-progress,
+  html.pf-paused .masthead-title,
+  html.pf-paused .status-dot::after,
+  html.pf-paused .banner-label { animation-play-state: paused; }
+
+  /* Lighter on phones */
+  @media (max-width: 640px) {
+    .pf-orb { width: 80vmax; height: 80vmax; }
+    .pf-orb.c { display: none; }
+  }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .pf-orb, .pf-progress, header, .masthead-title, .status-dot::after, .banner-label, .pf-ripple { animation: none !important; }
+    .pf-orbs { transform: none; }
+    .card:hover::after { opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -16632,6 +16778,83 @@
     }).catch(() => {});
     analyzeUserNewsTasteWithAi(false).catch(() => {});
   }, NEWS_AUTO_ADD_INTERVAL_MS);
+</script>
+<script>
+/* Paper Flow — Motion & Polish layer (purely additive, no app logic touched) */
+(function () {
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement;
+
+  // Ambient orbs
+  if (!reduce) {
+    var orbs = document.createElement('div');
+    orbs.className = 'pf-orbs';
+    orbs.setAttribute('aria-hidden', 'true');
+    orbs.innerHTML = '<span class="pf-orb a"></span><span class="pf-orb b"></span><span class="pf-orb c"></span>';
+    document.body.insertBefore(orbs, document.body.firstChild);
+  }
+
+  // Scroll progress + gentle orb parallax
+  var bar = document.createElement('div');
+  bar.className = 'pf-progress';
+  bar.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bar);
+  var ticking = false;
+  function update() {
+    var de = document.documentElement;
+    var max = de.scrollHeight - de.clientHeight;
+    var y = window.scrollY || de.scrollTop || 0;
+    var p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+    bar.style.setProperty('--pf-p', p.toFixed(4));
+    bar.classList.toggle('on', y > 24);
+    if (!reduce) root.style.setProperty('--pf-sy', (y * 0.06).toFixed(1));
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+
+  // Card spotlight follows the pointer (hover-capable devices only)
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches && !reduce) {
+    var pending = null, px = 0, py = 0;
+    document.addEventListener('pointermove', function (e) {
+      var card = e.target && e.target.closest ? e.target.closest('.card') : null;
+      if (!card) return;
+      px = e.clientX; py = e.clientY; pending = card;
+      if (card._pfRaf) return;
+      card._pfRaf = requestAnimationFrame(function () {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--pf-mx', (px - r.left) + 'px');
+        card.style.setProperty('--pf-my', (py - r.top) + 'px');
+        card._pfRaf = 0;
+      });
+    }, { passive: true });
+  }
+
+  // Button ripple
+  if (!reduce) {
+    document.addEventListener('pointerdown', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('.btn-post, .btn-modal-submit, .about-cta-btn, .btn-comment-submit') : null;
+      if (!btn || btn.disabled) return;
+      var r = btn.getBoundingClientRect();
+      var size = Math.max(r.width, r.height) * 2;
+      var s = document.createElement('span');
+      s.className = 'pf-ripple';
+      s.style.width = s.style.height = size + 'px';
+      s.style.left = (e.clientX - r.left - size / 2) + 'px';
+      s.style.top = (e.clientY - r.top - size / 2) + 'px';
+      btn.appendChild(s);
+      setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 650);
+    }, { passive: true });
+  }
+
+  // Pause ambient loops when the tab is hidden
+  document.addEventListener('visibilitychange', function () {
+    root.classList.toggle('pf-paused', document.hidden);
+  });
+})();
 </script>
 </body>
 </html>

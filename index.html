@@ -1585,6 +1585,11 @@
     border: 1px solid rgba(16, 185, 129, 0.3);
     color: #059669;
   }
+  .dev-test-warn {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.38);
+    color: #b45309;
+  }
   .dev-test-error {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -8765,13 +8770,46 @@
 
   // ── DEVELOPER NEWS SOURCES MANAGER (@marvelist ONLY) ───────────────────────
   let cachedDeveloperSources = null;
+  let pendingDeleteSourceId = null;
+
+  function getDeveloperApiUserHeader() {
+    return String(currentUser?.usernameLower || currentUser?.username || '').trim().toLowerCase();
+  }
+
+  function normalizeClientSourceUrl(rawUrl) {
+    let clean = String(rawUrl || '').trim();
+    if (!clean) return '';
+    if (!/^https?:\/\//i.test(clean)) {
+      clean = 'https://' + clean.replace(/^\/+/, '');
+    }
+    try {
+      const u = new URL(clean);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  async function parseApiJsonSafe(res) {
+    const raw = await res.text();
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      throw new Error(`Server returned HTTP ${res.status} (invalid JSON response)`);
+    }
+  }
 
   async function fetchDeveloperSourcesList(force = false) {
     if (cachedDeveloperSources && !force) return cachedDeveloperSources;
     try {
-      const res = await fetch('/api/developer/news-sources?user=' + encodeURIComponent(currentUser?.usernameLower || 'marvelist'));
+      const baseOrigin = getApiBaseOrigin();
+      const devUser = getDeveloperApiUserHeader() || 'marvelist';
+      const res = await fetch(`${baseOrigin}/api/developer/news-sources?user=${encodeURIComponent(devUser)}`, {
+        cache: 'no-store',
+        headers: { 'X-Developer-User': devUser }
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
+      const data = await parseApiJsonSafe(res);
       if (data && data.ok) {
         cachedDeveloperSources = data;
         const countBadge = document.getElementById('sideCountDevSources');
@@ -8840,6 +8878,7 @@
         const catKey = src.categoryKey || 'tech';
         const catColor = categoryColorMap[catKey] || '#06b6d4';
         const formattedDate = src.addedAt ? new Date(src.addedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+        const isConfirming = pendingDeleteSourceId === src.id;
         return `
           <div class="dev-source-item-card">
             <div class="dev-source-info-left">
@@ -8853,8 +8892,8 @@
               <div class="dev-source-url-text" title="${esc(src.url)}">${esc(src.url)}</div>
               <div style="font-size: 0.68rem; opacity: 0.6;">Added ${esc(formattedDate)} by @${esc(src.addedBy || 'marvelist')}</div>
             </div>
-            <button type="button" class="btn-small" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); flex-shrink: 0;" onclick="deleteDeveloperSource('${esc(src.id)}', '${esc(src.name)}')">
-              Remove
+            <button type="button" class="btn-small" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.45); background: ${isConfirming ? 'rgba(239, 68, 68, 0.14)' : 'transparent'}; flex-shrink: 0;" onclick="deleteDeveloperSource('${esc(src.id)}', '${esc(src.name)}')">
+              ${isConfirming ? 'Confirm Remove?' : 'Remove'}
             </button>
           </div>
         `;
@@ -8882,11 +8921,11 @@
 
     body.innerHTML = `
       <div style="font-size: 0.85rem; line-height: 1.45; opacity: 0.9; background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; padding: 0.65rem 0.85rem; border-radius: 0 8px 8px 0;">
-        ⚡ <strong>Developer Control Panel:</strong> Add live RSS/Atom feeds or websites to any category. All active feeds are automatically polled and indexed every 15 minutes, with stories seamlessly fed into Paper Flow's news reader.
+        ⚡ <strong>Developer Control Panel:</strong> Add live RSS/Atom feeds or website URLs to any category. Website URLs automatically discover feeds, and all active feeds sync every 15 minutes.
       </div>
 
       <!-- ADD NEW SOURCE FORM -->
-      <form class="dev-source-form-card" onsubmit="submitNewDeveloperSource(event)">
+      <form class="dev-source-form-card" onsubmit="submitNewDeveloperSource(event)" novalidate>
         <div style="font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
           <span>➕ Add News Source</span>
         </div>
@@ -8894,7 +8933,7 @@
         <div class="dev-form-grid">
           <div class="dev-form-field">
             <label for="devSourceName">Source Name *</label>
-            <input type="text" id="devSourceName" placeholder="e.g. Marvel Studios News, IGN, SpaceNews" maxlength="80" required />
+            <input type="text" id="devSourceName" placeholder="e.g. Marvel Studios News, IGN, SpaceNews" maxlength="80" />
           </div>
           <div class="dev-form-field">
             <label for="devSourceCategory">News Category *</label>
@@ -8905,8 +8944,8 @@
         </div>
 
         <div class="dev-form-field">
-          <label for="devSourceUrl">RSS / Atom Feed URL *</label>
-          <input type="url" id="devSourceUrl" placeholder="https://example.com/rss.xml or /feed/" required />
+          <label for="devSourceUrl">RSS / Atom Feed or Website URL *</label>
+          <input type="text" id="devSourceUrl" placeholder="https://example.com/feed/ or ign.com" inputmode="url" />
         </div>
 
         <div class="dev-form-field">
@@ -8948,10 +8987,12 @@
   }
 
   window.openDeveloperSourcesModal = async function () {
-    if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) {
+    const devUser = getDeveloperApiUserHeader();
+    if (!currentUser || !isDeveloperUser(devUser)) {
       showToast('Developer access required (@marvelist).');
       return;
     }
+    pendingDeleteSourceId = null;
     toggleSidePanel(false);
     renderDeveloperSourcesUI(true);
     openModalWithMotion('developerSourcesModalBackdrop');
@@ -8960,6 +9001,7 @@
   };
 
   window.closeDeveloperSourcesModal = function () {
+    pendingDeleteSourceId = null;
     closeModalWithMotion('developerSourcesModalBackdrop');
   };
 
@@ -8970,42 +9012,60 @@
   };
 
   window.testDeveloperNewsSource = async function () {
-    const url = (document.getElementById('devSourceUrl')?.value || '').trim();
+    const rawUrl = (document.getElementById('devSourceUrl')?.value || '').trim();
+    const url = normalizeClientSourceUrl(rawUrl);
     const name = (document.getElementById('devSourceName')?.value || '').trim();
     const categoryKey = (document.getElementById('devSourceCategory')?.value || 'tech').trim();
     const topic = (document.getElementById('devSourceTopic')?.value || '').trim();
     const feedbackEl = document.getElementById('devSourceTestFeedback');
     if (!feedbackEl) return;
 
-    if (!url || !url.startsWith('http')) {
+    if (!url) {
       feedbackEl.style.display = 'block';
-      feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Please enter a valid HTTP or HTTPS feed URL.</div>`;
+      feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Please enter a valid feed or website URL (e.g. https://example.com/feed/).</div>`;
       return;
     }
 
     feedbackEl.style.display = 'block';
-    feedbackEl.innerHTML = `<div class="dev-test-box dev-test-loading">⏳ Fetching and testing feed…</div>`;
+    feedbackEl.innerHTML = `<div class="dev-test-box dev-test-loading">⏳ Fetching and testing source…</div>`;
 
     try {
-      const res = await fetch('/api/developer/news-sources/test', {
+      const baseOrigin = getApiBaseOrigin();
+      const devUser = getDeveloperApiUserHeader();
+      const res = await fetch(`${baseOrigin}/api/developer/news-sources/test`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Developer-User': devUser
+        },
         body: JSON.stringify({
-          usernameLower: currentUser?.usernameLower || 'marvelist',
+          usernameLower: devUser,
           url,
           name: name || 'Test Source',
           categoryKey,
           defaultTopic: topic,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiJsonSafe(res);
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Feed test failed');
+      }
+      const discoveredNote = data.discoveredFeedUrl
+        ? `<div style="font-size:0.74rem; margin-top:0.25rem; opacity:0.9;">🔗 Auto-discovered feed: <code>${esc(data.discoveredFeedUrl)}</code></div>`
+        : '';
+      if (data.count === 0) {
+        feedbackEl.innerHTML = `
+          <div class="dev-test-box dev-test-warn">
+            <strong>⚠️ Connected, but 0 recent stories found.</strong>${discoveredNote}
+            <div style="font-size:0.75rem; margin-top:0.25rem;">Try pasting the direct RSS/Atom feed URL if the site blocks automated HTML scraping.</div>
+          </div>
+        `;
+        return;
       }
       const sampleTitles = (data.sampleItems || []).map(it => `• "${esc(it.title)}"`).join('<br>');
       feedbackEl.innerHTML = `
         <div class="dev-test-box dev-test-success">
-          <strong>✅ Feed Active &amp; Valid!</strong> Found <strong>${data.count}</strong> recent stories.<br>
+          <strong>✅ Feed Active &amp; Valid!</strong> Found <strong>${data.count}</strong> recent stories.${discoveredNote}<br>
           <span style="font-size:0.75rem; opacity:0.85;">Preview stories:</span><br>
           <div style="margin-top:0.35rem; font-size:0.75rem; line-height:1.4;">${sampleTitles}</div>
         </div>
@@ -9025,7 +9085,8 @@
     const submitBtn = document.getElementById('btnDevSubmitSource');
 
     const name = (nameInput?.value || '').trim();
-    const url = (urlInput?.value || '').trim();
+    const rawUrl = (urlInput?.value || '').trim();
+    const url = normalizeClientSourceUrl(rawUrl);
     const categoryKey = (categorySelect?.value || 'tech').trim();
     const defaultTopic = (topicInput?.value || '').trim();
 
@@ -9037,10 +9098,10 @@
       nameInput?.focus();
       return;
     }
-    if (!url || !url.startsWith('http')) {
+    if (!url) {
       if (feedbackEl) {
         feedbackEl.style.display = 'block';
-        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Valid feed URL is required.</div>`;
+        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">⚠️ Valid feed or website URL is required.</div>`;
       }
       urlInput?.focus();
       return;
@@ -9050,38 +9111,62 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Adding & Syncing…';
     }
+    if (feedbackEl) {
+      feedbackEl.style.display = 'block';
+      feedbackEl.innerHTML = `<div class="dev-test-box dev-test-loading">⏳ Saving source &amp; fetching latest stories…</div>`;
+    }
 
     try {
-      const res = await fetch('/api/developer/news-sources', {
+      const baseOrigin = getApiBaseOrigin();
+      const devUser = getDeveloperApiUserHeader();
+      const res = await fetch(`${baseOrigin}/api/developer/news-sources`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Developer-User': devUser
+        },
         body: JSON.stringify({
-          usernameLower: currentUser?.usernameLower || 'marvelist',
+          usernameLower: devUser,
           name,
           url,
           categoryKey,
           defaultTopic,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiJsonSafe(res);
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Failed to add source');
       }
 
-      showToast(`✅ Source "${name}" added! Polling started.`);
-      if (nameInput) nameInput.value = '';
-      if (urlInput) urlInput.value = '';
-      if (topicInput) topicInput.value = '';
-      if (feedbackEl) {
-        feedbackEl.style.display = 'block';
-        feedbackEl.innerHTML = `<div class="dev-test-box dev-test-success">✅ Added "${esc(name)}" to <strong>${esc(categoryKey)}</strong>! Polling and background sync triggered.</div>`;
-      }
+      const fetchedCount = Number(data.fetchedCount || 0);
+      showToast(
+        fetchedCount > 0
+          ? `✅ Added "${name}" with ${fetchedCount} live stories!`
+          : `✅ Source "${name}" saved!`
+      );
+
+      const savedBannerHtml = data.warning
+        ? `<div class="dev-test-box dev-test-warn">✅ Saved "${esc(name)}" to <strong>${esc(categoryKey)}</strong>.<br><span style="font-size:0.75rem;">⚠️ ${esc(data.warning)}</span></div>`
+        : `<div class="dev-test-box dev-test-success">✅ Added "${esc(name)}" to <strong>${esc(categoryKey)}</strong> (${fetchedCount} live stories synced immediately)!${data.discoveredFeedUrl ? `<br><span style="font-size:0.74rem;">🔗 Resolved feed: <code>${esc(data.discoveredFeedUrl)}</code></span>` : ''}</div>`;
+
+      cachedDeveloperSources = {
+        ...(cachedDeveloperSources || {}),
+        ok: true,
+        defaultSources: cachedDeveloperSources?.defaultSources || [],
+        customSources: data.customSources || []
+      };
 
       const fresh = await fetchDeveloperSourcesList(true);
       renderDeveloperSourcesUI(false, fresh);
 
+      const newFeedbackEl = document.getElementById('devSourceTestFeedback');
+      if (newFeedbackEl) {
+        newFeedbackEl.style.display = 'block';
+        newFeedbackEl.innerHTML = savedBannerHtml;
+      }
+
       if (typeof window.fetchAndSyncAiTechNews === 'function') {
-        window.fetchAndSyncAiTechNews(true);
+        window.fetchAndSyncAiTechNews(false);
       }
     } catch (err) {
       if (feedbackEl) {
@@ -9089,27 +9174,36 @@
         feedbackEl.innerHTML = `<div class="dev-test-box dev-test-error">❌ Failed to add source: ${esc(err.message)}</div>`;
       }
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '+ Add Source & Sync Now';
+      const currentSubmitBtn = document.getElementById('btnDevSubmitSource');
+      if (currentSubmitBtn) {
+        currentSubmitBtn.disabled = false;
+        currentSubmitBtn.textContent = '+ Add Source & Sync Now';
       }
     }
   };
 
   window.deleteDeveloperSource = async function (sourceId, sourceName) {
-    if (!confirm(`Are you sure you want to remove the source "${sourceName}"?`)) {
+    if (pendingDeleteSourceId !== sourceId) {
+      pendingDeleteSourceId = sourceId;
+      renderDeveloperSourcesUI(false, cachedDeveloperSources);
       return;
     }
+    pendingDeleteSourceId = null;
 
     try {
-      const res = await fetch('/api/developer/news-sources/' + encodeURIComponent(sourceId), {
+      const baseOrigin = getApiBaseOrigin();
+      const devUser = getDeveloperApiUserHeader();
+      const res = await fetch(`${baseOrigin}/api/developer/news-sources/${encodeURIComponent(sourceId)}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Developer-User': devUser
+        },
         body: JSON.stringify({
-          usernameLower: currentUser?.usernameLower || 'marvelist',
+          usernameLower: devUser,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiJsonSafe(res);
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Failed to delete source');
       }
@@ -9117,6 +9211,9 @@
       showToast(`Removed source "${sourceName}".`);
       const fresh = await fetchDeveloperSourcesList(true);
       renderDeveloperSourcesUI(false, fresh);
+      if (typeof window.fetchAndSyncAiTechNews === 'function') {
+        window.fetchAndSyncAiTechNews(true);
+      }
     } catch (err) {
       showToast(`❌ Error: ${err.message}`);
     }
@@ -13206,6 +13303,9 @@
       'tech'
     ]);
     const explicitKey = String(post.categoryKey || '').trim().toLowerCase();
+    if (post.isCustomDeveloperSource && validKeys.has(explicitKey)) {
+      return explicitKey;
+    }
     if (validKeys.has(explicitKey) && explicitKey !== 'tech') {
       return explicitKey;
     }

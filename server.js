@@ -10,7 +10,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT =
+  Number(process.env.DEFAULT_APP_PORT) ||
+  (process.env.NGINX_PORT ? 3000 : Number(process.env.PORT)) ||
+  3000;
 
 app.use(express.json());
 
@@ -843,44 +846,82 @@ function buildComprehensiveSummary(seed, details, aiGeneratedSummary = '') {
   return paragraphs.join('\n\n').slice(0, 2800);
 }
 
-function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCategoryKey = '') {
+function normalizeSourceInputUrl(rawUrl) {
+  let clean = String(rawUrl || '').trim();
+  if (!clean) return '';
+  if (!/^https?:\/\//i.test(clean)) {
+    clean = 'https://' + clean.replace(/^\/+/, '');
+  }
+  try {
+    const parsed = new URL(clean);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    return parsed.href;
+  } catch (e) {
+    return '';
+  }
+}
+
+function resolveMaybeRelativeUrl(candidateUrl, baseUrl) {
+  const raw = decodeHtmlEntities(String(candidateUrl || '')).trim();
+  if (!raw) return '';
+  try {
+    const resolved = baseUrl ? new URL(raw, baseUrl) : new URL(raw);
+    if (resolved.protocol === 'http:' || resolved.protocol === 'https:') {
+      return resolved.href;
+    }
+  } catch (e) {}
+  return '';
+}
+
+function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCategoryKey = '', options = {}) {
   if (!xmlText || typeof xmlText !== 'string') return [];
   const items = [];
+  const maxAgeMs = Number(options.maxAgeMs) || NEWS_MAX_AGE_MS;
+  const baseUrl = options.baseUrl || '';
+  const cutoffTs = Date.now() - maxAgeMs;
+
   const itemBlocks =
-    xmlText.match(/<item[\s\S]*?<\/item>/gi) ||
-    xmlText.match(/<entry[\s\S]*?<\/entry>/gi) ||
+    xmlText.match(/<item\b[\s\S]*?<\/item>/gi) ||
+    xmlText.match(/<entry\b[\s\S]*?<\/entry>/gi) ||
     [];
 
-  for (const block of itemBlocks.slice(0, 10)) {
+  for (const block of itemBlocks.slice(0, 15)) {
     const titleRaw =
-      (block.match(/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i) ||
+      (block.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/title>/i) ||
         block.match(/<title[^>]*>([\s\S]*?)<\/title>/i) ||
         [])[1] || '';
-    const title = stripHtmlTags(decodeHtmlEntities(titleRaw)).trim();
+    const title = stripHtmlTags(decodeHtmlEntities(titleRaw)).replace(/\s+/g, ' ').trim();
 
-    let url =
-      (block.match(/<link[^>]+href=["'](https?:\/\/[^"']+)["']/i) ||
-        block.match(/<link[^>]*>(https?:\/\/[^<\s]+)<\/link>/i) ||
+    let urlRaw =
+      (block.match(/<link[^>]+rel=["']alternate["'][^>]+href=["']([^"']+)["']/i) ||
+        block.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']alternate["']/i) ||
+        block.match(/<link[^>]+href=["']([^"']+)["']/i) ||
+        block.match(/<link[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/link>/i) ||
+        block.match(/<link[^>]*>([\s\S]*?)<\/link>/i) ||
+        block.match(/<guid[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/guid>/i) ||
         block.match(/<guid[^>]*>(https?:\/\/[^<\s]+)<\/guid>/i) ||
         [])[1] || '';
-    url = decodeHtmlEntities(url).trim();
-    if (!title || !url.startsWith('http')) continue;
+    const url = resolveMaybeRelativeUrl(urlRaw, baseUrl);
+    if (!title || !url || !url.startsWith('http')) continue;
 
     const descRaw =
-      (block.match(/<description[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i) ||
+      (block.match(/<content:encoded[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/content:encoded>/i) ||
+        block.match(/<description[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/description>/i) ||
         block.match(/<description[^>]*>([\s\S]*?)<\/description>/i) ||
-        block.match(/<summary[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/summary>/i) ||
+        block.match(/<summary[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/summary>/i) ||
         block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i) ||
-        block.match(/<content:encoded[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/i) ||
+        block.match(/<content[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/content>/i) ||
+        block.match(/<content[^>]*>([\s\S]*?)<\/content>/i) ||
         [])[1] || '';
     const rssSummary = stripHtmlTags(decodeHtmlEntities(descRaw)).replace(/\s+/g, ' ').trim().slice(0, 620);
 
     const imgMatch =
-      block.match(/<media:(?:content|thumbnail)[^>]+url=["'](https?:\/\/[^"']+)["']/i) ||
-      block.match(/<enclosure[^>]+url=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i) ||
-      descRaw.match(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/i) ||
-      block.match(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/i);
-    const candidateImage = imgMatch && imgMatch[1] ? decodeHtmlEntities(imgMatch[1]).trim() : '';
+      block.match(/<media:(?:content|thumbnail)[^>]+url=["']([^"']+)["']/i) ||
+      block.match(/<enclosure[^>]+url=["']([^"']+\.(?:jpg|jpeg|png|webp|avif)[^"']*)["']/i) ||
+      block.match(/<enclosure[^>]+type=["']image\/[^"']+["'][^>]+url=["']([^"']+)["']/i) ||
+      descRaw.match(/<img[^>]+src=["']([^"']+)["']/i) ||
+      block.match(/<img[^>]+src=["']([^"']+)["']/i);
+    const candidateImage = imgMatch && imgMatch[1] ? resolveMaybeRelativeUrl(imgMatch[1], url) : '';
     const extractedImage = isReliableNewsImageUrl(candidateImage) ? candidateImage : '';
 
     const dateRaw =
@@ -889,9 +930,12 @@ function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCate
     const parsedPubMs = Date.parse(dateRaw.trim()) || Date.now();
     const pubMs = parsedPubMs > Date.now() + 60000 ? Date.now() : parsedPubMs;
 
-    if (!isWithinTenDaysWindow(pubMs)) continue;
+    if (pubMs < cutoffTs) continue;
 
-    const categoryKey = detectRigidCategoryKey(title, sourceName, defaultCategoryKey, url);
+    const categoryKey =
+      defaultCategoryKey && defaultCategoryKey !== 'tech'
+        ? defaultCategoryKey
+        : detectRigidCategoryKey(title, sourceName, defaultCategoryKey, url);
 
     items.push({
       objectID: '',
@@ -900,17 +944,244 @@ function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCate
       sourceName,
       defaultTopic,
       categoryKey,
-      points: 92,
-      numComments: 34,
+      points: options.isCustomDeveloperSource ? 220 : 92,
+      numComments: options.isCustomDeveloperSource ? 75 : 34,
       rssSummary,
       storyText: rssSummary,
       extractedImage,
       isDirectEditorialFeed: true,
+      isCustomDeveloperSource: Boolean(options.isCustomDeveloperSource),
       publishedAt: pubMs,
       createdAt: pubMs,
     });
   }
   return items;
+}
+
+function parseJsonFeedItems(jsonText, sourceName, defaultTopic = '', defaultCategoryKey = '', options = {}) {
+  try {
+    const data = JSON.parse(jsonText);
+    const list = Array.isArray(data?.items) ? data.items : [];
+    const maxAgeMs = Number(options.maxAgeMs) || NEWS_MAX_AGE_MS;
+    const cutoffTs = Date.now() - maxAgeMs;
+    const baseUrl = options.baseUrl || data?.home_page_url || '';
+    const items = [];
+    for (const entry of list.slice(0, 15)) {
+      const title = stripHtmlTags(String(entry.title || '')).replace(/\s+/g, ' ').trim();
+      const url = resolveMaybeRelativeUrl(entry.url || entry.external_url || entry.id || '', baseUrl);
+      if (!title || !url) continue;
+      const pubRaw = entry.date_published || entry.date_modified || '';
+      const parsedMs = Date.parse(pubRaw) || Date.now();
+      const pubMs = parsedMs > Date.now() + 60000 ? Date.now() : parsedMs;
+      if (pubMs < cutoffTs) continue;
+      const summary = stripHtmlTags(String(entry.summary || entry.content_text || entry.content_html || ''))
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 620);
+      const img = resolveMaybeRelativeUrl(entry.image || entry.banner_image || '', url);
+      const extractedImage = isReliableNewsImageUrl(img) ? img : '';
+      const categoryKey =
+        defaultCategoryKey && defaultCategoryKey !== 'tech'
+          ? defaultCategoryKey
+          : detectRigidCategoryKey(title, sourceName, defaultCategoryKey, url);
+      items.push({
+        objectID: '',
+        title,
+        url,
+        sourceName,
+        defaultTopic,
+        categoryKey,
+        points: options.isCustomDeveloperSource ? 220 : 92,
+        numComments: options.isCustomDeveloperSource ? 75 : 34,
+        rssSummary: summary,
+        storyText: summary,
+        extractedImage,
+        isDirectEditorialFeed: true,
+        isCustomDeveloperSource: Boolean(options.isCustomDeveloperSource),
+        publishedAt: pubMs,
+        createdAt: pubMs,
+      });
+    }
+    return items;
+  } catch (e) {
+    return [];
+  }
+}
+
+function extractFeedLinksFromHtml(htmlText, pageUrl) {
+  if (!htmlText || typeof htmlText !== 'string') return [];
+  const discovered = [];
+  const seen = new Set();
+  const linkTags = htmlText.match(/<link\b[^>]*>/gi) || [];
+  for (const tag of linkTags) {
+    if (!/rel=["'][^"']*alternate[^"']*["']/i.test(tag)) continue;
+    if (!/type=["']application\/(?:rss\+xml|atom\+xml|feed\+json|xml|json)["']/i.test(tag)) continue;
+    const hrefMatch = tag.match(/href=["']([^"']+)["']/i);
+    if (hrefMatch && hrefMatch[1]) {
+      const resolved = resolveMaybeRelativeUrl(hrefMatch[1], pageUrl);
+      if (resolved && !seen.has(resolved)) {
+        seen.add(resolved);
+        discovered.push(resolved);
+      }
+    }
+  }
+  return discovered;
+}
+
+function extractArticlesFromHtmlPage(htmlText, pageUrl, sourceName, defaultTopic = '', defaultCategoryKey = '', options = {}) {
+  if (!htmlText || typeof htmlText !== 'string') return [];
+  const items = [];
+  const seenUrls = new Set();
+  let pageHost = '';
+  try {
+    pageHost = new URL(pageUrl).hostname.replace(/^www\./i, '');
+  } catch (e) {}
+
+  // Match headings with anchor links or article anchors
+  const anchorRegex = /<(?:h1|h2|h3|article)[^>]*>[\s\S]{0,220}?<a[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>|<a[^>]+href=["']([^"'#]+)["'][^>]*>\s*<(?:h1|h2|h3)[^>]*>([\s\S]*?)<\/(?:h1|h2|h3)>/gi;
+  let match;
+  const now = Date.now();
+  while ((match = anchorRegex.exec(htmlText)) !== null && items.length < 10) {
+    const rawHref = match[1] || match[3] || '';
+    const rawTitle = match[2] || match[4] || '';
+    const title = stripHtmlTags(decodeHtmlEntities(rawTitle)).replace(/\s+/g, ' ').trim();
+    const url = resolveMaybeRelativeUrl(rawHref, pageUrl);
+    if (!url || !title || title.length < 22 || title.length > 180) continue;
+    if (seenUrls.has(url) || url === pageUrl) continue;
+    if (/\b(sign in|log in|subscribe|privacy|terms|cookie|contact|about us|advertise|careers)\b/i.test(title)) continue;
+    try {
+      const host = new URL(url).hostname.replace(/^www\./i, '');
+      if (pageHost && host !== pageHost && !host.endsWith('.' + pageHost)) continue;
+    } catch (e) {
+      continue;
+    }
+    seenUrls.add(url);
+    const categoryKey =
+      defaultCategoryKey && defaultCategoryKey !== 'tech'
+        ? defaultCategoryKey
+        : detectRigidCategoryKey(title, sourceName, defaultCategoryKey, url);
+    items.push({
+      objectID: '',
+      title,
+      url,
+      sourceName,
+      defaultTopic,
+      categoryKey,
+      points: options.isCustomDeveloperSource ? 210 : 85,
+      numComments: options.isCustomDeveloperSource ? 65 : 28,
+      rssSummary: `${title} — Featured coverage from ${sourceName}.`,
+      storyText: `${title} — Featured coverage from ${sourceName}.`,
+      extractedImage: '',
+      isDirectEditorialFeed: true,
+      isCustomDeveloperSource: Boolean(options.isCustomDeveloperSource),
+      publishedAt: now - items.length * 18 * 60 * 1000,
+      createdAt: now - items.length * 18 * 60 * 1000,
+    });
+  }
+  return items;
+}
+
+async function fetchTextWithTimeout(url, timeoutMs = 5500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; PaperFlowNewsReader/1.0; +https://paperflow.hs.vc)',
+        Accept: 'application/rss+xml, application/atom+xml, application/feed+json, application/xml, text/xml, text/html, */*',
+      },
+      redirect: 'follow',
+      signal: controller.signal,
+    });
+    const text = await res.text();
+    return { ok: res.ok, status: res.status, statusText: res.statusText, finalUrl: res.url || url, text, contentType: res.headers.get('content-type') || '' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function discoverAndFetchFeed(rawUrl, sourceName = 'Custom Source', defaultTopic = '', categoryKey = '', options = {}) {
+  const normalizedUrl = normalizeSourceInputUrl(rawUrl);
+  if (!normalizedUrl) {
+    throw new Error('Please enter a valid HTTP or HTTPS URL.');
+  }
+  const parseOpts = {
+    maxAgeMs: options.maxAgeMs || 30 * 24 * 60 * 60 * 1000,
+    isCustomDeveloperSource: options.isCustomDeveloperSource !== false,
+    baseUrl: normalizedUrl,
+  };
+
+  const primary = await fetchTextWithTimeout(normalizedUrl, options.timeoutMs || 6000);
+  if (!primary.ok) {
+    throw new Error(`Source responded with HTTP ${primary.status} (${primary.statusText || 'Error'})`);
+  }
+
+  const trimmed = (primary.text || '').trim();
+  const effectiveUrl = primary.finalUrl || normalizedUrl;
+  parseOpts.baseUrl = effectiveUrl;
+
+  // 1. Check JSON Feed
+  if (trimmed.startsWith('{') && (primary.contentType.includes('json') || trimmed.includes('"items"'))) {
+    const jsonItems = parseJsonFeedItems(trimmed, sourceName, defaultTopic, categoryKey, parseOpts);
+    if (jsonItems.length > 0) {
+      return { feedUrl: effectiveUrl, items: jsonItems, discovered: false, mode: 'json' };
+    }
+  }
+
+  // 2. Check RSS / Atom XML
+  if (/<(?:rss|feed|rdf:RDF)\b/i.test(trimmed) || /<(?:item|entry)\b/i.test(trimmed)) {
+    const xmlItems = parseRssOrAtomItems(trimmed, sourceName, defaultTopic, categoryKey, parseOpts);
+    if (xmlItems.length > 0 || /<(?:rss|feed|rdf:RDF)\b/i.test(trimmed)) {
+      return { feedUrl: effectiveUrl, items: xmlItems, discovered: false, mode: 'xml' };
+    }
+  }
+
+  // 3. HTML webpage given: auto-discover RSS/Atom <link rel="alternate"> or common feed paths
+  const candidateFeedUrls = extractFeedLinksFromHtml(trimmed, effectiveUrl);
+  try {
+    const u = new URL(effectiveUrl);
+    const baseNoSlash = effectiveUrl.replace(/\/+$/, '');
+    const commonPaths = [
+      `${baseNoSlash}/feed/`,
+      `${baseNoSlash}/rss.xml`,
+      `${baseNoSlash}/feed.xml`,
+      `${u.origin}/feed/`,
+      `${u.origin}/rss.xml`,
+      `${u.origin}/atom.xml`,
+    ];
+    for (const c of commonPaths) {
+      if (!candidateFeedUrls.includes(c)) candidateFeedUrls.push(c);
+    }
+  } catch (e) {}
+
+  for (const candUrl of candidateFeedUrls.slice(0, 5)) {
+    try {
+      const sub = await fetchTextWithTimeout(candUrl, 3800);
+      if (!sub.ok) continue;
+      const subTrimmed = (sub.text || '').trim();
+      const subOpts = { ...parseOpts, baseUrl: sub.finalUrl || candUrl };
+      if (subTrimmed.startsWith('{')) {
+        const jItems = parseJsonFeedItems(subTrimmed, sourceName, defaultTopic, categoryKey, subOpts);
+        if (jItems.length > 0) {
+          return { feedUrl: sub.finalUrl || candUrl, items: jItems, discovered: true, mode: 'json' };
+        }
+      }
+      if (/<(?:rss|feed|rdf:RDF|item|entry)\b/i.test(subTrimmed)) {
+        const xItems = parseRssOrAtomItems(subTrimmed, sourceName, defaultTopic, categoryKey, subOpts);
+        if (xItems.length > 0) {
+          return { feedUrl: sub.finalUrl || candUrl, items: xItems, discovered: true, mode: 'xml' };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 4. Last-resort HTML article headline extraction for websites without an exposed RSS feed
+  const htmlItems = extractArticlesFromHtmlPage(trimmed, effectiveUrl, sourceName, defaultTopic, categoryKey, parseOpts);
+  if (htmlItems.length > 0) {
+    return { feedUrl: effectiveUrl, items: htmlItems, discovered: false, mode: 'html' };
+  }
+
+  return { feedUrl: effectiveUrl, items: [], discovered: false, mode: 'empty' };
 }
 
 function getGuaranteedMultiSectorSeedArticles() {
@@ -1284,7 +1555,7 @@ async function fetchLiveTechArticlesSeed() {
   }
 
   // 1. Direct Authentic & Reliable Top-Tier Multi-Sector Editorial Feeds (Default + Custom Developer Feeds)
-  const customFeeds = loadCustomNewsSources();
+  const customFeeds = loadCustomNewsSources().map(f => ({ ...f, isCustomDeveloperSource: true }));
   const allEditorialFeeds = [...DEFAULT_RELIABLE_RSS_FEEDS, ...customFeeds];
 
   // 2. High-velocity Hacker News Front Page & Breaking AI/Tech queries within the last 10 days
@@ -1299,28 +1570,32 @@ async function fetchLiveTechArticlesSeed() {
   await Promise.allSettled([
     ...allEditorialFeeds.map(async (feed) => {
       try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 4200);
-        const res = await fetch(feed.url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; PaperFlowNewsReader/1.0)',
-            Accept: 'application/rss+xml, application/xml, text/xml, */*',
-          },
-          signal: controller.signal,
-        });
-        clearTimeout(timer);
-        if (!res.ok) return;
-        const xml = await res.text();
-        const parsedItems = parseRssOrAtomItems(xml, feed.name, feed.defaultTopic, feed.categoryKey);
-        for (const item of parsedItems.slice(0, 8)) {
+        let parsedItems = [];
+        if (feed.isCustomDeveloperSource) {
+          const result = await discoverAndFetchFeed(
+            feed.url,
+            feed.name,
+            feed.defaultTopic,
+            feed.categoryKey,
+            { maxAgeMs: 30 * 24 * 60 * 60 * 1000, isCustomDeveloperSource: true, timeoutMs: 5500 }
+          );
+          parsedItems = result.items || [];
+        } else {
+          const res = await fetchTextWithTimeout(feed.url, 4200);
+          if (!res.ok) return;
+          parsedItems = parseRssOrAtomItems(res.text, feed.name, feed.defaultTopic, feed.categoryKey, { baseUrl: res.finalUrl || feed.url });
+        }
+
+        for (const item of parsedItems.slice(0, feed.isCustomDeveloperSource ? 10 : 8)) {
           if (!item.url || seenUrls.has(item.url)) continue;
-          if (!isWithinTenDaysWindow(item.publishedAt)) continue;
+          if (!feed.isCustomDeveloperSource && !isWithinTenDaysWindow(item.publishedAt)) continue;
           if (!isInterestingTechStory(item.title, item.url)) continue;
           seenUrls.add(item.url);
+          item.isCustomDeveloperSource = Boolean(feed.isCustomDeveloperSource);
           item.categoryKey = feed.categoryKey || item.categoryKey || detectRigidCategoryKey(item.title, feed.name, feed.categoryKey, item.url);
           item.topicTags = getRigidTopicTagsForCategoryKey(item.categoryKey, item.title);
           item.imageUrl = getCuratedNewsBannerImage(item.title, item.topicTags, item.extractedImage, item.categoryKey, usedSeedImages);
-          item.interestScore = computeStoryInterestScore(item);
+          item.interestScore = computeStoryInterestScore(item) + (item.isCustomDeveloperSource ? 280 : 0);
           candidates.push(item);
         }
       } catch (e) {}
@@ -1376,8 +1651,10 @@ async function fetchLiveTechArticlesSeed() {
     }),
   ]);
 
-  candidates.sort((a, b) => (b.interestScore || 0) - (a.interestScore || 0));
-  const curatedTop = candidates.slice(0, 60);
+  const customCandidates = candidates.filter(c => c.isCustomDeveloperSource).sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0)).slice(0, 26);
+  const customSet = new Set(customCandidates);
+  const otherCandidates = candidates.filter(c => !customSet.has(c)).sort((a, b) => (b.interestScore || 0) - (a.interestScore || 0));
+  const curatedTop = [...customCandidates, ...otherCandidates].slice(0, 76);
   curatedTop.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
   return curatedTop;
 }
@@ -1715,7 +1992,7 @@ async function refreshAiTechNews(force = false) {
       if (liveSeeds.length > 0) {
         const fastItems = [];
         const usedFastImages = new Set();
-        for (let i = 0; i < liveSeeds.length && fastItems.length < 54; i++) {
+        for (let i = 0; i < liveSeeds.length && fastItems.length < 76; i++) {
           const s = liveSeeds[i];
           const pubMs = s.publishedAt || s.createdAt || now - i * 180000;
           const categoryKey =
@@ -1748,6 +2025,7 @@ async function refreshAiTechNews(force = false) {
             alias: 'Paper Flow AI News',
             authorUsername: 'ai_news_desk',
             isAiNews: true,
+            isCustomDeveloperSource: Boolean(s.isCustomDeveloperSource),
             summarizedByAi: true,
             aiAttribution: 'Summarized by AI',
             linkUrl: s.url,
@@ -2190,27 +2468,56 @@ app.post('/api/developer/news-sources', async (req, res) => {
 
     const { name, url, categoryKey, defaultTopic } = req.body || {};
     const cleanName = String(name || '').trim();
-    const cleanUrl = String(url || '').trim();
+    const rawUrl = String(url || '').trim();
+    const normalizedInputUrl = normalizeSourceInputUrl(rawUrl);
     const cleanCategoryKey = String(categoryKey || '').trim().toLowerCase();
     const cleanDefaultTopic = String(defaultTopic || '').trim();
 
     if (!cleanName) {
       return res.status(400).json({ ok: false, error: 'Source name is required.' });
     }
-    if (!cleanUrl || !/^https?:\/\/.+/i.test(cleanUrl)) {
-      return res.status(400).json({ ok: false, error: 'A valid HTTP/HTTPS RSS or Atom feed URL is required.' });
+    if (!normalizedInputUrl) {
+      return res.status(400).json({ ok: false, error: 'A valid HTTP/HTTPS RSS feed or website URL is required.' });
     }
 
-    const validCategoryKeys = ['cinema', 'hollywood', 'bollywood', 'marvel', 'facts', 'science', 'games', 'hotties', 'tech'];
+    const validCategoryKeys = ['cinema', 'hollywood', 'bollywood', 'marvel', 'facts', 'science', 'games', 'hotties', 'ai', 'tech'];
     const resolvedCategoryKey = validCategoryKeys.includes(cleanCategoryKey) ? cleanCategoryKey : 'tech';
 
+    // Immediately probe & auto-discover feed URL if a website homepage/section URL was supplied
+    let resolvedFeedUrl = normalizedInputUrl;
+    let fetchedItems = [];
+    let discoveredMode = '';
+    let fetchWarning = '';
+    try {
+      const result = await discoverAndFetchFeed(
+        normalizedInputUrl,
+        cleanName,
+        cleanDefaultTopic,
+        resolvedCategoryKey,
+        { maxAgeMs: 30 * 24 * 60 * 60 * 1000, isCustomDeveloperSource: true, timeoutMs: 6500 }
+      );
+      if (result.feedUrl) {
+        resolvedFeedUrl = result.feedUrl;
+      }
+      fetchedItems = Array.isArray(result.items) ? result.items : [];
+      discoveredMode = result.mode || '';
+      if (fetchedItems.length === 0) {
+        fetchWarning = 'Source saved, though it returned 0 recent stories right now. It will continue polling every 15 minutes.';
+      }
+    } catch (probeErr) {
+      fetchWarning = `Source saved, though live probe reported: ${probeErr.message}. Verify the feed URL if stories do not appear.`;
+    }
+
     const currentSources = loadCustomNewsSources();
-    const existingIndex = currentSources.findIndex(s => s.url.toLowerCase() === cleanUrl.toLowerCase());
-    
+    const existingIndex = currentSources.findIndex(
+      s => s.url.toLowerCase() === resolvedFeedUrl.toLowerCase() || s.url.toLowerCase() === normalizedInputUrl.toLowerCase()
+    );
+
     const newSource = {
       id: existingIndex >= 0 ? currentSources[existingIndex].id : `src_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name: cleanName,
-      url: cleanUrl,
+      url: resolvedFeedUrl,
+      originalUrl: resolvedFeedUrl !== normalizedInputUrl ? normalizedInputUrl : undefined,
       categoryKey: resolvedCategoryKey,
       defaultTopic: cleanDefaultTopic || '',
       addedBy: 'marvelist',
@@ -2223,16 +2530,77 @@ app.post('/api/developer/news-sources', async (req, res) => {
       currentSources.push(newSource);
     }
 
-    saveCustomNewsSources(currentSources);
+    const savedOk = saveCustomNewsSources(currentSources);
+    if (!savedOk) {
+      return res.status(500).json({ ok: false, error: 'Failed to persist custom news source to disk.' });
+    }
 
-    // Trigger instant background refresh so new sources populate immediately
-    refreshAiTechNews(true).catch(err => {
-      console.warn('[NewsSources] Background refresh after adding source had an issue:', err.message);
-    });
+    // Immediately convert and merge fetched stories into live aiTechNewsState so they appear right away
+    let syncedCount = 0;
+    if (fetchedItems.length > 0) {
+      const usedSyncImages = new Set();
+      const now = Date.now();
+      const formattedItems = fetchedItems.slice(0, 10).map((s, idx) => {
+        const pubMs = Math.max(s.publishedAt || now - idx * 60000, now - NEWS_MAX_AGE_MS + 3600000);
+        const topicTags = getRigidTopicTagsForCategoryKey(resolvedCategoryKey, s.title);
+        const comprehensiveBody = buildComprehensiveSummary(
+          { ...s, categoryKey: resolvedCategoryKey, topicTags },
+          { bodyParagraphs: [], metaDesc: s.rssSummary || '' }
+        );
+        const bannerImg = getCuratedNewsBannerImage(
+          s.title,
+          topicTags,
+          s.extractedImage || '',
+          resolvedCategoryKey,
+          usedSyncImages
+        );
+        return {
+          id: makeDeterministicNewsId(s.title, s.url),
+          title: s.title.slice(0, 118),
+          body: comprehensiveBody,
+          imageUrl: bannerImg,
+          tag: 'news',
+          categoryKey: resolvedCategoryKey,
+          topic: topicTags[0] || cleanDefaultTopic || 'News',
+          topicTags,
+          interestScore: 540 - idx * 5,
+          points: 220,
+          numComments: 75,
+          alias: 'Paper Flow AI News',
+          authorUsername: 'ai_news_desk',
+          isAiNews: true,
+          isCustomDeveloperSource: true,
+          summarizedByAi: true,
+          aiAttribution: 'Summarized by AI',
+          linkUrl: s.url,
+          linkTitle: `${cleanName}: ${s.title}`.slice(0, 98),
+          sourceName: cleanName,
+          groundingSources: [],
+          publishedAt: pubMs,
+          createdAt: pubMs,
+          ts: pubMs,
+        };
+      });
+      mergeIntoAiTechNewsState(formattedItems);
+      syncedCount = formattedItems.length;
+    }
+
+    // Also schedule a full refresh in background if one isn't already running
+    if (!inFlightNewsPromise) {
+      refreshAiTechNews(true).catch(err => {
+        console.warn('[NewsSources] Background refresh after adding source had an issue:', err.message);
+      });
+    }
 
     res.json({
       ok: true,
-      message: `Source "${cleanName}" added successfully. Stories are now being polled and synced.`,
+      message: syncedCount > 0
+        ? `Source "${cleanName}" added! Synced ${syncedCount} live stories into ${resolvedCategoryKey}.`
+        : `Source "${cleanName}" saved.`,
+      warning: fetchWarning || undefined,
+      discoveredFeedUrl: resolvedFeedUrl !== normalizedInputUrl ? resolvedFeedUrl : undefined,
+      discoveredMode,
+      fetchedCount: syncedCount,
       addedSource: newSource,
       customSources: currentSources,
     });
@@ -2283,36 +2651,26 @@ app.post('/api/developer/news-sources/test', async (req, res) => {
     }
 
     const { url, name, categoryKey, defaultTopic } = req.body || {};
-    const cleanUrl = String(url || '').trim();
-    if (!cleanUrl || !/^https?:\/\/.+/i.test(cleanUrl)) {
-      return res.status(400).json({ ok: false, error: 'Please enter a valid HTTP/HTTPS URL.' });
+    const normalizedUrl = normalizeSourceInputUrl(url);
+    if (!normalizedUrl) {
+      return res.status(400).json({ ok: false, error: 'Please enter a valid HTTP or HTTPS URL.' });
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
-    const fetchRes = await fetch(cleanUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; PaperFlowNewsReader/1.0)',
-        Accept: 'application/rss+xml, application/xml, text/xml, */*',
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
+    const result = await discoverAndFetchFeed(
+      normalizedUrl,
+      name || 'Test Source',
+      defaultTopic || '',
+      categoryKey || '',
+      { maxAgeMs: 30 * 24 * 60 * 60 * 1000, isCustomDeveloperSource: true, timeoutMs: 6500 }
+    );
 
-    if (!fetchRes.ok) {
-      return res.status(400).json({
-        ok: false,
-        error: `Feed responded with HTTP status ${fetchRes.status} (${fetchRes.statusText})`,
-      });
-    }
-
-    const xml = await fetchRes.text();
-    const parsed = parseRssOrAtomItems(xml, name || 'Test Source', defaultTopic || '', categoryKey || '');
-
+    const parsed = result.items || [];
     res.json({
       ok: true,
       count: parsed.length,
-      sampleItems: parsed.slice(0, 3).map(item => ({
+      discoveredFeedUrl: result.feedUrl !== normalizedUrl ? result.feedUrl : undefined,
+      mode: result.mode,
+      sampleItems: parsed.slice(0, 4).map(item => ({
         title: item.title,
         url: item.url,
         publishedAt: item.publishedAt,
@@ -2321,7 +2679,7 @@ app.post('/api/developer/news-sources/test', async (req, res) => {
       })),
     });
   } catch (err) {
-    res.status(500).json({
+    res.status(400).json({
       ok: false,
       error: `Could not fetch or parse feed: ${err.message}`,
     });

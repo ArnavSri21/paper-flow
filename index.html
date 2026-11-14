@@ -6949,8 +6949,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, enableIndexedDbPersistence, collection, addDoc, onSnapshot,
-    query, orderBy, limit, deleteDoc, doc, getDoc, getDocFromServer, setDoc, serverTimestamp
+    getFirestore, collection, addDoc, onSnapshot,
+    query, orderBy, limit, deleteDoc, doc, getDoc, setDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ── CONFIG ──────────────────────────────────────────────────────────────────
@@ -6968,21 +6968,7 @@
   const app = initializeApp(firebaseConfig);
   // Connect to default Firestore database where all existing user flows and profiles reside
   const db  = getFirestore(app);
-  // Enable local IndexedDB persistence so accounts, flows & encrypted Paper Messages stay synced offline in the app
-  enableIndexedDbPersistence(db).catch(() => {});
   const postsCol = collection(db, "posts");
-
-  // Validate connection to Firestore per skill guidelines
-  async function testConnection() {
-    try {
-      await getDocFromServer(doc(db, 'test', 'connection'));
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('the client is offline')) {
-        console.warn("Firestore client is in offline mode.");
-      }
-    }
-  }
-  testConnection().catch(() => {});
 
   // ── DEVELOPER ACCOUNT CHECK (MARVELIST) ─────────────────────────────────────
   const DEVELOPER_USERNAME_LOWER = 'marvelist';
@@ -6991,9 +6977,118 @@
     return String(usernameOrLower || '').trim().toLowerCase() === DEVELOPER_USERNAME_LOWER;
   }
 
-  // ── LOCAL POST CACHE & QUOTA RECOVERY ─────────────────────────────────────────
+  // ── LOCAL POST CACHE & QUOTA CIRCUIT BREAKER ──────────────────────────────────
   const CACHED_BOARD_POSTS_KEY = 'pf_cached_board_posts';
+  const DELETED_POST_IDS_KEY = 'pf_deleted_post_ids_v1';
+  const FIRESTORE_QUOTA_COOLDOWN_KEY = 'pf_firestore_quota_cooldown_until_v1';
   let isFirestoreQuotaExhausted = false;
+  let unsubscribePostsSnapshot = null;
+  let quotaCooldownRetryTimer = null;
+  let pendingDeleteConfirmTimer = null;
+
+  function loadDeletedPostIdsSet() {
+    try {
+      const raw = localStorage.getItem(DELETED_POST_IDS_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr.map(String));
+      }
+    } catch (e) {}
+    return new Set();
+  }
+  const deletedPostIdsSet = loadDeletedPostIdsSet();
+
+  function saveDeletedPostIdsSet() {
+    try {
+      const list = Array.from(deletedPostIdsSet).slice(-300);
+      localStorage.setItem(DELETED_POST_IDS_KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  function removePostFromLocalCaches(postId) {
+    if (!postId) return;
+    allPosts = (allPosts || []).filter(p => p && p.id !== postId);
+    cardDomCache.delete(postId);
+    if (localStarredSet && localStarredSet.has(postId)) {
+      localStarredSet.delete(postId);
+      saveLocalStarredSet();
+    }
+    removePostFromPhoneStorage(postId);
+    delete likesByPost[postId];
+    delete commentsByPost[postId];
+    delete pinnedPostsMap[postId];
+    delete reportsByPost[postId];
+    saveCachedBoardPosts(allPosts);
+  }
+
+  function isQuotaError(err) {
+    const errStr = String(err?.message || err?.code || err || '').toLowerCase();
+    return err?.code === 'resource-exhausted' ||
+           err?.code === 429 ||
+           errStr.includes('resource-exhausted') ||
+           errStr.includes('quota') ||
+           errStr.includes('backoff delay');
+  }
+
+  function getQuotaCooldownRemainingMs() {
+    try {
+      const until = Number(localStorage.getItem(FIRESTORE_QUOTA_COOLDOWN_KEY) || 0);
+      return until > Date.now() ? (until - Date.now()) : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  async function loadServerBoardCacheFallback() {
+    try {
+      const res = await fetch(`${getApiBaseOrigin()}/api/board-cache`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        const merged = new Map();
+        HISTORICAL_BOARD_POSTS.forEach(p => {
+          if (p && p.id && !deletedPostIdsSet.has(p.id)) merged.set(p.id, p);
+        });
+        (allPosts || []).forEach(p => {
+          if (p && p.id && !deletedPostIdsSet.has(p.id)) merged.set(p.id, p);
+        });
+        data.items.forEach(p => {
+          if (p && p.id && !deletedPostIdsSet.has(p.id) && !p.isAiNews && p.docType !== 'ai_news') merged.set(p.id, p);
+        });
+        allPosts = Array.from(merged.values());
+        saveCachedBoardPosts(allPosts);
+        const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
+        setStatus('quota', `Offline Cache — ${boardFlowsCount} flows loaded`);
+        if (typeof renderAll === 'function') renderAll();
+      }
+    } catch (e) {}
+  }
+
+  function markFirestoreQuotaExhausted(cooldownMs = 5 * 60 * 1000) {
+    isFirestoreQuotaExhausted = true;
+    try {
+      localStorage.setItem(FIRESTORE_QUOTA_COOLDOWN_KEY, String(Date.now() + cooldownMs));
+    } catch (e) {}
+    if (syncUserDbFirestoreTimeout) {
+      clearTimeout(syncUserDbFirestoreTimeout);
+      syncUserDbFirestoreTimeout = null;
+    }
+    if (unsubscribePostsSnapshot) {
+      try { unsubscribePostsSnapshot(); } catch (e) {}
+      unsubscribePostsSnapshot = null;
+    }
+    loadServerBoardCacheFallback().catch(() => {});
+    if (!quotaCooldownRetryTimer) {
+      quotaCooldownRetryTimer = setTimeout(() => {
+        quotaCooldownRetryTimer = null;
+        try { localStorage.removeItem(FIRESTORE_QUOTA_COOLDOWN_KEY); } catch (e) {}
+        isFirestoreQuotaExhausted = false;
+        if (typeof attachPostsRealtimeListener === 'function') {
+          attachPostsRealtimeListener();
+        }
+      }, Math.min(Math.max(cooldownMs, 60000), 15 * 60 * 1000));
+    }
+  }
 
   // Authentic previous flows created by Marvelist (Arnav Srivastava), Arshpreet, and the community
   const HISTORICAL_BOARD_POSTS = [
@@ -7109,8 +7204,10 @@
 
   function loadInitialCachedBoardPosts() {
     const postMap = new Map();
-    // 1. Seed with the 7 authentic historical flows first
-    HISTORICAL_BOARD_POSTS.forEach(p => postMap.set(p.id, p));
+    // 1. Seed with the authentic historical flows first (respecting user deletions)
+    HISTORICAL_BOARD_POSTS.forEach(p => {
+      if (p && p.id && !deletedPostIdsSet.has(p.id)) postMap.set(p.id, p);
+    });
 
     // 2. Overlay any cached posts from localStorage
     try {
@@ -7119,7 +7216,7 @@
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           parsed.forEach(p => {
-            if (p && p.id && !p.isAiNews) postMap.set(p.id, p);
+            if (p && p.id && !deletedPostIdsSet.has(p.id) && !p.isAiNews) postMap.set(p.id, p);
           });
         }
       }
@@ -7130,7 +7227,7 @@
       const starredMap = loadStarredPostsArchiveMap();
       if (starredMap && typeof starredMap === 'object') {
         Object.values(starredMap).forEach(p => {
-          if (p && p.id && !p.isAiNews) postMap.set(p.id, p);
+          if (p && p.id && !deletedPostIdsSet.has(p.id) && !p.isAiNews) postMap.set(p.id, p);
         });
       }
     } catch (e) {}
@@ -7140,7 +7237,7 @@
 
   function saveCachedBoardPosts(posts) {
     try {
-      if (Array.isArray(posts) && posts.length > 0) {
+      if (Array.isArray(posts)) {
         localStorage.setItem(CACHED_BOARD_POSTS_KEY, JSON.stringify(posts.slice(0, 100)));
       }
     } catch (e) {}
@@ -9612,35 +9709,62 @@
   }
 
   async function fetchUserRecord(usernameLower) {
-    const snap = await getDoc(getUserDocRef(usernameLower));
-    if (snap.exists()) {
-      const data = snap.data();
-      usersDirectory[usernameLower] = {
-        username: data.username,
-        usernameLower: data.usernameLower,
-        avatar: data.avatar || '',
-        bio: data.bio || ''
-      };
-      return data;
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      return usersDirectory[usernameLower] || null;
+    }
+    try {
+      const snap = await getDoc(getUserDocRef(usernameLower));
+      if (snap.exists()) {
+        const data = snap.data();
+        usersDirectory[usernameLower] = {
+          username: data.username,
+          usernameLower: data.usernameLower,
+          avatar: data.avatar || '',
+          bio: data.bio || ''
+        };
+        return data;
+      }
+    } catch (e) {
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+        return usersDirectory[usernameLower] || null;
+      }
+      throw e;
     }
     return null;
   }
 
-  if (currentUser?.usernameLower) {
-    fetchUserRecord(currentUser.usernameLower).then(rec => {
-      if (rec) {
-        currentUser.avatar = rec.avatar || currentUser.avatar || '';
-        currentUser.bio = typeof rec.bio === 'string' ? rec.bio : (currentUser.bio || '');
-        currentUser.username = rec.username || currentUser.username;
-        saveSessionUser(currentUser);
+  // ── REAL-TIME LISTENER (QUOTA-SAFE & BOUNDED) ────────────────────────────────
+  function attachPostsRealtimeListener() {
+    if (unsubscribePostsSnapshot) {
+      try { unsubscribePostsSnapshot(); } catch (e) {}
+      unsubscribePostsSnapshot = null;
+    }
+
+    const cooldownLeft = getQuotaCooldownRemainingMs();
+    if (cooldownLeft > 0) {
+      isFirestoreQuotaExhausted = true;
+      if (!allPosts || allPosts.length === 0) {
+        allPosts = loadInitialCachedBoardPosts();
       }
-    }).catch(() => {});
-  }
+      const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
+      setStatus('quota', `Offline Cache — ${boardFlowsCount} flows loaded`);
+      loadServerBoardCacheFallback().catch(() => {});
+      if (typeof renderAll === 'function') renderAll();
+      if (!quotaCooldownRetryTimer) {
+        quotaCooldownRetryTimer = setTimeout(() => {
+          quotaCooldownRetryTimer = null;
+          try { localStorage.removeItem(FIRESTORE_QUOTA_COOLDOWN_KEY); } catch (e) {}
+          isFirestoreQuotaExhausted = false;
+          attachPostsRealtimeListener();
+        }, Math.min(Math.max(cooldownLeft, 60000), 15 * 60 * 1000));
+      }
+      return;
+    }
 
-  // ── REAL-TIME LISTENER ──────────────────────────────────────────────────────
-  const q = query(postsCol, orderBy("ts", "desc"));
+    const q = query(postsCol, orderBy("ts", "desc"), limit(500));
 
-  onSnapshot(q,
+    unsubscribePostsSnapshot = onSnapshot(q,
     (snapshot) => {
       const nextPosts = [];
       const nextLikes = {};
@@ -9859,7 +9983,6 @@
           const tenDaysCutoff = Date.now() - (10 * 24 * 60 * 60 * 1000);
           const starredByUser = isPostStarredByCurrentUser(id) || Boolean(starredPostsArchiveMap && starredPostsArchiveMap[id]);
           if (pubMs < tenDaysCutoff && !starredByUser) {
-            deleteDoc(doc(db, "posts", id)).catch(() => {});
             return;
           }
           nextAiNews[id] = {
@@ -10020,27 +10143,34 @@
         });
       }
 
-      // Auto-remove any flow with more than 3 reports (i.e. >= 4 reports)
+      // Exclude any flow with more than 3 reports in memory (do not trigger write bursts inside onSnapshot)
       const survivingPosts = [];
       nextPosts.forEach(p => {
         const postReports = nextReports[p.id] || [];
         if (postReports.length > 3) {
-          if (!autoRemovedPostIds.has(p.id)) {
-            autoRemovedPostIds.add(p.id);
-            deleteDoc(doc(db, "posts", p.id)).catch(() => {});
-          }
+          autoRemovedPostIds.add(p.id);
         } else {
           survivingPosts.push(p);
         }
       });
 
-      // Merge live Firestore snapshot with all historical board posts so they are permanently preserved
+      // Merge live Firestore snapshot with historical board posts (respecting user deletions)
       const livePostsMap = new Map();
-      HISTORICAL_BOARD_POSTS.forEach(p => livePostsMap.set(p.id, p));
-      survivingPosts.forEach(p => livePostsMap.set(p.id, p));
+      HISTORICAL_BOARD_POSTS.forEach(p => {
+        if (p && p.id && !deletedPostIdsSet.has(p.id)) livePostsMap.set(p.id, p);
+      });
+      survivingPosts.forEach(p => {
+        if (p && p.id && !deletedPostIdsSet.has(p.id)) livePostsMap.set(p.id, p);
+      });
+      (allPosts || []).forEach(p => {
+        if (p && p.id && p.isLocal && !deletedPostIdsSet.has(p.id) && !livePostsMap.has(p.id)) {
+          livePostsMap.set(p.id, p);
+        }
+      });
       allPosts = Array.from(livePostsMap.values());
       saveCachedBoardPosts(allPosts);
       isFirestoreQuotaExhausted = false;
+      try { localStorage.removeItem(FIRESTORE_QUOTA_COOLDOWN_KEY); } catch (e) {}
       firestoreAiNewsMap = nextAiNews;
       likesByPost = nextLikes;
       starsByPost = nextStars;
@@ -10080,16 +10210,13 @@
       renderAll();
     },
     (err) => {
-      console.warn('Firestore snapshot status update:', err);
-      const errStr = String(err?.message || err?.code || err || '').toLowerCase();
-      const isQuota = err?.code === 'resource-exhausted' ||
-                      errStr.includes('quota') ||
-                      errStr.includes('resource-exhausted') ||
-                      errStr.includes('backoff delay') ||
-                      err?.code === 429;
+      const isQuota = isQuotaError(err);
 
       if (isQuota) {
-        isFirestoreQuotaExhausted = true;
+        // Immediately unsubscribe so Firestore SDK stops retrying with maximum backoff delay
+        markFirestoreQuotaExhausted();
+      } else {
+        console.warn('Firestore snapshot status update:', err);
       }
 
       // Safeguard: Ensure cached / seed flows are active so the board is always loaded
@@ -10100,7 +10227,7 @@
       const boardFlowsCount = allPosts.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news').length;
 
       if (isQuota) {
-        setStatus('quota', `Offline Cache — Daily cloud quota reached (${boardFlowsCount} flows loaded)`);
+        setStatus('quota', `Offline Cache — ${boardFlowsCount} flows loaded`);
       } else if (boardFlowsCount > 0) {
         setStatus('live', `Live — ${boardFlowsCount} flow${boardFlowsCount !== 1 ? 's' : ''} on the board (cached)`);
       } else {
@@ -10109,6 +10236,8 @@
       renderAll();
     }
   );
+  }
+  attachPostsRealtimeListener();
 
   // ── DEVELOPER PIN / UNPIN FLOW (MARVELIST ONLY) ─────────────────────────────
   function isPostPinned(postId) {
@@ -10439,8 +10568,13 @@
         }
       }
     } catch (e) {
-      console.error(e);
-      showAuthError('Connection error while verifying account.');
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+        showAuthError('Cloud quota temporarily reached — please try again in a few minutes.');
+      } else {
+        console.error(e);
+        showAuthError('Connection error while verifying account.');
+      }
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = origText;
@@ -10747,6 +10881,9 @@
     btn.textContent = isEditing ? 'Saving…' : 'Publishing…';
 
     try {
+      if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+        throw { code: 'resource-exhausted', message: 'Quota cooldown active' };
+      }
       const firestoreTag = selectedTag === 'updates' ? 'other' : selectedTag;
 
       if (isEditing) {
@@ -10829,11 +10966,14 @@
         showToast('Flow published to the board!');
       }
     } catch (e) {
-      console.error(e);
-      const isQuotaOrNet = e?.code === 'resource-exhausted' ||
-                           /quota|resource-exhausted|network|offline|unavailable/i.test(String(e?.message || ''));
+      const isQuotaOrNet = isQuotaError(e) ||
+                           /network|offline|unavailable/i.test(String(e?.message || ''));
       if (isQuotaOrNet) {
-        isFirestoreQuotaExhausted = true;
+        if (isQuotaError(e)) {
+          markFirestoreQuotaExhausted();
+        } else {
+          isFirestoreQuotaExhausted = true;
+        }
         const localPostId = 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
         const localFlow = {
           id: localPostId,
@@ -10882,7 +11022,7 @@
     if (post.alias && post.alias.trim().toLowerCase() === user.usernameLower) {
       return true;
     }
-    if (post.ownerToken && post.ownerToken === `user:${user.usernameLower}`) {
+    if (post.ownerToken && (post.ownerToken === `user:${user.usernameLower}` || post.ownerToken === `user_${user.usernameLower}`)) {
       return true;
     }
     return false;
@@ -11108,23 +11248,30 @@
 
     saveUserNewsDb();
 
-    // Debounce per-user database Firestore sync & AI taste analysis so liking/starring never causes immediate snapshot jitter
+    // Debounce & guard per-user database Firestore sync (signed-in users only, quota-safe)
     clearTimeout(syncUserDbFirestoreTimeout);
-    syncUserDbFirestoreTimeout = setTimeout(() => {
-      const userKey = currentUser ? currentUser.usernameLower : guestToken;
-      const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-      setDoc(doc(db, "posts", dbDocId), {
-        title: null,
-        body: 'user_news_db',
-        tag: 'other',
-        alias: (currentUser?.username || 'Reader').slice(0, 30),
-        ts: serverTimestamp(),
-        docType: 'user_news_db',
-        usernameLower: userKey,
-        dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
-        updatedAt: userNewsDb.updatedAt
-      }).catch(() => {});
-    }, 3500);
+    if (!currentUser || isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      // Still run local/AI taste analysis without writing to Firestore
+    } else {
+      syncUserDbFirestoreTimeout = setTimeout(() => {
+        if (!currentUser || isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) return;
+        const userKey = currentUser.usernameLower;
+        const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        setDoc(doc(db, "posts", dbDocId), {
+          title: null,
+          body: 'user_news_db',
+          tag: 'other',
+          alias: (currentUser?.username || 'Reader').slice(0, 30),
+          ts: serverTimestamp(),
+          docType: 'user_news_db',
+          usernameLower: userKey,
+          dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
+          updatedAt: userNewsDb.updatedAt
+        }).catch((err) => {
+          if (isQuotaError(err)) markFirestoreQuotaExhausted();
+        });
+      }, 60000);
+    }
 
     // Trigger AI analysis silently in the background (debounced)
     clearTimeout(analyzeUserDbTimeout);
@@ -11143,36 +11290,81 @@
 
     if (pendingDeleteConfirmId !== id) {
       pendingDeleteConfirmId = id;
+      if (pendingDeleteConfirmTimer) {
+        clearTimeout(pendingDeleteConfirmTimer);
+      }
       renderFeed();
-      setTimeout(() => {
+      pendingDeleteConfirmTimer = setTimeout(() => {
+        pendingDeleteConfirmTimer = null;
         if (pendingDeleteConfirmId === id) {
           pendingDeleteConfirmId = null;
           renderFeed();
         }
-      }, 4000);
+      }, 6000);
       return;
     }
 
+    if (pendingDeleteConfirmTimer) {
+      clearTimeout(pendingDeleteConfirmTimer);
+      pendingDeleteConfirmTimer = null;
+    }
     pendingDeleteConfirmId = null;
+
     const cardEl = document.getElementById(`card-${id}`);
     if (cardEl) {
       cardEl.classList.add('fm-card-exiting');
       await new Promise(r => setTimeout(r, 210));
     }
+
+    const postBackup = { ...post };
+    const relatedLikes = likesByPost[id] ? [...likesByPost[id]] : [];
+    const relatedComments = commentsByPost[id] ? [...commentsByPost[id]] : [];
+    const relatedPin = pinnedPostsMap[id] ? { ...pinnedPostsMap[id] } : null;
+    const relatedReports = reportsByPost[id] ? [...reportsByPost[id]] : [];
+
+    // Immediately persist tombstone & remove from local state/UI so deletes work cleanly even offline or on historical/local flows
+    deletedPostIdsSet.add(id);
+    saveDeletedPostIdsSet();
+    removePostFromLocalCaches(id);
+    renderAll();
+
+    const isLocalOnly = String(id).startsWith('local_') || Boolean(post.isLocal);
+    if (isLocalOnly) {
+      showToast('Flow deleted.');
+      return;
+    }
+
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      showToast('Flow deleted from your board (offline cache).');
+      return;
+    }
+
     try {
       await deleteDoc(doc(db, "posts", id));
-      const relatedLikes = likesByPost[id] || [];
-      const relatedComments = commentsByPost[id] || [];
-      const relatedPin = pinnedPostsMap[id];
       await Promise.allSettled([
         ...relatedLikes.map(l => deleteDoc(doc(db, "posts", l.docId))),
         ...relatedComments.map(c => deleteDoc(doc(db, "posts", c.docId))),
-        ...(relatedPin ? [deleteDoc(doc(db, "posts", relatedPin.docId))] : [])
+        ...(relatedPin ? [deleteDoc(doc(db, "posts", relatedPin.docId))] : []),
+        ...relatedReports.map(r => deleteDoc(doc(db, "posts", r.docId)))
       ]);
       showToast('Flow deleted.');
     } catch (e) {
-      if (cardEl) cardEl.classList.remove('fm-card-exiting');
-      showToast('Could not delete — permission denied.');
+      if (isQuotaError(e) || /network|offline|unavailable/i.test(String(e?.message || ''))) {
+        if (isQuotaError(e)) markFirestoreQuotaExhausted();
+        showToast('Flow deleted from your board.');
+      } else {
+        // Explicit permission error on remote delete: restore locally
+        deletedPostIdsSet.delete(id);
+        saveDeletedPostIdsSet();
+        allPosts.unshift(postBackup);
+        if (relatedLikes.length) likesByPost[id] = relatedLikes;
+        if (relatedComments.length) commentsByPost[id] = relatedComments;
+        if (relatedPin) pinnedPostsMap[id] = relatedPin;
+        if (relatedReports.length) reportsByPost[id] = relatedReports;
+        saveCachedBoardPosts(allPosts);
+        renderAll();
+        showToast('Could not delete — permission denied.');
+      }
     }
   };
 
@@ -11236,6 +11428,10 @@
     }
     renderStats();
 
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      return;
+    }
+
     try {
       if (existingLikeDoc) {
         await deleteDoc(doc(db, "posts", existingLikeDoc.docId));
@@ -11252,12 +11448,16 @@
         });
       }
     } catch (e) {
-      console.error(e);
-      // Revert optimistic state if write failed
-      likesByPost[postId] = existingList;
-      updateCardInteractionsInPlace(post);
-      renderStats();
-      showToast('Could not update like.');
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+      } else {
+        console.error(e);
+        // Revert optimistic state if write failed for non-quota reason
+        likesByPost[postId] = existingList;
+        updateCardInteractionsInPlace(post);
+        renderStats();
+        showToast('Could not update like.');
+      }
     }
   };
 
@@ -11314,6 +11514,10 @@
       }
     }
 
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      return;
+    }
+
     try {
       if (currentlyStarred) {
         if (existingStarDoc) {
@@ -11334,7 +11538,11 @@
         });
       }
     } catch (e) {
-      console.error(e);
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+      } else {
+        console.error(e);
+      }
     }
   };
 
@@ -11387,6 +11595,10 @@
       cLikeBtn.innerHTML = `<span>${willBeLiked ? '♥' : '♡'}</span><span>${count > 0 ? count : 'Like'}</span>`;
     }
 
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      return;
+    }
+
     try {
       if (existingLikeDoc) {
         await deleteDoc(doc(db, "posts", existingLikeDoc.docId));
@@ -11403,9 +11615,13 @@
         });
       }
     } catch (e) {
-      likesByPost[commentDocId] = existingList;
-      const post = findPostAnywhere(postId);
-      if (post) updateCardInteractionsInPlace(post);
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+      } else {
+        likesByPost[commentDocId] = existingList;
+        const post = findPostAnywhere(postId);
+        if (post) updateCardInteractionsInPlace(post);
+      }
     }
   };
 
@@ -11504,6 +11720,32 @@
     inp.disabled = true;
     const commentDocId = `__comment__${postId}__${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      inp.disabled = false;
+      showToast('Cloud quota temporarily reached — reply saved locally for this session.');
+      if (!commentsByPost[postId]) commentsByPost[postId] = [];
+      commentsByPost[postId].push({
+        docId: commentDocId,
+        id: commentDocId,
+        postId,
+        parentCommentId: replyTarget ? replyTarget.commentId : null,
+        replyToAuthor: replyTarget ? replyTarget.author : null,
+        author: currentUser.username,
+        authorUsername: currentUser.usernameLower,
+        authorAvatar: currentUser.avatar || '',
+        authorBio: (usersDirectory[currentUser.usernameLower]?.bio ?? currentUser.bio ?? '').slice(0, 300),
+        ownerToken: getCurrentActorKey(),
+        text: text.slice(0, 600),
+        createdAt: Date.now()
+      });
+      openCommentsSet.add(postId);
+      inp.value = '';
+      window.clearReplyToComment(postId);
+      cardDomCache.delete(postId);
+      renderFeed();
+      return;
+    }
+
     try {
       await setDoc(doc(db, "posts", commentDocId), {
         title: null,
@@ -11543,8 +11785,13 @@
       window.clearReplyToComment(postId);
       cardDomCache.delete(postId);
     } catch (e) {
-      console.error(e);
-      showToast('Could not post reply.');
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+        showToast('Cloud quota temporarily reached — please try again shortly.');
+      } else {
+        console.error(e);
+        showToast('Could not post reply.');
+      }
     } finally {
       inp.disabled = false;
     }
@@ -11562,11 +11809,25 @@
     const target = list.find(c => c.docId === commentDocId || c.id === commentDocId);
     if (!target) return;
 
+    commentsByPost[postId] = (commentsByPost[postId] || []).filter(c => c.docId !== target.docId && c.id !== commentDocId);
+    cardDomCache.delete(postId);
+    renderFeed();
+
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      showToast('Reply removed locally.');
+      return;
+    }
+
     try {
       await deleteDoc(doc(db, "posts", target.docId));
       showToast('Reply removed by Developer.');
     } catch (e) {
-      showToast('Could not delete reply.');
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+        showToast('Reply removed locally.');
+      } else {
+        showToast('Could not delete reply.');
+      }
     }
   };
 
@@ -12652,13 +12913,27 @@
 
   window.deleteReportedFlowAsDev = async function (postId) {
     if (!currentUser || !isDeveloperUser(currentUser.usernameLower)) return;
+    const list = reportsByPost[postId] || [];
+    deletedPostIdsSet.add(postId);
+    saveDeletedPostIdsSet();
+    removePostFromLocalCaches(postId);
+    renderAll();
+
+    if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
+      showToast('Reported flow removed from board.');
+      return;
+    }
     try {
       await deleteDoc(doc(db, "posts", postId));
-      const list = reportsByPost[postId] || [];
       await Promise.allSettled(list.map(r => deleteDoc(doc(db, "posts", r.docId))));
       showToast('Reported flow & reports deleted.');
     } catch (e) {
-      showToast('Could not delete reported flow.');
+      if (isQuotaError(e)) {
+        markFirestoreQuotaExhausted();
+        showToast('Reported flow removed from board.');
+      } else {
+        showToast('Could not delete reported flow.');
+      }
     }
   };
 
@@ -14006,36 +14281,8 @@
           }));
         } catch (e) {}
 
-        // Sync AI news items into Firestore as __ainews__* documents (Developer only to preserve Spark daily write quota)
-        if (!isFirestoreQuotaExhausted && currentUser && isDeveloperUser(currentUser.usernameLower)) {
-          aiTechNewsItems.slice(0, 10).forEach(item => {
-            if (!item.id || !String(item.id).startsWith('__ainews__')) return;
-            if (!isNewsWithin10DaysOrStarred(item)) return;
-            const pubMs = getPostTimestampMs(item) || Date.now();
-            const cleanBody = cleanRoboticNewsBodyClient(item.body || '').slice(0, 2600);
-            const existing = firestoreAiNewsMap[item.id];
-            const existingHasRobotic = existing && /📌|🔍|💡|🔥|⚡/.test(existing.body || '');
-            if (!existing || existingHasRobotic || !existing.imageUrl || existing.publishedAt !== pubMs || (existing.body || '').length < cleanBody.length) {
-              setDoc(doc(db, "posts", item.id), {
-                title: (item.title || 'Paper Flow News').slice(0, 118),
-                body: cleanBody,
-                imageUrl: (item.imageUrl || '').slice(0, 500),
-                tag: 'news',
-                alias: (item.alias || 'Paper Flow AI News').slice(0, 30),
-                ts: serverTimestamp(),
-                docType: 'ai_news',
-                isAiNews: true,
-                summarizedByAi: true,
-                aiAttribution: 'Summarized by AI',
-                sourceName: (item.sourceName || 'Editorial Desk').slice(0, 60),
-                linkUrl: (item.linkUrl || '').slice(0, 500),
-                linkTitle: (item.linkTitle || item.title || 'Original Source').slice(0, 98),
-                publishedAt: pubMs,
-                createdAt: pubMs
-              }).catch(() => {});
-            }
-          });
-        }
+        // News feed stays in server.js (/api/ai-news), localStorage cache, and Phone Storage archive
+        // (avoids burning Firestore Spark write/read quota with hundreds of __ainews__ documents).
 
         if (forceRefresh) {
           analyzeUserNewsTasteWithAi(true).catch(() => {});
@@ -15085,7 +15332,7 @@
           ${hasExpandable ? `<button class="btn-small btn-expand" id="expand-btn-${post.id}" onclick="toggleExpand('${post.id}', this)">${isExpanded ? 'View less' : 'View more'}</button>` : ''}
           ${viewerIsDev ? `<button class="btn-small btn-pin-dev ${pinned ? 'pinned' : ''}" onclick="togglePinPost('${post.id}')">📌 ${pinned ? 'Unpin' : 'Pin'}</button>` : ''}
           ${canEdit ? `<button class="btn-small btn-edit-own" onclick="openEditFlowModal('${post.id}')">✎ Edit</button>` : ''}
-          ${canDelete ? `<button class="btn-small btn-delete-own" onclick="deletePost('${post.id}')">${isConfirmingDelete ? 'Confirm Delete?' : 'Delete'}</button>` : ''}
+          ${canDelete ? `<button type="button" class="btn-small btn-delete-own" onclick="deletePost('${esc(post.id)}')">${isConfirmingDelete ? 'Confirm Delete?' : 'Delete'}</button>` : ''}
         </div>
       </div>
 

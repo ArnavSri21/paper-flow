@@ -2763,33 +2763,27 @@ async function buildDynamicSitemap(baseUrl) {
     priority: '0.75'
   });
 
-  // 4. Dynamic Firestore Posts (Up to 100 most recent public flows)
+  // 4. Dynamic Firestore Posts (Cached for 30 minutes to protect Firestore Spark quota)
   try {
-    const fsRes = await fetch(
-      'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts?pageSize=100',
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (fsRes.ok) {
-      const fsData = await fsRes.json();
-      if (fsData && Array.isArray(fsData.documents)) {
-        for (const doc of fsData.documents) {
-          const docId = (doc.name || '').split('/').pop();
-          if (!docId) continue;
-          const fields = doc.fields || {};
-          const author = fields.authorUsername?.stringValue || fields.alias?.stringValue || 'Anonymous';
-          const rawBody = (fields.body?.stringValue || '').slice(0, 70).replace(/\s+/g, ' ').trim();
-          const imageUrl = fields.imageUrl?.stringValue || fields.photoUrl?.stringValue || null;
-          const updateTime = doc.updateTime ? doc.updateTime.split('T')[0] : today;
+    const sitemapDocs = await getCachedSitemapFirestoreDocs();
+    if (Array.isArray(sitemapDocs)) {
+      for (const doc of sitemapDocs) {
+        const docId = (doc.name || '').split('/').pop();
+        if (!docId || docId.startsWith('__')) continue;
+        const fields = doc.fields || {};
+        const author = fields.authorUsername?.stringValue || fields.alias?.stringValue || 'Anonymous';
+        const rawBody = (fields.body?.stringValue || '').slice(0, 70).replace(/\s+/g, ' ').trim();
+        const imageUrl = fields.imageUrl?.stringValue || fields.photoUrl?.stringValue || null;
+        const updateTime = doc.updateTime ? doc.updateTime.split('T')[0] : today;
 
-          urls.push({
-            loc: `${baseUrl}/?post=${encodeURIComponent(docId)}`,
-            lastmod: updateTime,
-            changefreq: 'daily',
-            priority: '0.7',
-            img: imageUrl,
-            title: rawBody || `Flow by ${author}`
-          });
-        }
+        urls.push({
+          loc: `${baseUrl}/?post=${encodeURIComponent(docId)}`,
+          lastmod: updateTime,
+          changefreq: 'daily',
+          priority: '0.7',
+          img: imageUrl,
+          title: rawBody || `Flow by ${author}`
+        });
       }
     }
   } catch (err) {
@@ -3149,42 +3143,135 @@ app.post('/api/push-notify-reply', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Cache of latest developer flows & background events for Service Worker and Android background service
+// Cache of latest developer flows, public board flows & background events (quota-safe)
 let cachedDeveloperFlows = [];
+let cachedPublicBoardPosts = [];
 let seenFirestoreDocIds = new Set();
 let hasBootstrappedFirestoreWatch = false;
 let isCheckingFirestoreEvents = false;
+let firestoreQuotaBackoffUntil = 0;
+let firestoreBackoffDurationMs = 60 * 60 * 1000; // Start at 1 hour on 429/RESOURCE_EXHAUSTED
+let sitemapFirestoreCache = { ts: 0, docs: [] };
+const seoPostCache = new Map(); // postId -> { ts, author, bodyText, imageUrl, category }
+
+function triggerFirestoreQuotaBackoff(status, errText = '') {
+  const lower = String(errText || '').toLowerCase();
+  if (status === 429 || lower.includes('resource_exhausted') || lower.includes('quota')) {
+    firestoreQuotaBackoffUntil = Date.now() + firestoreBackoffDurationMs;
+    firestoreBackoffDurationMs = Math.min(firestoreBackoffDurationMs * 2, 6 * 60 * 60 * 1000);
+    return true;
+  }
+  return false;
+}
+
+async function getCachedSitemapFirestoreDocs() {
+  const now = Date.now();
+  if (sitemapFirestoreCache.docs.length > 0 && now - sitemapFirestoreCache.ts < 30 * 60 * 1000) {
+    return sitemapFirestoreCache.docs;
+  }
+  if (now < firestoreQuotaBackoffUntil) {
+    return sitemapFirestoreCache.docs;
+  }
+  try {
+    const fsRes = await fetch(
+      'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents:runQuery',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: 'posts' }],
+            orderBy: [{ field: { fieldPath: 'ts' }, direction: 'DESCENDING' }],
+            limit: 60
+          }
+        })
+      }
+    );
+    if (!fsRes.ok) {
+      const errText = await fsRes.text().catch(() => '');
+      triggerFirestoreQuotaBackoff(fsRes.status, errText);
+      return sitemapFirestoreCache.docs;
+    }
+    const rows = await fsRes.json();
+    const docs = Array.isArray(rows) ? rows.map(r => r && r.document).filter(Boolean) : [];
+    sitemapFirestoreCache = { ts: now, docs };
+    return docs;
+  } catch (e) {
+    return sitemapFirestoreCache.docs;
+  }
+}
 
 async function checkFirestoreForBackgroundNotifications() {
   if (isCheckingFirestoreEvents) return;
+  if (Date.now() < firestoreQuotaBackoffUntil) return;
   isCheckingFirestoreEvents = true;
   try {
-    const url = 'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts?pageSize=80';
-    const resp = await fetch(url);
-    if (!resp.ok) return;
-    const json = await resp.json();
-    if (!json.documents || !Array.isArray(json.documents)) return;
+    const url = 'https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents:runQuery';
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: 'posts' }],
+          orderBy: [{ field: { fieldPath: 'ts' }, direction: 'DESCENDING' }],
+          limit: 30
+        }
+      })
+    });
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      triggerFirestoreQuotaBackoff(resp.status, errText);
+      return;
+    }
+    firestoreBackoffDurationMs = 60 * 60 * 1000;
+    const rows = await resp.json();
+    const docs = Array.isArray(rows) ? rows.map(r => r && r.document).filter(Boolean) : [];
+    if (docs.length === 0) return;
 
     const devFlows = [];
+    const publicPosts = [];
     const postAuthorsById = {};
 
-    // First pass: map post authors and developer flows
-    json.documents.forEach((docItem) => {
+    // First pass: map post authors, public board cache, and developer flows
+    docs.forEach((docItem) => {
       const fields = docItem.fields || {};
       const id = docItem.name ? docItem.name.split('/').pop() : '';
       if (!id) return;
 
       const authorUsername = (fields.authorUsername?.stringValue || '').trim();
       const alias = (fields.alias?.stringValue || '').trim();
-      if (!id.startsWith('__')) {
+      const docType = fields.docType?.stringValue || '';
+      if (!id.startsWith('__') && docType !== 'ai_news') {
         postAuthorsById[id] = {
           authorUsername: authorUsername.toLowerCase(),
           title: fields.title?.stringValue || 'your flow'
         };
+        const createdAtNum = Number(fields.createdAt?.integerValue || fields.updatedAt?.integerValue || 0);
+        const ts = createdAtNum || (fields.ts?.timestampValue ? new Date(fields.ts.timestampValue).getTime() : Date.now());
+        publicPosts.push({
+          id,
+          title: fields.title?.stringValue || null,
+          body: fields.body?.stringValue || '',
+          hasEmptyBody: Boolean(fields.hasEmptyBody?.booleanValue),
+          tag: fields.tag?.stringValue || 'other',
+          customCategory: fields.customCategory?.stringValue || null,
+          alias: alias || 'Anonymous',
+          authorUsername: authorUsername || null,
+          authorAvatar: fields.authorAvatar?.stringValue || '',
+          authorBio: fields.authorBio?.stringValue || '',
+          ownerToken: fields.ownerToken?.stringValue || '',
+          imageUrl: fields.imageUrl?.stringValue || fields.photoUrl?.stringValue || null,
+          linkUrl: fields.linkUrl?.stringValue || null,
+          linkTitle: fields.linkTitle?.stringValue || null,
+          docType: docType || 'post',
+          isAiNews: false,
+          ts,
+          createdAt: createdAtNum || ts
+        });
       }
     });
 
-    json.documents.forEach((docItem) => {
+    docs.forEach((docItem) => {
       const fields = docItem.fields || {};
       const id = docItem.name ? docItem.name.split('/').pop() : '';
       if (!id) return;
@@ -3289,6 +3376,10 @@ async function checkFirestoreForBackgroundNotifications() {
     hasBootstrappedFirestoreWatch = true;
     devFlows.sort((a, b) => b.ts - a.ts);
     cachedDeveloperFlows = devFlows;
+    if (publicPosts.length > 0) {
+      publicPosts.sort((a, b) => b.ts - a.ts);
+      cachedPublicBoardPosts = publicPosts;
+    }
   } catch (e) {
     // Graceful error ignore
   } finally {
@@ -3296,11 +3387,20 @@ async function checkFirestoreForBackgroundNotifications() {
   }
 }
 
-// Background poll Firestore every 20 seconds so notifications fire even when no browser tab or app is open
-checkFirestoreForBackgroundNotifications().catch(() => {});
+// Background poll Firestore every 10 minutes (quota-safe: ~4,320 reads/day instead of 345k/day)
+setTimeout(() => {
+  checkFirestoreForBackgroundNotifications().catch(() => {});
+}, 5000);
 setInterval(() => {
   checkFirestoreForBackgroundNotifications().catch(() => {});
-}, 20 * 1000);
+}, 10 * 60 * 1000);
+
+app.get('/api/board-cache', (req, res) => {
+  res.json({
+    ok: true,
+    items: cachedPublicBoardPosts
+  });
+});
 
 app.get('/api/developer-flows/latest', (req, res) => {
   res.json({
@@ -3361,18 +3461,41 @@ async function serveAppWithSeo(req, res) {
       }
 
       if (!bodyText) {
-        const docRes = await fetch(
-          `https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts/${encodeURIComponent(postId)}`,
-          { headers: { 'Accept': 'application/json' } }
-        );
-        if (docRes.ok) {
-          const docData = await docRes.json();
-          if (docData && docData.fields) {
-            const f = docData.fields;
-            author = f.authorUsername?.stringValue || f.alias?.stringValue || 'Anonymous';
-            bodyText = f.body?.stringValue || '';
-            imageUrl = f.imageUrl?.stringValue || f.photoUrl?.stringValue || null;
-            category = f.category?.stringValue || f.tag?.stringValue || 'other';
+        const cachedBoardItem = cachedPublicBoardPosts.find((p) => p.id === postId);
+        if (cachedBoardItem) {
+          author = cachedBoardItem.authorUsername || cachedBoardItem.alias || 'Anonymous';
+          bodyText = cachedBoardItem.body || '';
+          imageUrl = cachedBoardItem.imageUrl || null;
+          category = cachedBoardItem.customCategory || cachedBoardItem.tag || 'other';
+        }
+      }
+
+      if (!bodyText) {
+        const cachedSeo = seoPostCache.get(postId);
+        if (cachedSeo && Date.now() - cachedSeo.ts < 15 * 60 * 1000) {
+          author = cachedSeo.author;
+          bodyText = cachedSeo.bodyText;
+          imageUrl = cachedSeo.imageUrl;
+          category = cachedSeo.category;
+        } else if (Date.now() >= firestoreQuotaBackoffUntil) {
+          const docRes = await fetch(
+            `https://firestore.googleapis.com/v1/projects/memo-board-4d45b/databases/(default)/documents/posts/${encodeURIComponent(postId)}`,
+            { headers: { 'Accept': 'application/json' } }
+          );
+          if (docRes.ok) {
+            const docData = await docRes.json();
+            if (docData && docData.fields) {
+              const f = docData.fields;
+              author = f.authorUsername?.stringValue || f.alias?.stringValue || 'Anonymous';
+              bodyText = f.body?.stringValue || '';
+              imageUrl = f.imageUrl?.stringValue || f.photoUrl?.stringValue || null;
+              category = f.category?.stringValue || f.tag?.stringValue || 'other';
+              if (seoPostCache.size > 200) seoPostCache.clear();
+              seoPostCache.set(postId, { ts: Date.now(), author, bodyText, imageUrl, category });
+            }
+          } else {
+            const errText = await docRes.text().catch(() => '');
+            triggerFirestoreQuotaBackoff(docRes.status, errText);
           }
         }
       }

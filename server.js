@@ -51,9 +51,21 @@ function getBaseUrl(req) {
   return `${proto}://${host}`;
 }
 
-// ── AI-SUMMARIZED TECH & AI NEWS ENGINE (GEMINI 3.8 FLASH + GOOGLE SEARCH GROUNDING) ──
-const NEWS_REFRESH_INTERVAL_MS = 15 * 60 * 1000; // Refresh every 15 minutes
+// ── AI-SUMMARIZED MULTI-SECTOR NEWS ENGINE (ON-DEMAND ON WEBSITE OPEN) ──
+const NEWS_REFRESH_INTERVAL_MS = 3 * 60 * 1000; // Fresh sync on user open (3-min shared cache window)
 const NEWS_MAX_AGE_MS = 10 * 24 * 60 * 60 * 1000; // Keep only latest 10 days of news
+const CORE_NEWS_CATEGORIES = [
+  'hollywood',
+  'bollywood',
+  'marvel',
+  'facts',
+  'science',
+  'games',
+  'ai',
+  'tech',
+  'hotties',
+];
+const EQUAL_NEWS_QUOTA_PER_CATEGORY = 7; // Equal representation across every sector (7 x 9 = 63 balanced items)
 let aiTechNewsState = {
   items: [],
   lastUpdated: 0,
@@ -890,7 +902,20 @@ function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCate
       (block.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/title>/i) ||
         block.match(/<title[^>]*>([\s\S]*?)<\/title>/i) ||
         [])[1] || '';
-    const title = stripHtmlTags(decodeHtmlEntities(titleRaw)).replace(/\s+/g, ' ').trim();
+    let title = stripHtmlTags(decodeHtmlEntities(titleRaw)).replace(/\s+/g, ' ').trim();
+    let effectiveSourceName = sourceName;
+    if (/news\.google\.com/i.test(baseUrl || '') || /google news/i.test(sourceName || '')) {
+      const sourceTagMatch = block.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
+      const explicitPublisher = sourceTagMatch ? stripHtmlTags(decodeHtmlEntities(sourceTagMatch[1])).trim() : '';
+      const dashIdx = title.lastIndexOf(' - ');
+      if (dashIdx > 18 && dashIdx < title.length - 2) {
+        const trailingPub = title.slice(dashIdx + 3).trim();
+        title = title.slice(0, dashIdx).trim();
+        effectiveSourceName = explicitPublisher || trailingPub || sourceName;
+      } else if (explicitPublisher) {
+        effectiveSourceName = explicitPublisher;
+      }
+    }
 
     let urlRaw =
       (block.match(/<link[^>]+rel=["']alternate["'][^>]+href=["']([^"']+)["']/i) ||
@@ -913,7 +938,11 @@ function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCate
         block.match(/<content[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/content>/i) ||
         block.match(/<content[^>]*>([\s\S]*?)<\/content>/i) ||
         [])[1] || '';
-    const rssSummary = stripHtmlTags(decodeHtmlEntities(descRaw)).replace(/\s+/g, ' ').trim().slice(0, 620);
+    let rssSummary = stripHtmlTags(decodeHtmlEntities(descRaw)).replace(/\s+/g, ' ').trim().slice(0, 620);
+    // Google News RSS descriptions often just repeat the headline + publisher; clean redundant summary
+    if (rssSummary && rssSummary.toLowerCase().startsWith(title.toLowerCase().slice(0, 35)) && rssSummary.length < title.length + 60) {
+      rssSummary = '';
+    }
 
     const imgMatch =
       block.match(/<media:(?:content|thumbnail)[^>]+url=["']([^"']+)["']/i) ||
@@ -935,13 +964,13 @@ function parseRssOrAtomItems(xmlText, sourceName, defaultTopic = '', defaultCate
     const categoryKey =
       defaultCategoryKey && defaultCategoryKey !== 'tech'
         ? defaultCategoryKey
-        : detectRigidCategoryKey(title, sourceName, defaultCategoryKey, url);
+        : detectRigidCategoryKey(title, effectiveSourceName, defaultCategoryKey, url);
 
     items.push({
       objectID: '',
       title,
       url,
-      sourceName,
+      sourceName: effectiveSourceName,
       defaultTopic,
       categoryKey,
       points: options.isCustomDeveloperSource ? 220 : 92,
@@ -1480,20 +1509,37 @@ function getGuaranteedMultiSectorSeedArticles() {
 }
 
 const DEFAULT_RELIABLE_RSS_FEEDS = [
+  // Tech, Chips & Cyber
   { id: 'def_verge', name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
   { id: 'def_arstechnica', name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/technology-lab', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
-  { id: 'def_techcrunch', name: 'TechCrunch AI & Tech', url: 'https://techcrunch.com/feed/', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
+  { id: 'def_techcrunch', name: 'TechCrunch Tech', url: 'https://techcrunch.com/feed/', defaultTopic: 'Tech & AI', categoryKey: 'tech', isDefault: true },
+  // AI & Frontier Models (dedicated verified feeds so AI is equally represented)
+  { id: 'def_techcrunch_ai', name: 'TechCrunch AI', url: 'https://techcrunch.com/category/artificial-intelligence/feed/', defaultTopic: 'AI & Frontier Models', categoryKey: 'ai', isDefault: true },
+  { id: 'def_gnews_ai', name: 'AI Breaking Desk', url: 'https://news.google.com/rss/search?q=(OpenAI+OR+Anthropic+OR+Gemini+OR+Claude+OR+NVIDIA+AI)+when:7d&hl=en-US&gl=US&ceid=US:en', defaultTopic: 'AI & Frontier Models', categoryKey: 'ai', isDefault: true },
+  // Hollywood Cinema
   { id: 'def_variety', name: 'Variety Hollywood', url: 'https://variety.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood', isDefault: true },
   { id: 'def_thr', name: 'The Hollywood Reporter', url: 'https://www.hollywoodreporter.com/feed/', defaultTopic: 'Hollywood Cinema', categoryKey: 'hollywood', isDefault: true },
+  // Bollywood Cinema
   { id: 'def_bollywoodhungama', name: 'Bollywood Hungama', url: 'https://www.bollywoodhungama.com/rss/news.xml', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood', isDefault: true },
-  { id: 'def_indianexpress', name: 'Indian Express Bollywood', url: 'https://indianexpress.com/section/entertainment/bollywood/feed/', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood', isDefault: true },
-  { id: 'def_collidermarvel', name: 'Collider Marvel', url: 'https://collider.com/tag/marvel/feed/', defaultTopic: 'Marvel & MCU', categoryKey: 'marvel', isDefault: true },
-  { id: 'def_smithsonian', name: 'Smithsonian Smart News & Facts', url: 'https://www.smithsonianmag.com/rss/smart-news/', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts', isDefault: true },
-  { id: 'def_sciencedaily', name: 'ScienceDaily Discovery', url: 'https://www.sciencedaily.com/rss/top/science.xml', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
+  { id: 'def_gnews_bollywood', name: 'Bollywood Wire', url: 'https://news.google.com/rss/search?q=(Bollywood+movie+OR+Shah+Rukh+Khan+OR+Ranbir+Kapoor+OR+Hindi+cinema)+when:7d&hl=en-IN&gl=IN&ceid=IN:en', defaultTopic: 'Bollywood Cinema', categoryKey: 'bollywood', isDefault: true },
+  // Marvel & MCU (verified live feeds replacing 404 collider feed)
+  { id: 'def_gnews_marvel', name: 'Marvel & MCU Wire', url: 'https://news.google.com/rss/search?q=(Marvel+Studios+OR+MCU+OR+Avengers+OR+Spider-Man+OR+X-Men)+when:7d&hl=en-US&gl=US&ceid=US:en', defaultTopic: 'Marvel & MCU', categoryKey: 'marvel', isDefault: true },
+  // Mind-Blowing Facts & History
+  { id: 'def_smithsonian', name: 'Smithsonian Smart News', url: 'https://www.smithsonianmag.com/rss/smart-news/', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts', isDefault: true },
+  { id: 'def_mentalfloss', name: 'Mental Floss Facts', url: 'https://www.mentalfloss.com/rss.xml', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts', isDefault: true },
+  { id: 'def_gnews_facts', name: 'Discovery & Oddities', url: 'https://news.google.com/rss/search?q=(archaeology+discovery+OR+ancient+mystery+OR+weird+history+OR+fascinating+fact)+when:7d&hl=en-US&gl=US&ceid=US:en', defaultTopic: 'Mind-Blowing Facts', categoryKey: 'facts', isDefault: true },
+  // Science & Space
+  { id: 'def_livescience', name: 'Live Science', url: 'https://www.livescience.com/feeds/all', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
+  { id: 'def_sciencedaily', name: 'ScienceDaily', url: 'https://www.sciencedaily.com/rss/top/science.xml', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
   { id: 'def_nasa', name: 'NASA Breaking Science', url: 'https://www.nasa.gov/news-release/feed/', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
-  { id: 'def_polygon', name: 'Polygon Gaming', url: 'https://www.polygon.com/rss/index.xml', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  { id: 'def_physorg', name: 'Phys.org Science', url: 'https://phys.org/rss-feed/', defaultTopic: 'Science & Discovery', categoryKey: 'science', isDefault: true },
+  // Gaming & Esports
   { id: 'def_gamespot', name: 'GameSpot News', url: 'https://www.gamespot.com/feeds/news/', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  { id: 'def_ign', name: 'IGN Gaming', url: 'https://feeds.feedburner.com/ign/all', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  { id: 'def_polygon', name: 'Polygon Gaming', url: 'https://www.polygon.com/rss/index.xml', defaultTopic: 'Gaming & Esports', categoryKey: 'games', isDefault: true },
+  // Hotties & Glamour (strictly isolated to 18+ Hotties column on client)
   { id: 'def_pagesix', name: 'Page Six Celebrity & Glamour', url: 'https://pagesix.com/feed/', defaultTopic: 'Hotties & Glamour Icons', categoryKey: 'hotties', isDefault: true },
+  { id: 'def_gnews_hotties', name: 'Glamour & Red Carpet Wire', url: 'https://news.google.com/rss/search?q=(red+carpet+glamour+OR+supermodel+photoshoot+OR+Vogue+fashion+icon)+when:7d&hl=en-US&gl=US&ceid=US:en', defaultTopic: 'Hotties & Glamour Icons', categoryKey: 'hotties', isDefault: true },
 ];
 
 const CUSTOM_NEWS_SOURCES_FILE = path.join(__dirname, 'custom_news_sources.json');
@@ -1523,36 +1569,60 @@ function saveCustomNewsSources(sources) {
   }
 }
 
+function normalizeCategoryForBalance(catKey) {
+  const k = String(catKey || 'tech').trim().toLowerCase();
+  if (CORE_NEWS_CATEGORIES.includes(k)) return k;
+  if (k === 'cinema') return 'hollywood';
+  return 'tech';
+}
+
+function balanceNewsListEqually(items, quotaPerCategory = EQUAL_NEWS_QUOTA_PER_CATEGORY) {
+  const customItems = [];
+  const buckets = {};
+  CORE_NEWS_CATEGORIES.forEach((cat) => {
+    buckets[cat] = [];
+  });
+
+  const seenIds = new Set();
+  const seenTitles = new Set();
+
+  for (const item of items) {
+    if (!item || !item.title) continue;
+    const titleKey = String(item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 64);
+    const idKey = item.id || item.url || titleKey;
+    if (seenIds.has(idKey) || (titleKey && seenTitles.has(titleKey))) continue;
+    seenIds.add(idKey);
+    if (titleKey) seenTitles.add(titleKey);
+
+    if (item.isCustomDeveloperSource) {
+      customItems.push(item);
+      continue;
+    }
+
+    const bucketKey = normalizeCategoryForBalance(item.categoryKey);
+    buckets[bucketKey].push(item);
+  }
+
+  const balanced = [...customItems.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0)).slice(0, 20)];
+  for (const cat of CORE_NEWS_CATEGORIES) {
+    const list = buckets[cat] || [];
+    // Prefer real live RSS items over static fallback seeds, then newest first
+    list.sort((a, b) => {
+      const aFallback = a.isFallbackSeed ? 1 : 0;
+      const bFallback = b.isFallbackSeed ? 1 : 0;
+      if (aFallback !== bFallback) return aFallback - bFallback;
+      return (b.publishedAt || b.createdAt || 0) - (a.publishedAt || a.createdAt || 0);
+    });
+    balanced.push(...list.slice(0, quotaPerCategory));
+  }
+
+  return balanced.sort((a, b) => (b.publishedAt || b.createdAt || 0) - (a.publishedAt || a.createdAt || 0));
+}
+
 async function fetchLiveTechArticlesSeed() {
-  const candidates = [];
+  const liveCandidates = [];
   const seenUrls = new Set();
   const usedSeedImages = new Set();
-
-  // Seed guaranteed multi-sector stories first so every category (Hollywood, Bollywood, Marvel, Facts, Science, Games, Hotties) is always rich
-  const guaranteedSeeds = getGuaranteedMultiSectorSeedArticles();
-  await Promise.allSettled(
-    guaranteedSeeds.map(async (gItem) => {
-      try {
-        const verified = await verifyAndFindClosestStoryImage(
-          gItem.title,
-          '',
-          gItem.categoryKey,
-          usedSeedImages
-        );
-        if (verified.imageUrl && isReliableNewsImageUrl(verified.imageUrl)) {
-          gItem.extractedImage = verified.imageUrl;
-          gItem.imageUrl = verified.imageUrl;
-          usedSeedImages.add(verified.imageUrl);
-        }
-      } catch (e) {}
-    })
-  );
-
-  for (const gItem of guaranteedSeeds) {
-    seenUrls.add(gItem.url);
-    gItem.interestScore = computeStoryInterestScore({ ...gItem, points: 140, numComments: 48, isDirectEditorialFeed: true });
-    candidates.push(gItem);
-  }
 
   // 1. Direct Authentic & Reliable Top-Tier Multi-Sector Editorial Feeds (Default + Custom Developer Feeds)
   const customFeeds = loadCustomNewsSources().map(f => ({ ...f, isCustomDeveloperSource: true }));
@@ -1561,10 +1631,8 @@ async function fetchLiveTechArticlesSeed() {
   // 2. High-velocity Hacker News Front Page & Breaking AI/Tech queries within the last 10 days
   const tenDaysAgoUnix = Math.floor((Date.now() - NEWS_MAX_AGE_MS) / 1000);
   const hnQueries = [
-    `https://hn.algolia.com/api/v1/search?tags=front_page&numericFilters=created_at_i>${tenDaysAgoUnix}&hitsPerPage=18`,
+    `https://hn.algolia.com/api/v1/search?tags=front_page&numericFilters=created_at_i>${tenDaysAgoUnix}&hitsPerPage=12`,
     `https://hn.algolia.com/api/v1/search_by_date?query=AI&tags=story&numericFilters=points>10,created_at_i>${tenDaysAgoUnix}&hitsPerPage=10`,
-    `https://hn.algolia.com/api/v1/search_by_date?query=OpenAI&tags=story&numericFilters=points>8,created_at_i>${tenDaysAgoUnix}&hitsPerPage=8`,
-    `https://hn.algolia.com/api/v1/search_by_date?query=Gemini&tags=story&numericFilters=points>8,created_at_i>${tenDaysAgoUnix}&hitsPerPage=8`,
   ];
 
   await Promise.allSettled([
@@ -1581,12 +1649,12 @@ async function fetchLiveTechArticlesSeed() {
           );
           parsedItems = result.items || [];
         } else {
-          const res = await fetchTextWithTimeout(feed.url, 4200);
+          const res = await fetchTextWithTimeout(feed.url, 4800);
           if (!res.ok) return;
           parsedItems = parseRssOrAtomItems(res.text, feed.name, feed.defaultTopic, feed.categoryKey, { baseUrl: res.finalUrl || feed.url });
         }
 
-        for (const item of parsedItems.slice(0, feed.isCustomDeveloperSource ? 10 : 8)) {
+        for (const item of parsedItems.slice(0, feed.isCustomDeveloperSource ? 10 : 12)) {
           if (!item.url || seenUrls.has(item.url)) continue;
           if (!feed.isCustomDeveloperSource && !isWithinTenDaysWindow(item.publishedAt)) continue;
           if (!isInterestingTechStory(item.title, item.url)) continue;
@@ -1596,7 +1664,7 @@ async function fetchLiveTechArticlesSeed() {
           item.topicTags = getRigidTopicTagsForCategoryKey(item.categoryKey, item.title);
           item.imageUrl = getCuratedNewsBannerImage(item.title, item.topicTags, item.extractedImage, item.categoryKey, usedSeedImages);
           item.interestScore = computeStoryInterestScore(item) + (item.isCustomDeveloperSource ? 280 : 0);
-          candidates.push(item);
+          liveCandidates.push(item);
         }
       } catch (e) {}
     }),
@@ -1644,19 +1712,39 @@ async function fetchLiveTechArticlesSeed() {
               createdAt: pubMs,
             };
             seedObj.interestScore = computeStoryInterestScore(seedObj);
-            candidates.push(seedObj);
+            liveCandidates.push(seedObj);
           }
         }
       } catch (e) {}
     }),
   ]);
 
-  const customCandidates = candidates.filter(c => c.isCustomDeveloperSource).sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0)).slice(0, 26);
-  const customSet = new Set(customCandidates);
-  const otherCandidates = candidates.filter(c => !customSet.has(c)).sort((a, b) => (b.interestScore || 0) - (a.interestScore || 0));
-  const curatedTop = [...customCandidates, ...otherCandidates].slice(0, 76);
-  curatedTop.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
-  return curatedTop;
+  // 3. Only backfill a category from static fallback seeds if live feeds returned fewer than the equal quota
+  const liveCountByCategory = {};
+  liveCandidates.forEach((c) => {
+    const k = normalizeCategoryForBalance(c.categoryKey);
+    liveCountByCategory[k] = (liveCountByCategory[k] || 0) + 1;
+  });
+
+  const guaranteedSeeds = getGuaranteedMultiSectorSeedArticles();
+  const fallbackAdditions = [];
+  for (const gItem of guaranteedSeeds) {
+    const cat = normalizeCategoryForBalance(gItem.categoryKey);
+    if ((liveCountByCategory[cat] || 0) >= EQUAL_NEWS_QUOTA_PER_CATEGORY) continue;
+    if (seenUrls.has(gItem.url)) continue;
+    seenUrls.add(gItem.url);
+    liveCountByCategory[cat] = (liveCountByCategory[cat] || 0) + 1;
+    fallbackAdditions.push({
+      ...gItem,
+      isFallbackSeed: true,
+      // Give fallback seeds an older timestamp so genuine live synced breaking news always ranks ahead
+      publishedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      interestScore: 55,
+    });
+  }
+
+  return balanceNewsListEqually([...liveCandidates, ...fallbackAdditions], EQUAL_NEWS_QUOTA_PER_CATEGORY);
 }
 
 function parseJsonArrayFromText(rawText) {
@@ -1728,10 +1816,11 @@ function mergeIntoAiTechNewsState(newItems, groundingSources = []) {
       mergedMap.set(item.id, normalizedItem);
     }
   }
-  aiTechNewsState.items = Array.from(mergedMap.values())
-    .filter((it) => isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts))
-    .sort((a, b) => (b.publishedAt || b.createdAt || 0) - (a.publishedAt || a.createdAt || 0))
-    .slice(0, 64);
+  const validMerged = Array.from(mergedMap.values()).filter((it) =>
+    isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts)
+  );
+  // Enforce strict equality across all 9 news categories (7 per category = 63 balanced items + custom developer sources)
+  aiTechNewsState.items = balanceNewsListEqually(validMerged, EQUAL_NEWS_QUOTA_PER_CATEGORY);
   aiTechNewsState.lastUpdated = Date.now();
   if (groundingSources.length > 0) {
     aiTechNewsState.groundingSources = groundingSources.slice(0, 6);
@@ -1992,7 +2081,7 @@ async function refreshAiTechNews(force = false) {
       if (liveSeeds.length > 0) {
         const fastItems = [];
         const usedFastImages = new Set();
-        for (let i = 0; i < liveSeeds.length && fastItems.length < 76; i++) {
+        for (let i = 0; i < liveSeeds.length && fastItems.length < 90; i++) {
           const s = liveSeeds[i];
           const pubMs = s.publishedAt || s.createdAt || now - i * 180000;
           const categoryKey =
@@ -2026,6 +2115,7 @@ async function refreshAiTechNews(force = false) {
             authorUsername: 'ai_news_desk',
             isAiNews: true,
             isCustomDeveloperSource: Boolean(s.isCustomDeveloperSource),
+            isFallbackSeed: Boolean(s.isFallbackSeed),
             summarizedByAi: true,
             aiAttribution: 'Summarized by AI',
             linkUrl: s.url,
@@ -2055,11 +2145,7 @@ async function refreshAiTechNews(force = false) {
   return inFlightNewsPromise;
 }
 
-// Kick off initial news fetch and schedule regular 15-minute updates
-refreshAiTechNews(true).catch(() => {});
-setInterval(() => {
-  refreshAiTechNews(true).catch(() => {});
-}, NEWS_REFRESH_INTERVAL_MS);
+// On-demand news loading only: news refreshes when a user opens the website (zero idle polling/Firebase load)
 
 // ── PER-USER DATABASE & AI NEWS PERSONALIZATION ENGINE ───────────────────────
 const USER_PROFILES_FILE = path.join(__dirname, 'user_news_profiles.json');
@@ -2083,98 +2169,427 @@ function saveUserNewsProfilesDb() {
 
 userNewsProfilesDb = loadUserNewsProfilesDb();
 
+const ENTITY_STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'your', 'have', 'more', 'about',
+  'what', 'when', 'where', 'which', 'their', 'there', 'been', 'were', 'will', 'would', 'could',
+  'should', 'after', 'before', 'over', 'under', 'using', 'first', 'second', 'third', 'final',
+  'new', 'how', 'why', 'its', 'are', 'was', 'not', 'but', 'you', 'all', 'can', 'has', 'just',
+  'like', 'now', 'out', 'who', 'news', 'update', 'updates', 'report', 'reports', 'says', 'said',
+  'reveals', 'revealed', 'gets', 'getting', 'official', 'officially', 'latest', 'breaking',
+  'watch', 'video', 'review', 'reviews', 'best', 'top', 'here', 'everything', 'know', 'fans',
+  'world', 'year', 'years', 'time', 'make', 'makes', 'made', 'paper', 'flow', 'editorial', 'desk',
+  'story', 'stories', 'article', 'full', 'next', 'back', 'still', 'even', 'very', 'much', 'many',
+  'most', 'some', 'only', 'also', 'than', 'then', 'they', 'them', 'these', 'those', 'onto',
+  'amid', 'during', 'through', 'while', 'trailer', 'trailers', 'teaser', 'release', 'released',
+  'releases', 'date', 'dates', 'map', 'maps', 'detail', 'details', 'season', 'episode', 'part',
+  'chapter', 'guide', 'leak', 'leaks', 'leaked', 'rumor', 'rumors', 'box', 'office', 'movie',
+  'movies', 'film', 'films', 'game', 'games', 'gaming', 'show', 'series', 'launch', 'launches',
+  'launched', 'announce', 'announces', 'announced', 'coming', 'soon', 'today', 'week', 'month',
+  'day', 'days', 'edition', 'exclusive', 'inside', 'look', 'check', 'price', 'specs', 'feature',
+  'features', 'gameplay', 'interview', 'poster', 'cast', 'casting', 'sequel', 'remake', 'reboot',
+  'streaming', 'online', 'free', 'download', 'deal', 'deals', 'sale', 'north', 'south', 'east',
+  'west', 'american', 'indian', 'global', 'worldwide', 'roundup', 'live', 'stream', 'event'
+]);
+
+const KNOWN_ENTITY_PATTERNS = [
+  { label: 'GTA 6', regex: /\b(gta\s*6|gta\s*vi|grand\s+theft\s+auto\s*(?:6|vi))\b/i, aliases: ['gta 6', 'gta vi', 'grand theft auto', 'rockstar'] },
+  { label: 'Grand Theft Auto', regex: /\b(grand\s+theft\s+auto|rockstar\s+games)\b/i, aliases: ['grand theft auto', 'gta 6', 'rockstar'] },
+  { label: 'PlayStation 5', regex: /\b(ps5|ps5\s+pro|playstation\s*5)\b/i, aliases: ['ps5', 'playstation 5', 'playstation'] },
+  { label: 'PlayStation 6', regex: /\b(ps6|playstation\s*6)\b/i, aliases: ['ps6', 'playstation 6'] },
+  { label: 'Nintendo Switch 2', regex: /\b(nintendo\s+switch\s*2|switch\s*2)\b/i, aliases: ['nintendo switch 2', 'switch 2', 'nintendo'] },
+  { label: 'Elden Ring', regex: /\b(elden\s+ring|fromsoftware)\b/i, aliases: ['elden ring', 'fromsoftware'] },
+  { label: 'Spider-Man', regex: /\b(spider-?man|peter\s+parker|miles\s+morales)\b/i, aliases: ['spider-man', 'spiderman'] },
+  { label: 'Avengers', regex: /\b(avengers(?:\s+doomsday|\s+secret\s+wars)?|doctor\s+doom)\b/i, aliases: ['avengers', 'doomsday', 'secret wars', 'mcu'] },
+  { label: 'Marvel MCU', regex: /\b(marvel\s+studios|mcu|x-men|deadpool|wolverine|fantastic\s+four|daredevil)\b/i, aliases: ['marvel', 'mcu'] },
+  { label: 'Christopher Nolan', regex: /\b(christopher\s+nolan|nolan)\b/i, aliases: ['christopher nolan', 'nolan'] },
+  { label: 'Dune', regex: /\b(dune\s+messiah|denis\s+villeneuve)\b/i, aliases: ['dune', 'dune messiah', 'villeneuve'] },
+  { label: 'Shah Rukh Khan', regex: /\b(shah\s+rukh\s+khan|srk)\b/i, aliases: ['shah rukh khan', 'srk'] },
+  { label: 'Ranbir Kapoor', regex: /\b(ranbir\s+kapoor|ramayana)\b/i, aliases: ['ranbir kapoor', 'ramayana'] },
+  { label: 'OpenAI', regex: /\b(openai|chatgpt|gpt-?5|gpt-?4o|sora)\b/i, aliases: ['openai', 'chatgpt', 'gpt'] },
+  { label: 'Google Gemini', regex: /\b(google\s+gemini|gemini\s+\d|deepmind)\b/i, aliases: ['gemini', 'deepmind'] },
+  { label: 'Anthropic Claude', regex: /\b(anthropic|claude\s+\d|claude\s+code)\b/i, aliases: ['anthropic', 'claude'] },
+  { label: 'NVIDIA', regex: /\b(nvidia|rtx\s*\d{4}|blackwell|rubin|cuda)\b/i, aliases: ['nvidia', 'rtx'] },
+  { label: 'Apple iPhone', regex: /\b(iphone\s*\d+|apple\s+silicon|ios\s*\d+|macbook)\b/i, aliases: ['iphone', 'apple'] },
+  { label: 'SpaceX', regex: /\b(spacex|starship|elon\s+musk)\b/i, aliases: ['spacex', 'starship'] },
+  { label: 'NASA', regex: /\b(nasa|james\s+webb|jwst|artemis)\b/i, aliases: ['nasa', 'james webb', 'jwst'] },
+  { label: 'Call of Duty', regex: /\b(call\s+of\s+duty|warzone|black\s+ops)\b/i, aliases: ['call of duty', 'warzone'] },
+  { label: 'Fortnite', regex: /\b(fortnite|epic\s+games)\b/i, aliases: ['fortnite'] },
+  { label: 'Minecraft', regex: /\b(minecraft|mojang)\b/i, aliases: ['minecraft'] },
+  { label: 'Valorant', regex: /\b(valorant|riot\s+games)\b/i, aliases: ['valorant'] },
+  { label: 'Batman', regex: /\b(batman|gotham|dc\s+studios|superman)\b/i, aliases: ['batman', 'superman', 'dc'] },
+];
+
+const HIGH_SIGNAL_SHORT_TOKENS = new Set([
+  'gta', 'mcu', 'ps5', 'ps6', 'srk', 'gpt', 'llm', 'ai', 'amd', 'arm', 'cpu', 'gpu', 'rtx',
+  'ios', 'vr', 'ar', 'xr', 'f1', 'ufc', 'nba', 'nfl', 'wwe', 'ign', 'dlc', 'rpg', 'fps', 'mmo',
+  'nasa', 'cern', 'jwst', 'xbox', 'meta', 'sony', 'dune', 'thor', 'loki', 'hulk'
+]);
+
+function extractPreferenceEntitiesFromTitle(title = '', sourceName = '') {
+  const cleanTitle = String(title || '').trim();
+  const entities = [];
+  const seen = new Set();
+
+  const addEntity = (label) => {
+    const clean = String(label || '').replace(/\s+/g, ' ').trim();
+    if (!clean || clean.length < 2 || clean.length > 42) return;
+    const key = clean.toLowerCase();
+    if (ENTITY_STOP_WORDS.has(key) || seen.has(key)) return;
+    seen.add(key);
+    entities.push(clean);
+  };
+
+  // 1. Canonical franchise/entity matches (e.g. GTA 6, Spider-Man, OpenAI, PS5)
+  for (const pat of KNOWN_ENTITY_PATTERNS) {
+    if (pat.regex.test(cleanTitle)) {
+      addEntity(pat.label);
+    }
+  }
+
+  // 2. Alphanumeric franchise + version numbers (e.g. "GTA 6", "Switch 2", "iPhone 17", "RTX 5090", "GPT 5", "Deadpool 3")
+  const alphaNumMatches = cleanTitle.match(/\b[A-Za-z][A-Za-z0-9-]{1,14}\s+(?:\d{1,4}|VI|IV|III|II|Pro|Max|Ultra)\b/g) || [];
+  for (const m of alphaNumMatches) {
+    const trimmed = m.trim();
+    const firstWord = trimmed.split(/\s+/)[0].toLowerCase();
+    if (!ENTITY_STOP_WORDS.has(firstWord)) {
+      addEntity(trimmed);
+    }
+  }
+
+  // 3. Capitalized multi-word proper-noun phrases (e.g. "Christopher Nolan", "Vice City", "Black Myth Wukong")
+  const properMatches = cleanTitle.match(/\b(?:[A-Z][a-zA-Z0-9'-]+(?:\s+[A-Z][a-zA-Z0-9'-]+){1,2})\b/g) || [];
+  for (const pm of properMatches) {
+    const parts = pm.trim().split(/\s+/);
+    if (parts.length >= 2 && parts.every((p) => !ENTITY_STOP_WORDS.has(p.toLowerCase()))) {
+      addEntity(pm.trim());
+    }
+  }
+
+  // 4. High-signal single keywords (preserving short tokens like GTA, MCU, PS5, SRK, RTX, AI)
+  // Skip bare single tokens already covered inside a multi-word entity (e.g. skip "gta" if "GTA 6" is present)
+  const coveredSubWords = new Set(
+    entities.flatMap((e) => e.toLowerCase().split(/\s+/).filter(Boolean))
+  );
+  const tokens = cleanTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w && !ENTITY_STOP_WORDS.has(w) && !coveredSubWords.has(w) && (w.length >= 4 || HIGH_SIGNAL_SHORT_TOKENS.has(w)));
+  for (const tk of tokens.slice(0, 4)) {
+    addEntity(HIGH_SIGNAL_SHORT_TOKENS.has(tk) ? tk.toUpperCase() : tk);
+  }
+
+  return entities.slice(0, 8);
+}
+
+function expandEntityAliases(entityLabel) {
+  const lower = String(entityLabel || '').trim().toLowerCase();
+  if (!lower) return [];
+  const terms = new Set([lower]);
+  for (const pat of KNOWN_ENTITY_PATTERNS) {
+    if (pat.label.toLowerCase() === lower || pat.regex.test(lower)) {
+      terms.add(pat.label.toLowerCase());
+      (pat.aliases || []).forEach((a) => terms.add(a.toLowerCase()));
+    }
+  }
+  return Array.from(terms);
+}
+
 function buildHeuristicUserTasteProfile(interactions = []) {
   const topicCounts = {};
+  const categoryCounts = {};
+  const entityCounts = {}; // lowerKey -> { label, score }
   const keywordCounts = {};
-  const stopWords = new Set([
-    'the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'your', 'have', 'more', 'about',
-    'what', 'when', 'where', 'which', 'their', 'there', 'been', 'were', 'will', 'would', 'could',
-    'should', 'after', 'before', 'over', 'under', 'using', 'first', 'new', 'how', 'why', 'its',
-    'are', 'was', 'not', 'but', 'you', 'all', 'can', 'has', 'just', 'like', 'now', 'out', 'who'
-  ]);
+  const now = Date.now();
 
   interactions.forEach((entry) => {
-    const weight = entry.action === 'star' ? 4 : entry.action === 'like' ? 3 : 1.5;
+    if (!entry) return;
+    // Strict Hotties 18+ isolation: never let Hotties interactions pollute general news personalization
+    if (String(entry.categoryKey || '').toLowerCase() === 'hotties') return;
+
+    const baseWeight =
+      entry.action === 'star' ? 9 :
+      entry.action === 'like' ? 8 :
+      entry.action === 'share' ? 6 : 2;
+    const ageDays = entry.ts ? Math.max(0, (now - Number(entry.ts)) / (24 * 60 * 60 * 1000)) : 0;
+    const recencyFactor = Math.max(0.45, 1.3 - ageDays * 0.08);
+    const weight = baseWeight * recencyFactor;
+
     const title = String(entry.title || '');
     const body = String(entry.body || '');
+    const catKey = entry.categoryKey || detectRigidCategoryKey(title, entry.sourceName || '', '', '');
+    if (catKey && catKey !== 'hotties') {
+      categoryCounts[catKey] = (categoryCounts[catKey] || 0) + weight;
+    }
+
     const tags = Array.isArray(entry.topicTags) && entry.topicTags.length > 0
       ? entry.topicTags
-      : detectStoryTopicTags(title, body);
+      : detectStoryTopicTags(title, body, '', catKey);
 
     tags.forEach((t) => {
       topicCounts[t] = (topicCounts[t] || 0) + weight;
     });
 
-    const words = `${title} ${entry.sourceName || ''}`
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, ' ')
-      .split(/\s+/)
-      .filter((w) => w.length >= 4 && !stopWords.has(w));
-    words.forEach((w) => {
-      keywordCounts[w] = (keywordCounts[w] || 0) + weight;
+    const explicitEntities = Array.isArray(entry.entities) && entry.entities.length > 0
+      ? entry.entities
+      : extractPreferenceEntitiesFromTitle(title, entry.sourceName || '');
+
+    explicitEntities.forEach((ent, idx) => {
+      const clean = String(ent || '').trim();
+      if (!clean) return;
+      const key = clean.toLowerCase();
+      // Multi-word / canonical entities get stronger weight than generic single words
+      const specificityBoost = idx < 2 ? 1.65 : (clean.includes(' ') || /\d/.test(clean) ? 1.45 : 1.0);
+      const addVal = weight * specificityBoost;
+      if (!entityCounts[key]) {
+        entityCounts[key] = { label: clean, score: addVal };
+      } else {
+        entityCounts[key].score += addVal;
+        // Prefer nicely cased label (e.g. "GTA 6" over "gta 6")
+        if (/[A-Z]/.test(clean) && !/[A-Z]/.test(entityCounts[key].label)) {
+          entityCounts[key].label = clean;
+        }
+      }
+      keywordCounts[key] = (keywordCounts[key] || 0) + addVal;
     });
   });
 
   const topTopics = Object.entries(topicCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
+    .slice(0, 4)
     .map(([name]) => name);
+
+  const rankedEntities = Object.values(entityCounts)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12);
+
+  const preferredEntities = rankedEntities.map((e) => e.label);
+  const entityWeights = {};
+  rankedEntities.forEach((e) => {
+    entityWeights[e.label.toLowerCase()] = Math.round(e.score * 10) / 10;
+  });
 
   const preferredKeywords = Object.entries(keywordCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, 14)
     .map(([kw]) => kw);
 
-  const personaSummary = topTopics.length > 0
-    ? `Curated for your interest in ${topTopics.slice(0, 2).join(' & ')}${preferredKeywords.length > 0 ? ` (${preferredKeywords.slice(0, 4).join(', ')})` : ''}.`
-    : 'Personalized as you star, like, and read Tech & AI stories.';
+  const topLabelsForSummary = preferredEntities.slice(0, 3);
+  const personaSummary = topLabelsForSummary.length > 0
+    ? `Tailored from your likes: ${topLabelsForSummary.join(', ')}${topTopics.length > 0 ? ` · ${topTopics[0]}` : ''}.`
+    : (topTopics.length > 0
+        ? `Curated for your interest in ${topTopics.slice(0, 2).join(' & ')}.`
+        : 'Like or star any news story to personalize your feed.');
 
   return {
     topTopics,
+    preferredTopics: topTopics,
+    preferredEntities,
+    entityWeights,
+    categoryWeights: categoryCounts,
     preferredKeywords,
     topicWeights: topicCounts,
     personaSummary,
+    tasteSummary: personaSummary,
     updatedAt: Date.now(),
   };
 }
 
 function scoreNewsItemForUserProfile(item, profile) {
-  if (!profile || (!profile.topTopics?.length && !profile.preferredKeywords?.length)) {
+  if (!profile) {
     return { relevanceScore: 0, matchReason: null };
   }
+  const hasSignals =
+    (profile.preferredEntities && profile.preferredEntities.length > 0) ||
+    (profile.preferredKeywords && profile.preferredKeywords.length > 0) ||
+    (profile.topTopics && profile.topTopics.length > 0) ||
+    (profile.categoryWeights && Object.keys(profile.categoryWeights).length > 0);
+  if (!hasSignals) {
+    return { relevanceScore: 0, matchReason: null };
+  }
+
   let score = 0;
+  let matchedEntityLabel = null;
   let matchedTopic = null;
+
+  const titleLower = String(item.title || '').toLowerCase();
+  const hay = `${item.title || ''} ${item.body || ''} ${item.sourceName || ''}`.toLowerCase();
+
+  // 1. Exact liked entity/franchise match (strongest signal: e.g., GTA 6 -> shows GTA 6 news right at the top!)
+  const prefEntities = Array.isArray(profile.preferredEntities) ? profile.preferredEntities : [];
+  for (let i = 0; i < prefEntities.length; i++) {
+    const label = prefEntities[i];
+    const w = Number(profile.entityWeights?.[label.toLowerCase()]) || Math.max(4, 14 - i * 1.5);
+    const aliases = expandEntityAliases(label);
+    let titleHit = false;
+    let bodyHit = false;
+    for (const term of aliases) {
+      if (!term || term.length < 2) continue;
+      if (titleLower.includes(term)) {
+        titleHit = true;
+        break;
+      } else if (hay.includes(term)) {
+        bodyHit = true;
+      }
+    }
+    if (titleHit) {
+      score += Math.min(240, 120 + w * 8);
+      if (!matchedEntityLabel) matchedEntityLabel = label;
+    } else if (bodyHit) {
+      score += Math.min(130, 55 + w * 4);
+      if (!matchedEntityLabel) matchedEntityLabel = label;
+    }
+  }
+
+  // 2. Category affinity (e.g., liking GTA 6 also boosts Gaming news)
+  const itemCat = String(item.categoryKey || '').toLowerCase();
+  if (itemCat && itemCat !== 'hotties' && profile.categoryWeights?.[itemCat]) {
+    score += Math.min(75, Number(profile.categoryWeights[itemCat]) * 4.5);
+  }
+
+  // 3. Topic tags affinity
   const itemTags = Array.isArray(item.topicTags) && item.topicTags.length > 0
     ? item.topicTags
-    : detectStoryTopicTags(item.title, item.body);
+    : detectStoryTopicTags(item.title, item.body, '', itemCat);
 
   for (const tag of itemTags) {
-    const w = profile.topicWeights?.[tag] || (profile.topTopics?.includes(tag) ? 4 : 0);
+    const w = Number(profile.topicWeights?.[tag]) || (profile.topTopics?.includes(tag) ? 4 : 0);
     if (w > 0) {
-      score += w * 12;
+      score += Math.min(60, w * 5);
       if (!matchedTopic) matchedTopic = tag;
     }
   }
 
-  const hay = `${item.title || ''} ${item.body || ''} ${item.sourceName || ''}`.toLowerCase();
+  // 4. Secondary keyword matches
   const matchedKeywords = [];
   for (const kw of profile.preferredKeywords || []) {
-    if (kw && kw.length >= 3 && hay.includes(kw.toLowerCase())) {
-      score += 18;
+    const lowerKw = String(kw || '').toLowerCase();
+    if (lowerKw && (lowerKw.length >= 3 || HIGH_SIGNAL_SHORT_TOKENS.has(lowerKw)) && hay.includes(lowerKw)) {
+      score += titleLower.includes(lowerKw) ? 24 : 12;
       if (matchedKeywords.length < 2) matchedKeywords.push(kw);
     }
   }
 
-  let matchReason = null;
-  if (matchedTopic && matchedKeywords.length > 0) {
-    matchReason = `Matches your interest in ${matchedTopic} (${matchedKeywords.join(', ')})`;
-  } else if (matchedTopic) {
+  let matchReason = item.matchReason || null;
+  if (matchedEntityLabel) {
+    matchReason = `Because you liked ${matchedEntityLabel}`;
+  } else if (!matchReason && matchedTopic && matchedKeywords.length > 0) {
+    matchReason = `Matches ${matchedTopic} (${matchedKeywords[0]})`;
+  } else if (!matchReason && matchedTopic) {
     matchReason = `Matches your interest in ${matchedTopic}`;
-  } else if (matchedKeywords.length > 0) {
+  } else if (!matchReason && matchedKeywords.length > 0) {
     matchReason = `Picked for you: ${matchedKeywords.join(', ')}`;
   }
 
-  return { relevanceScore: score, matchReason };
+  return { relevanceScore: Math.round(score), matchReason };
+}
+
+// Per-entity short-lived cache for personalized live news queries (e.g., "GTA 6")
+const personalizedQueryFeedCache = new Map(); // queryLower -> { ts, items }
+const PERSONALIZED_QUERY_CACHE_TTL_MS = 5 * 60 * 1000;
+
+async function fetchPersonalizedLiveNewsForEntities(entityLabels = []) {
+  const cleanQueries = [];
+  const seenQ = new Set();
+  for (const raw of entityLabels) {
+    const clean = String(raw || '').replace(/["<>]/g, '').replace(/\s+/g, ' ').trim();
+    if (!clean || clean.length < 2 || clean.length > 42) continue;
+    const lower = clean.toLowerCase();
+    // Never fetch Hotties/18+ content into general news via personalized queries
+    if (/\b(hotties|nsfw|nude|nudity|porn|xxx|onlyfans|adult|erotic|sexy)\b/i.test(lower)) continue;
+    if (ENTITY_STOP_WORDS.has(lower) || seenQ.has(lower)) continue;
+    seenQ.add(lower);
+    cleanQueries.push(clean);
+    if (cleanQueries.length >= 3) break;
+  }
+
+  if (cleanQueries.length === 0) return [];
+
+  const now = Date.now();
+  const collected = [];
+  const usedImages = new Set();
+
+  await Promise.allSettled(
+    cleanQueries.map(async (entityLabel, qIdx) => {
+      const qKey = entityLabel.toLowerCase();
+      const cached = personalizedQueryFeedCache.get(qKey);
+      if (cached && now - cached.ts < PERSONALIZED_QUERY_CACHE_TTL_MS && Array.isArray(cached.items)) {
+        collected.push(...cached.items);
+        return;
+      }
+
+      try {
+        const searchQuery = entityLabel.includes(' ') ? `"${entityLabel}" when:10d` : `${entityLabel} news when:10d`;
+        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US:en`;
+        const res = await fetchTextWithTimeout(rssUrl, 4000);
+        if (!res.ok) return;
+        const parsed = parseRssOrAtomItems(res.text, `${entityLabel} Desk`, entityLabel, '', {
+          baseUrl: rssUrl,
+          maxAgeMs: NEWS_MAX_AGE_MS,
+        });
+
+        const built = [];
+        const seenLocalTitles = new Set();
+        const entityAliases = expandEntityAliases(entityLabel);
+        for (const item of parsed.slice(0, 12)) {
+          if (built.length >= (qIdx === 0 ? 5 : 3)) break;
+          if (!item.url || !item.title) continue;
+          const hayCheck = `${item.title} ${item.rssSummary || ''}`.toLowerCase();
+          if (!entityAliases.some((al) => al.length >= 2 && hayCheck.includes(al))) continue;
+          const tSig = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 56);
+          if (seenLocalTitles.has(tSig)) continue;
+          seenLocalTitles.add(tSig);
+
+          const categoryKey = detectRigidCategoryKey(item.title, item.sourceName, '', item.url);
+          if (categoryKey === 'hotties') continue; // Enforce strict Hotties 18+ isolation
+          const topicTags = getRigidTopicTagsForCategoryKey(categoryKey, item.title);
+          const bannerImg = getCuratedNewsBannerImage(item.title, topicTags, item.extractedImage, categoryKey, usedImages);
+          const comprehensiveBody = buildComprehensiveSummary(
+            { ...item, categoryKey, topicTags },
+            { bodyParagraphs: [], metaDesc: item.rssSummary || '' }
+          );
+          const pubMs = item.publishedAt || Date.now();
+
+          built.push({
+            id: makeDeterministicNewsId(item.title, item.url),
+            title: item.title.slice(0, 118),
+            body: comprehensiveBody,
+            imageUrl: bannerImg,
+            tag: 'news',
+            categoryKey,
+            topic: topicTags[0] || 'Technology',
+            topicTags,
+            interestScore: 88,
+            points: 110,
+            numComments: 32,
+            alias: 'Paper Flow AI News',
+            authorUsername: 'ai_news_desk',
+            isAiNews: true,
+            isPersonalizedPick: true,
+            matchedPreference: entityLabel,
+            matchReason: `Because you liked ${entityLabel}`,
+            summarizedByAi: true,
+            aiAttribution: 'Summarized by AI',
+            linkUrl: item.url,
+            linkTitle: `${item.sourceName}: ${item.title}`.slice(0, 98),
+            sourceName: item.sourceName,
+            groundingSources: [],
+            publishedAt: pubMs,
+            createdAt: pubMs,
+            ts: pubMs,
+          });
+        }
+
+        if (personalizedQueryFeedCache.size > 60) {
+          personalizedQueryFeedCache.clear();
+        }
+        personalizedQueryFeedCache.set(qKey, { ts: now, items: built });
+        collected.push(...built);
+      } catch (e) {}
+    })
+  );
+
+  return collected;
 }
 
 app.get('/api/user-news-profile/:userKey', (req, res) => {
@@ -2187,60 +2602,71 @@ app.post('/api/user-news-profile/analyze', async (req, res) => {
   try {
     const { userKey, username, interactions } = req.body || {};
     const cleanKey = String(userKey || username || 'guest').trim().toLowerCase();
-    const list = Array.isArray(interactions) ? interactions.slice(-45) : [];
+    const list = Array.isArray(interactions) ? interactions.slice(-60) : [];
 
     const baseProfile = buildHeuristicUserTasteProfile(list);
     let aiProfile = { ...baseProfile, userKey: cleanKey, interactionCount: list.length };
 
     const ai = getAiClient();
-    if (ai && list.length >= 1) {
+    if (ai && list.length >= 2) {
       try {
         const historyLines = list
+          .filter((it) => String(it?.categoryKey || '').toLowerCase() !== 'hotties')
           .slice(-20)
-          .map((it, idx) => `${idx + 1}. [${String(it.action || 'read').toUpperCase()}] "${it.title || ''}" (${(it.topicTags || []).join(', ')})`)
+          .map((it, idx) => `${idx + 1}. [${String(it.action || 'read').toUpperCase()}] "${it.title || ''}" (${it.categoryKey || (it.topicTags || []).join(', ')})`)
           .join('\n');
 
-        const prompt = `Analyze this user's reading, liking, and starring history on Paper Flow Tech & AI News:
+        if (historyLines) {
+          const prompt = `Analyze this user's liking, starring, and reading history across Paper Flow News (Gaming, Hollywood, Bollywood, Marvel, Science, Facts, AI, Tech):
 ${historyLines}
 
 Return ONLY a valid JSON object with:
-- "personaSummary": A concise 1-sentence natural summary of what tech/AI topics this user loves (max 110 chars, e.g. "Tailored for your interest in open-source LLMs, AI coding agents, and GPU architecture.")
-- "topTopics": Array of 2 to 3 topic categories from ["LLMs & Foundation Models", "AI Agents & Coding", "GPUs, Chips & Hardware", "Robotics & Embodied AI", "Open Source & Research", "Systems, Cloud & Security", "Science & Deep Tech"]
-- "preferredKeywords": Array of 5 to 8 lowercase technical keywords this user gravitates toward
+- "personaSummary": A concise 1-sentence summary mentioning specific franchises/topics they liked (max 110 chars, e.g. "Tailored from your likes: GTA 6, Spider-Man, and AI breakthroughs.")
+- "preferredEntities": Array of 3 to 6 exact specific franchises, games, people, movies, or companies they liked (e.g. ["GTA 6", "Rockstar Games", "Spider-Man", "OpenAI"])
+- "preferredKeywords": Array of 5 to 10 lowercase keywords/phrases including short ones like "gta 6", "mcu", "ps5"
 
 Output strictly raw JSON.`;
 
-        let aiRes;
-        try {
-          aiRes = await ai.models.generateContent({
-            model: 'gemini-3.8-flash',
-            contents: prompt,
-          });
-        } catch (err1) {
-          aiRes = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: prompt,
-          });
-        }
-
-        const rawJson = String(aiRes?.text || '')
-          .replace(/^```json\s*/i, '')
-          .replace(/^```\s*/i, '')
-          .replace(/\s*```$/i, '')
-          .trim();
-        const parsed = JSON.parse(rawJson);
-        if (parsed && typeof parsed === 'object') {
-          if (parsed.personaSummary) aiProfile.personaSummary = String(parsed.personaSummary).slice(0, 140);
-          if (Array.isArray(parsed.topTopics) && parsed.topTopics.length > 0) {
-            aiProfile.topTopics = parsed.topTopics.slice(0, 3).map(String);
-            aiProfile.topTopics.forEach((t, i) => {
-              aiProfile.topicWeights[t] = (aiProfile.topicWeights[t] || 0) + (10 - i * 2);
+          let aiRes;
+          try {
+            aiRes = await ai.models.generateContent({
+              model: 'gemini-3.8-flash',
+              contents: prompt,
+            });
+          } catch (err1) {
+            aiRes = await ai.models.generateContent({
+              model: 'gemini-3-flash-preview',
+              contents: prompt,
             });
           }
-          if (Array.isArray(parsed.preferredKeywords) && parsed.preferredKeywords.length > 0) {
-            aiProfile.preferredKeywords = Array.from(
-              new Set([...parsed.preferredKeywords.map((k) => String(k).toLowerCase()), ...baseProfile.preferredKeywords])
-            ).slice(0, 12);
+
+          const rawJson = String(aiRes?.text || '')
+            .replace(/^```json\s*/i, '')
+            .replace(/^```\s*/i, '')
+            .replace(/\s*```$/i, '')
+            .trim();
+          const parsed = JSON.parse(rawJson);
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.personaSummary) {
+              aiProfile.personaSummary = String(parsed.personaSummary).slice(0, 140);
+              aiProfile.tasteSummary = aiProfile.personaSummary;
+            }
+            if (Array.isArray(parsed.preferredEntities) && parsed.preferredEntities.length > 0) {
+              const mergedEntities = [];
+              const seenE = new Set();
+              for (const ent of [...baseProfile.preferredEntities, ...parsed.preferredEntities.map(String)]) {
+                const c = ent.trim();
+                if (!c || seenE.has(c.toLowerCase())) continue;
+                seenE.add(c.toLowerCase());
+                mergedEntities.push(c);
+              }
+              aiProfile.preferredEntities = mergedEntities.slice(0, 12);
+            }
+            if (Array.isArray(parsed.preferredKeywords) && parsed.preferredKeywords.length > 0) {
+              aiProfile.preferredKeywords = Array.from(
+                new Set([...baseProfile.preferredKeywords, ...parsed.preferredKeywords.map((k) => String(k).toLowerCase())])
+              ).slice(0, 14);
+            }
           }
         }
       } catch (aiErr) {
@@ -2351,33 +2777,111 @@ app.get('/api/image-proxy', async (req, res) => {
   }
 });
 
+async function buildPersonalizedNewsResponseItems(stateItems, profile, explicitPrefs = []) {
+  const baseList = (stateItems || []).filter((it) =>
+    isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts)
+  );
+
+  // Determine top liked entities/phrases for targeted live fetching (e.g., "GTA 6")
+  const queryEntities = [];
+  const seenEnt = new Set();
+  const addQ = (val) => {
+    const clean = String(val || '').trim();
+    if (!clean || seenEnt.has(clean.toLowerCase())) return;
+    seenEnt.add(clean.toLowerCase());
+    queryEntities.push(clean);
+  };
+  (explicitPrefs || []).forEach(addQ);
+  if (profile && Array.isArray(profile.preferredEntities)) {
+    profile.preferredEntities.forEach(addQ);
+  }
+
+  let effectiveProfile = profile;
+  if (!effectiveProfile && queryEntities.length > 0) {
+    effectiveProfile = {
+      preferredEntities: queryEntities,
+      entityWeights: Object.fromEntries(queryEntities.map((q, i) => [q.toLowerCase(), Math.max(8, 16 - i * 3)])),
+      preferredKeywords: queryEntities.map((q) => q.toLowerCase()),
+      topTopics: [],
+      topicWeights: {},
+      categoryWeights: {},
+    };
+  } else if (effectiveProfile && queryEntities.length > 0) {
+    effectiveProfile = {
+      ...effectiveProfile,
+      preferredEntities: queryEntities.slice(0, 12),
+    };
+  }
+
+  // Dynamically pull fresh live stories matching the user's liked entities (e.g., more GTA 6 news!)
+  const targetedLiveItems = queryEntities.length > 0
+    ? await fetchPersonalizedLiveNewsForEntities(queryEntities.slice(0, 3))
+    : [];
+
+  const mergedById = new Map();
+  const seenTitles = new Set();
+
+  // Add targeted personalized picks first so matching stories get their explicit matchReason & fresh content
+  for (const it of [...targetedLiveItems, ...baseList]) {
+    if (!it || !it.id) continue;
+    const tKey = String(it.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 60);
+    if (mergedById.has(it.id) || (tKey && seenTitles.has(tKey))) continue;
+    if (tKey) seenTitles.add(tKey);
+
+    const cleaned = {
+      ...it,
+      body: cleanRoboticPrefixes(it.body || ''),
+      imageUrl: getCuratedNewsBannerImage(it.title, it.topicTags, it.imageUrl, it.categoryKey),
+    };
+
+    if (effectiveProfile) {
+      const { relevanceScore, matchReason } = scoreNewsItemForUserProfile(cleaned, effectiveProfile);
+      const pickBonus = cleaned.isPersonalizedPick ? 150 : 0;
+      mergedById.set(it.id, {
+        ...cleaned,
+        relevanceScore: relevanceScore + pickBonus,
+        matchReason: cleaned.matchReason || matchReason,
+      });
+    } else {
+      mergedById.set(it.id, cleaned);
+    }
+  }
+
+  const result = Array.from(mergedById.values());
+  if (effectiveProfile) {
+    result.sort((a, b) => {
+      const sDiff = (Number(b.relevanceScore) || 0) - (Number(a.relevanceScore) || 0);
+      if (Math.abs(sDiff) >= 1) return sDiff;
+      return (Number(b.publishedAt) || 0) - (Number(a.publishedAt) || 0);
+    });
+  }
+  return result;
+}
+
 app.get('/api/ai-tech-news', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.refresh === 'true';
-    const userKey = String(req.query.user || '').trim().toLowerCase();
-    const state = await refreshAiTechNews(force);
-    const profile = userKey ? userNewsProfilesDb[userKey] : null;
+    const rawUser = String(req.query.user || '').trim().toLowerCase();
+    const cleanUserKey = rawUser.replace(/^user_/, '');
+    const explicitPrefs = String(req.query.prefs || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 5);
 
-    const items = (state.items || [])
-      .filter((it) => isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts))
-      .map((it) => {
-        const cleaned = {
-          ...it,
-          body: cleanRoboticPrefixes(it.body || ''),
-          imageUrl: getCuratedNewsBannerImage(it.title, it.topicTags, it.imageUrl),
-        };
-        if (profile) {
-          const { relevanceScore, matchReason } = scoreNewsItemForUserProfile(cleaned, profile);
-          return { ...cleaned, relevanceScore, matchReason };
-        }
-        return cleaned;
-      });
+    const state = await refreshAiTechNews(force);
+    const profile =
+      (rawUser && userNewsProfilesDb[rawUser]) ||
+      (cleanUserKey && userNewsProfilesDb[cleanUserKey]) ||
+      null;
+
+    const items = await buildPersonalizedNewsResponseItems(state.items, profile, explicitPrefs);
 
     res.json({
       ok: true,
       updatedAt: state.lastUpdated,
       lastUpdated: state.lastUpdated,
-      refreshIntervalMinutes: 15,
+      refreshMode: 'on-open',
       userProfile: profile || null,
       items,
       groundingSources: state.groundingSources,
@@ -2395,26 +2899,24 @@ app.get('/api/ai-tech-news', async (req, res) => {
 
 app.post('/api/ai-tech-news/refresh', async (req, res) => {
   try {
-    const userKey = String(req.body?.userKey || req.query?.user || '').trim().toLowerCase();
+    const rawUser = String(req.body?.userKey || req.query?.user || '').trim().toLowerCase();
+    const cleanUserKey = rawUser.replace(/^user_/, '');
+    const explicitPrefs = Array.isArray(req.body?.prefs)
+      ? req.body.prefs.map((s) => String(s || '').trim()).filter(Boolean).slice(0, 5)
+      : String(req.query.prefs || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 5);
+
     const state = await refreshAiTechNews(true);
-    const profile = userKey ? userNewsProfilesDb[userKey] : null;
-    const items = (state.items || [])
-      .filter((it) => isWithinTenDaysWindow(it.publishedAt || it.createdAt || it.ts))
-      .map((it) => {
-        const cleaned = {
-          ...it,
-          body: cleanRoboticPrefixes(it.body || ''),
-          imageUrl: getCuratedNewsBannerImage(it.title, it.topicTags, it.imageUrl),
-        };
-        if (profile) {
-          const { relevanceScore, matchReason } = scoreNewsItemForUserProfile(cleaned, profile);
-          return { ...cleaned, relevanceScore, matchReason };
-        }
-        return cleaned;
-      });
+    const profile =
+      (rawUser && userNewsProfilesDb[rawUser]) ||
+      (cleanUserKey && userNewsProfilesDb[cleanUserKey]) ||
+      null;
+
+    const items = await buildPersonalizedNewsResponseItems(state.items, profile, explicitPrefs);
+
     res.json({
       ok: true,
       lastUpdated: state.lastUpdated,
+      refreshMode: 'on-open',
       userProfile: profile || null,
       items,
       groundingSources: state.groundingSources,

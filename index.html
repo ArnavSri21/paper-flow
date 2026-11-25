@@ -7294,12 +7294,14 @@
   const GUEST_TOKEN_KEY = 'paperflow_guest_token_v1';
   const DARK_MODE_KEY = 'paperflow_dark_mode_v1';
   const LOCAL_STARS_PREFIX = 'paperflow_starred_v1_';
+  const LOCAL_LIKED_NEWS_PREFIX = 'paperflow_liked_news_v1_';
   const STARRED_ARCHIVE_PREFIX = 'paperflow_starred_archive_v2_';
   const USER_NEWS_DB_PREFIX = 'paperflow_user_news_db_v1_';
 
   let currentUser = loadSessionUser();
   const guestToken = getOrCreateGuestToken();
   let localStarredSet = loadLocalStarredSet();
+  let localLikedNewsSet = loadLocalLikedNewsSet();
   let starredPostsArchiveMap = loadStarredPostsArchiveMap();
   let userNewsDb = loadUserNewsDb();
   let remoteUserNewsDatabases = {};
@@ -7308,8 +7310,16 @@
     return currentUser ? `user_${currentUser.usernameLower}` : guestToken;
   }
 
+  function getCanonicalNewsProfileKey() {
+    return currentUser ? currentUser.usernameLower : guestToken;
+  }
+
   function getStarStorageKey() {
     return LOCAL_STARS_PREFIX + getActorStorageSuffix();
+  }
+
+  function getLikedNewsStorageKey() {
+    return LOCAL_LIKED_NEWS_PREFIX + getActorStorageSuffix();
   }
 
   function getStarredArchiveStorageKey() {
@@ -7454,6 +7464,23 @@
     } catch (e) {}
   }
 
+  function loadLocalLikedNewsSet() {
+    try {
+      const raw = localStorage.getItem(getLikedNewsStorageKey());
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr);
+      }
+    } catch (e) {}
+    return new Set();
+  }
+
+  function saveLocalLikedNewsSet() {
+    try {
+      localStorage.setItem(getLikedNewsStorageKey(), JSON.stringify(Array.from(localLikedNewsSet)));
+    } catch (e) {}
+  }
+
   // Ensure any archived starred items in phone storage are present in localStarredSet
   Object.keys(starredPostsArchiveMap || {}).forEach(id => localStarredSet.add(id));
   restoreStarredArchiveFromIndexedDB();
@@ -7523,6 +7550,7 @@
   var DEFAULT_CLIENT_NEWS_BANNERS = [];
   var GUARANTEED_SVG_NEWS_BANNER = '';
   var activeNewsRefreshSeq = 0;
+  var hasSyncedNewsOnThisVisit = false;
   var cardDomCache = new Map();
   var activeShareSnapshotState = null;
   var lastStatsSig = '';
@@ -7589,10 +7617,13 @@
       }
     } catch (e) {}
     localStarredSet = loadLocalStarredSet();
+    localLikedNewsSet = loadLocalLikedNewsSet();
     starredPostsArchiveMap = loadStarredPostsArchiveMap();
     Object.keys(starredPostsArchiveMap || {}).forEach(id => localStarredSet.add(id));
     restoreStarredArchiveFromIndexedDB();
     userNewsDb = loadUserNewsDb();
+    hasSyncedNewsOnThisVisit = false;
+    window.resetLockedNewsScores();
 
     if (user) {
       const myActorKey = `user_${user.usernameLower}`;
@@ -7603,7 +7634,7 @@
         }
       });
       saveLocalStarredSet();
-      // Merge remote Firestore user news database if available
+      // Merge remote Firestore user news database if available (read-only legacy fallback)
       const remoteDb = remoteUserNewsDatabases[user.usernameLower];
       if (remoteDb && (remoteDb.updatedAt || 0) > (userNewsDb.updatedAt || 0)) {
         userNewsDb = remoteDb;
@@ -8352,11 +8383,11 @@
       window.scrollTo(0, 0);
     }
 
-    // Only fetch in background if news list is empty or older than 12 minutes so switching is instant and zero-jitter
-    if (!aiTechNewsItems || aiTechNewsItems.length === 0 || (Date.now() - aiNewsLastUpdated > 12 * 60 * 1000)) {
+    // Load news strictly once per website visit (or if cache is empty); never auto-poll on tab switch
+    if (!hasSyncedNewsOnThisVisit || !aiTechNewsItems || aiTechNewsItems.length === 0) {
       setTimeout(() => {
         fetchAndSyncAiTechNews(false);
-      }, 180);
+      }, 150);
     }
   };
 
@@ -11052,7 +11083,129 @@
     );
   }
 
-  // ── PER-USER NEWS PREFERENCE TRACKING & AI ANALYSIS ─────────────────────────
+  // ── PER-USER NEWS PREFERENCE TRACKING & ENTITY PERSONALIZATION ──────────────
+  const CLIENT_ENTITY_STOP_WORDS = new Set([
+    'the','and','for','with','that','this','from','into','your','have','more','about','what','when',
+    'where','which','their','there','will','would','could','after','before','using','first','second',
+    'third','final','news','update','updates','report','reports','says','said','new','latest',
+    'breaking','watch','video','trailer','trailers','teaser','official','review','reviews','guide',
+    'how','why','best','top','year','years','day','days','week','month','today','now','just','over',
+    'under','back','still','next','here','look','makes','make','made','gets','getting','revealed',
+    'reveals','announces','announced','launches','launched','release','released','releases','date',
+    'dates','map','maps','coming','soon','full','detail','details','everything','know','need','fans',
+    'story','stories','paper','flow','briefing','verified','editorial','summary','source','season',
+    'episode','part','chapter','leak','leaks','leaked','rumor','rumors','box','office','movie',
+    'movies','film','films','game','games','gaming','show','series','edition','exclusive','inside',
+    'price','specs','feature','features','gameplay','interview','poster','cast','casting','sequel',
+    'remake','reboot','streaming','online','free','download','deal','deals','sale','roundup'
+  ]);
+
+  const CLIENT_KNOWN_ENTITY_PATTERNS = [
+    { label: 'GTA 6', regex: /\b(gta\s*(?:6|vi)|grand\s+theft\s+auto\s*(?:6|vi)?|rockstar\s+games?)\b/i },
+    { label: 'PS5', regex: /\b(ps5|playstation\s*5|ps5\s*pro)\b/i },
+    { label: 'PS6', regex: /\b(ps6|playstation\s*6)\b/i },
+    { label: 'Xbox', regex: /\b(xbox|game\s*pass)\b/i },
+    { label: 'Nintendo Switch 2', regex: /\b(switch\s*2|nintendo\s+switch)\b/i },
+    { label: 'Nintendo', regex: /\b(nintendo|zelda|mario|pokemon|pokémon)\b/i },
+    { label: 'Minecraft', regex: /\bminecraft\b/i },
+    { label: 'Fortnite', regex: /\bfortnite\b/i },
+    { label: 'Call of Duty', regex: /\b(call\s+of\s+duty|warzone|black\s+ops)\b/i },
+    { label: 'Valorant', regex: /\bvalorant\b/i },
+    { label: 'Elden Ring', regex: /\belden\s+ring\b/i },
+    { label: 'Cyberpunk', regex: /\bcyberpunk\b/i },
+    { label: 'Spider-Man', regex: /\bspider[\s-]*man\b/i },
+    { label: 'Avengers', regex: /\b(avengers|doomsday|secret\s+wars)\b/i },
+    { label: 'Marvel', regex: /\b(marvel|mcu|marvel\s+studios)\b/i },
+    { label: 'Deadpool', regex: /\bdeadpool\b/i },
+    { label: 'X-Men', regex: /\bx[\s-]*men\b/i },
+    { label: 'Batman', regex: /\b(batman|gotham)\b/i },
+    { label: 'Superman', regex: /\bsuperman\b/i },
+    { label: 'Star Wars', regex: /\bstar\s+wars\b/i },
+    { label: 'Shah Rukh Khan', regex: /\b(shah\s+rukh\s+khan|srk)\b/i },
+    { label: 'Salman Khan', regex: /\bsalman\s+khan\b/i },
+    { label: 'Ranbir Kapoor', regex: /\branbir\s+kapoor\b/i },
+    { label: 'Alia Bhatt', regex: /\balia\s+bhatt\b/i },
+    { label: 'Bollywood', regex: /\bbollywood\b/i },
+    { label: 'Hollywood', regex: /\bhollywood\b/i },
+    { label: 'OpenAI', regex: /\b(openai|chatgpt|gpt[\s-]*[45o]|sora)\b/i },
+    { label: 'Claude AI', regex: /\b(anthropic|claude\s*(?:3|4|ai|code)?)\b/i },
+    { label: 'Google Gemini', regex: /\b(google\s+gemini|gemini\s*(?:2|3|pro|flash|ai))\b/i },
+    { label: 'NVIDIA', regex: /\b(nvidia|rtx\s*\d*|geforce|blackwell|cuda)\b/i },
+    { label: 'Apple', regex: /\b(apple|iphone\s*\d*|ipad|macbook|ios\s*\d*)\b/i },
+    { label: 'Tesla', regex: /\b(tesla|cybertruck)\b/i },
+    { label: 'SpaceX', regex: /\b(spacex|starship|falcon\s*9)\b/i },
+    { label: 'NASA', regex: /\b(nasa|artemis|james\s+webb|jwst)\b/i },
+    { label: 'Quantum Computing', regex: /\bquantum\s+comput/i },
+    { label: 'Linux', regex: /\blinux\b/i },
+    { label: 'Bitcoin', regex: /\b(bitcoin|btc)\b/i }
+  ];
+
+  const CLIENT_HIGH_SIGNAL_SHORT_TOKENS = new Set([
+    'gta','ps5','ps6','mcu','dcu','srk','ai','llm','gpu','cpu','ios','vr','ar','ufc','f1','nba','nfl','ipl','ev'
+  ]);
+
+  function extractClientPreferenceEntities(title = '', sourceName = '') {
+    const raw = String(title || '').trim();
+    if (!raw) return [];
+    const found = [];
+    const seen = new Set();
+    const addEntity = (label) => {
+      const clean = String(label || '').replace(/\s+/g, ' ').trim();
+      const lower = clean.toLowerCase();
+      if (!clean || clean.length < 2 || seen.has(lower) || CLIENT_ENTITY_STOP_WORDS.has(lower)) return;
+      seen.add(lower);
+      found.push(clean);
+    };
+
+    for (const pat of CLIENT_KNOWN_ENTITY_PATTERNS) {
+      if (pat.regex.test(raw)) addEntity(pat.label);
+    }
+
+    // Alphanumeric franchise / version tokens like "GTA 6", "iPhone 17", "Switch 2", "GPT 5"
+    const versionMatches = raw.match(/\b[A-Za-z][A-Za-z0-9-]{1,14}\s+(?:\d{1,3}|[IVX]{2,4})\b/g) || [];
+    for (const m of versionMatches) {
+      const firstWord = m.split(/\s+/)[0].toLowerCase();
+      if (!CLIENT_ENTITY_STOP_WORDS.has(firstWord)) addEntity(m);
+    }
+
+    // Multi-word capitalized proper noun phrases (e.g., "Vice City", "Christopher Nolan", "Doctor Doom")
+    const properMatches = raw.match(/\b[A-Z][A-Za-z0-9'-]+(?:\s+[A-Z][A-Za-z0-9'-]+){1,2}\b/g) || [];
+    for (const phrase of properMatches) {
+      const words = phrase.split(/\s+/);
+      if (words.length < 2 || !words.every(w => !CLIENT_ENTITY_STOP_WORDS.has(w.toLowerCase()))) continue;
+      if (sourceName && phrase.toLowerCase() === String(sourceName).trim().toLowerCase()) continue;
+      addEntity(phrase);
+    }
+
+    // High-signal short tokens
+    const tokens = raw.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(Boolean);
+    for (const tok of tokens) {
+      if (CLIENT_HIGH_SIGNAL_SHORT_TOKENS.has(tok)) addEntity(tok.toUpperCase());
+    }
+
+    return found.slice(0, 6);
+  }
+
+  function expandClientEntityAliases(entityLabel) {
+    const lower = String(entityLabel || '').trim().toLowerCase();
+    if (!lower) return [];
+    const aliases = [lower];
+    if (lower === 'gta 6' || lower === 'gta vi' || lower.includes('grand theft auto')) {
+      aliases.push('gta 6', 'gta vi', 'grand theft auto 6', 'grand theft auto vi', 'grand theft auto', 'rockstar', 'vice city');
+    } else if (lower === 'ps5') {
+      aliases.push('playstation 5', 'ps5 pro');
+    } else if (lower === 'marvel' || lower === 'mcu') {
+      aliases.push('marvel', 'mcu', 'avengers', 'marvel studios');
+    } else if (lower === 'shah rukh khan' || lower === 'srk') {
+      aliases.push('shah rukh khan', 'srk');
+    } else if (lower === 'openai') {
+      aliases.push('openai', 'chatgpt', 'gpt-5', 'gpt-4');
+    } else if (lower === 'nvidia') {
+      aliases.push('nvidia', 'rtx', 'geforce');
+    }
+    return Array.from(new Set(aliases));
+  }
+
   function detectClientTopicTags(title, body = '') {
     const combined = `${title || ''} ${body || ''}`.toLowerCase();
     const tags = [];
@@ -11060,16 +11213,35 @@
       ['LLMs & Foundation Models', /\b(llm|gpt|claude|gemini|llama|mistral|deepseek|qwen|openai|anthropic|foundation model|reasoning|o1|o3)\b/i],
       ['AI Agents & Coding', /\b(agent|agentic|coding|copilot|cursor|codegen|autonomy|workflow|tool use|mcp|developer tool|ide)\b/i],
       ['GPUs, Chips & Hardware', /\b(gpu|nvidia|amd|intel|tpu|tsmc|chip|semiconductor|silicon|npu|cuda|hardware)\b/i],
-      ['Robotics & Embodied AI', /\b(robot|robotics|humanoid|autonomous|drone|self-driving|waymo|figure|boston dynamics)\b/i],
-      ['Open Source & Research', /\b(open source|open-source|arxiv|paper|huggingface|weights|benchmark|mit|stanford|research)\b/i],
-      ['Systems, Cloud & Security', /\b(linux|rust|kernel|database|postgres|cloud|kubernetes|security|encryption|privacy|zero-day|browser)\b/i],
-      ['Science & Deep Tech', /\b(quantum|fusion|biotech|protein|alphafold|space|spacex|physics|materials|neuroscience)\b/i],
+      ['Gaming & Franchises', /\b(gta|grand theft auto|playstation|ps5|xbox|nintendo|switch|steam|gaming|esports|rockstar|elden ring|fortnite|minecraft|call of duty)\b/i],
+      ['Marvel & Superhero Cinema', /\b(marvel|mcu|avengers|spider-man|deadpool|x-men|fantastic four|doctor doom|dc studios|batman|superman)\b/i],
+      ['Cinema & Bollywood', /\b(bollywood|hollywood|box office|trailer|oscar|film|movie|cinema|shah rukh|salman|ranbir|director)\b/i],
+      ['Science & Space', /\b(quantum|fusion|biotech|protein|alphafold|space|spacex|nasa|physics|astronomy|neuroscience|discovery)\b/i],
+      ['Curiosities & Facts', /\b(fact|history|archaeology|mystery|ancient|did you know|weird|nature|wildlife)\b/i],
     ];
     for (const [label, regex] of rules) {
       if (regex.test(combined)) tags.push(label);
     }
     if (tags.length === 0) tags.push('Emerging Tech');
     return tags;
+  }
+
+  function getTopPreferredEntitiesForQuery(maxCount = 4) {
+    const aiProf = (userNewsDb && userNewsDb.aiProfile) ? userNewsDb.aiProfile : null;
+    const rawList = (aiProf && Array.isArray(aiProf.preferredEntities) && aiProf.preferredEntities.length > 0)
+      ? aiProf.preferredEntities
+      : (Array.isArray(userNewsDb?.preferredEntities) ? userNewsDb.preferredEntities : []);
+    const fallbackKw = (aiProf && Array.isArray(aiProf.preferredKeywords)) ? aiProf.preferredKeywords : [];
+    const merged = [];
+    const seen = new Set();
+    [...rawList, ...fallbackKw].forEach(item => {
+      const clean = String(item || '').trim();
+      const lower = clean.toLowerCase();
+      if (!clean || clean.length < 2 || seen.has(lower) || CLIENT_ENTITY_STOP_WORDS.has(lower)) return;
+      seen.add(lower);
+      merged.push(clean);
+    });
+    return merged.slice(0, maxCount);
   }
 
   // Session-locked news score cache so liking/starring a card never re-orders the feed mid-read
@@ -11082,54 +11254,100 @@
     if (item.id && lockedNewsScoresMap[item.id]) {
       return lockedNewsScoresMap[item.id];
     }
+    const itemCat = String(item.categoryKey || getRigidNewsCategoryKey(item) || '').toLowerCase();
     const topics = Array.isArray(item.topicTags) && item.topicTags.length > 0
       ? item.topicTags
       : detectClientTopicTags(item.title || '', item.body || '');
 
-    let score = Number(item.interestScore || item.personalizedScore) || 55;
+    // Never apply general personalization signals to Hotties (18+) items
+    if (itemCat === 'hotties') {
+      const hRes = { score: 50, matchReason: '', topics };
+      if (item.id) lockedNewsScoresMap[item.id] = hRes;
+      return hRes;
+    }
+
+    const serverScore = Number(item.relevanceScore || item.interestScore || item.personalizedScore || 0);
+    let score = serverScore > 0 ? serverScore : 55;
+    if (item.isPersonalizedPick) score += 28;
+
     const aiProf = (userNewsDb && userNewsDb.aiProfile) ? userNewsDb.aiProfile : null;
+    const entityWeights = (aiProf && aiProf.entityWeights) || (userNewsDb && userNewsDb.entityWeights) || {};
+    const categoryWeights = (aiProf && aiProf.categoryWeights) || (userNewsDb && userNewsDb.categoryWeights) || {};
     const weights = (aiProf && aiProf.topicWeights) || (userNewsDb && userNewsDb.topicWeights) || {};
     const topTopicsList = (aiProf && (aiProf.preferredTopics || aiProf.topTopics)) || [];
     const prefKeywords = (aiProf && aiProf.preferredKeywords) || [];
 
+    const titleLower = String(item.title || '').toLowerCase();
+    const bodyLower = `${item.body || ''} ${item.sourceName || ''}`.toLowerCase();
+    const hay = `${titleLower} ${bodyLower}`;
+
+    // 1. Exact entity / franchise match (e.g. GTA 6) — highest priority
+    const matchedEntities = [];
+    const entityEntries = Object.entries(entityWeights).sort((a, b) => (Number(b[1]) || 0) - (Number(a[1]) || 0));
+    for (const [entLabel, rawW] of entityEntries) {
+      const w = Number(rawW) || 0;
+      if (w <= 0) continue;
+      const aliases = expandClientEntityAliases(entLabel);
+      const inTitle = aliases.some(al => al.length >= 2 && titleLower.includes(al));
+      const inBody = !inTitle && aliases.some(al => al.length >= 2 && bodyLower.includes(al));
+      if (inTitle) {
+        score += Math.min(240, 120 + w * 10);
+        if (matchedEntities.length < 2) matchedEntities.push(entLabel);
+      } else if (inBody) {
+        score += Math.min(130, 55 + w * 5);
+        if (matchedEntities.length < 2) matchedEntities.push(entLabel);
+      }
+    }
+
+    // 2. Category affinity match
+    const catW = Number(categoryWeights[itemCat]) || 0;
+    if (catW > 0) {
+      score += Math.min(60, 16 + catW * 3.5);
+    }
+
+    // 3. Broad topic match
     const matchedTopics = [];
     for (const t of topics) {
       const w = Number(weights[t]) || (topTopicsList.includes(t) ? 4 : 0);
       if (w > 0) {
-        score += w * 12;
+        score += Math.min(48, w * 5);
         if (matchedTopics.length < 2) matchedTopics.push(t);
       }
     }
 
-    const hay = `${item.title || ''} ${item.body || ''} ${item.sourceName || ''}`.toLowerCase();
+    // 4. Keyword match
     const matchedKeywords = [];
     for (const kw of prefKeywords) {
-      if (kw && String(kw).length >= 3 && hay.includes(String(kw).toLowerCase())) {
-        score += 16;
-        if (matchedKeywords.length < 2) matchedKeywords.push(kw);
+      const cleanKw = String(kw || '').trim();
+      if (cleanKw.length >= 2 && hay.includes(cleanKw.toLowerCase())) {
+        score += titleLower.includes(cleanKw.toLowerCase()) ? 24 : 12;
+        if (matchedKeywords.length < 2) matchedKeywords.push(cleanKw);
       }
     }
 
-    // Recency boost so fresh high-signal stories stay competitive
+    // Recency boost so fresh stories stay competitive
     const pubMs = getPostTimestampMs(item);
     if (pubMs > 0) {
       const ageHours = Math.max(0, (Date.now() - pubMs) / (1000 * 60 * 60));
-      if (ageHours <= 6) score += 14;
-      else if (ageHours <= 18) score += 8;
+      if (ageHours <= 6) score += 16;
+      else if (ageHours <= 24) score += 10;
+      else if (ageHours <= 72) score += 4;
     }
 
     let matchReason = item.matchReason || '';
-    if (!matchReason) {
-      if (matchedTopics.length > 0 && matchedKeywords.length > 0) {
-        matchReason = `Matches your interest in ${matchedTopics[0]} (${matchedKeywords.join(', ')})`;
-      } else if (matchedTopics.length > 0) {
-        matchReason = `Matches your interest in ${matchedTopics.join(' & ')}`;
+    if (matchedEntities.length > 0) {
+      matchReason = `Because you liked ${matchedEntities[0]}`;
+    } else if (!matchReason) {
+      if (item.personalizedEntity) {
+        matchReason = `Because you liked ${item.personalizedEntity}`;
       } else if (matchedKeywords.length > 0) {
-        matchReason = `Matched your topics: ${matchedKeywords.join(', ')}`;
+        matchReason = `Because you liked ${matchedKeywords[0]}`;
+      } else if (matchedTopics.length > 0) {
+        matchReason = `Matches your interest in ${matchedTopics[0]}`;
       }
     }
 
-    const result = { score, matchReason, topics };
+    const result = { score: Math.round(score), matchReason, topics };
     if (item.id) {
       lockedNewsScoresMap[item.id] = result;
     }
@@ -11138,7 +11356,7 @@
 
   window.analyzeUserNewsTasteWithAi = async function (force = false) {
     try {
-      const userKey = currentUser ? currentUser.usernameLower : guestToken;
+      const userKey = getCanonicalNewsProfileKey();
       const baseOrigin = getApiBaseOrigin();
       const res = await fetch(`${baseOrigin}/api/user-news-profile/analyze`, {
         method: 'POST',
@@ -11156,15 +11374,20 @@
           const prof = data.profile;
           prof.preferredTopics = prof.preferredTopics || prof.topTopics || [];
           prof.topTopics = prof.topTopics || prof.preferredTopics || [];
+          prof.preferredEntities = Array.isArray(prof.preferredEntities) ? prof.preferredEntities : (userNewsDb.preferredEntities || []);
+          prof.entityWeights = (prof.entityWeights && typeof prof.entityWeights === 'object') ? prof.entityWeights : (userNewsDb.entityWeights || {});
+          prof.categoryWeights = (prof.categoryWeights && typeof prof.categoryWeights === 'object') ? prof.categoryWeights : (userNewsDb.categoryWeights || {});
           prof.tasteSummary = prof.tasteSummary || prof.personaSummary || '';
           prof.personaSummary = prof.personaSummary || prof.tasteSummary || '';
           userNewsDb.aiProfile = prof;
+          userNewsDb.preferredEntities = prof.preferredEntities;
+          userNewsDb.entityWeights = prof.entityWeights;
+          userNewsDb.categoryWeights = prof.categoryWeights;
           if (prof.topicWeights && typeof prof.topicWeights === 'object') {
             userNewsDb.topicWeights = prof.topicWeights;
           }
           userNewsDb.updatedAt = Date.now();
           saveUserNewsDb();
-          // Only re-render feed if explicitly requested (never on background Like/Star analysis to prevent jitter)
           if (force) {
             window.resetLockedNewsScores();
             renderFeed();
@@ -11176,19 +11399,103 @@
     return userNewsDb?.aiProfile || null;
   };
 
+  function recomputeClientUserNewsProfile() {
+    const topicWeights = {};
+    const entityWeights = {};
+    const categoryWeights = {};
+    const keywordCounts = {};
+    const list = Array.isArray(userNewsDb.interactions) ? userNewsDb.interactions : [];
+
+    list.forEach(it => {
+      if (!it || String(it.categoryKey || '').toLowerCase() === 'hotties') return;
+      const w = it.action === 'star' ? 9 : (it.action === 'like' ? 8 : (it.action === 'share' ? 6 : 2));
+      if (it.categoryKey && it.categoryKey !== 'all_news') {
+        categoryWeights[it.categoryKey] = (categoryWeights[it.categoryKey] || 0) + w;
+      }
+      (it.topicTags || []).forEach(t => {
+        topicWeights[t] = (topicWeights[t] || 0) + w;
+      });
+      const entities = (Array.isArray(it.entities) && it.entities.length > 0)
+        ? it.entities
+        : extractClientPreferenceEntities(it.title || '', it.sourceName || '');
+      entities.forEach(ent => {
+        entityWeights[ent] = (entityWeights[ent] || 0) + w * 1.5;
+      });
+      String(it.title || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(wd => (wd.length >= 4 || CLIENT_HIGH_SIGNAL_SHORT_TOKENS.has(wd)) && !CLIENT_ENTITY_STOP_WORDS.has(wd))
+        .forEach(wd => {
+          keywordCounts[wd] = (keywordCounts[wd] || 0) + w;
+        });
+    });
+
+    const preferredEntities = Object.entries(entityWeights).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k]) => k);
+    const preferredCategories = Object.entries(categoryWeights).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
+    const topTopics = Object.entries(topicWeights).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
+    const preferredKeywords = Array.from(new Set([
+      ...preferredEntities,
+      ...Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k]) => k)
+    ])).slice(0, 12);
+
+    const summaryStr = preferredEntities.length > 0
+      ? `Tailored for your interest in ${preferredEntities.slice(0, 3).join(', ')}.`
+      : (topTopics.length > 0
+          ? `Tailored for your interest in ${topTopics.slice(0, 2).join(' & ')}.`
+          : 'Personalized from the news you like, star, and read.');
+
+    userNewsDb.topicWeights = topicWeights;
+    userNewsDb.entityWeights = entityWeights;
+    userNewsDb.categoryWeights = categoryWeights;
+    userNewsDb.preferredEntities = preferredEntities;
+    userNewsDb.aiProfile = {
+      ...(userNewsDb.aiProfile || {}),
+      preferredEntities,
+      entityWeights,
+      preferredCategories,
+      categoryWeights,
+      topTopics,
+      preferredTopics: topTopics,
+      preferredKeywords,
+      topicWeights,
+      personaSummary: summaryStr,
+      tasteSummary: summaryStr
+    };
+    userNewsDb.updatedAt = Date.now();
+    saveUserNewsDb();
+  }
+
   analyzeUserDbTimeout = null;
   syncUserDbFirestoreTimeout = null;
+  function removeUserNewsInteraction(postId, action = 'like') {
+    if (!postId || !Array.isArray(userNewsDb?.interactions)) return;
+    userNewsDb.interactions = userNewsDb.interactions.filter(it => !(it.postId === postId && it.action === action));
+    recomputeClientUserNewsProfile();
+    clearTimeout(analyzeUserDbTimeout);
+    analyzeUserDbTimeout = setTimeout(() => {
+      window.analyzeUserNewsTasteWithAi(false);
+    }, 1200);
+  }
+
   async function recordUserNewsInteraction(post, action = 'read') {
     if (!post || !post.id) return;
+    const categoryKey = getRigidNewsCategoryKey(post);
+    // Strict Hotties (18+) isolation: never feed Hotties clicks/likes into general personalization
+    if (categoryKey === 'hotties') return;
+
     const isNewsOrTech = Boolean(post.isAiNews || post.summarizedByAi || post.docType === 'ai_news' || post.tag === 'news');
     const topicTags = Array.isArray(post.topicTags) && post.topicTags.length > 0
       ? post.topicTags
       : detectClientTopicTags(post.title || '', post.body || '');
+    const entities = extractClientPreferenceEntities(post.title || '', post.sourceName || post.alias || '');
 
     const entry = {
       postId: post.id,
-      title: (post.title || (post.body || '').slice(0, 90)).slice(0, 120),
+      title: (post.title || (post.body || '').slice(0, 90)).slice(0, 140),
       sourceName: post.sourceName || post.alias || '',
+      categoryKey,
+      entities,
       topicTags,
       isNews: isNewsOrTech,
       action,
@@ -11198,86 +11505,16 @@
     const existingList = Array.isArray(userNewsDb.interactions) ? userNewsDb.interactions : [];
     const filtered = existingList.filter(it => !(it.postId === post.id && it.action === action));
     filtered.push(entry);
-    userNewsDb.interactions = filtered.slice(-45);
-    userNewsDb.updatedAt = Date.now();
+    userNewsDb.interactions = filtered.slice(-60);
 
-    // Instant client-side heuristic update so personalization responds immediately
-    const topicWeights = {};
-    const keywordCounts = {};
-    const stopWords = new Set(['the','and','for','with','that','this','from','into','your','have','more','about','what','when','where','which','their','there','will','would','could','after','before','using','first']);
-    userNewsDb.interactions.forEach(it => {
-      const w = it.action === 'star' ? 4 : (it.action === 'like' ? 3 : 1.5);
-      (it.topicTags || []).forEach(t => {
-        topicWeights[t] = (topicWeights[t] || 0) + w;
-      });
-      String(it.title || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, ' ')
-        .split(/\s+/)
-        .filter(wd => wd.length >= 4 && !stopWords.has(wd))
-        .forEach(wd => {
-          keywordCounts[wd] = (keywordCounts[wd] || 0) + w;
-        });
-    });
+    // Instant local preference update (Zero Firebase writes!)
+    recomputeClientUserNewsProfile();
 
-    userNewsDb.topicWeights = topicWeights;
-    const topTopics = Object.entries(topicWeights).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k);
-    const preferredKeywords = Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k]) => k);
-    const summaryStr = topTopics.length > 0
-      ? `Tailored for your interest in ${topTopics.slice(0, 2).join(' & ')}.`
-      : 'Personalized as you star, like, and read Tech & AI stories.';
-
-    if (!userNewsDb.aiProfile) {
-      userNewsDb.aiProfile = {
-        topTopics,
-        preferredTopics: topTopics,
-        preferredKeywords,
-        topicWeights,
-        personaSummary: summaryStr,
-        tasteSummary: summaryStr
-      };
-    } else {
-      userNewsDb.aiProfile.topTopics = topTopics.length > 0 ? topTopics : (userNewsDb.aiProfile.topTopics || []);
-      userNewsDb.aiProfile.preferredTopics = userNewsDb.aiProfile.topTopics;
-      userNewsDb.aiProfile.topicWeights = topicWeights;
-      userNewsDb.aiProfile.preferredKeywords = preferredKeywords;
-      if (!userNewsDb.aiProfile.tasteSummary) {
-        userNewsDb.aiProfile.tasteSummary = userNewsDb.aiProfile.personaSummary || summaryStr;
-      }
-    }
-
-    saveUserNewsDb();
-
-    // Debounce & guard per-user database Firestore sync (signed-in users only, quota-safe)
-    clearTimeout(syncUserDbFirestoreTimeout);
-    if (!currentUser || isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
-      // Still run local/AI taste analysis without writing to Firestore
-    } else {
-      syncUserDbFirestoreTimeout = setTimeout(() => {
-        if (!currentUser || isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) return;
-        const userKey = currentUser.usernameLower;
-        const dbDocId = `__userdb__${userKey.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-        setDoc(doc(db, "posts", dbDocId), {
-          title: null,
-          body: 'user_news_db',
-          tag: 'other',
-          alias: (currentUser?.username || 'Reader').slice(0, 30),
-          ts: serverTimestamp(),
-          docType: 'user_news_db',
-          usernameLower: userKey,
-          dbPayloadJson: JSON.stringify(userNewsDb).slice(0, 9000),
-          updatedAt: userNewsDb.updatedAt
-        }).catch((err) => {
-          if (isQuotaError(err)) markFirestoreQuotaExhausted();
-        });
-      }, 60000);
-    }
-
-    // Trigger AI analysis silently in the background (debounced)
+    // Sync updated preferences to server's lightweight JSON profile store (debounced)
     clearTimeout(analyzeUserDbTimeout);
     analyzeUserDbTimeout = setTimeout(() => {
       window.analyzeUserNewsTasteWithAi(false);
-    }, 1800);
+    }, 1200);
   }
 
   // ── DELETE FLOW ─────────────────────────────────────────────────────────────
@@ -11373,21 +11610,30 @@
     return currentUser ? `user_${currentUser.usernameLower}` : guestToken;
   }
 
+  function isNewsCardPost(post, postId = '') {
+    return Boolean(
+      (post && (post.isAiNews || post.summarizedByAi || post.docType === 'ai_news')) ||
+      String(postId || post?.id || '').startsWith('__ainews__')
+    );
+  }
+
   function getPostLikesList(post) {
     const legacy = Array.isArray(post.likedBy) ? post.likedBy : [];
     const docLikes = (likesByPost[post.id] || []).map(l => l.actorKey);
-    return Array.from(new Set([...legacy, ...docLikes]));
+    const localLike = (post && post.id && localLikedNewsSet.has(post.id)) ? [getCurrentActorKey()] : [];
+    return Array.from(new Set([...legacy, ...docLikes, ...localLike]));
   }
 
   window.toggleLike = async function (postId) {
-    if (!currentUser) {
+    const post = findPostAnywhere(postId);
+    if (!post) return;
+
+    const isNewsCard = isNewsCardPost(post, postId);
+    if (!currentUser && !isNewsCard) {
       showToast('Please sign in to like flows!');
       openAuthModal('login');
       return;
     }
-
-    const post = findPostAnywhere(postId);
-    if (!post) return;
 
     const actorKey = getCurrentActorKey();
     const safeActorId = actorKey.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -11396,16 +11642,25 @@
     const existingLikeDoc = existingList.find(
       l => l.actorKey === actorKey || l.docId === likeDocId
     );
-    const willBeLiked = !existingLikeDoc;
+    const alreadyLiked = isNewsCard ? (localLikedNewsSet.has(postId) || Boolean(existingLikeDoc)) : Boolean(existingLikeDoc);
+    const willBeLiked = !alreadyLiked;
 
-    // Optimistic in-memory update so any subsequent render reflects the change immediately without flicker
     if (willBeLiked) {
+      if (isNewsCard) {
+        localLikedNewsSet.add(postId);
+        saveLocalLikedNewsSet();
+      }
       likesByPost[postId] = [
-        ...existingList,
-        { docId: likeDocId, actorKey, alias: currentUser.username.slice(0, 30) }
+        ...existingList.filter(l => l.actorKey !== actorKey && l.docId !== likeDocId),
+        { docId: likeDocId, actorKey, alias: (currentUser?.username || 'Reader').slice(0, 30) }
       ];
       recordUserNewsInteraction(post, 'like');
     } else {
+      if (isNewsCard) {
+        localLikedNewsSet.delete(postId);
+        saveLocalLikedNewsSet();
+        removeUserNewsInteraction(postId, 'like');
+      }
       likesByPost[postId] = existingList.filter(
         l => l.actorKey !== actorKey && l.docId !== likeDocId
       );
@@ -11427,6 +11682,17 @@
       `;
     }
     renderStats();
+
+    // News likes stay local + personalize the user's news profile (Zero Firebase load!)
+    if (isNewsCard) {
+      if (willBeLiked) {
+        const likedEntities = extractClientPreferenceEntities(post.title || '', post.sourceName || '');
+        if (likedEntities.length > 0 && getRigidNewsCategoryKey(post) !== 'hotties') {
+          showToast(`♥ Saved! We'll show you more ${likedEntities[0]} news.`);
+        }
+      }
+      return;
+    }
 
     if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
       return;
@@ -11479,11 +11745,15 @@
     );
     const currentlyStarred = isPostStarredByCurrentUser(postId);
     const post = findPostAnywhere(postId);
+    const isNewsCard = isNewsCardPost(post, postId);
 
     if (currentlyStarred) {
       localStarredSet.delete(postId);
       saveLocalStarredSet();
       removePostFromPhoneStorage(postId);
+      if (isNewsCard) {
+        removeUserNewsInteraction(postId, 'star');
+      }
       if (starsByPost[postId]) {
         starsByPost[postId] = starsByPost[postId].filter(
           s => s.actorKey !== actorKey && s.actorKey !== legacyKey && s.docId !== starDocId
@@ -11512,6 +11782,11 @@
         btn.title = nowStarred ? 'Unstar this flow' : 'Star this flow';
         btn.setAttribute('aria-label', nowStarred ? 'Unstar this flow' : 'Star this flow');
       }
+    }
+
+    // News stars stay saved locally in Phone Storage + personalize feed (Zero Firebase load!)
+    if (isNewsCard) {
+      return;
     }
 
     if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
@@ -13066,13 +13341,12 @@
 
   function getCombinedNewsColumnPosts() {
     const aiLen = aiTechNewsItems ? aiTechNewsItems.length : 0;
-    const fsKeys = firestoreAiNewsMap ? Object.keys(firestoreAiNewsMap) : [];
     const postsLen = allPosts ? allPosts.length : 0;
     const firstPostId = postsLen > 0 ? allPosts[0].id : '';
-    const uKey = currentUser ? currentUser.usernameLower : 'guest';
+    const uKey = getCanonicalNewsProfileKey();
     const uDbTs = (typeof userNewsDb !== 'undefined' && userNewsDb) ? (userNewsDb.updatedAt || 0) : 0;
     const starredKeysCount = starredPostsArchiveMap ? Object.keys(starredPostsArchiveMap).length : 0;
-    const cacheSig = `${aiLen}:${aiNewsLastUpdated}:${fsKeys.length}:${postsLen}:${firstPostId}:${newsSortMode}:${newsDateSortOrder}:${uKey}:${uDbTs}:${starredKeysCount}`;
+    const cacheSig = `${aiLen}:${aiNewsLastUpdated}:${postsLen}:${firstPostId}:${newsSortMode}:${newsDateSortOrder}:${uKey}:${uDbTs}:${starredKeysCount}`;
 
     if (combinedNewsCacheList && combinedNewsCacheSig === cacheSig) {
       return combinedNewsCacheList;
@@ -13080,8 +13354,9 @@
 
     const mapById = new Map();
     const seenUrls = new Set();
+    const liveCountsByCategory = {};
 
-    // 1. Live API AI-Summarized Tech & AI News items ( strictly <= 10 days old OR starred in memory )
+    // 1. Live Server-Balanced & Personalized News items (Zero Firebase dependency)
     (aiTechNewsItems || []).forEach(item => {
       if (!item || !item.id) return;
       if (!isNewsWithin10DaysOrStarred(item)) return;
@@ -13090,6 +13365,7 @@
       if (normUrl) seenUrls.add(normUrl);
       const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
       const categoryKey = getRigidNewsCategoryKey(item);
+      liveCountsByCategory[categoryKey] = (liveCountsByCategory[categoryKey] || 0) + 1;
       const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody, categoryKey });
       mapById.set(item.id, {
         ...item,
@@ -13108,35 +13384,7 @@
       });
     });
 
-    // 2. Firestore-synced AI News items ( strictly <= 10 days old OR starred in memory )
-    Object.values(firestoreAiNewsMap || {}).forEach(item => {
-      if (!item || !item.id) return;
-      if (!isNewsWithin10DaysOrStarred(item)) return;
-      const pubMs = getPostTimestampMs(item) || Date.now();
-      const normUrl = String(item.linkUrl || '').trim().toLowerCase();
-      if (mapById.has(item.id) || (normUrl && seenUrls.has(normUrl))) return;
-      if (normUrl) seenUrls.add(normUrl);
-      const cleanedBody = cleanRoboticNewsBodyClient(item.body || '');
-      const categoryKey = getRigidNewsCategoryKey(item);
-      const scored = scoreNewsItemForCurrentUser({ ...item, body: cleanedBody, categoryKey });
-      mapById.set(item.id, {
-        ...item,
-        body: cleanedBody,
-        categoryKey,
-        tag: 'news',
-        isAiNews: true,
-        summarizedByAi: true,
-        docType: 'ai_news',
-        publishedAt: pubMs,
-        createdAt: pubMs,
-        ts: pubMs,
-        personalizedScore: scored.score,
-        matchReason: scored.matchReason || item.matchReason || '',
-        topics: scored.topics
-      });
-    });
-
-    // 3. Starred News items saved in user's phone memory (even if older than 10 days)
+    // 2. Starred News items saved in user's phone memory (even if older than 10 days)
     Object.values(starredPostsArchiveMap || {}).forEach(item => {
       if (!item || !item.id) return;
       const isNewsEntry = Boolean(item.isAiNews || item.docType === 'ai_news' || getEffectivePostCategory(item) === 'news');
@@ -13161,7 +13409,7 @@
       });
     });
 
-    // 4. Community-posted flows in the 'news' category (also shown in the News column if within 10 days or starred)
+    // 3. Community-posted flows in the 'news' category (within 10 days or starred)
     (allPosts || []).forEach(post => {
       if (getEffectivePostCategory(post) === 'news') {
         if (!isNewsWithin10DaysOrStarred(post)) return;
@@ -13179,12 +13427,14 @@
       }
     });
 
-    // 5. Guaranteed Multi-Sector Editorial Stories so Cinema (Hollywood & Bollywood), Marvel, Facts, Science, Games & Hotties are always populated
+    // 4. Offline-only backfill: ONLY inject static seeds for a category if live news has < 3 stories for that category
     getClientGuaranteedMultiSectorPosts().forEach(seedPost => {
+      const categoryKey = getRigidNewsCategoryKey(seedPost);
+      if ((liveCountsByCategory[categoryKey] || 0) >= 3) return;
       const normUrl = String(seedPost.linkUrl || '').trim().toLowerCase();
       if (!mapById.has(seedPost.id) && (!normUrl || !seenUrls.has(normUrl))) {
         if (normUrl) seenUrls.add(normUrl);
-        const categoryKey = getRigidNewsCategoryKey(seedPost);
+        liveCountsByCategory[categoryKey] = (liveCountsByCategory[categoryKey] || 0) + 1;
         const scored = scoreNewsItemForCurrentUser({ ...seedPost, categoryKey });
         mapById.set(seedPost.id, {
           ...seedPost,
@@ -13200,7 +13450,7 @@
     combinedNewsCacheList = Array.from(mapById.values()).sort((a, b) => {
       if (newsSortMode === 'personalized') {
         const sDiff = (b.personalizedScore || 0) - (a.personalizedScore || 0);
-        if (Math.abs(sDiff) >= 8) return sDiff;
+        if (Math.abs(sDiff) >= 6) return sDiff;
       }
       const aTime = getPostTimestampMs(a);
       const bTime = getPostTimestampMs(b);
@@ -14209,8 +14459,10 @@
 
     try {
       const baseOrigin = getApiBaseOrigin();
-      const userKeyParam = encodeURIComponent(getCurrentActorKey());
-      const endpoint = `${baseOrigin}/api/ai-tech-news?user=${userKeyParam}${forceRefresh ? `&refresh=1&t=${Date.now()}` : `&t=${Date.now()}`}`;
+      const userKeyParam = encodeURIComponent(getCanonicalNewsProfileKey());
+      const topPrefs = getTopPreferredEntitiesForQuery(3);
+      const prefsParam = topPrefs.length > 0 ? `&prefs=${encodeURIComponent(topPrefs.join(','))}` : '';
+      const endpoint = `${baseOrigin}/api/ai-tech-news?user=${userKeyParam}${prefsParam}${forceRefresh ? `&refresh=1&t=${Date.now()}` : `&t=${Date.now()}`}`;
       let fetchedItems = null;
       let updatedTs = Date.now();
 
@@ -14222,7 +14474,17 @@
             fetchedItems = data.items;
             updatedTs = data.updatedAt || data.lastUpdated || Date.now();
             if (data.userProfile && typeof data.userProfile === 'object') {
-              userNewsDb.aiProfile = data.userProfile;
+              const serverProf = data.userProfile;
+              userNewsDb.aiProfile = {
+                ...(userNewsDb.aiProfile || {}),
+                ...serverProf,
+                preferredEntities: (Array.isArray(serverProf.preferredEntities) && serverProf.preferredEntities.length > 0)
+                  ? serverProf.preferredEntities
+                  : (userNewsDb.preferredEntities || []),
+                entityWeights: (serverProf.entityWeights && Object.keys(serverProf.entityWeights).length > 0)
+                  ? serverProf.entityWeights
+                  : (userNewsDb.entityWeights || {})
+              };
               saveUserNewsDbToLocal();
             }
           }
@@ -14271,7 +14533,11 @@
           nextItems.push(starredItem);
         });
 
-        aiTechNewsItems = nextItems.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+        aiTechNewsItems = nextItems;
+        hasSyncedNewsOnThisVisit = true;
+        if (typeof window.resetLockedNewsScores === 'function') {
+          window.resetLockedNewsScores();
+        }
 
         aiNewsLastUpdated = updatedTs;
         try {
@@ -14281,12 +14547,12 @@
           }));
         } catch (e) {}
 
-        // News feed stays in server.js (/api/ai-news), localStorage cache, and Phone Storage archive
-        // (avoids burning Firestore Spark write/read quota with hundreds of __ainews__ documents).
+        // News feed stays in server.js (/api/ai-tech-news), localStorage cache, and Phone Storage archive
+        // (Zero Firebase Firestore load for news).
 
         if (forceRefresh) {
-          analyzeUserNewsTasteWithAi(true).catch(() => {});
-          showToast('✨ Updated with latest stories across Cinema, Marvel, Science, Games, Hotties & Tech!');
+          analyzeUserNewsTasteWithAi(false).catch(() => {});
+          showToast('✨ Synced balanced & personalized news across all categories!');
         }
         renderAll();
       } else if (forceRefresh) {
@@ -14581,8 +14847,12 @@
   function buildAiPersonalizationBannerElement() {
     const bar = document.createElement('div');
     bar.className = 'news-sort-options-bar';
+    const topEntities = getTopPreferredEntitiesForQuery(3);
+    const prefHint = (newsSortMode === 'personalized' && topEntities.length > 0 && activeNewsSector !== 'hotties')
+      ? `<span class="news-sort-options-label" style="font-size:12px; opacity:0.86;">✨ Tailored for: ${esc(topEntities.join(', '))}</span>`
+      : `<span class="news-sort-options-label">📰 Sort Feed</span>`;
     bar.innerHTML = `
-      <span class="news-sort-options-label">📰 Sort Feed</span>
+      ${prefHint}
       <div class="news-sort-options-group" role="tablist" aria-label="News Feed Sort Options">
         <button type="button" class="btn-ai-sort-mode ${newsSortMode === 'personalized' ? 'active' : ''}" onclick="setNewsSortMode('personalized')">✨ For You</button>
         <button type="button" class="btn-ai-sort-mode ${newsSortMode === 'date' ? 'active' : ''}" onclick="setNewsSortMode('date')">🕒 Latest by Date</button>
@@ -15185,13 +15455,23 @@
       const safeSvgFallback = esc(bInfo.svgFallbackUrl);
       const safeTopic = esc(bInfo.topicLabel);
       const safeSource = esc(post.sourceName || (post.linkUrl ? formatHostname(post.linkUrl) : 'Verified Source'));
+      const showMatchCue = Boolean(
+        isAiNewsCard &&
+        newsSortMode === 'personalized' &&
+        post.matchReason &&
+        post.categoryKey !== 'hotties' &&
+        activeNewsSector !== 'hotties'
+      );
+      const secondaryPillText = showMatchCue
+        ? `✨ ${esc(post.matchReason)}`
+        : '📖 Full Briefing · Verified';
       newsHeroBannerHTML = `
         <div class="news-hero-banner-wrap" onclick="openLightbox('${safeBanner}')" title="Tap to view full banner image">
           <img class="news-hero-banner-img" src="${safeBanner}" alt="${esc(post.title || 'Tech & AI News Banner')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src='${safeFallback}';}else{this.onerror=null;this.src='${safeSvgFallback}';}" />
           <div class="news-hero-gradient-overlay"></div>
           <div class="news-hero-badges-top">
             <span class="news-hero-topic-pill">✦ ${safeTopic}</span>
-            <span class="news-spicy-pill">📖 Full Briefing · Verified</span>
+            <span class="news-spicy-pill">${secondaryPillText}</span>
           </div>
           <div class="news-hero-caption-bottom">
             <span>📰 ${safeSource}</span>
@@ -17012,19 +17292,9 @@
       window.syncTopSliderPill();
     }
   }, 100);
+  // Load balanced & personalized news strictly when the user opens the website (no background timers / zero Firebase news load)
   fetchAndSyncAiTechNews(false);
-  analyzeUserNewsTasteWithAi(false).catch(() => {});
   pollBackgroundNotificationsClient();
-  // ── AUTOMATIC ADDITION OF NEWS IN DIFFERENT CATEGORIES DAILY EVERY 15 MINS ──
-  const NEWS_AUTO_ADD_INTERVAL_MS = 15 * 60 * 1000;
-  setInterval(() => {
-    fetchAndSyncAiTechNews(true).then(() => {
-      if (activeFilter === 'news') {
-        showToast('✨ Fresh news added across Cinema, Marvel, Science, Games & Tech');
-      }
-    }).catch(() => {});
-    analyzeUserNewsTasteWithAi(false).catch(() => {});
-  }, NEWS_AUTO_ADD_INTERVAL_MS);
 </script>
 <script>
 /* Paper Flow — Motion & Polish layer (purely additive, no app logic touched) */

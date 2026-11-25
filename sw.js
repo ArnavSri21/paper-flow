@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paperflow-app-shell-v10';
+const CACHE_NAME = 'paperflow-app-shell-v11';
 const FONT_CACHE_NAME = 'paperflow-fonts-v1';
 const NOTIF_META_CACHE = 'paperflow-notif-meta-v1';
 const CLOUD_API_ORIGIN = 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app';

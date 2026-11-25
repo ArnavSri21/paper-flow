@@ -1,0 +1,151 @@
+{
+  "channels": [
+    {
+      "slug": "gaming",
+      "name": "Gaming & GTA Vault",
+      "tagline": "GTA 6, consoles, PC builds, leaks & honest reviews",
+      "description": "A public community channel for gamers tracking GTA 6, PlayStation, Xbox, Nintendo, indie gems, and live gameplay discussions.",
+      "icon": "🎮",
+      "accent": "#ea580c",
+      "coverGradient": "linear-gradient(135deg, #431407 0%, #9a3412 52%, #ea580c 100%)",
+      "coverImage": "",
+      "category": "games",
+      "linkedNewsSectors": [
+        "games"
+      ],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 148,
+      "followers": [],
+      "rules": [
+        "Tag major story spoilers clearly in your headline.",
+        "Share clips, screenshots, and honest first-hand impressions.",
+        "Keep platform debates respectful and fun."
+      ],
+      "createdAt": 1730000000000
+    },
+    {
+      "slug": "cinema",
+      "name": "Cinema & Marvel Club",
+      "tagline": "Hollywood, Bollywood, MCU theories & box office takes",
+      "description": "Trailers, weekend box office breakdowns, Marvel Phase theories, Bollywood premieres, and frame-by-frame cinematography.",
+      "icon": "🎬",
+      "accent": "#dc2626",
+      "coverGradient": "linear-gradient(135deg, #2a0a0a 0%, #7f1d1d 55%, #dc2626 100%)",
+      "coverImage": "",
+      "category": "cinema",
+      "linkedNewsSectors": [
+        "hollywood",
+        "bollywood",
+        "marvel"
+      ],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 214,
+      "followers": [],
+      "rules": [
+        "Mark opening-week spoilers in the title.",
+        "Credit photographers, editors, and original studios.",
+        "Critique the film, never attack fellow viewers."
+      ],
+      "createdAt": 1730000100000
+    },
+    {
+      "slug": "ai-builders",
+      "name": "AI & Tech Builders",
+      "tagline": "LLMs, coding agents, hardware drops & ship logs",
+      "description": "Open-source releases, silicon benchmarks, developer workflows, and candid discussions on where AI and software are heading next.",
+      "icon": "⚡",
+      "accent": "#2563eb",
+      "coverGradient": "linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%)",
+      "coverImage": "",
+      "category": "ai",
+      "linkedNewsSectors": [
+        "ai",
+        "tech"
+      ],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 186,
+      "followers": [],
+      "rules": [
+        "Share real demos, benchmarks, or reproducible insights.",
+        "No spammy affiliate links or unverified hype.",
+        "Help newcomers debug and learn openly."
+      ],
+      "createdAt": 1730000200000
+    },
+    {
+      "slug": "confessions",
+      "name": "Midnight Confessions",
+      "tagline": "Unfiltered thoughts, real stories & late-night advice",
+      "description": "Paper Flow’s signature open channel for honest confessions, life dilemmas, and supportive community replies.",
+      "icon": "🕯️",
+      "accent": "#7c3aed",
+      "coverGradient": "linear-gradient(135deg, #1e1033 0%, #4c1d95 55%, #7c3aed 100%)",
+      "coverImage": "",
+      "category": "confession",
+      "linkedNewsSectors": [],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 263,
+      "followers": [],
+      "rules": [
+        "Lead with empathy — real people are behind every handle.",
+        "Never post real names, phone numbers, or private addresses.",
+        "Zero harassment, doxxing, or malice."
+      ],
+      "createdAt": 1730000300000
+    },
+    {
+      "slug": "science-facts",
+      "name": "Science & Weird Facts",
+      "tagline": "Space discoveries, physics, history & strange truths",
+      "description": "From James Webb deep-field images to forgotten historical mysteries and everyday science explained clearly.",
+      "icon": "🔭",
+      "accent": "#0d9488",
+      "coverGradient": "linear-gradient(135deg, #042f2e 0%, #115e59 55%, #0d9488 100%)",
+      "coverImage": "",
+      "category": "science",
+      "linkedNewsSectors": [
+        "science",
+        "facts"
+      ],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 132,
+      "followers": [],
+      "rules": [
+        "Include a source or context when sharing surprising facts.",
+        "Curious questions are always welcome.",
+        "Separate peer-reviewed science from speculation."
+      ],
+      "createdAt": 1730000400000
+    },
+    {
+      "slug": "paperflow-official",
+      "name": "Paper Flow Official",
+      "tagline": "Product drops, changelogs & community feedback",
+      "description": "Follow the official broadcast channel for Paper Flow releases, Android APK drops, and feature polls from @Marvelist.",
+      "icon": "✦",
+      "accent": "#c84b2f",
+      "coverGradient": "linear-gradient(135deg, #27120c 0%, #7c2d12 55%, #c84b2f 100%)",
+      "coverImage": "",
+      "category": "updates",
+      "linkedNewsSectors": [],
+      "creatorUsername": "marvelist",
+      "verified": true,
+      "seedFollowerBase": 310,
+      "followers": [],
+      "rules": [
+        "Drop bug reports and feature wishes in the replies.",
+        "Check pinned flows for the latest Android APK build."
+      ],
+      "createdAt": 1730000500000
+    }
+  ],
+  "userFollows": {},
+  "postVotes": {},
+  "postChannels": {},
+  "channelPosts": []
+}

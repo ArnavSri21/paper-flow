@@ -3489,12 +3489,13 @@ app.get('/api/sudoku-info', (req, res) => {
 
 app.get('/api/app-version', (req, res) => {
   res.json({
-    latestVersionCode: 4,
-    latestVersionName: '1.0.5',
+    latestVersionCode: 5,
+    latestVersionName: '1.0.6',
     tag: 'Updated',
-    apkUrl: 'https://paperflow.hs.vc/Paper-Flow.apk?v=1.0.5',
-    title: 'Paper Flow v1.0.5 (Updated)',
-    releaseNotes: 'Updated with Native Snapshot Share Sheet, AI-Personalized News Feed & Per-User Taste Database, Offline Phone Storage for Starred Flows, Natural AI News Summaries, and Background Notifications when the app is closed.'
+    apkUrl: '/Paper-Flow.apk?v=1.0.6',
+    liveApkUrl: 'https://ais-pre-eotzocrlczliqnkorx2spj-296724490539.asia-east1.run.app/Paper-Flow.apk?v=1.0.6',
+    title: 'Paper Flow v1.0.6 (Updated)',
+    releaseNotes: 'Exact 1:1 parity with the website: Public Followable Channels (c/), Instagram × Reddit UI with Upvote/Downvote & Media Gallery, Balanced & Personalized News, Offline Starred Flows, and Native Image Share.'
   });
 });
 
@@ -3926,6 +3927,478 @@ app.get('/api/background-notifications', (req, res) => {
     notifications: matching.slice(0, 20),
     latestDeveloperFlow: cachedDeveloperFlows[0] || null
   });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PUBLIC FOLLOWABLE CHANNELS (INSTAGRAM × REDDIT HYBRID) — ZERO FIREBASE LOAD
+// ══════════════════════════════════════════════════════════════════════════════
+const PUBLIC_CHANNELS_DB_PATH = path.join(__dirname, 'public_channels_db.json');
+
+const DEFAULT_PUBLIC_CHANNELS = [
+  {
+    slug: 'gaming',
+    name: 'Gaming & GTA Vault',
+    tagline: 'GTA 6, consoles, PC builds, leaks & honest reviews',
+    description: 'A public community channel for gamers tracking GTA 6, PlayStation, Xbox, Nintendo, indie gems, and live gameplay discussions.',
+    icon: '🎮',
+    accent: '#ea580c',
+    coverGradient: 'linear-gradient(135deg, #431407 0%, #9a3412 52%, #ea580c 100%)',
+    coverImage: '',
+    category: 'games',
+    linkedNewsSectors: ['games'],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 148,
+    followers: [],
+    rules: [
+      'Tag major story spoilers clearly in your headline.',
+      'Share clips, screenshots, and honest first-hand impressions.',
+      'Keep platform debates respectful and fun.'
+    ],
+    createdAt: 1730000000000
+  },
+  {
+    slug: 'cinema',
+    name: 'Cinema & Marvel Club',
+    tagline: 'Hollywood, Bollywood, MCU theories & box office takes',
+    description: 'Trailers, weekend box office breakdowns, Marvel Phase theories, Bollywood premieres, and frame-by-frame cinematography.',
+    icon: '🎬',
+    accent: '#dc2626',
+    coverGradient: 'linear-gradient(135deg, #2a0a0a 0%, #7f1d1d 55%, #dc2626 100%)',
+    coverImage: '',
+    category: 'cinema',
+    linkedNewsSectors: ['hollywood', 'bollywood', 'marvel'],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 214,
+    followers: [],
+    rules: [
+      'Mark opening-week spoilers in the title.',
+      'Credit photographers, editors, and original studios.',
+      'Critique the film, never attack fellow viewers.'
+    ],
+    createdAt: 1730000100000
+  },
+  {
+    slug: 'ai-builders',
+    name: 'AI & Tech Builders',
+    tagline: 'LLMs, coding agents, hardware drops & ship logs',
+    description: 'Open-source releases, silicon benchmarks, developer workflows, and candid discussions on where AI and software are heading next.',
+    icon: '⚡',
+    accent: '#2563eb',
+    coverGradient: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%)',
+    coverImage: '',
+    category: 'ai',
+    linkedNewsSectors: ['ai', 'tech'],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 186,
+    followers: [],
+    rules: [
+      'Share real demos, benchmarks, or reproducible insights.',
+      'No spammy affiliate links or unverified hype.',
+      'Help newcomers debug and learn openly.'
+    ],
+    createdAt: 1730000200000
+  },
+  {
+    slug: 'confessions',
+    name: 'Midnight Confessions',
+    tagline: 'Unfiltered thoughts, real stories & late-night advice',
+    description: 'Paper Flow’s signature open channel for honest confessions, life dilemmas, and supportive community replies.',
+    icon: '🕯️',
+    accent: '#7c3aed',
+    coverGradient: 'linear-gradient(135deg, #1e1033 0%, #4c1d95 55%, #7c3aed 100%)',
+    coverImage: '',
+    category: 'confession',
+    linkedNewsSectors: [],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 263,
+    followers: [],
+    rules: [
+      'Lead with empathy — real people are behind every handle.',
+      'Never post real names, phone numbers, or private addresses.',
+      'Zero harassment, doxxing, or malice.'
+    ],
+    createdAt: 1730000300000
+  },
+  {
+    slug: 'science-facts',
+    name: 'Science & Weird Facts',
+    tagline: 'Space discoveries, physics, history & strange truths',
+    description: 'From James Webb deep-field images to forgotten historical mysteries and everyday science explained clearly.',
+    icon: '🔭',
+    accent: '#0d9488',
+    coverGradient: 'linear-gradient(135deg, #042f2e 0%, #115e59 55%, #0d9488 100%)',
+    coverImage: '',
+    category: 'science',
+    linkedNewsSectors: ['science', 'facts'],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 132,
+    followers: [],
+    rules: [
+      'Include a source or context when sharing surprising facts.',
+      'Curious questions are always welcome.',
+      'Separate peer-reviewed science from speculation.'
+    ],
+    createdAt: 1730000400000
+  },
+  {
+    slug: 'paperflow-official',
+    name: 'Paper Flow Official',
+    tagline: 'Product drops, changelogs & community feedback',
+    description: 'Follow the official broadcast channel for Paper Flow releases, Android APK drops, and feature polls from @Marvelist.',
+    icon: '✦',
+    accent: '#c84b2f',
+    coverGradient: 'linear-gradient(135deg, #27120c 0%, #7c2d12 55%, #c84b2f 100%)',
+    coverImage: '',
+    category: 'updates',
+    linkedNewsSectors: [],
+    creatorUsername: 'marvelist',
+    verified: true,
+    seedFollowerBase: 310,
+    followers: [],
+    rules: [
+      'Drop bug reports and feature wishes in the replies.',
+      'Check pinned flows for the latest Android APK build.'
+    ],
+    createdAt: 1730000500000
+  }
+];
+
+function createDefaultChannelsDb() {
+  return {
+    channels: DEFAULT_PUBLIC_CHANNELS.map((c) => ({ ...c, followers: [...(c.followers || [])], rules: [...(c.rules || [])] })),
+    userFollows: {},       // followerKey -> [targetUsernameLower, ...]
+    postVotes: {},         // postId -> { up: [actorKey], down: [actorKey] }
+    postChannels: {},      // postId -> channelSlug
+    channelPosts: []       // mirrored user posts published to channels (survives Firestore quota limits)
+  };
+}
+
+function loadPublicChannelsDb() {
+  try {
+    if (fs.existsSync(PUBLIC_CHANNELS_DB_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(PUBLIC_CHANNELS_DB_PATH, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        const db = createDefaultChannelsDb();
+        const existingMap = new Map();
+        (Array.isArray(parsed.channels) ? parsed.channels : []).forEach((ch) => {
+          if (ch && ch.slug) existingMap.set(String(ch.slug).toLowerCase(), ch);
+        });
+        // Ensure all flagship default channels exist
+        for (const def of DEFAULT_PUBLIC_CHANNELS) {
+          if (!existingMap.has(def.slug)) {
+            existingMap.set(def.slug, { ...def, followers: [], rules: [...def.rules] });
+          }
+        }
+        db.channels = Array.from(existingMap.values());
+        db.userFollows = (parsed.userFollows && typeof parsed.userFollows === 'object') ? parsed.userFollows : {};
+        db.postVotes = (parsed.postVotes && typeof parsed.postVotes === 'object') ? parsed.postVotes : {};
+        db.postChannels = (parsed.postChannels && typeof parsed.postChannels === 'object') ? parsed.postChannels : {};
+        db.channelPosts = Array.isArray(parsed.channelPosts) ? parsed.channelPosts.slice(0, 200) : [];
+        return db;
+      }
+    }
+  } catch (e) {}
+  return createDefaultChannelsDb();
+}
+
+let publicChannelsDb = loadPublicChannelsDb();
+
+function savePublicChannelsDb() {
+  try {
+    fs.writeFileSync(PUBLIC_CHANNELS_DB_PATH, JSON.stringify(publicChannelsDb, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('Could not persist public_channels_db.json:', e.message);
+  }
+}
+
+function normalizeChannelSlug(raw) {
+  return String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^c\//, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 28);
+}
+
+function normalizeSocialActorKey(raw) {
+  return String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_:-]/g, '')
+    .slice(0, 64);
+}
+
+function buildChannelsResponsePayload(actorKey) {
+  const cleanActor = normalizeSocialActorKey(actorKey);
+  const channels = (publicChannelsDb.channels || []).map((ch) => {
+    const followersArr = Array.isArray(ch.followers) ? ch.followers : [];
+    const isFollowing = Boolean(cleanActor && followersArr.includes(cleanActor));
+    const memberCount = (Number(ch.seedFollowerBase) || 0) + followersArr.length;
+    return {
+      slug: ch.slug,
+      name: ch.name,
+      tagline: ch.tagline || '',
+      description: ch.description || '',
+      icon: ch.icon || '✦',
+      accent: ch.accent || '#c84b2f',
+      coverGradient: ch.coverGradient || `linear-gradient(135deg, #1a1209 0%, ${ch.accent || '#c84b2f'} 100%)`,
+      coverImage: ch.coverImage || '',
+      category: ch.category || 'other',
+      linkedNewsSectors: Array.isArray(ch.linkedNewsSectors) ? ch.linkedNewsSectors : [],
+      creatorUsername: ch.creatorUsername || 'marvelist',
+      verified: Boolean(ch.verified),
+      memberCount,
+      isFollowing,
+      rules: Array.isArray(ch.rules) ? ch.rules : [],
+      createdAt: ch.createdAt || Date.now()
+    };
+  });
+
+  // Compute creator follower counts and which creators this actor follows
+  const creatorFollowerCounts = {};
+  Object.values(publicChannelsDb.userFollows || {}).forEach((list) => {
+    if (!Array.isArray(list)) return;
+    list.forEach((target) => {
+      const t = String(target || '').toLowerCase();
+      if (t) creatorFollowerCounts[t] = (creatorFollowerCounts[t] || 0) + 1;
+    });
+  });
+  const followedUsers = cleanActor && Array.isArray(publicChannelsDb.userFollows?.[cleanActor])
+    ? publicChannelsDb.userFollows[cleanActor]
+    : [];
+
+  // Compact vote summary map for all voted posts
+  const postVotesSummary = {};
+  Object.entries(publicChannelsDb.postVotes || {}).forEach(([postId, rec]) => {
+    const up = Array.isArray(rec?.up) ? rec.up : [];
+    const down = Array.isArray(rec?.down) ? rec.down : [];
+    const userVote = cleanActor
+      ? (up.includes(cleanActor) ? 1 : (down.includes(cleanActor) ? -1 : 0))
+      : 0;
+    postVotesSummary[postId] = {
+      score: up.length - down.length,
+      upvotes: up.length,
+      downvotes: down.length,
+      userVote
+    };
+  });
+
+  return {
+    ok: true,
+    channels,
+    followedUsers,
+    creatorFollowerCounts,
+    postVotes: postVotesSummary,
+    postChannels: publicChannelsDb.postChannels || {},
+    channelPosts: (publicChannelsDb.channelPosts || []).slice(0, 120)
+  };
+}
+
+app.get('/api/channels', (req, res) => {
+  const actorKey = req.query.user || req.query.actor || '';
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(buildChannelsResponsePayload(actorKey));
+});
+
+app.post('/api/channels', express.json({ limit: '2mb' }), (req, res) => {
+  const body = req.body || {};
+  const rawName = String(body.name || '').trim().slice(0, 48);
+  const slug = normalizeChannelSlug(body.slug || rawName);
+  const actorKey = normalizeSocialActorKey(body.actorKey || body.creatorUsername || '');
+  const creatorUsername = String(body.creatorUsername || 'anonymous').trim().toLowerCase().replace(/^@/, '').slice(0, 28) || 'anonymous';
+
+  if (!rawName || rawName.length < 2) {
+    return res.status(400).json({ ok: false, error: 'Channel name must be at least 2 characters.' });
+  }
+  if (!slug || slug.length < 2) {
+    return res.status(400).json({ ok: false, error: 'Channel handle must contain at least 2 letters or numbers.' });
+  }
+  if (slug === 'hotties' || /\b(nsfw|porn|xxx|nude|adult)\b/i.test(`${slug} ${rawName}`)) {
+    return res.status(400).json({ ok: false, error: 'That channel name is reserved.' });
+  }
+  const exists = (publicChannelsDb.channels || []).some((c) => c.slug === slug);
+  if (exists) {
+    return res.status(409).json({ ok: false, error: `c/${slug} already exists. Try another handle.` });
+  }
+
+  const accent = /^#[0-9a-fA-F]{6}$/.test(String(body.accent || '')) ? String(body.accent) : '#c84b2f';
+  const icon = String(body.icon || '✦').trim().slice(0, 4) || '✦';
+  const tagline = String(body.tagline || '').trim().slice(0, 110);
+  const description = String(body.description || tagline || `Public channel for ${rawName}`).trim().slice(0, 360);
+  const coverImage = String(body.coverImage || '').trim().slice(0, 600000);
+  const category = ['other', 'confession', 'story', 'opinion', 'question', 'games', 'cinema', 'ai', 'science', 'updates'].includes(String(body.category || ''))
+    ? String(body.category)
+    : 'other';
+  const rawRules = Array.isArray(body.rules)
+    ? body.rules
+    : String(body.rules || '').split('\n');
+  const rules = rawRules.map((r) => String(r || '').trim().slice(0, 140)).filter(Boolean).slice(0, 6);
+
+  const newChannel = {
+    slug,
+    name: rawName,
+    tagline,
+    description,
+    icon,
+    accent,
+    coverGradient: `linear-gradient(135deg, #171310 0%, ${accent} 100%)`,
+    coverImage,
+    category,
+    linkedNewsSectors: [],
+    creatorUsername,
+    verified: creatorUsername === 'marvelist',
+    seedFollowerBase: 0,
+    followers: actorKey ? [actorKey] : [],
+    rules: rules.length > 0 ? rules : ['Be respectful and keep discussions constructive.', 'Stay on topic for this channel.'],
+    createdAt: Date.now()
+  };
+
+  publicChannelsDb.channels.unshift(newChannel);
+  savePublicChannelsDb();
+  res.status(201).json({
+    ok: true,
+    channel: {
+      ...newChannel,
+      memberCount: newChannel.followers.length,
+      isFollowing: Boolean(actorKey)
+    },
+    state: buildChannelsResponsePayload(actorKey)
+  });
+});
+
+app.post('/api/channels/:slug/follow', express.json(), (req, res) => {
+  const slug = normalizeChannelSlug(req.params.slug);
+  const actorKey = normalizeSocialActorKey(req.body?.actorKey || req.body?.user || '');
+  if (!actorKey) {
+    return res.status(400).json({ ok: false, error: 'Missing user identifier.' });
+  }
+  const ch = (publicChannelsDb.channels || []).find((c) => c.slug === slug);
+  if (!ch) {
+    return res.status(404).json({ ok: false, error: 'Channel not found.' });
+  }
+  if (!Array.isArray(ch.followers)) ch.followers = [];
+  const idx = ch.followers.indexOf(actorKey);
+  let isFollowing;
+  if (idx >= 0) {
+    ch.followers.splice(idx, 1);
+    isFollowing = false;
+  } else {
+    ch.followers.push(actorKey);
+    isFollowing = true;
+  }
+  savePublicChannelsDb();
+  res.json({
+    ok: true,
+    slug: ch.slug,
+    isFollowing,
+    memberCount: (Number(ch.seedFollowerBase) || 0) + ch.followers.length
+  });
+});
+
+app.post('/api/users/:username/follow', express.json(), (req, res) => {
+  const target = String(req.params.username || '').trim().toLowerCase().replace(/^@/, '').slice(0, 32);
+  const actorKey = normalizeSocialActorKey(req.body?.actorKey || req.body?.user || '');
+  if (!target || !actorKey) {
+    return res.status(400).json({ ok: false, error: 'Missing username or actor.' });
+  }
+  if (!publicChannelsDb.userFollows || typeof publicChannelsDb.userFollows !== 'object') {
+    publicChannelsDb.userFollows = {};
+  }
+  const list = Array.isArray(publicChannelsDb.userFollows[actorKey]) ? [...publicChannelsDb.userFollows[actorKey]] : [];
+  const idx = list.indexOf(target);
+  let isFollowing;
+  if (idx >= 0) {
+    list.splice(idx, 1);
+    isFollowing = false;
+  } else {
+    list.push(target);
+    isFollowing = true;
+  }
+  publicChannelsDb.userFollows[actorKey] = list;
+  savePublicChannelsDb();
+
+  let followerCount = 0;
+  Object.values(publicChannelsDb.userFollows).forEach((arr) => {
+    if (Array.isArray(arr) && arr.includes(target)) followerCount++;
+  });
+  res.json({
+    ok: true,
+    username: target,
+    isFollowing,
+    followerCount,
+    followedUsers: list
+  });
+});
+
+app.post('/api/posts/:postId/vote', express.json(), (req, res) => {
+  const postId = String(req.params.postId || '').trim().slice(0, 128);
+  const actorKey = normalizeSocialActorKey(req.body?.actorKey || req.body?.user || '');
+  const direction = Number(req.body?.direction || 0); // 1, -1, or 0
+  if (!postId || !actorKey || ![-1, 0, 1].includes(direction)) {
+    return res.status(400).json({ ok: false, error: 'Invalid vote payload.' });
+  }
+  if (!publicChannelsDb.postVotes || typeof publicChannelsDb.postVotes !== 'object') {
+    publicChannelsDb.postVotes = {};
+  }
+  const rec = publicChannelsDb.postVotes[postId] || { up: [], down: [] };
+  rec.up = (Array.isArray(rec.up) ? rec.up : []).filter((k) => k !== actorKey);
+  rec.down = (Array.isArray(rec.down) ? rec.down : []).filter((k) => k !== actorKey);
+  if (direction === 1) rec.up.push(actorKey);
+  if (direction === -1) rec.down.push(actorKey);
+  publicChannelsDb.postVotes[postId] = rec;
+  savePublicChannelsDb();
+
+  res.json({
+    ok: true,
+    postId,
+    score: rec.up.length - rec.down.length,
+    upvotes: rec.up.length,
+    downvotes: rec.down.length,
+    userVote: direction
+  });
+});
+
+app.post('/api/channels/:slug/posts', express.json({ limit: '2mb' }), (req, res) => {
+  const slug = normalizeChannelSlug(req.params.slug);
+  const post = req.body?.post;
+  if (!slug || !post || !post.id) {
+    return res.status(400).json({ ok: false, error: 'Invalid channel post payload.' });
+  }
+  if (!publicChannelsDb.postChannels || typeof publicChannelsDb.postChannels !== 'object') {
+    publicChannelsDb.postChannels = {};
+  }
+  publicChannelsDb.postChannels[post.id] = slug;
+  const cleanPost = {
+    id: String(post.id).slice(0, 128),
+    title: post.title ? String(post.title).slice(0, 120) : null,
+    body: String(post.body || ' ').slice(0, 5000),
+    hasEmptyBody: Boolean(post.hasEmptyBody),
+    tag: String(post.tag || 'other').slice(0, 24),
+    customCategory: post.customCategory ? String(post.customCategory).slice(0, 24) : null,
+    channelSlug: slug,
+    alias: String(post.alias || 'Anonymous').slice(0, 30),
+    authorUsername: post.authorUsername ? String(post.authorUsername).toLowerCase().slice(0, 32) : '',
+    authorAvatar: post.authorAvatar ? String(post.authorAvatar).slice(0, 600000) : '',
+    authorBio: post.authorBio ? String(post.authorBio).slice(0, 300) : '',
+    ownerToken: String(post.ownerToken || '').slice(0, 80),
+    imageUrl: post.imageUrl ? String(post.imageUrl).slice(0, 800000) : null,
+    linkUrl: post.linkUrl ? String(post.linkUrl).slice(0, 500) : null,
+    linkTitle: post.linkTitle ? String(post.linkTitle).slice(0, 100) : null,
+    ts: Number(post.ts || post.createdAt) || Date.now(),
+    createdAt: Number(post.createdAt || post.ts) || Date.now()
+  };
+  publicChannelsDb.channelPosts = [
+    cleanPost,
+    ...(publicChannelsDb.channelPosts || []).filter((p) => p && p.id !== cleanPost.id)
+  ].slice(0, 200);
+  savePublicChannelsDb();
+  res.json({ ok: true, post: cleanPost });
 });
 
 async function serveAppWithSeo(req, res) {

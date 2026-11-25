@@ -1401,6 +1401,72 @@ def patch_classes_dex(dex_path: str):
 
 
 
+def patch_binary_manifest(manifest_path: str, version_code: int = 5, version_name: str = '1.0.6'):
+    """Safely updates versionCode and same-length versionName in binary AndroidManifest.xml."""
+    with open(manifest_path, 'rb') as f:
+        data = bytearray(f.read())
+
+    pos = 8
+    str_pool_start = None
+    str_pool_sstart = None
+    str_pool_is_utf8 = False
+    strings = []
+    str_offsets = []
+    res_ids = []
+    version_name_idx = None
+
+    while pos + 8 <= len(data):
+        ctype, hdr_sz, csize = struct.unpack_from('<HHI', data, pos)
+        if csize == 0:
+            break
+        if ctype == 0x0001:  # StringPool
+            str_pool_start = pos
+            scnt, _, flags, sstart, _ = struct.unpack_from('<IIIII', data, pos + 8)
+            str_pool_sstart = sstart
+            str_pool_is_utf8 = bool(flags & (1 << 8))
+            for i in range(scnt):
+                off = struct.unpack_from('<I', data, pos + 28 + i * 4)[0]
+                p = pos + sstart + off
+                str_offsets.append(p)
+                if str_pool_is_utf8:
+                    n = data[p]; p += 1
+                    if n & 0x80: p += 1
+                    n2 = data[p]; p += 1
+                    if n2 & 0x80: n2 = ((n2 & 0x7f) << 8) | data[p]; p += 1
+                    strings.append(data[p:p + n2].decode('utf-8', 'replace'))
+                else:
+                    n = struct.unpack_from('<H', data, p)[0]; p += 2
+                    strings.append(data[p:p + n * 2].decode('utf-16le', 'replace'))
+        elif ctype == 0x0180:  # ResourceMap
+            cnt = (csize - 8) // 4
+            res_ids = list(struct.unpack_from(f'<{cnt}I', data, pos + 8))
+        elif ctype == 0x0102:  # StartElement
+            name_idx = struct.unpack_from('<I', data, pos + 20)[0]
+            attr_start, attr_size, attr_cnt = struct.unpack_from('<HHH', data, pos + 24)
+            tag = strings[name_idx] if name_idx < len(strings) else ''
+            if tag == 'manifest':
+                for i in range(attr_cnt):
+                    ao = pos + 16 + attr_start + i * attr_size
+                    ns, aname, raw_val, tsize, _, dtype, val = struct.unpack_from('<IIIHBBi', data, ao)
+                    rid = res_ids[aname] if aname < len(res_ids) else 0
+                    if rid == 0x0101021b and dtype == 0x10:  # android:versionCode
+                        struct.pack_into('<i', data, ao + 16, version_code)
+                    elif rid == 0x0101021c and dtype == 0x03:  # android:versionName
+                        version_name_idx = val
+        pos += csize
+
+    if version_name_idx is not None and 0 <= version_name_idx < len(strings):
+        old_ver = strings[version_name_idx]
+        if len(old_ver) == len(version_name) and not str_pool_is_utf8:
+            p = str_offsets[version_name_idx] + 2
+            new_bytes = version_name.encode('utf-16le')
+            data[p:p + len(new_bytes)] = new_bytes
+
+    with open(manifest_path, 'wb') as f:
+        f.write(data)
+    print(f"Patched binary AndroidManifest.xml -> versionCode={version_code}, versionName={version_name}")
+
+
 def build_apk():
     ensure_keys()
     src_apk = os.path.join(ROOT_DIR, 'Paper-Flow.apk')
@@ -1413,6 +1479,10 @@ def build_apk():
         for member in z.infolist():
             if not member.filename.startswith('META-INF/'):
                 z.extract(member, work_dir)
+
+    manifest_file = os.path.join(work_dir, 'AndroidManifest.xml')
+    if os.path.exists(manifest_file):
+        patch_binary_manifest(manifest_file, version_code=5, version_name='1.0.6')
 
     dex_file = os.path.join(work_dir, 'classes.dex')
     if os.path.exists(dex_file):

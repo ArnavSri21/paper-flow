@@ -301,7 +301,7 @@
     flex-shrink: 0;
   }
 
-  button:hover:not(:disabled):not(.quick-switch-btn):not(.app-nav-item),
+  button:hover:not(:disabled):not(.quick-switch-btn):not(.app-nav-item):not(.btn-vote-dir):not(.social-seg-btn):not(.channel-tab-btn):not(.btn-inline-follow):not(.card-channel-link):not(.channel-stories-explore),
   .btn-file-upload:hover,
   .btn-obsidian-download:hover,
   .card-link-attachment:hover {
@@ -5149,18 +5149,22 @@
       line-height: 1.58;
     }
     .card-footer {
-      gap: 0.4rem;
+      gap: 0.42rem;
       margin-top: 0.75rem;
-      padding-top: 0.6rem;
+      padding-top: 0.65rem;
     }
     .card-interactions {
-      gap: 0.32rem;
-      flex-wrap: nowrap;
+      gap: 0.34rem;
+      flex-wrap: wrap;
+    }
+    .gesture-tap-hint {
+      display: none;
     }
     .btn-small {
-      font-size: 0.62rem;
-      padding: 4px 9px;
+      font-size: 0.66rem;
+      padding: 6px 10px;
       gap: 0.25rem;
+      min-height: 34px;
     }
   }
 
@@ -6149,6 +6153,828 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════
+     INSTAGRAM × REDDIT PUBLIC FOLLOWABLE CHANNELS SYSTEM
+     Harmonized with Paper Flow's Warm Editorial Light & Espresso Dark Palette
+     ═══════════════════════════════════════════════════════════════ */
+  .channel-stories-wrap {
+    margin-bottom: 1.05rem;
+    padding: 0.9rem 1rem 0.8rem;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(26, 18, 9, 0.05);
+  }
+  body.dark-mode .channel-stories-wrap {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  }
+  .channel-stories-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .channel-stories-title {
+    font-family: var(--serif);
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .channel-stories-meta {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .channel-stories-explore {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.36rem 0.55rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.16s ease, background-color 0.16s ease;
+  }
+  .channel-stories-explore:hover {
+    background: var(--surface-hover);
+  }
+  .channel-stories-rail {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.78rem;
+    overflow-x: auto;
+    padding: 0.15rem 0.1rem 0.25rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .channel-stories-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .channel-story-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.36rem;
+    width: 76px;
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    padding: 0.12rem 0;
+    cursor: pointer;
+    color: var(--ink);
+    text-align: center;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .channel-story-item:hover {
+    transform: translateY(-2px);
+  }
+  .channel-story-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 2.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: var(--card-border);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .channel-story-ring.is-following {
+    background: linear-gradient(135deg, #c84b2f 0%, #ea580c 52%, #f59e0b 100%);
+    box-shadow: 0 4px 12px rgba(200, 75, 47, 0.24);
+  }
+  body.dark-mode .channel-story-ring.is-following {
+    box-shadow: 0 4px 14px rgba(224, 90, 60, 0.32);
+  }
+  .channel-story-ring.is-create {
+    background: var(--surface-subtle);
+    border: 1.5px dashed var(--ink-muted);
+  }
+  .channel-story-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    color: #fff;
+    border: 2.5px solid var(--card-bg);
+    overflow: hidden;
+    background: var(--accent);
+  }
+  .channel-story-ring.is-create .channel-story-avatar {
+    background: transparent;
+    color: var(--ink);
+    font-size: 1.45rem;
+    font-weight: 500;
+    border: none;
+  }
+  .channel-story-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .channel-story-check {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card-bg);
+  }
+  .channel-story-label {
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 74px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .channel-story-sub {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Instagram × Reddit Feed Scope & Sort Toolbar */
+  .social-feed-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.05rem;
+  }
+  .social-seg-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.24rem;
+    border-radius: 12px;
+    background: var(--surface-subtle);
+    border: 1.5px solid var(--card-border);
+  }
+  .social-seg-btn {
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 0.88rem;
+    min-height: 36px;
+    border-radius: 9px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+  }
+  .social-seg-btn:hover {
+    color: var(--ink);
+  }
+  .social-seg-btn.active {
+    background: var(--card-bg);
+    color: var(--ink);
+    box-shadow: 0 2px 6px rgba(26, 18, 9, 0.1);
+  }
+  body.dark-mode .social-seg-btn.active {
+    background: #2b251d;
+    color: #f8f4ec;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+  }
+  @media (max-width: 560px) {
+    .social-feed-toolbar {
+      gap: 0.5rem;
+    }
+    .social-seg-group {
+      flex: 1 1 auto;
+      justify-content: space-between;
+    }
+    .social-seg-btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.46rem 0.6rem;
+      font-size: 0.76rem;
+    }
+  }
+
+  /* Public Channels Directory Grid */
+  .channels-dir-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.05rem;
+  }
+  .channels-dir-search {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.7rem 1rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--card-border);
+    background: var(--input-bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+  .channels-dir-search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200, 75, 47, 0.14);
+  }
+  .btn-create-channel-primary {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.58rem 1.08rem;
+    min-height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(200, 75, 47, 0.24);
+    transition: background-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  .btn-create-channel-primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 5px 14px rgba(200, 75, 47, 0.32);
+  }
+  .channel-directory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  @media (max-width: 720px) {
+    .channel-directory-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .channel-dir-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(26, 18, 9, 0.05);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  body.dark-mode .channel-dir-card {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+  .channel-dir-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 24px rgba(26, 18, 9, 0.1);
+  }
+  .channel-dir-cover {
+    height: 82px;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+  }
+  .channel-dir-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 86% 18%, rgba(255, 255, 255, 0.22), transparent 52%),
+                linear-gradient(to top, rgba(16, 12, 8, 0.52), transparent);
+  }
+  .channel-dir-body {
+    padding: 0 1.05rem 1.05rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+    flex: 1;
+  }
+  .channel-dir-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-top: -28px;
+    position: relative;
+    z-index: 2;
+  }
+  .channel-dir-emblem {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+    color: #fff;
+    border: 3.5px solid var(--card-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .channel-dir-name {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-top: 0.15rem;
+  }
+  .channel-dir-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .channel-dir-desc {
+    font-family: var(--sans);
+    font-size: 0.84rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Follow / Following Button (Instagram Clean Tactile Style) */
+  .btn-follow-toggle {
+    border: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.42rem 0.98rem;
+    min-height: 36px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+  }
+  .btn-follow-toggle:hover {
+    opacity: 0.9;
+  }
+  .btn-follow-toggle.following {
+    background: var(--surface-subtle);
+    color: var(--ink);
+    border-color: var(--card-border);
+  }
+  .btn-follow-toggle.following:hover {
+    background: var(--surface-hover);
+    border-color: var(--ink-muted);
+  }
+  .btn-inline-follow {
+    border: none;
+    background: transparent;
+    color: var(--accent);
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.15rem 0.42rem;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .btn-inline-follow:hover {
+    background: rgba(200, 75, 47, 0.1);
+  }
+  .btn-inline-follow.following {
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+
+  /* Dedicated Public Channel Hero Page */
+  .channel-hero-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 22px;
+    overflow: hidden;
+    margin-bottom: 1.15rem;
+    box-shadow: 0 6px 22px rgba(26, 18, 9, 0.06);
+  }
+  body.dark-mode .channel-hero-card {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.36);
+  }
+  .channel-hero-cover {
+    height: 148px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  @media (max-width: 600px) {
+    .channel-hero-cover {
+      height: 122px;
+    }
+  }
+  .channel-hero-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.2), transparent 50%),
+                linear-gradient(to top, rgba(16, 12, 8, 0.62) 0%, rgba(16, 12, 8, 0.14) 58%, transparent 100%);
+  }
+  .channel-hero-back {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.9rem;
+    z-index: 3;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(18, 14, 10, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.44rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .channel-hero-inner {
+    padding: 0 1.25rem 1.2rem;
+    position: relative;
+  }
+  .channel-hero-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: -36px;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 2;
+  }
+  .channel-hero-emblem {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+    color: #fff;
+    border: 4px solid var(--card-bg);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .channel-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .channel-hero-title {
+    font-family: var(--serif);
+    font-size: clamp(1.32rem, 2.4vw, 1.65rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .channel-hero-meta {
+    margin-top: 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    flex-wrap: wrap;
+  }
+  .channel-hero-desc {
+    margin-top: 0.68rem;
+    font-family: var(--sans);
+    font-size: 0.91rem;
+    line-height: 1.58;
+    color: var(--ink);
+    max-width: 68ch;
+  }
+  .channel-tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.35rem;
+    border-top: 1px solid var(--card-border);
+    padding: 0 1.25rem;
+    background: var(--surface-subtle);
+  }
+  .channel-tab-btn {
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-family: var(--sans);
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 0.82rem 0.15rem;
+    min-height: 44px;
+    border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .channel-tab-btn:hover {
+    color: var(--ink);
+  }
+  .channel-tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Instagram 3-Column Media Grid inside Channels */
+  .channel-media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+  @media (max-width: 520px) {
+    .channel-media-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+  }
+  .channel-media-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface-subtle);
+    cursor: pointer;
+    border: 1px solid var(--card-border);
+  }
+  .channel-media-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .channel-media-tile:hover img {
+    transform: scale(1.045);
+  }
+  .channel-media-caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 1.4rem 0.7rem 0.6rem;
+    background: linear-gradient(to top, rgba(16, 12, 8, 0.84), rgba(16, 12, 8, 0.35) 55%, transparent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.32;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .channel-media-tile:hover .channel-media-caption {
+    opacity: 1;
+  }
+
+  /* Reddit-Style About & Rules Panel */
+  .channel-about-panel {
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .channel-about-section-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem 0;
+  }
+  .channel-rules-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .channel-rules-list li {
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.52;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed var(--card-border);
+    display: flex;
+    gap: 0.65rem;
+  }
+  .channel-rules-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .channel-rule-num {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .channel-creator-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--card-border);
+  }
+
+  /* Card Channel Attribution & Reddit Vote Cluster */
+  .card-channel-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: var(--accent);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+  }
+  .card-channel-link:hover {
+    text-decoration: underline;
+  }
+  .reddit-vote-cluster {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface-subtle);
+    min-height: 32px;
+  }
+  .btn-vote-dir {
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.3rem 0.54rem;
+    min-height: 32px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.14s ease, background-color 0.14s ease;
+  }
+  .btn-vote-dir:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+  .btn-vote-dir.up-active {
+    color: #c84b2f;
+    background: rgba(200, 75, 47, 0.14);
+  }
+  body.dark-mode .btn-vote-dir.up-active {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.16);
+  }
+  .btn-vote-dir.down-active {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.13);
+  }
+  body.dark-mode .btn-vote-dir.down-active {
+    color: #818cf8;
+    background: rgba(129, 140, 248, 0.16);
+  }
+  .vote-net-count {
+    font-family: var(--mono);
+    font-size: 0.71rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    padding: 0 0.24rem;
+    min-width: 22px;
+    text-align: center;
+    color: var(--ink);
+  }
+  .vote-net-count.up-active {
+    color: #c84b2f;
+  }
+  body.dark-mode .vote-net-count.up-active {
+    color: #fb923c;
+  }
+  .vote-net-count.down-active {
+    color: #4f46e5;
+  }
+  body.dark-mode .vote-net-count.down-active {
+    color: #818cf8;
+  }
+
+  /* Instagram-style clean photo showcase on feed cards */
+  .card-media.ig-showcase {
+    display: block !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin-top: 0.72rem;
+    margin-bottom: 0.5rem;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    background: var(--surface-subtle);
+  }
+  .card-media.ig-showcase img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-media.ig-showcase:hover img {
+    transform: scale(1.015);
+  }
+
+  /* Create Public Channel Modal Swatches */
+  .channel-accent-swatches {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .channel-accent-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .channel-accent-swatch.active {
+    border-color: var(--ink);
+    transform: scale(1.12);
+  }
+  .channel-icon-presets {
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    flex-wrap: wrap;
+  }
+  .channel-icon-preset-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1.5px solid var(--card-border);
+    background: var(--surface-subtle);
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .channel-icon-preset-btn.active {
+    border-color: var(--accent);
+    background: rgba(200, 75, 47, 0.14);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
      PAPER FLOW — MOTION & POLISH LAYER (additive, theme-aware)
      Orbs · scroll progress · title shimmer · card spotlight ·
      button ripples · live-dot ping · staggered entrances
@@ -6370,6 +7196,18 @@
         <span class="side-option-badge" id="sideCountNews">0</span>
       </button>
 
+      <!-- PUBLIC CHANNELS DIRECTORY (INSTAGRAM × REDDIT COMMUNITIES) -->
+      <button type="button" class="btn-side-option" id="sideBtnChannels" onclick="openChannelsDirectory()">
+        <span># Public Channels</span>
+        <span class="side-option-badge" id="sideCountChannels">0</span>
+      </button>
+
+      <!-- FOLLOWING FEED (FOLLOWED CHANNELS & CREATORS) -->
+      <button type="button" class="btn-side-option" id="sideBtnFollowing" onclick="openFollowingFeed()">
+        <span>✦ Following</span>
+        <span class="side-option-badge" id="sideCountFollowing">0</span>
+      </button>
+
       <!-- MY FLOWS OPTION -->
       <button type="button" class="btn-side-option" id="sideBtnMyFlows" onclick="switchViewMode('my-flows')">
         <span>✍ My Flows</span>
@@ -6436,7 +7274,7 @@
           <section class="paperflow-apk-section" id="paperflowApkSection" style="margin: 0;">
             <div class="paperflow-apk-header">
               <span>📱 Paper Flow Android</span>
-              <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.5 · LIVE SYNC</span>
+              <span style="opacity: 0.85; font-size: 0.6rem;">v1.0.6 · LIVE SYNC</span>
             </div>
             <div class="paperflow-apk-body">
               <div class="paperflow-apk-top">
@@ -6446,10 +7284,10 @@
                     <span>Paper Flow APK</span>
                     <span class="apk-updated-tag">Updated</span>
                   </div>
-                  <div class="paperflow-apk-sub">Includes Native Snapshot Image Share Sheet, AI-Customized News, Offline Phone Storage for Starred Flows, and Background Notifications.</div>
+                  <div class="paperflow-apk-sub">Matches the website 1:1 with Public Followable Channels (c/), Instagram × Reddit UI, Personalized News, Native Image Share &amp; Offline Starred Flows.</div>
                 </div>
               </div>
-              <a href="/Paper-Flow.apk?v=1.0.5" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Download APK ↓</a>
+              <a href="/Paper-Flow.apk?v=1.0.6" class="btn-paperflow-apk" id="sideApkDownloadBtn" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Download APK (v1.0.6) ↓</a>
             </div>
           </section>
 
@@ -6473,12 +7311,12 @@
     <section class="paperflow-update-section" id="paperflowUpdateSection" style="display: none;">
       <div class="paperflow-update-header">
         <span>⚡ App Update Available</span>
-        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.5</span>
+        <span class="paperflow-update-badge" id="updateVersionBadge">Updated · v1.0.6</span>
       </div>
       <div class="paperflow-update-body">
         <div class="paperflow-update-title" id="updateTitle">A new version of Paper Flow is ready!</div>
-        <div class="paperflow-update-notes" id="updateNotes">Updated with Native Snapshot Share Sheet, AI-Customized News &amp; Per-User Taste DB, Phone Storage for Starred Flows, and Background Notifications.</div>
-        <a href="/Paper-Flow.apk?v=1.0.5" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Update Paper Flow ↓</a>
+        <div class="paperflow-update-notes" id="updateNotes">Updated with Public Followable Channels (c/), Instagram × Reddit UI, Balanced &amp; Personalized News, Offline Starred Flows, and Native Image Share.</div>
+        <a href="/Paper-Flow.apk?v=1.0.6" class="btn-paperflow-update" id="btnInstallUpdate" download="Paper-Flow.apk" onclick="return downloadPaperFlowApk(event, this)">Update Paper Flow (v1.0.6) ↓</a>
       </div>
     </section>
 
@@ -6692,8 +7530,11 @@
       <input type="text" id="postTitle" placeholder="Headline / Title (optional)" maxlength="120" />
       <textarea id="postBody" placeholder="Write anything — a confession, a thought, a story, a question…" maxlength="5000"></textarea>
 
-      <div class="compose-row">
-        <select id="postTag">
+      <div class="compose-row" style="display:flex; gap:0.55rem; flex-wrap:wrap;">
+        <select id="postChannel" style="flex:1; min-width:170px;" aria-label="Choose Public Channel">
+          <option value="">General Board (All Flows)</option>
+        </select>
+        <select id="postTag" style="flex:1; min-width:150px;" aria-label="Choose Category">
           <!-- Populated dynamically based on user role -->
         </select>
       </div>
@@ -6903,6 +7744,68 @@
       
       <div class="age-modal-disclaimer">
         Your confirmation will be saved for this device. Content will remain hidden until verified.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE PUBLIC CHANNEL MODAL -->
+<div class="modal-backdrop" id="createChannelModalBackdrop" onclick="handleCreateChannelBackdropClick(event)">
+  <div class="modal-window" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span>Create Public Channel</span>
+      <button class="modal-close" onclick="closeCreateChannelModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:0.85rem;">
+      <div class="modal-error" id="createChannelError"></div>
+      <div class="form-field">
+        <label for="newChannelName">Channel Name</label>
+        <input type="text" id="newChannelName" placeholder="e.g. Indie Photography or GTA 6 Hub" maxlength="48" oninput="syncNewChannelSlugPreview()" />
+      </div>
+      <div class="form-field">
+        <label for="newChannelSlug">Public Handle</label>
+        <div style="display:flex; align-items:center; gap:0.35rem;">
+          <span style="font-family:var(--mono); font-size:0.82rem; color:var(--ink-muted); font-weight:700;">c/</span>
+          <input type="text" id="newChannelSlug" placeholder="indie-photography" maxlength="28" style="flex:1;" oninput="this.dataset.manualEdit='1'" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="newChannelTagline">Short Tagline</label>
+        <input type="text" id="newChannelTagline" placeholder="What do people share and follow here?" maxlength="110" />
+      </div>
+      <div class="form-field">
+        <label for="newChannelDesc">About &amp; Description</label>
+        <textarea id="newChannelDesc" placeholder="Describe your channel, topics, or weekly threads…" maxlength="360" style="min-height:72px;"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Icon &amp; Accent Color</label>
+        <div class="channel-icon-presets" id="newChannelIconPresets">
+          <button type="button" class="channel-icon-preset-btn active" onclick="pickNewChannelIcon('✦', this)">✦</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('🎮', this)">🎮</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('🎬', this)">🎬</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('📷', this)">📷</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('⚡', this)">⚡</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('🎵', this)">🎵</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('🔭', this)">🔭</button>
+          <button type="button" class="channel-icon-preset-btn" onclick="pickNewChannelIcon('💬', this)">💬</button>
+        </div>
+        <div class="channel-accent-swatches" id="newChannelAccentSwatches" style="margin-top:0.5rem;">
+          <button type="button" class="channel-accent-swatch active" style="background:#c84b2f;" onclick="pickNewChannelAccent('#c84b2f', this)" aria-label="Terracotta"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#ea580c;" onclick="pickNewChannelAccent('#ea580c', this)" aria-label="Orange"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#dc2626;" onclick="pickNewChannelAccent('#dc2626', this)" aria-label="Crimson"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#2563eb;" onclick="pickNewChannelAccent('#2563eb', this)" aria-label="Cobalt"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#0d9488;" onclick="pickNewChannelAccent('#0d9488', this)" aria-label="Teal"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#7c3aed;" onclick="pickNewChannelAccent('#7c3aed', this)" aria-label="Violet"></button>
+          <button type="button" class="channel-accent-swatch" style="background:#334155;" onclick="pickNewChannelAccent('#334155', this)" aria-label="Slate"></button>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="newChannelRules">Channel Rules (optional, one per line)</label>
+        <textarea id="newChannelRules" placeholder="Be respectful&#10;Credit original creators" maxlength="400" style="min-height:62px;"></textarea>
+      </div>
+      <div style="display:flex; gap:0.6rem; justify-content:flex-end; margin-top:0.25rem;">
+        <button type="button" class="btn-small" onclick="closeCreateChannelModal()">Cancel</button>
+        <button type="button" class="btn-modal-submit" id="btnSubmitNewChannel" style="width:auto; padding:0.58rem 1.2rem;" onclick="submitCreateChannel()">Create Channel →</button>
       </div>
     </div>
   </div>
@@ -7558,6 +8461,541 @@
   var assignedCardBannerByPostId = new Map();
   var usedFallbackBannerUrls = new Set();
 
+  // ── INSTAGRAM × REDDIT PUBLIC FOLLOWABLE CHANNELS STATE ─────────────────────
+  var publicChannelsList = [];
+  var followedChannelsSet = new Set();
+  var followedUsersSet = new Set();
+  var creatorFollowerCountsMap = {};
+  var postVotesMap = {};       // postId -> { score, upvotes, downvotes, userVote }
+  var postChannelsMap = {};    // postId -> channelSlug
+  var activeBoardScope = 'all'; // 'all' | 'following'
+  var activeBoardSort = 'hot';  // 'hot' | 'new' | 'top'
+  var activeChannelSlug = null;
+  var activeChannelTab = 'posts'; // 'posts' | 'media' | 'about'
+  var channelDirectorySearch = '';
+  var newChannelDraftIcon = '✦';
+  var newChannelDraftAccent = '#c84b2f';
+
+  function getSocialActorKeyForChannels() {
+    return currentUser ? `user_${currentUser.usernameLower}` : guestToken;
+  }
+
+  function loadLocalChannelsState() {
+    try {
+      const cachedCh = JSON.parse(localStorage.getItem('pf_public_channels_cache_v1') || '[]');
+      if (Array.isArray(cachedCh) && cachedCh.length > 0) publicChannelsList = cachedCh;
+    } catch (e) {}
+    try {
+      const fCh = JSON.parse(localStorage.getItem('pf_followed_channels_v1_' + getSocialActorKeyForChannels()) || '[]');
+      followedChannelsSet = new Set(Array.isArray(fCh) ? fCh : []);
+    } catch (e) { followedChannelsSet = new Set(); }
+    try {
+      const fUs = JSON.parse(localStorage.getItem('pf_followed_users_v1_' + getSocialActorKeyForChannels()) || '[]');
+      followedUsersSet = new Set(Array.isArray(fUs) ? fUs : []);
+    } catch (e) { followedUsersSet = new Set(); }
+    try {
+      const vMap = JSON.parse(localStorage.getItem('pf_post_votes_v1_' + getSocialActorKeyForChannels()) || '{}');
+      postVotesMap = (vMap && typeof vMap === 'object') ? vMap : {};
+    } catch (e) { postVotesMap = {}; }
+  }
+
+  function saveLocalChannelsState() {
+    const key = getSocialActorKeyForChannels();
+    try {
+      localStorage.setItem('pf_public_channels_cache_v1', JSON.stringify(publicChannelsList.slice(0, 60)));
+      localStorage.setItem('pf_followed_channels_v1_' + key, JSON.stringify(Array.from(followedChannelsSet)));
+      localStorage.setItem('pf_followed_users_v1_' + key, JSON.stringify(Array.from(followedUsersSet)));
+      localStorage.setItem('pf_post_votes_v1_' + key, JSON.stringify(postVotesMap));
+    } catch (e) {}
+  }
+  loadLocalChannelsState();
+
+  function getChannelBySlug(slug) {
+    if (!slug) return null;
+    const clean = String(slug).trim().toLowerCase().replace(/^c\//, '');
+    return (publicChannelsList || []).find(c => c && c.slug === clean) || null;
+  }
+
+  function resolvePostChannelSlug(post) {
+    if (!post) return '';
+    if (getRigidNewsCategoryKey(post) === 'hotties') return '';
+    const explicit = String(post.channelSlug || (post.id && postChannelsMap[post.id]) || '').trim().toLowerCase();
+    if (explicit && getChannelBySlug(explicit)) return explicit;
+    if (post.isAiNews || post.docType === 'ai_news' || post.tag === 'news') {
+      const sec = getRigidNewsCategoryKey(post);
+      if (sec === 'games') return 'gaming';
+      if (sec === 'hollywood' || sec === 'bollywood' || sec === 'marvel') return 'cinema';
+      if (sec === 'ai' || sec === 'tech') return 'ai-builders';
+      if (sec === 'science' || sec === 'facts') return 'science-facts';
+      return '';
+    }
+    const cat = getEffectivePostCategory(post);
+    if (cat === 'updates') return 'paperflow-official';
+    if (cat === 'confession') return 'confessions';
+    return explicit || '';
+  }
+
+  function getPostVoteState(post) {
+    if (!post || !post.id) return { score: 0, userVote: 0 };
+    const voteRec = postVotesMap[post.id] || { score: 0, userVote: 0 };
+    const likeCount = getPostLikesList(post).length;
+    return {
+      score: (Number(voteRec.score) || 0) + likeCount,
+      rawVoteScore: Number(voteRec.score) || 0,
+      userVote: Number(voteRec.userVote) || 0
+    };
+  }
+
+  function computeRedditHotScore(post) {
+    const v = getPostVoteState(post).score;
+    const commentsCount = getPostCommentsList(post).length;
+    const pubMs = getPostTimestampMs(post) || Date.now();
+    const ageHours = Math.max(0.25, (Date.now() - pubMs) / (1000 * 60 * 60));
+    return ((v + 1) + commentsCount * 1.6) / Math.pow(ageHours + 2, 1.32);
+  }
+
+  function getPostsForPublicChannel(slug) {
+    const ch = getChannelBySlug(slug);
+    if (!ch) return [];
+    const seen = new Set();
+    const collected = [];
+    const addIfMatch = (p) => {
+      if (!p || !p.id || seen.has(p.id) || deletedPostIdsSet.has(p.id)) return;
+      if (getRigidNewsCategoryKey(p) === 'hotties') return;
+      const resolved = resolvePostChannelSlug(p);
+      const sectorKey = getRigidNewsCategoryKey(p);
+      const linkedSectors = Array.isArray(ch.linkedNewsSectors) ? ch.linkedNewsSectors : [];
+      if (resolved === ch.slug || (linkedSectors.length > 0 && linkedSectors.includes(sectorKey) && (p.isAiNews || p.docType === 'ai_news'))) {
+        seen.add(p.id);
+        collected.push(p);
+      }
+    };
+    (allPosts || []).forEach(addIfMatch);
+    if (Array.isArray(ch.linkedNewsSectors) && ch.linkedNewsSectors.length > 0) {
+      getCombinedNewsColumnPosts().forEach(addIfMatch);
+    }
+    return collected;
+  }
+
+  function renderChannelSelectOptions(preselectSlug = null) {
+    const sel = document.getElementById('postChannel');
+    if (!sel) return;
+    const targetVal = preselectSlug !== null ? preselectSlug : sel.value;
+    let html = `<option value="">General Board (All Flows)</option>`;
+    (publicChannelsList || []).forEach(ch => {
+      html += `<option value="${esc(ch.slug)}">${esc(ch.icon || '✦')} c/${esc(ch.slug)} — ${esc(ch.name)}</option>`;
+    });
+    sel.innerHTML = html;
+    if (targetVal && getChannelBySlug(targetVal)) {
+      sel.value = targetVal;
+    } else {
+      sel.value = '';
+    }
+  }
+
+  window.fetchAndSyncPublicChannels = async function () {
+    try {
+      const actor = encodeURIComponent(getSocialActorKeyForChannels());
+      const res = await fetch(`${getApiBaseOrigin()}/api/channels?user=${actor}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.ok) return;
+      if (Array.isArray(data.channels)) {
+        publicChannelsList = data.channels;
+        followedChannelsSet = new Set(data.channels.filter(c => c.isFollowing).map(c => c.slug));
+      }
+      if (Array.isArray(data.followedUsers)) {
+        followedUsersSet = new Set(data.followedUsers);
+      }
+      if (data.creatorFollowerCounts && typeof data.creatorFollowerCounts === 'object') {
+        creatorFollowerCountsMap = data.creatorFollowerCounts;
+      }
+      if (data.postVotes && typeof data.postVotes === 'object') {
+        postVotesMap = { ...postVotesMap, ...data.postVotes };
+      }
+      if (data.postChannels && typeof data.postChannels === 'object') {
+        postChannelsMap = { ...postChannelsMap, ...data.postChannels };
+      }
+      if (Array.isArray(data.channelPosts) && data.channelPosts.length > 0) {
+        const existingIds = new Set(allPosts.map(p => p.id));
+        let addedAny = false;
+        data.channelPosts.forEach(cp => {
+          if (cp && cp.id && !existingIds.has(cp.id) && !deletedPostIdsSet.has(cp.id)) {
+            allPosts.push(cp);
+            existingIds.add(cp.id);
+            addedAny = true;
+          }
+        });
+        if (addedAny) {
+          allPosts.sort((a, b) => getPostTimestampMs(b) - getPostTimestampMs(a));
+        }
+      }
+      saveLocalChannelsState();
+      renderChannelSelectOptions();
+      renderAll();
+    } catch (e) {}
+  };
+
+  window.toggleFollowChannel = async function (slug, e) {
+    if (e) e.stopPropagation();
+    const ch = getChannelBySlug(slug);
+    if (!ch) return;
+    const currentlyFollowing = followedChannelsSet.has(ch.slug);
+    if (currentlyFollowing) {
+      followedChannelsSet.delete(ch.slug);
+      ch.isFollowing = false;
+      ch.memberCount = Math.max(0, (Number(ch.memberCount) || 1) - 1);
+      showToast(`Unfollowed c/${ch.slug}`);
+    } else {
+      followedChannelsSet.add(ch.slug);
+      ch.isFollowing = true;
+      ch.memberCount = (Number(ch.memberCount) || 0) + 1;
+      showToast(`Following c/${ch.slug}`);
+    }
+    saveLocalChannelsState();
+    cardDomCache.clear();
+    renderAll();
+
+    try {
+      const res = await fetch(`${getApiBaseOrigin()}/api/channels/${encodeURIComponent(ch.slug)}/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actorKey: getSocialActorKeyForChannels() })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.ok) {
+          ch.isFollowing = Boolean(data.isFollowing);
+          ch.memberCount = Number(data.memberCount) || ch.memberCount;
+          if (ch.isFollowing) followedChannelsSet.add(ch.slug);
+          else followedChannelsSet.delete(ch.slug);
+          saveLocalChannelsState();
+          renderAll();
+        }
+      }
+    } catch (err) {}
+  };
+
+  window.toggleFollowUser = async function (usernameRaw, e) {
+    if (e) e.stopPropagation();
+    const target = String(usernameRaw || '').trim().toLowerCase().replace(/^@/, '');
+    if (!target) return;
+    if (currentUser && currentUser.usernameLower === target) return;
+
+    const currentlyFollowing = followedUsersSet.has(target);
+    if (currentlyFollowing) {
+      followedUsersSet.delete(target);
+      creatorFollowerCountsMap[target] = Math.max(0, (creatorFollowerCountsMap[target] || 1) - 1);
+      showToast(`Unfollowed @${target}`);
+    } else {
+      followedUsersSet.add(target);
+      creatorFollowerCountsMap[target] = (creatorFollowerCountsMap[target] || 0) + 1;
+      showToast(`Following @${target}`);
+    }
+    saveLocalChannelsState();
+    cardDomCache.clear();
+    renderAll();
+
+    try {
+      const res = await fetch(`${getApiBaseOrigin()}/api/users/${encodeURIComponent(target)}/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actorKey: getSocialActorKeyForChannels() })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.ok) {
+          creatorFollowerCountsMap[target] = Number(data.followerCount) || 0;
+          if (Array.isArray(data.followedUsers)) {
+            followedUsersSet = new Set(data.followedUsers);
+          }
+          saveLocalChannelsState();
+        }
+      }
+    } catch (err) {}
+  };
+
+  window.togglePostVote = async function (postId, requestedDir, e) {
+    if (e) e.stopPropagation();
+    const post = findPostAnywhere(postId);
+    if (!post) return;
+    const prev = postVotesMap[postId] || { score: 0, upvotes: 0, downvotes: 0, userVote: 0 };
+    const nextDir = (prev.userVote === requestedDir) ? 0 : requestedDir;
+    const delta = nextDir - (prev.userVote || 0);
+    postVotesMap[postId] = {
+      score: (Number(prev.score) || 0) + delta,
+      upvotes: Math.max(0, (Number(prev.upvotes) || 0) + (nextDir === 1 ? 1 : 0) - (prev.userVote === 1 ? 1 : 0)),
+      downvotes: Math.max(0, (Number(prev.downvotes) || 0) + (nextDir === -1 ? 1 : 0) - (prev.userVote === -1 ? 1 : 0)),
+      userVote: nextDir
+    };
+    saveLocalChannelsState();
+    if (nextDir === 1 && isNewsCardPost(post, postId)) {
+      recordUserNewsInteraction(post, 'like');
+    }
+    updateCardInteractionsInPlace(post);
+
+    try {
+      const res = await fetch(`${getApiBaseOrigin()}/api/posts/${encodeURIComponent(postId)}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actorKey: getSocialActorKeyForChannels(), direction: nextDir })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.ok) {
+          postVotesMap[postId] = {
+            score: Number(data.score) || 0,
+            upvotes: Number(data.upvotes) || 0,
+            downvotes: Number(data.downvotes) || 0,
+            userVote: Number(data.userVote) || 0
+          };
+          saveLocalChannelsState();
+          updateCardInteractionsInPlace(post);
+        }
+      }
+    } catch (err) {}
+  };
+
+  window.openPublicChannel = function (slug, tab = 'posts') {
+    const ch = getChannelBySlug(slug);
+    if (!ch) {
+      showToast('Channel not found.');
+      return;
+    }
+    activeChannelSlug = ch.slug;
+    activeChannelTab = tab || 'posts';
+    activeViewMode = 'channel';
+    activeFilter = 'all';
+    shouldAnimateFeedCards = false;
+    toggleSidePanel(false);
+    document.body.classList.remove('top-banner-hidden', 'pm-fullscreen-open');
+    renderAll();
+    if (window.scrollY > 60) window.scrollTo(0, 0);
+  };
+
+  window.openChannelsDirectory = function () {
+    activeViewMode = 'channels';
+    activeFilter = 'all';
+    shouldAnimateFeedCards = false;
+    toggleSidePanel(false);
+    document.body.classList.remove('top-banner-hidden', 'pm-fullscreen-open');
+    renderAll();
+    if (window.scrollY > 60) window.scrollTo(0, 0);
+  };
+
+  window.openFollowingFeed = function () {
+    activeViewMode = 'board';
+    activeFilter = 'all';
+    activeBoardScope = 'following';
+    shouldAnimateFeedCards = false;
+    toggleSidePanel(false);
+    document.body.classList.remove('top-banner-hidden', 'pm-fullscreen-open');
+    renderAll();
+    if (window.scrollY > 60) window.scrollTo(0, 0);
+  };
+
+  window.setBoardScope = function (scope) {
+    if (scope === 'channels') {
+      window.openChannelsDirectory();
+      return;
+    }
+    activeViewMode = 'board';
+    if (activeFilter === 'news') activeFilter = 'all';
+    activeBoardScope = scope === 'following' ? 'following' : 'all';
+    shouldAnimateFeedCards = false;
+    renderAll();
+  };
+
+  window.setBoardSort = function (sortMode) {
+    if (!['hot', 'new', 'top'].includes(sortMode)) return;
+    activeBoardSort = sortMode;
+    shouldAnimateFeedCards = false;
+    renderFeed();
+  };
+
+  window.setChannelTab = function (tab) {
+    if (!['posts', 'media', 'about'].includes(tab)) return;
+    activeChannelTab = tab;
+    renderFeed();
+  };
+
+  function buildChannelDirectoryCardsHTML(matchingChannels) {
+    if (!matchingChannels || matchingChannels.length === 0) {
+      return `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <span class="empty-icon">#</span>
+          <p>No public channels match "${esc(channelDirectorySearch || searchQuery)}". Launch it yourself!</p>
+          <button type="button" class="btn-create-channel-primary" style="margin-top:0.65rem;" onclick="openCreateChannelModal()">+ Create Channel</button>
+        </div>
+      `;
+    }
+    return matchingChannels.map(ch => {
+      const isFollowing = followedChannelsSet.has(ch.slug);
+      const postCount = getPostsForPublicChannel(ch.slug).length;
+      const coverStyle = ch.coverImage
+        ? `background-image:url('${esc(ch.coverImage)}');`
+        : `background:${ch.coverGradient || ch.accent || '#c84b2f'};`;
+      return `
+        <div class="channel-dir-card" onclick="openPublicChannel('${esc(ch.slug)}', 'posts')">
+          <div class="channel-dir-cover" style="${coverStyle}"></div>
+          <div class="channel-dir-body">
+            <div class="channel-dir-top">
+              <div class="channel-dir-emblem" style="background:${esc(ch.accent || '#c84b2f')};">${esc(ch.icon || '✦')}</div>
+              <button
+                type="button"
+                class="btn-follow-toggle ${isFollowing ? 'following' : ''}"
+                onclick="toggleFollowChannel('${esc(ch.slug)}', event)"
+              >${isFollowing ? 'Following' : 'Follow'}</button>
+            </div>
+            <div class="channel-dir-name">${esc(ch.name)}${ch.verified ? ' ✓' : ''}</div>
+            <div class="channel-dir-meta">c/${esc(ch.slug)} · ${Number(ch.memberCount || 0).toLocaleString()} followers · ${postCount} post${postCount !== 1 ? 's' : ''}</div>
+            <div class="channel-dir-desc">${esc(ch.tagline || ch.description || '')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.handleChannelDirSearch = function (val) {
+    channelDirectorySearch = String(val || '');
+    const grid = document.getElementById('channelDirectoryGrid');
+    const feedCount = document.getElementById('feedCount');
+    if (activeViewMode === 'channels' && grid) {
+      const q = (channelDirectorySearch || searchQuery || '').trim().toLowerCase();
+      const matchingChannels = (publicChannelsList || []).filter(ch => {
+        if (!q) return true;
+        return `${ch.name} ${ch.slug} ${ch.tagline} ${ch.description}`.toLowerCase().includes(q);
+      });
+      if (feedCount) {
+        feedCount.textContent = `${matchingChannels.length} public channel${matchingChannels.length !== 1 ? 's' : ''}`;
+      }
+      grid.innerHTML = buildChannelDirectoryCardsHTML(matchingChannels);
+      return;
+    }
+    renderFeed();
+  };
+
+  window.sharePublicChannel = function (slug) {
+    const ch = getChannelBySlug(slug);
+    if (!ch) return;
+    const host = String(window.location.hostname || '').toLowerCase();
+    const isBundled = host === 'appassets.androidplatform.net' || !window.location.origin || window.location.origin.startsWith('file:');
+    const origin = isBundled ? LIVE_WEB_ORIGIN : window.location.origin;
+    const shareUrl = `${origin}/?channel=${encodeURIComponent(ch.slug)}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast(`Copied link to c/${ch.slug}`);
+      }).catch(() => {
+        showToast(`Channel link: ${shareUrl}`);
+      });
+    } else {
+      showToast(`Channel link: ${shareUrl}`);
+    }
+  };
+
+  window.openCreateChannelModal = function () {
+    const errEl = document.getElementById('createChannelError');
+    if (errEl) { errEl.textContent = ''; errEl.classList.remove('show'); }
+    ['newChannelName', 'newChannelSlug', 'newChannelTagline', 'newChannelDesc', 'newChannelRules'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = '';
+        if (id === 'newChannelSlug') el.dataset.manualEdit = '';
+      }
+    });
+    newChannelDraftIcon = '✦';
+    newChannelDraftAccent = '#c84b2f';
+    document.querySelectorAll('#newChannelIconPresets .channel-icon-preset-btn').forEach((b, idx) => b.classList.toggle('active', idx === 0));
+    document.querySelectorAll('#newChannelAccentSwatches .channel-accent-swatch').forEach((b, idx) => b.classList.toggle('active', idx === 0));
+    openModalWithMotion('createChannelModalBackdrop');
+  };
+
+  window.closeCreateChannelModal = function () {
+    closeModalWithMotion('createChannelModalBackdrop');
+  };
+
+  window.handleCreateChannelBackdropClick = function (e) {
+    if (e.target.id === 'createChannelModalBackdrop') closeCreateChannelModal();
+  };
+
+  window.syncNewChannelSlugPreview = function () {
+    const nameVal = document.getElementById('newChannelName')?.value || '';
+    const slugEl = document.getElementById('newChannelSlug');
+    if (!slugEl || slugEl.dataset.manualEdit === '1') return;
+    slugEl.value = nameVal.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 28);
+  };
+
+  window.pickNewChannelIcon = function (icon, btn) {
+    newChannelDraftIcon = icon || '✦';
+    document.querySelectorAll('#newChannelIconPresets .channel-icon-preset-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  };
+
+  window.pickNewChannelAccent = function (hex, btn) {
+    newChannelDraftAccent = hex || '#c84b2f';
+    document.querySelectorAll('#newChannelAccentSwatches .channel-accent-swatch').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  };
+
+  window.submitCreateChannel = async function () {
+    const errEl = document.getElementById('createChannelError');
+    const showErr = (msg) => {
+      if (errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
+      else showToast(msg);
+    };
+    const name = (document.getElementById('newChannelName')?.value || '').trim();
+    const slug = (document.getElementById('newChannelSlug')?.value || '').trim();
+    const tagline = (document.getElementById('newChannelTagline')?.value || '').trim();
+    const description = (document.getElementById('newChannelDesc')?.value || '').trim();
+    const rules = (document.getElementById('newChannelRules')?.value || '').trim();
+
+    if (name.length < 2) {
+      showErr('Please enter a channel name (at least 2 characters).');
+      return;
+    }
+
+    const btn = document.getElementById('btnSubmitNewChannel');
+    if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+    try {
+      const res = await fetch(`${getApiBaseOrigin()}/api/channels`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          slug: slug || name,
+          tagline,
+          description,
+          icon: newChannelDraftIcon,
+          accent: newChannelDraftAccent,
+          rules,
+          actorKey: getSocialActorKeyForChannels(),
+          creatorUsername: currentUser ? currentUser.usernameLower : 'community'
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showErr(data.error || 'Could not create channel.');
+        return;
+      }
+      if (data.state && Array.isArray(data.state.channels)) {
+        publicChannelsList = data.state.channels;
+        followedChannelsSet = new Set(data.state.channels.filter(c => c.isFollowing).map(c => c.slug));
+      } else if (data.channel) {
+        publicChannelsList.unshift(data.channel);
+        followedChannelsSet.add(data.channel.slug);
+      }
+      saveLocalChannelsState();
+      renderChannelSelectOptions();
+      closeCreateChannelModal();
+      showToast(`Created public channel c/${data.channel.slug}!`);
+      window.openPublicChannel(data.channel.slug, 'posts');
+    } catch (e) {
+      showErr('Network error while creating channel.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Create Channel →'; }
+    }
+  };
+
   function getApiBaseOrigin() {
     const host = String(window.location.hostname || '').toLowerCase();
     if (
@@ -7624,6 +9062,8 @@
     userNewsDb = loadUserNewsDb();
     hasSyncedNewsOnThisVisit = false;
     window.resetLockedNewsScores();
+    loadLocalChannelsState();
+    fetchAndSyncPublicChannels();
 
     if (user) {
       const myActorKey = `user_${user.usernameLower}`;
@@ -8221,6 +9661,7 @@
     if (mode === 'board') {
       return filter === 'news' ? 1 : 0;
     }
+    if (mode === 'channels' || mode === 'channel') return 0.5;
     if (mode === 'my-flows') return 2;
     if (mode === 'starred') return 2.5;
     if (mode === 'replies') return 3;
@@ -8293,7 +9734,8 @@
     }
     const nextSlot = getScreenSlotIndex(mode, nextFilter);
     const swipeDir = nextSlot >= prevSlot ? 'right' : 'left';
-    const isSwitchingScreen = (activeViewMode !== mode) || (activeFilter !== nextFilter);
+    const isResettingBoardScope = (mode === 'board' && nextFilter === 'all' && activeBoardScope !== 'all');
+    const isSwitchingScreen = (activeViewMode !== mode) || (activeFilter !== nextFilter) || isResettingBoardScope;
 
     if (!isSwitchingScreen) {
       // Reached the end of the navigation stack! Tapping the current tab fires high-intensity elastic bounce
@@ -8315,6 +9757,17 @@
 
     activeViewMode = mode;
     activeFilter = nextFilter;
+    if (mode === 'board' && nextFilter === 'all') {
+      activeBoardScope = 'all';
+    }
+    if (mode !== 'channel') {
+      activeChannelSlug = null;
+      try {
+        if (window.location.search.includes('channel=') || /^\/c\//i.test(window.location.pathname)) {
+          window.history.replaceState({}, '', '/');
+        }
+      } catch (e) {}
+    }
     isPmChatMenuOpen = false;
     openCardMoreMenuId = null;
     shouldAnimateFeedCards = false;
@@ -8564,7 +10017,7 @@
     if (!nav || !pill) return;
 
     const isNewsActive = (activeViewMode === 'board' && activeFilter === 'news');
-    const isBoardActive = (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'my-flows' || activeViewMode === 'starred' || activeViewMode === 'reports';
+    const isBoardActive = (activeViewMode === 'board' && activeFilter !== 'news') || activeViewMode === 'channels' || activeViewMode === 'channel' || activeViewMode === 'my-flows' || activeViewMode === 'starred' || activeViewMode === 'reports';
     const isRepliesActive = activeViewMode === 'replies';
     const isMessagesActive = activeViewMode === 'messages';
 
@@ -9597,14 +11050,18 @@
     });
   }, { passive: true });
 
-  window.openComposeModal = function () {
+  window.openComposeModal = function (preselectChannelSlug = null) {
     if (typeof window.triggerHapticFeedback === 'function') {
       window.triggerHapticFeedback('tab');
     }
     editingPostId = null;
     const headerTitle = document.getElementById('composeHeaderTitle');
     const submitBtn = document.getElementById('submitBtn');
-    if (headerTitle) headerTitle.textContent = 'Post a Flow';
+    const targetSlug = preselectChannelSlug !== null
+      ? preselectChannelSlug
+      : (activeViewMode === 'channel' && activeChannelSlug ? activeChannelSlug : '');
+    renderChannelSelectOptions(targetSlug);
+    if (headerTitle) headerTitle.textContent = targetSlug ? `Post to c/${targetSlug}` : 'Post a Flow';
     if (submitBtn) submitBtn.textContent = currentUser ? 'Publish Flow →' : 'Sign In to Publish →';
     openModalWithMotion('composeModalBackdrop');
     document.getElementById('fabPostBtn')?.classList.add('modal-open');
@@ -9627,6 +11084,7 @@
     if (submitBtn) submitBtn.textContent = 'Save Changes →';
 
     renderCategorySelectOptions();
+    renderChannelSelectOptions(resolvePostChannelSlug(post) || '');
     const effectiveCat = getEffectivePostCategory(post);
     document.getElementById('postTitle').value = post.title || '';
     document.getElementById('postBody').value = post.hasEmptyBody ? '' : (post.body || '');
@@ -10194,7 +11652,7 @@
         if (p && p.id && !deletedPostIdsSet.has(p.id)) livePostsMap.set(p.id, p);
       });
       (allPosts || []).forEach(p => {
-        if (p && p.id && p.isLocal && !deletedPostIdsSet.has(p.id) && !livePostsMap.has(p.id)) {
+        if (p && p.id && (p.isLocal || p.channelSlug) && !deletedPostIdsSet.has(p.id) && !livePostsMap.has(p.id)) {
           livePostsMap.set(p.id, p);
         }
       });
@@ -10667,6 +12125,22 @@
       ? `<span class="dev-badge">⚡ Developer</span>`
       : `<span class="verified-user-dot">USER</span>`;
 
+    const followerCount = Number(creatorFollowerCountsMap[cleanLower] || 0);
+    const isFollowingThisUser = followedUsersSet.has(cleanLower);
+    const createdChannels = (publicChannelsList || []).filter(c => String(c.creatorUsername || '').toLowerCase() === cleanLower);
+    const createdChannelsHTML = createdChannels.length > 0
+      ? `<div class="profile-about-box">
+           <div class="profile-about-label">Public Channels (${createdChannels.length})</div>
+           <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.35rem;">
+             ${createdChannels.map(ch => `
+               <button type="button" class="btn-small" style="font-weight:600;" onclick="closeUserProfileModal(); openPublicChannel('${esc(ch.slug)}')">
+                 ${esc(ch.icon || '✦')} c/${esc(ch.slug)}
+               </button>
+             `).join('')}
+           </div>
+         </div>`
+      : '';
+
     bodyEl.innerHTML = `
       <div class="profile-view-header-card">
         ${avatarHTML}
@@ -10677,6 +12151,11 @@
           </div>
           <div class="profile-view-handle">${isDev ? 'Creator & Developer of Paper Flow' : 'Paper Flow Community Member'}</div>
         </div>
+        ${!isOwnProfile ? `
+          <button type="button" class="btn-follow-toggle ${isFollowingThisUser ? 'following' : ''}" onclick="toggleFollowUser('${esc(cleanLower)}', event); openUserProfileModal('${esc(resolvedName)}', '${esc(cleanLower)}');">
+            ${isFollowingThisUser ? 'Following' : 'Follow'}
+          </button>
+        ` : ''}
       </div>
 
       <div class="profile-about-box">
@@ -10689,14 +12168,20 @@
 
       <div class="profile-stats-strip">
         <div class="profile-stat-pill">
-          <span>Flows Posted</span>
-          <strong>${userFlowsCount}</strong>
+          <span>Followers</span>
+          <strong style="font-variant-numeric:tabular-nums;">${followerCount}</strong>
+        </div>
+        <div class="profile-stat-pill">
+          <span>Flows</span>
+          <strong style="font-variant-numeric:tabular-nums;">${userFlowsCount}</strong>
         </div>
         <div class="profile-stat-pill">
           <span>Replies</span>
-          <strong>${userRepliesCount}</strong>
+          <strong style="font-variant-numeric:tabular-nums;">${userRepliesCount}</strong>
         </div>
       </div>
+
+      ${createdChannelsHTML}
 
       <div style="display: flex; gap: 0.6rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.2rem;">
         ${isOwnProfile
@@ -10891,6 +12376,7 @@
     const title = document.getElementById('postTitle').value.trim();
     const body  = document.getElementById('postBody').value.trim();
     const selectedTag = document.getElementById('postTag').value;
+    const selectedChannel = (document.getElementById('postChannel')?.value || '').trim().toLowerCase();
     const rawLinkUrl = document.getElementById('postLinkUrl').value.trim();
     const linkTitle = document.getElementById('postLinkTitle').value.trim();
     const linkUrl = normalizeUrl(rawLinkUrl);
@@ -10910,6 +12396,16 @@
     btn.disabled = true;
     const isEditing = Boolean(editingPostId);
     btn.textContent = isEditing ? 'Saving…' : 'Publishing…';
+
+    const mirrorPostToChannelServer = (postObj) => {
+      if (!selectedChannel || !postObj || !postObj.id) return;
+      postChannelsMap[postObj.id] = selectedChannel;
+      fetch(`${getApiBaseOrigin()}/api/channels/${encodeURIComponent(selectedChannel)}/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post: { ...postObj, channelSlug: selectedChannel } })
+      }).catch(() => {});
+    };
 
     try {
       if (isFirestoreQuotaExhausted || getQuotaCooldownRemainingMs() > 0) {
@@ -10931,6 +12427,7 @@
           hasEmptyBody: !body,
           tag: firestoreTag,
           customCategory: selectedTag === 'updates' ? 'updates' : null,
+          channelSlug: selectedChannel || null,
           alias: (existingPost.alias || currentUser.username).slice(0, 30),
           authorUsername: existingPost.authorUsername || currentUser.usernameLower,
           authorAvatar: currentUser.avatar || existingPost.authorAvatar || '',
@@ -10946,6 +12443,9 @@
         const postRef = doc(db, "posts", targetPostId);
         await deleteDoc(postRef);
         await setDoc(postRef, updatedPayload);
+        if (selectedChannel) {
+          mirrorPostToChannelServer({ ...updatedPayload, id: targetPostId, ts: Date.now(), createdAt: Date.now() });
+        }
 
         document.getElementById('postTitle').value = '';
         document.getElementById('postBody').value  = '';
@@ -10961,6 +12461,7 @@
           hasEmptyBody: !body,
           tag: firestoreTag,
           customCategory: selectedTag === 'updates' ? 'updates' : null,
+          channelSlug: selectedChannel || null,
           alias: currentUser.username.slice(0, 30),
           authorUsername: currentUser.usernameLower,
           authorAvatar: currentUser.avatar || '',
@@ -10973,6 +12474,9 @@
         };
 
         const newDocRef = await addDoc(postsCol, payload);
+        if (selectedChannel) {
+          mirrorPostToChannelServer({ ...payload, id: newDocRef.id, ts: Date.now(), createdAt: Date.now() });
+        }
 
         // If developer created this flow, send push broadcast to all subscribed users
         if (isDev) {
@@ -10994,7 +12498,7 @@
         clearImageAttachment();
         clearLinkAttachment();
         closeComposeModal();
-        showToast('Flow published to the board!');
+        showToast(selectedChannel ? `Published to c/${selectedChannel}!` : 'Flow published to the board!');
       }
     } catch (e) {
       const isQuotaOrNet = isQuotaError(e) ||
@@ -11012,6 +12516,7 @@
           body: body,
           tag: selectedTag,
           customCategory: (isDev && selectedTag === 'updates') ? 'updates' : null,
+          channelSlug: selectedChannel || null,
           alias: currentUser ? currentUser.username.slice(0, 30) : 'Anonymous',
           authorUsername: currentUser?.usernameLower || '',
           authorAvatar: currentUser?.avatar || '',
@@ -11025,6 +12530,7 @@
           isLocal: true
         };
         allPosts.unshift(localFlow);
+        if (selectedChannel) mirrorPostToChannelServer(localFlow);
         saveCachedBoardPosts(allPosts);
         renderAll();
 
@@ -11034,7 +12540,7 @@
         clearImageAttachment();
         clearLinkAttachment();
         closeComposeModal();
-        showToast('✨ Flow saved to your board locally!');
+        showToast(selectedChannel ? `Published to c/${selectedChannel}!` : '✨ Flow saved to your board locally!');
       } else {
         showToast(isEditing ? 'Error updating flow.' : 'Error publishing flow.');
       }
@@ -14612,6 +16118,8 @@
 
     setTextIfChanged(countAllEl, nonNewsFlowsCount);
     setTextIfChanged(countNewsEl, generalNewsColumnCount);
+    setTextIfChanged(document.getElementById('sideCountChannels'), publicChannelsList.length);
+    setTextIfChanged(document.getElementById('sideCountFollowing'), followedChannelsSet.size + followedUsersSet.size);
     setTextIfChanged(quickCountAllEl, nonNewsFlowsCount);
     setTextIfChanged(quickCountNewsEl, generalNewsColumnCount);
     setTextIfChanged(countMyEl, currentUser ? getMyPosts().length : 0);
@@ -14641,9 +16149,11 @@
       btnDevSources.style.display = (isDev && isNewsActive) ? 'inline-flex' : 'none';
     }
 
-    document.getElementById('sideBtnBoard')?.classList.toggle('active', isBoardAllActive);
+    document.getElementById('sideBtnBoard')?.classList.toggle('active', isBoardAllActive && activeBoardScope === 'all');
     document.getElementById('sideBtnNews')?.classList.toggle('active', isNewsActive);
-    document.getElementById('quickSwitchAll')?.classList.toggle('active', isBoardAllActive);
+    document.getElementById('sideBtnChannels')?.classList.toggle('active', activeViewMode === 'channels' || activeViewMode === 'channel');
+    document.getElementById('sideBtnFollowing')?.classList.toggle('active', isBoardAllActive && activeBoardScope === 'following');
+    document.getElementById('quickSwitchAll')?.classList.toggle('active', isBoardAllActive || activeViewMode === 'channels' || activeViewMode === 'channel');
     document.getElementById('quickSwitchNews')?.classList.toggle('active', isNewsActive);
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActive);
 
@@ -15019,6 +16529,212 @@
       return;
     }
 
+    // MODE 7: PUBLIC CHANNELS DIRECTORY (INSTAGRAM × REDDIT DISCOVERY)
+    if (activeViewMode === 'channels') {
+      if (sectionTitle) sectionTitle.textContent = 'Public Channels';
+      if (filterWrap) filterWrap.style.display = 'none';
+      if (viewBanner) viewBanner.classList.remove('show');
+      if (quickSwitcher) quickSwitcher.style.display = 'flex';
+      feed.dataset.feedSignature = '';
+
+      const chQuery = (channelDirectorySearch || qLower || '').trim().toLowerCase();
+      const matchingChannels = (publicChannelsList || []).filter(ch => {
+        if (!chQuery) return true;
+        return `${ch.name} ${ch.slug} ${ch.tagline} ${ch.description}`.toLowerCase().includes(chQuery);
+      });
+      feedCount.textContent = `${matchingChannels.length} public channel${matchingChannels.length !== 1 ? 's' : ''}`;
+
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="social-feed-toolbar">
+          <div class="social-seg-group" role="tablist" aria-label="Feed Scope">
+            <button type="button" class="social-seg-btn" onclick="setBoardScope('all')">All Flows</button>
+            <button type="button" class="social-seg-btn" onclick="setBoardScope('following')">Following${(followedChannelsSet.size + followedUsersSet.size) > 0 ? ` (${followedChannelsSet.size + followedUsersSet.size})` : ''}</button>
+            <button type="button" class="social-seg-btn active" onclick="setBoardScope('channels')">Channels</button>
+          </div>
+          <button type="button" class="btn-create-channel-primary" onclick="openCreateChannelModal()">+ Create Channel</button>
+        </div>
+        <div class="channels-dir-toolbar">
+          <input
+            type="text"
+            id="channelDirSearchInput"
+            class="channels-dir-search"
+            placeholder="Search public channels (e.g. gaming, cinema, ai-builders)…"
+            value="${esc(channelDirectorySearch)}"
+            oninput="handleChannelDirSearch(this.value)"
+          />
+        </div>
+      `;
+
+      const grid = document.createElement('div');
+      grid.id = 'channelDirectoryGrid';
+      grid.className = 'channel-directory-grid';
+      grid.innerHTML = buildChannelDirectoryCardsHTML(matchingChannels);
+
+      wrap.appendChild(grid);
+      feed.replaceChildren(wrap);
+      return;
+    }
+
+    // MODE 8: DEDICATED PUBLIC CHANNEL PAGE (c/slug — INSTAGRAM × REDDIT COMMUNITY)
+    if (activeViewMode === 'channel') {
+      const ch = getChannelBySlug(activeChannelSlug) || publicChannelsList[0];
+      if (!ch) {
+        window.openChannelsDirectory();
+        return;
+      }
+      if (sectionTitle) sectionTitle.textContent = `c/${ch.slug}`;
+      if (filterWrap) filterWrap.style.display = 'none';
+      if (viewBanner) viewBanner.classList.remove('show');
+      if (quickSwitcher) quickSwitcher.style.display = 'none';
+      feed.dataset.feedSignature = '';
+
+      const isFollowing = followedChannelsSet.has(ch.slug);
+      let channelPosts = getPostsForPublicChannel(ch.slug);
+      if (qLower) {
+        channelPosts = channelPosts.filter(p => matchesSearchQuery(p, qLower));
+      }
+      channelPosts.sort((a, b) => {
+        if (activeBoardSort === 'top') return getPostVoteState(b).score - getPostVoteState(a).score;
+        if (activeBoardSort === 'hot') return computeRedditHotScore(b) - computeRedditHotScore(a);
+        return getPostTimestampMs(b) - getPostTimestampMs(a);
+      });
+
+      const mediaPosts = channelPosts.filter(p => Boolean(p.imageUrl));
+      feedCount.textContent = `${channelPosts.length} post${channelPosts.length !== 1 ? 's' : ''} · ${Number(ch.memberCount || 0).toLocaleString()} followers`;
+
+      const frag = document.createDocumentFragment();
+      const hero = document.createElement('div');
+      hero.className = 'channel-hero-card';
+      const coverStyle = ch.coverImage
+        ? `background-image:url('${esc(ch.coverImage)}');`
+        : `background:${ch.coverGradient || ch.accent || '#c84b2f'};`;
+      hero.innerHTML = `
+        <div class="channel-hero-cover" style="${coverStyle}">
+          <button type="button" class="channel-hero-back" onclick="setBoardScope('all')">← All Flows</button>
+        </div>
+        <div class="channel-hero-inner">
+          <div class="channel-hero-top">
+            <div class="channel-hero-emblem" style="background:${esc(ch.accent || '#c84b2f')};">${esc(ch.icon || '✦')}</div>
+            <div class="channel-hero-actions">
+              <button type="button" class="btn-follow-toggle ${isFollowing ? 'following' : ''}" onclick="toggleFollowChannel('${esc(ch.slug)}', event)">
+                ${isFollowing ? 'Following' : 'Follow'}
+              </button>
+              <button type="button" class="btn-create-channel-primary" onclick="openComposeModal('${esc(ch.slug)}')">+ Post in c/${esc(ch.slug)}</button>
+              <button type="button" class="btn-small" onclick="sharePublicChannel('${esc(ch.slug)}')" title="Copy channel link">Share ↗</button>
+            </div>
+          </div>
+          <h3 class="channel-hero-title">${esc(ch.name)}${ch.verified ? ' ✓' : ''}</h3>
+          <div class="channel-hero-meta">
+            <span>c/${esc(ch.slug)}</span>
+            <span aria-hidden="true">·</span>
+            <span>${Number(ch.memberCount || 0).toLocaleString()} followers</span>
+            <span aria-hidden="true">·</span>
+            <span>${channelPosts.length} posts</span>
+            <span aria-hidden="true">·</span>
+            <span>Created by @${esc(ch.creatorUsername || 'marvelist')}</span>
+          </div>
+          ${ch.description ? `<p class="channel-hero-desc">${esc(ch.description)}</p>` : ''}
+        </div>
+        <div class="channel-tabs-bar" role="tablist" aria-label="Channel Views">
+          <button type="button" class="channel-tab-btn ${activeChannelTab === 'posts' ? 'active' : ''}" onclick="setChannelTab('posts')">Posts (${channelPosts.length})</button>
+          <button type="button" class="channel-tab-btn ${activeChannelTab === 'media' ? 'active' : ''}" onclick="setChannelTab('media')">Media (${mediaPosts.length})</button>
+          <button type="button" class="channel-tab-btn ${activeChannelTab === 'about' ? 'active' : ''}" onclick="setChannelTab('about')">About &amp; Rules</button>
+        </div>
+      `;
+      frag.appendChild(hero);
+
+      if (activeChannelTab === 'media') {
+        if (mediaPosts.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = `<span class="empty-icon">📷</span><p>No visual posts in c/${esc(ch.slug)} yet. Share the first photo!</p>`;
+          frag.appendChild(empty);
+        } else {
+          const grid = document.createElement('div');
+          grid.className = 'channel-media-grid';
+          mediaPosts.forEach(mp => {
+            const tile = document.createElement('div');
+            tile.className = 'channel-media-tile';
+            tile.onclick = () => openLightbox(mp.imageUrl);
+            tile.innerHTML = `
+              <img src="${esc(mp.imageUrl)}" alt="${esc(mp.title || 'Channel photo')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+              <div class="channel-media-caption">${esc(mp.title || (mp.body || '').slice(0, 64))}</div>
+            `;
+            grid.appendChild(tile);
+          });
+          frag.appendChild(grid);
+        }
+      } else if (activeChannelTab === 'about') {
+        const creatorLower = String(ch.creatorUsername || 'marvelist').toLowerCase();
+        const isFollowingCreator = followedUsersSet.has(creatorLower);
+        const isOwnCreator = Boolean(currentUser && currentUser.usernameLower === creatorLower);
+        const rulesArr = (Array.isArray(ch.rules) && ch.rules.length > 0)
+          ? ch.rules
+          : ['Keep conversations respectful and constructive.', 'Stay on topic for this channel.'];
+        const about = document.createElement('div');
+        about.className = 'channel-about-panel';
+        about.innerHTML = `
+          <div>
+            <h4 class="channel-about-section-title">About c/${esc(ch.slug)}</h4>
+            <p style="margin:0; font-size:0.88rem; line-height:1.6; color:var(--ink);">${esc(ch.description || ch.tagline || 'Public Paper Flow channel.')}</p>
+          </div>
+          <div>
+            <h4 class="channel-about-section-title">Community Guidelines</h4>
+            <ol class="channel-rules-list">
+              ${rulesArr.map((rule, idx) => `
+                <li>
+                  <span class="channel-rule-num">${String(idx + 1).padStart(2, '0')}.</span>
+                  <span>${esc(rule)}</span>
+                </li>
+              `).join('')}
+            </ol>
+          </div>
+          <div class="channel-creator-row">
+            <div style="cursor:pointer;" onclick="openUserProfileModal('${esc(creatorLower)}', '${esc(creatorLower)}', event)">
+              <div style="font-size:0.74rem; color:var(--ink-muted);">Channel Creator</div>
+              <div style="font-size:0.88rem; font-weight:700; color:var(--ink);">@${esc(creatorLower)}</div>
+            </div>
+            ${!isOwnCreator ? `
+              <button type="button" class="btn-follow-toggle ${isFollowingCreator ? 'following' : ''}" onclick="toggleFollowUser('${esc(creatorLower)}', event)">
+                ${isFollowingCreator ? 'Following' : 'Follow'}
+              </button>
+            ` : ''}
+          </div>
+        `;
+        frag.appendChild(about);
+      } else {
+        // Reddit Sort Bar inside Channel
+        const sortBar = document.createElement('div');
+        sortBar.className = 'social-feed-toolbar';
+        sortBar.innerHTML = `
+          <span style="font-size:0.8rem; color:var(--ink-muted); font-weight:600;">Sort c/${esc(ch.slug)}</span>
+          <div class="social-seg-group" role="tablist" aria-label="Sort Channel Posts">
+            <button type="button" class="social-seg-btn ${activeBoardSort === 'hot' ? 'active' : ''}" onclick="setBoardSort('hot')">Hot</button>
+            <button type="button" class="social-seg-btn ${activeBoardSort === 'new' ? 'active' : ''}" onclick="setBoardSort('new')">New</button>
+            <button type="button" class="social-seg-btn ${activeBoardSort === 'top' ? 'active' : ''}" onclick="setBoardSort('top')">Top</button>
+          </div>
+        `;
+        frag.appendChild(sortBar);
+
+        if (channelPosts.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = `
+            <span class="empty-icon">${esc(ch.icon || '✦')}</span>
+            <p>No posts in c/${esc(ch.slug)} yet. Be the first to start a thread!</p>
+            <button type="button" class="btn-create-channel-primary" style="margin-top:0.65rem;" onclick="openComposeModal('${esc(ch.slug)}')">+ Post in c/${esc(ch.slug)}</button>
+          `;
+          frag.appendChild(empty);
+        } else {
+          channelPosts.forEach((p, idx) => frag.appendChild(makeCard(p, idx, false)));
+        }
+      }
+
+      feed.replaceChildren(frag);
+      return;
+    }
+
     // MODE 1, 2 & 4: BOARD, NEWS COLUMN, MY FLOWS, OR STARRED FLOWS
     if (filterWrap) filterWrap.style.display = 'block';
 
@@ -15047,14 +16763,11 @@
       if (viewBanner) viewBanner.classList.remove('show');
       baseList = getCombinedNewsColumnPosts();
     } else {
-      if (sectionTitle) sectionTitle.textContent = 'The Board';
+      if (sectionTitle) sectionTitle.textContent = activeBoardScope === 'following' ? 'Following' : 'The Board';
       if (viewBanner) viewBanner.classList.remove('show');
     }
 
     // Filter by category dropdown:
-    // CRITICAL REQUIREMENT: InStarred mode, show ALL starred items (including starred AI News!)
-    // On the main board, News is shown ONLY in the News column (activeFilter === 'news')
-    // and NEVER in the All Flows board (activeFilter === 'all').
     let filtered;
     if (activeViewMode === 'starred') {
       const allowHotties = activeNewsSector === 'hotties' && isHottiesAgeVerified();
@@ -15092,22 +16805,45 @@
 
       // STRICT ISOLATION: doesPostMatchNewsSector strictly rejects Hotties items when in all_news or other categories
       filtered = filtered.filter(p => doesPostMatchNewsSector(p, activeNewsSector));
+    } else if (activeViewMode === 'board' && activeBoardScope === 'following') {
+      // Following feed: flows from followed channels & followed creators + non-hotties news from followed topic channels
+      const poolMap = new Map();
+      baseList.forEach(p => {
+        if (!p || !p.id || getRigidNewsCategoryKey(p) === 'hotties') return;
+        const chSlug = resolvePostChannelSlug(p);
+        const authorLower = String(p.authorUsername || '').toLowerCase();
+        if ((chSlug && followedChannelsSet.has(chSlug)) || (authorLower && followedUsersSet.has(authorLower))) {
+          poolMap.set(p.id, p);
+        }
+      });
+      // Also surface latest briefs from followed topic channels (never Hotties)
+      if (followedChannelsSet.size > 0) {
+        getCombinedNewsColumnPosts().forEach(n => {
+          if (!n || !n.id || getRigidNewsCategoryKey(n) === 'hotties') return;
+          const chSlug = resolvePostChannelSlug(n);
+          if (chSlug && followedChannelsSet.has(chSlug) && !poolMap.has(n.id)) {
+            poolMap.set(n.id, n);
+          }
+        });
+      }
+      filtered = Array.from(poolMap.values());
     } else if (activeFilter === 'all') {
       filtered = baseList.filter(p => getEffectivePostCategory(p) !== 'news' && !p.isAiNews && p.docType !== 'ai_news' && getRigidNewsCategoryKey(p) !== 'hotties');
     } else {
       filtered = baseList.filter(p => getEffectivePostCategory(p) === activeFilter && !p.isAiNews && getRigidNewsCategoryKey(p) !== 'hotties');
     }
 
-    // Filter by search bar (title, body, or username)
+    // Filter by search bar (title, body, channel, or username)
     if (qLower) {
       filtered = filtered.filter(p => {
-        // Prevent hotties from leaking into search results unless user is explicitly in the hotties sector
         if (activeNewsSector !== 'hotties' && getRigidNewsCategoryKey(p) === 'hotties') return false;
+        const chSlug = resolvePostChannelSlug(p);
+        if (chSlug && (`c/${chSlug}`).includes(qLower)) return true;
         return matchesSearchQuery(p, qLower);
       });
     }
 
-    // Sort items:
+    // Sort items (Reddit Hot/New/Top on Board, Personalized/Date on News)
     filtered.sort((a, b) => {
       if (activeViewMode === 'starred') {
         const aSaved = starredPostsArchiveMap[a.id]?.starredAt || getPostTimestampMs(a);
@@ -15121,6 +16857,15 @@
         if (!aPinned && bPinned) return 1;
         if (aPinned && bPinned) {
           return (pinnedPostsMap[b.id]?.pinnedAt || 0) - (pinnedPostsMap[a.id]?.pinnedAt || 0);
+        }
+        if (activeViewMode === 'board') {
+          if (activeBoardSort === 'top') {
+            const vDiff = getPostVoteState(b).score - getPostVoteState(a).score;
+            if (vDiff !== 0) return vDiff;
+          } else if (activeBoardSort === 'hot') {
+            const hDiff = computeRedditHotScore(b) - computeRedditHotScore(a);
+            if (Math.abs(hDiff) > 0.001) return hDiff;
+          }
         }
       }
       if (activeFilter === 'news' && newsSortMode === 'personalized') {
@@ -15140,13 +16885,15 @@
       : `${filtered.length} flow${filtered.length !== 1 ? 's' : ''}`;
 
     const isNewsActiveView = activeViewMode === 'board' && activeFilter === 'news';
+    const isBoardSocialView = activeViewMode === 'board' && activeFilter !== 'news';
     document.getElementById('btnRefreshAiNews')?.classList.toggle('visible', isNewsActiveView);
 
     const viewerKey = currentUser ? currentUser.usernameLower : 'guest';
-    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${activeNewsSector}|${isHottiesAgeVerified() ? 'hotties18ok' : 'hotties18lock'}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
+    const chSig = `${activeBoardScope}|${activeBoardSort}|${publicChannelsList.length}|${followedChannelsSet.size}|${followedUsersSet.size}`;
+    const nextFeedSignature = `${activeViewMode}|${activeFilter}|${activeNewsSector}|${chSig}|${isHottiesAgeVerified() ? 'hotties18ok' : 'hotties18lock'}|${newsSortMode}|${newsDateSortOrder}|${qLower}|${viewerKey}|${pendingDeleteConfirmId || ''}|` +
       filtered.map(p => `${p.id}:${p.editedAt || ''}:${isPostPinned(p.id) ? 1 : 0}:${(p.body || '').length}:${(p.title || '').length}`).join(',');
 
-    // Seamless in-place update when only likes, stars, comments, or background taste metadata changed — ZERO DOM reload or screen jitter
+    // Seamless in-place update when only likes, votes, stars, comments changed
     if (
       feed.dataset.feedSignature === nextFeedSignature &&
       feed.querySelectorAll('.card').length === filtered.length &&
@@ -15160,23 +16907,94 @@
 
     const fragment = document.createDocumentFragment();
 
+    // Instagram-style Horizontal Public Channels Stories Rail + Reddit Scope/Sort Bar on Board view
+    if (isBoardSocialView) {
+      const storiesWrap = document.createElement('section');
+      storiesWrap.className = 'channel-stories-wrap';
+      storiesWrap.setAttribute('aria-label', 'Public Channels');
+      const followedCount = followedChannelsSet.size;
+      const orderedChannels = [...(publicChannelsList || [])].sort((a, b) => {
+        const af = followedChannelsSet.has(a.slug) ? 1 : 0;
+        const bf = followedChannelsSet.has(b.slug) ? 1 : 0;
+        if (bf !== af) return bf - af;
+        return (Number(b.memberCount) || 0) - (Number(a.memberCount) || 0);
+      });
+      storiesWrap.innerHTML = `
+        <div class="channel-stories-header">
+          <div>
+            <span class="channel-stories-title">Public Channels</span>
+            <span class="channel-stories-meta"> · ${publicChannelsList.length} live${followedCount > 0 ? ` · ${followedCount} following` : ''}</span>
+          </div>
+          <button type="button" class="channel-stories-explore" onclick="openChannelsDirectory()">Explore all →</button>
+        </div>
+        <div class="channel-stories-rail">
+          <button type="button" class="channel-story-item" onclick="openCreateChannelModal()" title="Create a new public channel">
+            <span class="channel-story-ring is-create">
+              <span class="channel-story-avatar">+</span>
+            </span>
+            <span class="channel-story-label">New</span>
+            <span class="channel-story-sub">Create</span>
+          </button>
+          ${orderedChannels.map(ch => {
+            const isF = followedChannelsSet.has(ch.slug);
+            return `
+              <button type="button" class="channel-story-item" onclick="openPublicChannel('${esc(ch.slug)}')" title="${esc(ch.name)} — c/${esc(ch.slug)}">
+                <span class="channel-story-ring ${isF ? 'is-following' : ''}">
+                  <span class="channel-story-avatar" style="background:${esc(ch.accent || '#c84b2f')};">${esc(ch.icon || '✦')}</span>
+                  ${isF ? `<span class="channel-story-check" aria-hidden="true">✓</span>` : ''}
+                </span>
+                <span class="channel-story-label">c/${esc(ch.slug)}</span>
+                <span class="channel-story-sub">${Number(ch.memberCount || 0).toLocaleString()}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+      fragment.appendChild(storiesWrap);
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'social-feed-toolbar';
+      const totalFollowing = followedChannelsSet.size + followedUsersSet.size;
+      toolbar.innerHTML = `
+        <div class="social-seg-group" role="tablist" aria-label="Feed Scope">
+          <button type="button" class="social-seg-btn ${activeBoardScope === 'all' ? 'active' : ''}" onclick="setBoardScope('all')">All Flows</button>
+          <button type="button" class="social-seg-btn ${activeBoardScope === 'following' ? 'active' : ''}" onclick="setBoardScope('following')">Following${totalFollowing > 0 ? ` (${totalFollowing})` : ''}</button>
+          <button type="button" class="social-seg-btn" onclick="setBoardScope('channels')">Channels</button>
+        </div>
+        <div class="social-seg-group" role="tablist" aria-label="Sort Posts">
+          <button type="button" class="social-seg-btn ${activeBoardSort === 'hot' ? 'active' : ''}" onclick="setBoardSort('hot')">Hot</button>
+          <button type="button" class="social-seg-btn ${activeBoardSort === 'new' ? 'active' : ''}" onclick="setBoardSort('new')">New</button>
+          <button type="button" class="social-seg-btn ${activeBoardSort === 'top' ? 'active' : ''}" onclick="setBoardSort('top')">Top</button>
+        </div>
+      `;
+      fragment.appendChild(toolbar);
+    }
+
     if (isNewsActiveView) {
       fragment.appendChild(buildAiPersonalizationBannerElement());
     }
 
     if (filtered.length === 0) {
-      const emptyMsg = qLower
-        ? `No items matching "${esc(searchQuery)}".`
-        : (activeFilter === 'news' && activeViewMode === 'board'
-            ? (isRefreshingAiNews ? 'Curating the most interesting Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click the refresh button to load!')
-            : (activeViewMode === 'my-flows'
-                ? 'You have not posted any flows yet. Click + to publish one!'
-                : (activeViewMode === 'starred'
-                    ? 'You have not starred any flows or news yet. Tap ☆ on any flow or AI news brief to store it in your phone storage!'
-                    : 'No flows here yet. Click + to share a thought!')));
       const emptyEl = document.createElement('div');
       emptyEl.className = 'empty-state';
-      emptyEl.innerHTML = `<span class="empty-icon">${activeFilter === 'news' ? '📰' : (activeViewMode === 'starred' ? '⭐' : '📋')}</span><p>${emptyMsg}</p>`;
+      if (isBoardSocialView && activeBoardScope === 'following') {
+        emptyEl.innerHTML = `
+          <span class="empty-icon">✦</span>
+          <p>Your Following feed is quiet. Follow public channels like <strong>c/gaming</strong>, <strong>c/cinema</strong>, or creators to build your personal feed.</p>
+          <button type="button" class="btn-create-channel-primary" style="margin-top:0.75rem;" onclick="openChannelsDirectory()">Discover Public Channels →</button>
+        `;
+      } else {
+        const emptyMsg = qLower
+          ? `No items matching "${esc(searchQuery)}".`
+          : (activeFilter === 'news' && activeViewMode === 'board'
+              ? (isRefreshingAiNews ? 'Curating the most interesting Tech & AI news with AI…' : 'No Tech & AI news briefs loaded yet. Click the refresh button to load!')
+              : (activeViewMode === 'my-flows'
+                  ? 'You have not posted any flows yet. Click + to publish one!'
+                  : (activeViewMode === 'starred'
+                      ? 'You have not starred any flows or news yet. Tap ☆ on any flow or AI news brief to store it in your phone storage!'
+                      : 'No flows here yet. Click + to share a thought!')));
+        emptyEl.innerHTML = `<span class="empty-icon">${activeFilter === 'news' ? '📰' : (activeViewMode === 'starred' ? '⭐' : '📋')}</span><p>${emptyMsg}</p>`;
+      }
       fragment.appendChild(emptyEl);
       feed.replaceChildren(fragment);
       shouldAnimateFeedCards = false;
@@ -15320,6 +17138,18 @@
       `;
     }
 
+    const voteState = getPostVoteState(post);
+    const upBtn = document.getElementById(`vote-up-${post.id}`);
+    const downBtn = document.getElementById(`vote-down-${post.id}`);
+    const scoreEl = document.getElementById(`vote-score-${post.id}`);
+    if (upBtn) upBtn.classList.toggle('up-active', voteState.userVote === 1);
+    if (downBtn) downBtn.classList.toggle('down-active', voteState.userVote === -1);
+    if (scoreEl) {
+      scoreEl.textContent = String(voteState.score);
+      scoreEl.classList.toggle('up-active', voteState.userVote === 1);
+      scoreEl.classList.toggle('down-active', voteState.userVote === -1);
+    }
+
     const isStarred = isPostStarredByCurrentUser(post.id);
     const starBtn = document.getElementById(`star-btn-${post.id}`);
     if (starBtn) {
@@ -15400,13 +17230,19 @@
     const isConfirmingDelete = pendingDeleteConfirmId === post.id;
     const reportCount = (reportsByPost[post.id] || []).length;
     const liveAvatar = (post.authorUsername && usersDirectory[post.authorUsername]?.avatar) || post.authorAvatar || '';
+    const postChannelSlug = resolvePostChannelSlug(post);
+    const postChannelObj = postChannelSlug ? getChannelBySlug(postChannelSlug) : null;
+    const authorLowerKey = (!isAiNewsCard && post.authorUsername) ? String(post.authorUsername).toLowerCase() : '';
+    const canFollowAuthor = Boolean(authorLowerKey && (!currentUser || currentUser.usernameLower !== authorLowerKey));
+    const isFollowingAuthor = Boolean(authorLowerKey && followedUsersSet.has(authorLowerKey));
+    const voteState = getPostVoteState(post);
 
     const baseCardClass = 'card'
       + (postAuthorIsDev ? ' card-developer' : '')
       + (pinned ? ' card-pinned' : '')
       + (isAiNewsCard ? ' card-ai-news' : '');
 
-    const cardSig = `${post.id}|${post.editedAt || ''}|${(post.body || '').length}|${(post.title || '').length}|${(post.imageUrl || '').length}|${pinned ? 1 : 0}|${viewerIsDev ? 1 : 0}|${currentUser ? currentUser.usernameLower : 'guest'}|${isLiked ? 1 : 0}:${likes.length}|${isStarred ? 1 : 0}|${comments.length}:${commentLikesCount}|${isCommentsOpen ? 1 : 0}|${isExpanded ? 1 : 0}|${isConfirmingDelete ? 1 : 0}|${reportCount}|${liveAvatar.length}|${activeViewMode === 'starred' ? 1 : 0}`;
+    const cardSig = `${post.id}|${post.editedAt || ''}|${(post.body || '').length}|${(post.title || '').length}|${(post.imageUrl || '').length}|${pinned ? 1 : 0}|${viewerIsDev ? 1 : 0}|${currentUser ? currentUser.usernameLower : 'guest'}|${isLiked ? 1 : 0}:${likes.length}|${voteState.score}:${voteState.userVote}|${postChannelSlug}|${isFollowingAuthor ? 1 : 0}|${isStarred ? 1 : 0}|${comments.length}:${commentLikesCount}|${isCommentsOpen ? 1 : 0}|${isExpanded ? 1 : 0}|${isConfirmingDelete ? 1 : 0}|${reportCount}|${liveAvatar.length}|${activeViewMode === 'starred' ? 1 : 0}`;
 
     const cached = cardDomCache.get(post.id);
     if (cached && cached.sig === cardSig && cached.el && (!cached.el.parentElement || cached.el.parentElement.id === 'feed')) {
@@ -15430,7 +17266,7 @@
     const hasImage = Boolean(!isAiNewsCard && post.imageUrl);
     const hasLink = Boolean(post.linkUrl);
     const attachmentCount = (hasImage ? 1 : 0) + (hasLink ? 1 : 0);
-    const hasExpandable = (!isAiNewsCard && isLong) || hasImage;
+    const hasExpandable = !isAiNewsCard && isLong;
     const postMs = getPostTimestampMs(post);
     const rawTs = postMs ? new Date(postMs) : null;
     const timeAgo = rawTs ? formatTime(rawTs) : 'just now';
@@ -15485,8 +17321,8 @@
     if (hasImage) {
       const safeSrc = esc(post.imageUrl);
       mediaHTML = `
-        <div class="card-media ${isExpanded ? '' : 'collapsed'}" id="media-${post.id}">
-          <img src="${safeSrc}" alt="Flow attachment" loading="lazy" decoding="async" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
+        <div class="card-media ig-showcase" id="media-${post.id}">
+          <img src="${safeSrc}" alt="${esc(post.title || 'Flow photo attachment')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onclick="openLightbox('${safeSrc}')" onerror="this.parentElement.style.display='none'" />
         </div>`;
     }
 
@@ -15506,12 +17342,7 @@
         </a>`;
     }
 
-    const attachmentCornerHTML = (!isAiNewsCard && attachmentCount > 0) ? `
-      <div class="card-attachment-corner">
-        <span class="attachment-corner-badge" id="attach-corner-${post.id}" ${hasExpandable ? `onclick="toggleExpand('${post.id}')" title="Click to ${isExpanded ? 'hide' : 'view'} attachment"` : ''}>
-          📎 ${attachmentCount} attachment${attachmentCount === 1 ? '' : 's'} attached
-        </span>
-      </div>` : '';
+    const attachmentCornerHTML = '';
 
     const activeReplyTarget = activeReplyTargetByPost[post.id] || null;
     const commentPlaceholder = activeReplyTarget
@@ -15539,8 +17370,10 @@
         <div class="card-author ${isAiNewsCard ? '' : 'clickable-profile'}" ${isAiNewsCard ? '' : `onclick="openUserProfileModal('${esc(authorName)}', '${esc(post.authorUsername || '')}', event)" title="View @${esc(authorName)} profile"`}>
           ${avatarHTML}
           <div class="card-author-info">
-            <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}">
+            <div class="card-author-name ${postAuthorIsDev ? 'is-dev' : ''}" style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+              ${postChannelObj ? `<button type="button" class="card-channel-link" onclick="event.stopPropagation(); openPublicChannel('${esc(postChannelObj.slug)}')">c/${esc(postChannelObj.slug)}</button><span aria-hidden="true" style="opacity:0.45;">·</span>` : ''}
               <span>${(!isAiNewsCard && post.authorUsername) ? '@' : ''}${esc(authorName)}</span>
+              ${canFollowAuthor ? `<button type="button" class="btn-inline-follow ${isFollowingAuthor ? 'following' : ''}" onclick="toggleFollowUser('${esc(authorLowerKey)}', event)">${isFollowingAuthor ? 'Following' : 'Follow'}</button>` : ''}
               ${isAiNewsCard
                 ? `<span class="ai-summary-badge">✨ Editorial Summary</span>`
                 : (postAuthorIsDev
@@ -15593,6 +17426,11 @@
 
       <div class="card-footer">
         <div class="card-interactions">
+          <div class="reddit-vote-cluster" role="group" aria-label="Vote on post">
+            <button type="button" class="btn-vote-dir ${voteState.userVote === 1 ? 'up-active' : ''}" id="vote-up-${post.id}" onclick="togglePostVote('${post.id}', 1, event)" title="Upvote" aria-label="Upvote">▲</button>
+            <span class="vote-net-count ${voteState.userVote === 1 ? 'up-active' : (voteState.userVote === -1 ? 'down-active' : '')}" id="vote-score-${post.id}">${voteState.score}</span>
+            <button type="button" class="btn-vote-dir ${voteState.userVote === -1 ? 'down-active' : ''}" id="vote-down-${post.id}" onclick="togglePostVote('${post.id}', -1, event)" title="Downvote" aria-label="Downvote">▼</button>
+          </div>
           <button class="btn-small btn-like ${isLiked ? 'liked' : ''}" id="like-btn-${post.id}" onclick="toggleLike('${post.id}')" title="Like (or double-tap card)">
             <span class="like-heart-icon">${isLiked ? '♥' : '♡'}</span>
             <span>${likes.length > 0 ? likes.length : 'Like'}</span>
@@ -16955,31 +18793,32 @@
     );
     const isWebView = window.isRunningInNativeApp() || /; wv\)|FBAN|FBAV|Instagram|Line\//i.test(navigator.userAgent || '');
 
-    // Direct URL that is guaranteed to work without Cloud Run cookie walls
+    // Direct URL targeting the latest v1.0.6 APK
     const directApkUrl = isInsideBundledApk
-      ? `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`
-      : `/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`;
+      ? `${CLOUD_API_ORIGIN}/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`
+      : `/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`;
 
     if (isWebView || isInsideBundledApk) {
-      showToast('Starting Paper-Flow.apk download…');
+      showToast('Starting Paper-Flow.apk (v1.0.6) download…');
       window.location.href = directApkUrl;
       return false;
     }
 
-    const origText = btnEl ? btnEl.textContent : 'Download APK ↓';
+    const origText = btnEl ? btnEl.textContent : 'Download APK (v1.0.6) ↓';
     if (btnEl) {
       btnEl.textContent = 'Downloading APK…';
       btnEl.style.pointerEvents = 'none';
       btnEl.style.opacity = '0.8';
     }
 
-    // Try same-origin paths first (works on both paperflow.hs.vc and AI Studio server), then fallback to LIVE_WEB_ORIGIN
+    // Try same-origin paths first (serves the freshly built APK directly), then Cloud Run & live web fallbacks
     const candidateUrls = [
-      `/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
-      `/download/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
-      `/api/download-apk?v=1.0.5&t=${Date.now()}`,
-      `/public/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`,
-      `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.5&t=${Date.now()}`
+      `/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`,
+      `/download/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`,
+      `/api/download-apk?v=1.0.6&t=${Date.now()}`,
+      `/public/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`,
+      `${CLOUD_API_ORIGIN}/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`,
+      `${LIVE_WEB_ORIGIN}/Paper-Flow.apk?v=1.0.6&t=${Date.now()}`
     ];
 
     try {
@@ -17026,7 +18865,7 @@
         }, 60000);
 
         if (btnEl) btnEl.textContent = '✓ APK Downloaded!';
-        showToast('Updated Paper-Flow.apk (v1.0.5) downloaded! Tap the file to install.');
+        showToast('Updated Paper-Flow.apk (v1.0.6) downloaded! Tap the file to install.');
         setTimeout(() => {
           if (btnEl) btnEl.textContent = origText;
         }, 3500);
@@ -17219,7 +19058,7 @@
         if (apkSection) apkSection.style.display = 'none';
 
         try {
-          const BUNDLED_APK_VERSION_CODE = 4; // v1.0.4
+          const BUNDLED_APK_VERSION_CODE = 5; // v1.0.6
           const bridgeVersionCode = (window.PaperFlowAndroid && typeof window.PaperFlowAndroid.getAppVersionCode === 'function')
             ? window.PaperFlowAndroid.getAppVersionCode()
             : 2;
@@ -17292,8 +19131,17 @@
       window.syncTopSliderPill();
     }
   }, 100);
-  // Load balanced & personalized news strictly when the user opens the website (no background timers / zero Firebase news load)
+  // Load balanced & personalized news + public followable channels strictly on website open (zero background timers / zero Firebase news load)
   fetchAndSyncAiTechNews(false);
+  fetchAndSyncPublicChannels().then(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const qChannel = params.get('channel') || (window.location.pathname.startsWith('/c/') ? window.location.pathname.slice(3).split('/')[0] : '');
+      if (qChannel && getChannelBySlug(qChannel)) {
+        window.openPublicChannel(qChannel, 'posts');
+      }
+    } catch (e) {}
+  });
   pollBackgroundNotificationsClient();
 </script>
 <script>
